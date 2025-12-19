@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
-import { getAuthToken } from "@/lib/auth/crossDomainAuth";
+import { getAuthToken, redirectToApp, clearAuthToken } from "@/lib/auth/crossDomainAuth";
 import { User, Crown, LogOut, Sun, Moon } from "lucide-react";
 
 const supabase = createClient(
@@ -42,6 +42,7 @@ export default function Header() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    clearAuthToken();
     setUser(null);
   };
 
@@ -108,11 +109,12 @@ export default function Header() {
                     <span className="hidden md:inline">Wyloguj</span>
                   </button>
                 </div>
-                <Link href={`${process.env.NEXT_PUBLIC_APP_DOMAIN || 'http://localhost:5173'}/dashboard`}>
-                  <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors">
-                    Przejdź do aplikacji
-                  </button>
-                </Link>
+                <button 
+                  onClick={() => redirectToApp('/dashboard')}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
+                >
+                  Przejdź do aplikacji
+                </button>
               </div>
             ) : (
               <div className="flex items-center gap-3">

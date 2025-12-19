@@ -84,7 +84,7 @@ export const redirectToApp = (path: string = '/dashboard'): void => {
   if (typeof window === 'undefined') return;
 
   const appUrl = window.location.hostname.includes('localhost')
-    ? `http://localhost:5173${path}` // Local dev
+    ? `http://localhost:8080${path}` // Local dev - React app runs on port 8080
     : `https://${APP_DOMAIN}${path}`; // Production
 
   window.location.href = appUrl;
