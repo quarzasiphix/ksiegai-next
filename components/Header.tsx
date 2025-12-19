@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
-import { getAuthToken, redirectToApp, clearAuthToken } from "@/lib/auth/crossDomainAuth";
+import { getAuthToken, redirectToApp, clearAuthToken, storeAuthToken } from "@/lib/auth/crossDomainAuth";
 import { User, Crown, LogOut, Sun, Moon } from "lucide-react";
 
 const supabase = createClient(
@@ -44,6 +44,20 @@ export default function Header() {
     await supabase.auth.signOut();
     clearAuthToken();
     setUser(null);
+  };
+
+  const handleGoToApp = async () => {
+    // Get current session and store token before redirecting
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      storeAuthToken({
+        access_token: session.access_token,
+        refresh_token: session.refresh_token,
+        expires_at: session.expires_at || 0,
+        user_id: session.user.id,
+      });
+    }
+    redirectToApp('/dashboard');
   };
 
   const toggleTheme = () => {
@@ -110,7 +124,7 @@ export default function Header() {
                   </button>
                 </div>
                 <button 
-                  onClick={() => redirectToApp('/dashboard')}
+                  onClick={handleGoToApp}
                   className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
                 >
                   Przejdź do aplikacji

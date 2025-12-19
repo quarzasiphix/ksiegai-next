@@ -19,15 +19,26 @@ interface AuthToken {
 export const storeAuthToken = (token: AuthToken): void => {
   if (typeof window === 'undefined') return;
 
+  const tokenString = JSON.stringify(token);
+  console.log('[crossDomainAuth] Storing auth token:', { 
+    user_id: token.user_id, 
+    expires_at: token.expires_at,
+    hostname: window.location.hostname 
+  });
+
   // Store in localStorage as backup
-  localStorage.setItem(COOKIE_NAME, JSON.stringify(token));
+  localStorage.setItem(COOKIE_NAME, tokenString);
 
   // Set cookie on parent domain for cross-subdomain access
   const domain = window.location.hostname.includes('localhost') 
     ? 'localhost' 
     : '.ksiegai.pl';
 
-  document.cookie = `${COOKIE_NAME}=${encodeURIComponent(JSON.stringify(token))}; domain=${domain}; path=/; max-age=${COOKIE_MAX_AGE}; secure; samesite=lax`;
+  const cookieValue = `${COOKIE_NAME}=${encodeURIComponent(tokenString)}; domain=${domain}; path=/; max-age=${COOKIE_MAX_AGE}; ${window.location.protocol === 'https:' ? 'secure;' : ''} samesite=lax`;
+  document.cookie = cookieValue;
+  
+  console.log('[crossDomainAuth] Cookie set with domain:', domain);
+  console.log('[crossDomainAuth] Cookie value length:', cookieValue.length);
 };
 
 /**
