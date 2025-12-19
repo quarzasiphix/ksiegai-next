@@ -38,12 +38,21 @@ export default function Premium() {
               Zbudowane w oparciu o polskie prawo podatkowe i realne procesy księgowe.<br />
               Dla przedsiębiorców i księgowych, którzy chcą więcej niż podstawy.
             </p>
-            <Link href="/rejestracja">
-              <button className="bg-blue-600 hover:bg-blue-700 text-white text-lg px-10 py-4 rounded-2xl font-semibold shadow-xl hover:shadow-2xl transition-all inline-flex items-center gap-2">
-                Aktywuj Premium — zacznij za darmo
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link
+                href="/rejestracja"
+                className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-lg px-10 py-4 rounded-2xl font-semibold shadow-xl hover:shadow-2xl transition-all"
+              >
+                Uruchom 7-dniowy trial (Spółka Standard)
                 <ArrowRight className="h-5 w-5" />
-              </button>
-            </Link>
+              </Link>
+              <Link
+                href="/cennik"
+                className="inline-flex items-center justify-center rounded-2xl border-2 border-white/30 px-8 py-4 text-lg font-semibold text-white/90 transition hover:border-white hover:bg-white/10"
+              >
+                Zobacz cennik
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -69,24 +78,27 @@ export default function Premium() {
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">KSeF & podatki</h3>
                 <p className="text-gray-600 dark:text-gray-400 mb-4">
-                  Dokumenty trafiają do KSeF automatycznie, deklaracje są zawsze aktualne — Ty tylko zatwierdzasz przed wysłaniem.
+                  Struktura danych, walidacje i workflow gotowe pod KSeF. Deklaracje przygotowywane automatycznie — Ty zatwierdzasz przed eksportem / wysyłką (jeśli dotyczy).
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-500 italic mb-4">
+                  KSeF-ready: pełna zgodność struktury danych i workflow. Funkcje wysyłki i integracje zależą od dostępności oraz wersji środowisk MF.
                 </p>
                 <ul className="space-y-2 text-gray-600 dark:text-gray-400">
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span>Automatyczne wysyłanie do KSeF</span>
+                    <span>Workflow wysłania do KSeF + walidacje (KSeF-ready)</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span>Generowanie JPK-V7M</span>
+                    <span>JPK: przygotowanie + eksport + walidacje</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span>Synchronizacja z US</span>
+                    <span>Walidacje zgodności + przygotowanie danych do kontroli</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span>Automatyczne przygotowanie deklaracji VAT</span>
+                    <span>Automatyczne przygotowanie deklaracji VAT do weryfikacji</span>
                   </li>
                 </ul>
               </div>

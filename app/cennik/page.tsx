@@ -27,10 +27,10 @@ const plans = [
     cadence: "miesiąc",
     icon: Calculator,
     features: [
-      "Nieograniczone faktury i paragony",
-      "Automatyczna ewidencja przychodów",
-      "Integracja z KSeF i kontem bankowym",
-      "Raporty VAT / PIT do eksportu",
+      "Faktury + ewidencja przychodów",
+      "Import banku: CSV teraz, integracje bankowe w przygotowaniu",
+      "KSeF-ready: walidacje, archiwum i workflow wysyłki",
+      "Zestawienia VAT/PIT do eksportu (jeśli dotyczy)",
     ],
     cta: { label: "Rozpocznij 7-dniowy trial", href: "/rejestracja" },
     highlight: false,
@@ -44,10 +44,10 @@ const plans = [
     badge: "Najczęściej wybierany",
     icon: Shield,
     features: [
-      "Wszystko z JDG + dekretacja pełna",
-      "Automatyczne JPK_V7M i CIT-8",
-      "Obsługa uchwał, majątku i amortyzacji",
-      "Priorytetowe wsparcie księgowych",
+      "Wszystko z JDG + workflow zatwierdzania (wyjątki + audyt)",
+      "JPK_V7M i CIT-8: przygotowanie + eksport + walidacje",
+      "Repozytorium uchwał, majątku i amortyzacji",
+      "Priorytetowe wsparcie (SLA do 4h w dni robocze)",
       "Rejestr ryzyk i kontrola płynności",
     ],
     cta: { label: "Rozpocznij 7-dniowy trial", href: "/rejestracja" },
@@ -61,9 +61,9 @@ const plans = [
     icon: Building,
     features: [
       "Wdrożenie on-prem / VPC",
-      "Dedykowany compliance officer",
+      "Wsparcie compliance i bezpieczeństwa (dedykowany opiekun wdrożenia)",
       "Integracje na zamówienie (ERP, BI)",
-      "SLA 99.9% i wsparcie 24/7",
+      "Plan dla biór rachunkowych: multi-klient + role + SLA (wycena)",
     ],
     cta: { label: "Porozmawiajmy", href: "mailto:kontakt@ksiegai.pl" },
     highlight: false,
@@ -82,12 +82,12 @@ const proofPoints = [
   {
     icon: Zap,
     title: "Pełna automatyzacja",
-    copy: "Importy bankowe, rozpoznawanie dokumentów i KSeF działają w tle – księgowy tylko akceptuje.",
+    copy: "Importy bankowe, rozpoznawanie dokumentów i KSeF-ready walidacje działają w tle – księgowy tylko akceptuje wyjątki.",
   },
   {
     icon: Shield,
     title: "Zgodność i bezpieczeństwo",
-    copy: "Dane są szyfrowane end-to-end, a procesy kontroluje rejestrowany ślad audytowy.",
+    copy: "Szyfrowanie danych, role użytkowników i ślad audytowy. Zawsze wiesz: kto, co, kiedy i dlaczego zatwierdził.",
   },
   {
     icon: CreditCard,
@@ -97,7 +97,7 @@ const proofPoints = [
   {
     icon: Star,
     title: "Wsparcie ekspertów",
-    copy: "System projektowany i utrzymywany przy udziale księgowych i prawników — bez świadczenia usług doradczych.",
+    copy: "Workflow konsultowany z księgowymi. System wspiera proces — nie świadczy usług księgowych ani doradztwa podatkowego.",
   },
 ];
 
@@ -158,6 +158,9 @@ export default function Pricing() {
                   pokrywa Twoje ryzyko regulacyjne – od JDG po grupy kapitałowe.
                 </p>
                 <p className="text-base text-blue-200 mt-4">
+                  Płacisz za workflow: kolejka wyjątków, walidacje, role użytkowników i ślad audytowy — czyli kontrolę procesu.
+                </p>
+                <p className="text-base text-blue-200 mt-2">
                   <strong>Dla JDG</strong> — prosty start. <strong>Dla spółek</strong> — pełna odpowiedzialność. <strong>Dla grup</strong> — kontrola na poziomie zarządu.
                 </p>
                 <div className="flex flex-wrap gap-4">

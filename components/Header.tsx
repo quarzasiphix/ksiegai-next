@@ -93,6 +93,9 @@ export default function Header() {
             <Link href="/cennik" className="text-gray-300 hover:text-white transition-colors text-sm lg:text-base">
               Cennik
             </Link>
+            <Link href="/dla-ksiegowych" className="text-gray-300 hover:text-white transition-colors text-sm lg:text-base">
+              Dla księgowych
+            </Link>
           </nav>
 
           {/* Right Section */}
