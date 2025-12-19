@@ -1,17 +1,17 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   reactStrictMode: true,
   poweredByHeader: false,
-  async rewrites() {
-    return [
-      {
-        source: '/app/:path*',
-        destination: 'https://app.ksiegai.pl/:path*', // Proxy to app subdomain
-      },
-    ];
-  },
+
+  // Required for Cloudflare Pages static export
+  output: "export",
+
+  // Required if you use next/image anywhere
+  images: { unoptimized: true },
+
+  // Optional but recommended for clean deploys
+  trailingSlash: false,
 };
 
 export default nextConfig;
