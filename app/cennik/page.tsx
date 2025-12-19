@@ -91,6 +91,9 @@ export default function Pricing() {
                   <span className="text-blue-100">/miesiąc</span>
                 </div>
                 <p className="text-blue-100 text-sm mt-2">lub 999 zł/rok (oszczędzasz 69 zł)</p>
+                <p className="text-blue-200 text-xs mt-3 italic">
+                  Taniej niż jeden błąd w rozliczeniach.
+                </p>
               </div>
 
               <ul className="space-y-3 mb-8">

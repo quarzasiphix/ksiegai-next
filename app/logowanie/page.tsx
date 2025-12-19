@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
-import { Mail, ChevronDown } from "lucide-react";
+import { Mail, Lock, ChevronDown } from "lucide-react";
 import { storeAuthToken, redirectToApp } from "@/lib/auth/crossDomainAuth";
 import Link from "next/link";
 
@@ -27,7 +27,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [magicLinkSent, setMagicLinkSent] = useState(false);
-  const [showEmailForm, setShowEmailForm] = useState(false);
+  const [useMagicLink, setUseMagicLink] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
 
   useEffect(() => {
@@ -205,53 +205,120 @@ export default function Login() {
                   Zaloguj przez Google
                 </button>
                 
-                {!showEmailForm ? (
-                  <button
-                    onClick={() => setShowEmailForm(true)}
-                    className="w-full text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white py-2 flex items-center justify-center gap-2"
-                  >
-                    Użyj adresu e-mail
-                    <ChevronDown className="h-4 w-4" />
-                  </button>
-                ) : (
-                  <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                    <form onSubmit={handleMagicLink} className="space-y-4">
-                      <div className="space-y-2">
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                          Adres e-mail
-                        </label>
-                        <div className="relative">
-                          <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                          <input
-                            id="email"
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                            placeholder="twoj@email.pl"
-                            className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                          />
-                        </div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          Wyślemy Ci bezpieczny link do logowania.
-                        </p>
-                      </div>
-                      
-                      {error && (
-                        <div className="text-red-500 text-sm font-medium bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
-                          {error}
-                        </div>
-                      )}
-                      
-                      <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {loading ? 'Wysyłanie...' : 'Wyślij link logowania'}
-                      </button>
-                    </form>
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
                   </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-white dark:bg-gray-800 text-gray-500">lub</span>
+                  </div>
+                </div>
+
+                {!useMagicLink ? (
+                  <form onSubmit={handlePasswordLogin} className="space-y-4">
+                    <div className="space-y-2">
+                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Adres e-mail
+                      </label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                        <input
+                          id="email"
+                          type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                          placeholder="twoj@email.pl"
+                          className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Hasło
+                      </label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                        <input
+                          id="password"
+                          type="password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          required
+                          placeholder="••••••••"
+                          className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        />
+                      </div>
+                    </div>
+                    
+                    {error && (
+                      <div className="text-red-500 text-sm font-medium bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+                        {error}
+                      </div>
+                    )}
+                    
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {loading ? 'Logowanie...' : 'Zaloguj się'}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setUseMagicLink(true)}
+                      className="w-full text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white py-2"
+                    >
+                      Nie pamiętasz hasła? Użyj linku logowania
+                    </button>
+                  </form>
+                ) : (
+                  <form onSubmit={handleMagicLink} className="space-y-4">
+                    <div className="space-y-2">
+                      <label htmlFor="email-magic" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Adres e-mail
+                      </label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                        <input
+                          id="email-magic"
+                          type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                          placeholder="twoj@email.pl"
+                          className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        />
+                      </div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Wyślemy Ci bezpieczny link do logowania.
+                      </p>
+                    </div>
+                    
+                    {error && (
+                      <div className="text-red-500 text-sm font-medium bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+                        {error}
+                      </div>
+                    )}
+                    
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {loading ? 'Wysyłanie...' : 'Wyślij link logowania'}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setUseMagicLink(false)}
+                      className="w-full text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white py-2"
+                    >
+                      Wróć do logowania hasłem
+                    </button>
+                  </form>
                 )}
               </div>
             </div>

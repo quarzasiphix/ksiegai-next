@@ -91,6 +91,11 @@ export default function Footer() {
         </div>
 
         <div className="mt-12 pt-8 border-t border-gray-800">
+          <div className="mb-4 pb-4 border-b border-gray-800">
+            <p className="text-gray-500 text-xs text-center max-w-4xl mx-auto">
+              <strong>Ważne:</strong> KsięgaI jest oprogramowaniem wspierającym księgowość. Nie świadczymy usług biura rachunkowego ani doradztwa podatkowego.
+            </p>
+          </div>
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-gray-500 text-sm">
               © {new Date().getFullYear()} KsięgaI. Wszystkie prawa zastrzeżone.

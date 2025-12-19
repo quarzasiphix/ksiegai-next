@@ -13,11 +13,11 @@ export default function Premium() {
               <span className="text-amber-400 text-sm font-medium">Premium</span>
             </div>
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
-              Dla firm, które nie chcą<br />ryzykować błędów
+              Dla firm, które nie mogą<br />pozwolić sobie na błędy
             </h1>
             <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
-              Zgodność z polskimi przepisami i KSeF — żebyś spał spokojnie,<br />
-              nawet gdy zmieniają się zasady.
+              Zgodność z polskimi przepisami i KSeF — bez zgadywania,<br />
+              czy wszystko jest poprawnie.
             </p>
             <p className="text-base text-gray-400 italic mb-8">
               Zbudowane w oparciu o polskie prawo podatkowe i realne procesy księgowe<br />
@@ -37,6 +37,11 @@ export default function Premium() {
       <section className="py-16 bg-white dark:bg-gray-950">
         <div className="container mx-auto px-6 md:px-4">
           <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                Zaprojektowane od podstaw pod KSeF i polskie realia — nie przeniesione z zagranicy.
+              </p>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               
               {/* KSeF & Podatki */}
@@ -63,7 +68,7 @@ export default function Premium() {
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span>Automatyczne deklaracje VAT</span>
+                    <span>Automatyczne przygotowanie deklaracji VAT</span>
                   </li>
                 </ul>
               </div>
@@ -80,11 +85,11 @@ export default function Premium() {
                 <ul className="space-y-2 text-gray-600 dark:text-gray-400">
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span>Automatyczne rozliczenia</span>
+                    <span>Automatyczne wyliczenia i zestawienia</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span>Deklaracje PIT/CIT</span>
+                    <span>Przygotowanie deklaracji PIT/CIT</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
@@ -280,11 +285,14 @@ export default function Premium() {
         <div className="container mx-auto px-6 md:px-4">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-              Przekonaj się, że governance może być proste
+              Przekonaj się, że porządek i kontrola w spółce mogą być proste
             </h2>
-            <p className="text-xl text-blue-100 mb-8">
+            <p className="text-xl text-blue-100 mb-6">
               Każda spółka dostaje 7-dniowy trial. Bez karty kredytowej.<br />
               Pełny dostęp do wszystkich funkcji Premium.
+            </p>
+            <p className="text-sm text-blue-200 mb-8">
+              Bez zobowiązań • Bez rozmów sprzedażowych
             </p>
             <Link href="/rejestracja">
               <button className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-10 py-4 rounded-2xl font-semibold shadow-xl hover:shadow-2xl transition-all inline-flex items-center gap-2">
@@ -292,6 +300,9 @@ export default function Premium() {
                 <ArrowRight className="h-5 w-5" />
               </button>
             </Link>
+            <p className="mt-6 text-xs text-blue-200 max-w-2xl mx-auto">
+              <strong>Ważne:</strong> KsięgaI jest oprogramowaniem wspierającym księgowość. Nie świadczymy usług biura rachunkowego ani doradztwa podatkowego.
+            </p>
           </div>
         </div>
       </section>

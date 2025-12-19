@@ -17,11 +17,14 @@ export default function Home() {
               Nie myśl o księgowości.
             </h1>
             <p className="text-2xl md:text-3xl text-gray-300 mb-6 font-medium leading-relaxed animate-fade-in">
-              KsięgaI dopilnuje faktur, podatków i porządku w firmie <span className="text-blue-400">za Ciebie</span>.
+              KsięgaI pomaga ogarnąć faktury, podatki i porządek w firmie — <span className="text-blue-400">automatycznie</span>.
             </p>
             <p className="text-lg md:text-xl text-gray-400 mb-8 max-w-3xl mx-auto animate-fade-in">
               Wystawiasz faktury.<br />
               Resztą zajmuje się system.
+            </p>
+            <p className="text-base text-gray-400 mb-8 max-w-3xl mx-auto animate-fade-in leading-relaxed">
+              KsięgaI to polski program do fakturowania i księgowości online dla JDG i spółek, zgodny z KSeF i JPK, zaprojektowany z myślą o realiach polskich przedsiębiorców — także sprzedających w UE.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8 px-2 animate-fade-in">
               <Link href="/rejestracja" className="w-full sm:w-auto">
@@ -220,11 +223,11 @@ export default function Home() {
                 <ul className="space-y-2 text-gray-600 dark:text-gray-400">
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span>Automatyczne rozliczenia</span>
+                    <span>Automatyczne wyliczenia i zestawienia</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span>Deklaracje PIT/CIT</span>
+                    <span>Przygotowanie deklaracji PIT/CIT</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
@@ -297,6 +300,9 @@ export default function Home() {
                   <ArrowRight className="h-5 w-5" />
                 </button>
               </Link>
+              <p className="mt-6 text-xs text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
+                <strong>Ważne:</strong> KsięgaI jest oprogramowaniem wspierającym księgowość. Nie świadczymy usług biura rachunkowego ani doradztwa podatkowego.
+              </p>
             </div>
           </div>
         </div>
@@ -320,6 +326,9 @@ export default function Home() {
             </Link>
             <p className="mt-4 text-sm text-blue-100">
               Bez karty kredytowej • Pełny dostęp • Anuluj w każdej chwili
+            </p>
+            <p className="mt-2 text-xs text-blue-200">
+              Bez zobowiązań • Bez rozmów sprzedażowych
             </p>
           </div>
         </div>
