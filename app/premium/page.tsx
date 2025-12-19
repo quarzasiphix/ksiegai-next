@@ -1,5 +1,20 @@
 import { CheckCircle2, Crown, Zap, Shield, Building, Calculator, CreditCard, Star, ArrowRight, FileText, Users, TrendingUp } from "lucide-react";
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Premium - Pełna automatyzacja księgowości | KsięgaI",
+  description: "KSeF, JPK, integracje bankowe i AI — wszystko, czego potrzebujesz do profesjonalnej księgowości w jednym systemie. Dla przedsiębiorców i księgowych, którzy chcą więcej niż podstawy.",
+  keywords: "księgowość premium, KSeF automatyzacja, JPK-V7M, księgowość dla spółek, księgowość z AI, integracje bankowe, księgowość dla księgowych",
+  openGraph: {
+    title: "Premium - Pełna automatyzacja i kontrola | KsięgaI",
+    description: "Infrastruktura finansowa dla rosnących firm. KSeF, JPK, AI i integracje bankowe w jednym systemie.",
+    url: "https://ksiegai.pl/premium",
+  },
+  alternates: {
+    canonical: "https://ksiegai.pl/premium",
+  },
+};
 
 export default function Premium() {
   return (
@@ -13,15 +28,15 @@ export default function Premium() {
               <span className="text-amber-400 text-sm font-medium">Premium</span>
             </div>
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
-              Dla firm, które nie mogą<br />pozwolić sobie na błędy
+              Pełna automatyzacja.<br />Pełna kontrola.
             </h1>
             <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
-              Zgodność z polskimi przepisami i KSeF — bez zgadywania,<br />
-              czy wszystko jest poprawnie.
+              KSeF, JPK, integracje bankowe i AI — wszystko, czego potrzebujesz<br />
+              do profesjonalnej księgowości w jednym systemie.
             </p>
             <p className="text-base text-gray-400 italic mb-8">
-              Zbudowane w oparciu o polskie prawo podatkowe i realne procesy księgowe<br />
-              — nie marketingowe założenia.
+              Zbudowane w oparciu o polskie prawo podatkowe i realne procesy księgowe.<br />
+              Dla przedsiębiorców i księgowych, którzy chcą więcej niż podstawy.
             </p>
             <Link href="/rejestracja">
               <button className="bg-blue-600 hover:bg-blue-700 text-white text-lg px-10 py-4 rounded-2xl font-semibold shadow-xl hover:shadow-2xl transition-all inline-flex items-center gap-2">
@@ -38,8 +53,11 @@ export default function Premium() {
         <div className="container mx-auto px-6 md:px-4">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                Infrastruktura finansowa dla rosnących firm
+              </h2>
               <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
-                Zaprojektowane od podstaw pod KSeF i polskie realia — nie przeniesione z zagranicy.
+                Zaprojektowane od podstaw pod KSeF i polskie realia. Proste na początku, nie przeszkadza gdy chcesz więcej.
               </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -51,7 +69,7 @@ export default function Premium() {
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">KSeF & podatki</h3>
                 <p className="text-gray-600 dark:text-gray-400 mb-4">
-                  Nie martwisz się, czy coś jest źle wysłane lub źle policzone.
+                  Pełna zgodność z przepisami. Automatyczne wysłanie i synchronizacja.
                 </p>
                 <ul className="space-y-2 text-gray-600 dark:text-gray-400">
                   <li className="flex items-start gap-2">
@@ -80,7 +98,7 @@ export default function Premium() {
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">Zaawansowana księgowość</h3>
                 <p className="text-gray-600 dark:text-gray-400 mb-4">
-                  Gotowe dane, kiedy ich potrzebujesz — bez paniki przed terminami.
+                  Struktura danych gotowa do audytu. Raporty i deklaracje zawsze aktualne.
                 </p>
                 <ul className="space-y-2 text-gray-600 dark:text-gray-400">
                   <li className="flex items-start gap-2">
@@ -109,7 +127,7 @@ export default function Premium() {
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">AI</h3>
                 <p className="text-gray-600 dark:text-gray-400 mb-4">
-                  Dokumenty same się ogarniają. Ty tylko zatwierdzasz.
+                  AI eliminuje ręczne wprowadzanie danych. Więcej czasu na decyzje.
                 </p>
                 <ul className="space-y-2 text-gray-600 dark:text-gray-400">
                   <li className="flex items-start gap-2">
@@ -138,7 +156,7 @@ export default function Premium() {
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">Bank</h3>
                 <p className="text-gray-600 dark:text-gray-400 mb-4">
-                  Widzisz pieniądze w czasie rzeczywistym. Bez ręcznego dopasowywania.
+                  Transakcje na żywo z automatycznym dopasowaniem. Pełna kontrola przepływów.
                 </p>
                 <ul className="space-y-2 text-gray-600 dark:text-gray-400">
                   <li className="flex items-start gap-2">
@@ -167,7 +185,7 @@ export default function Premium() {
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">Dokumenty</h3>
                 <p className="text-gray-600 dark:text-gray-400 mb-4">
-                  Wszystko w jednym miejscu. Zawsze pod ręką.
+                  Scentralizowane archiwum z pełnotekstowym wyszukiwaniem. Zawsze pod ręką.
                 </p>
                 <ul className="space-y-2 text-gray-600 dark:text-gray-400">
                   <li className="flex items-start gap-2">
@@ -196,7 +214,7 @@ export default function Premium() {
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">Współpraca</h3>
                 <p className="text-gray-600 dark:text-gray-400 mb-4">
-                  Pracuj z zespołem i księgowym bez chaosu.
+                  Wielostanowiskowy dostęp z pełną kontrolą uprawnień. Bez chaosu.
                 </p>
                 <ul className="space-y-2 text-gray-600 dark:text-gray-400">
                   <li className="flex items-start gap-2">
@@ -226,9 +244,12 @@ export default function Premium() {
       <section className="py-16 bg-gray-50 dark:bg-gray-900">
         <div className="container mx-auto px-6 md:px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-8">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
               Proste, uczciwe ceny
             </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
+              Płacisz za narzędzie, które oszczędza Twój czas i skaluje się z firmą.
+            </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl border-2 border-gray-200 dark:border-gray-700">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">JDG</h3>
@@ -237,7 +258,7 @@ export default function Premium() {
                   <span className="text-gray-600 dark:text-gray-400">/miesiąc</span>
                 </div>
                 <p className="text-gray-600 dark:text-gray-400 mb-6">
-                  Dla jednoosobowych działalności gospodarczych
+                  Pełna automatyzacja dla JDG. Wszystkie funkcje Premium.
                 </p>
                 <Link href="/rejestracja">
                   <button className="w-full bg-gray-900 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 text-white font-semibold py-3 rounded-xl transition-colors">
@@ -258,7 +279,7 @@ export default function Premium() {
                   <span className="text-blue-100">/miesiąc</span>
                 </div>
                 <p className="text-blue-100 mb-6">
-                  Dla spółek z o.o. — pełna kontrola i zgodność
+                  Dla spółek z o.o. — infrastruktura gotowa na wzrost
                 </p>
                 <Link href="/rejestracja">
                   <button className="w-full bg-white hover:bg-gray-100 text-blue-600 font-bold py-3 rounded-xl transition-colors shadow-lg">
@@ -285,11 +306,11 @@ export default function Premium() {
         <div className="container mx-auto px-6 md:px-4">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-              Przekonaj się, że porządek i kontrola w spółce mogą być proste
+              Zostaw księgowość systemowi. Skup się na rozwoju firmy.
             </h2>
             <p className="text-xl text-blue-100 mb-6">
-              Każda spółka dostaje 7-dniowy trial. Bez karty kredytowej.<br />
-              Pełny dostęp do wszystkich funkcji Premium.
+              7-dniowy trial z pełnym dostępem. Bez karty kredytowej.<br />
+              Sprawdź, jak działa profesjonalna księgowość na autopilocie.
             </p>
             <p className="text-sm text-blue-200 mb-8">
               Bez zobowiązań • Bez rozmów sprzedażowych
