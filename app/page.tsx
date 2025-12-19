@@ -44,7 +44,7 @@ export default function Home() {
             "creator": {
               "@type": "Organization",
               "name": "Tovernet Sp. z o.o.",
-              "url": "https://tovernet.com"
+              "url": "https://tovernet.online"
             },
             "description": "Automatyzacja faktur, podatków i KSeF dla polskich przedsiębiorców. Pełna zgodność z KSeF, JPK i polskimi przepisami.",
             "featureList": "KSeF-ready (workflow + walidacje + archiwum); Generatory JPK (eksport); Import wyciągów bankowych; AI wspierające dekretację; Obsługa wielu firm; Role i ślad audytowy",
