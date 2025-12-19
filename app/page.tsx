@@ -70,14 +70,16 @@ export default function Home() {
               Księgowość, która nie kradnie Twojego czasu.
             </h1>
             <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-gray-300 mb-4 sm:mb-6 font-medium leading-relaxed animate-fade-in px-2">
-              Automatyzacja faktur, podatków i KSeF dla przedsiębiorców, którzy wolą <span className="text-blue-400">budować firmę</span> niż pilnować papierów.
+              Faktury, podatki i KSeF bez chaosu — z pełną <span className="text-blue-400">kontrolą</span> i porządkiem.
             </p>
-            <p className="text-base sm:text-lg md:text-xl text-gray-400 mb-6 sm:mb-8 max-w-3xl mx-auto animate-fade-in px-2">
-              Wystawiasz faktury. System ogarnia resztę:<br />
-              podatki, KSeF, JPK, raporty.
+            <p className="text-base sm:text-lg md:text-xl text-gray-400 mb-4 sm:mb-6 max-w-3xl mx-auto animate-fade-in px-2">
+              Wystawiasz faktury. System ogarnia resztę: KSeF, JPK, raporty.<br />
+              Zatwierdzasz wyjątki. Wszystko ma ślad zmian.<br />
+              <span className="text-gray-500 text-base sm:text-lg">Śpisz spokojnie, nawet gdy przychodzi kontrola.</span><br />
+              <span className="text-gray-600 text-sm sm:text-base mt-2 inline-block">Zamiast Excela, maili i ręcznego pilnowania terminów.</span>
             </p>
-            <p className="text-sm sm:text-base text-gray-400 mb-4 sm:mb-6 max-w-3xl mx-auto animate-fade-in leading-relaxed px-2">
-              KsięgaI to polski program do fakturowania i księgowości online dla JDG i spółek, zgodny z KSeF i JPK, zaprojektowany z myślą o realiach polskich przedsiębiorców — także sprzedających w UE.
+            <p className="text-sm text-gray-500 mb-6 sm:mb-8 max-w-3xl mx-auto animate-fade-in px-2">
+              Zbudowane pod realia PL: JDG i spółki, KSeF i JPK.
             </p>
             <p className="text-xs sm:text-sm text-gray-500 mb-6 sm:mb-8 max-w-3xl mx-auto animate-fade-in px-2 font-medium">
               Proste w użyciu. Wystarczająco zaawansowane dla księgowych i power-userów.
@@ -90,28 +92,11 @@ export default function Home() {
                 >
                   Zacznij za darmo — pierwsza faktura w 5 minut
                 </button>
-                <p className="mt-2 text-xs text-gray-400 text-center sm:hidden">
-                  Bez karty. Pierwsza faktura w <span className="font-semibold text-white">5 minut</span>.
-                </p>
               </Link>
             </div>
-            <div className="flex flex-col items-center gap-2 sm:gap-3 animate-fade-in px-2">
-              <p className="text-xs sm:text-sm text-gray-400 font-medium text-center">Zgodne z polskimi przepisami • KSeF • JPK • realia polskich firm — także w UE</p>
-              <div className="flex items-center justify-center gap-3 sm:gap-4 md:gap-6 flex-wrap text-xs sm:text-sm">
-                <span className="flex items-center gap-1.5 sm:gap-2 text-gray-300">
-                  <span className="text-sm sm:text-base">🇵🇱</span>
-                  <span>Polski język i wsparcie</span>
-                </span>
-                <span className="flex items-center gap-1.5 sm:gap-2 text-gray-300">
-                  <span className="text-sm sm:text-base">🇵🇱</span>
-                  <span>Polskie przepisy i KSeF</span>
-                </span>
-                <span className="flex items-center gap-1.5 sm:gap-2 text-gray-300">
-                  <span className="text-sm sm:text-base">🇵🇱</span>
-                  <span>Dla polskich przedsiębiorców</span>
-                </span>
-              </div>
-            </div>
+            <p className="text-xs sm:text-sm text-gray-400 font-medium text-center animate-fade-in px-2">
+              Bez karty • Bez zobowiązań • Anuluj w każdej chwili
+            </p>
           </div>
         </div>
       </section>
@@ -120,12 +105,9 @@ export default function Home() {
       <section className="py-12 sm:py-16 bg-gray-50 dark:bg-gray-900">
         <div className="container mx-auto px-4 sm:px-6 md:px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6 px-2">
-              Prowadzenie firmy wymaga myślenia. Księgowość — niekoniecznie.
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-6 sm:mb-8 px-2">
+              Masz lepsze rzeczy do robienia niż ręczna księgowość.
             </h2>
-            <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 mb-6 sm:mb-8 px-2 max-w-3xl mx-auto">
-              Jeśli wiesz, co robisz jako przedsiębiorca, nie potrzebujesz kolejnego Excela ani ręcznego liczenia podatków. Potrzebujesz systemu, który po prostu działa.
-            </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mt-6 sm:mt-8 text-left">
               <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700">
                 <div className="flex items-start gap-4">
@@ -133,7 +115,7 @@ export default function Home() {
                     <span className="text-red-600 dark:text-red-400 text-xl">✗</span>
                   </div>
                   <p className="text-gray-700 dark:text-gray-300 text-base sm:text-lg">
-                    Tracisz czas na pilnowanie faktur, terminów i dokumentów
+                    Gubisz terminy i dokumenty — a potem gasisz pożary
                   </p>
                 </div>
               </div>
@@ -143,7 +125,7 @@ export default function Home() {
                     <span className="text-red-600 dark:text-red-400 text-xl">✗</span>
                   </div>
                   <p className="text-gray-700 dark:text-gray-300 text-base sm:text-lg">
-                    Chcesz mieć pewność zgodności z przepisami
+                    Nie masz pewności, czy wszystko jest zgodne z przepisami
                   </p>
                 </div>
               </div>
@@ -153,7 +135,7 @@ export default function Home() {
                     <span className="text-red-600 dark:text-red-400 text-xl">✗</span>
                   </div>
                   <p className="text-gray-700 dark:text-gray-300 text-base sm:text-lg">
-                    Potrzebujesz struktury, która eliminuje błędy
+                    Każda ręczna poprawka to realny koszt — czasu, nerwów i potencjalnych kar
                   </p>
                 </div>
               </div>
@@ -163,13 +145,13 @@ export default function Home() {
                     <span className="text-red-600 dark:text-red-400 text-xl">✗</span>
                   </div>
                   <p className="text-gray-700 dark:text-gray-300 text-base sm:text-lg">
-                    Chcesz mieć pełną kontrolę bez ręcznej roboty
+                    Chcesz kontroli, ale bez klepania Excela i PDF-ów
                   </p>
                 </div>
               </div>
             </div>
             <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400 mt-6 sm:mt-8 font-medium px-2">
-              System pilnuje szczegółów, żebyś nie musiał myśleć o nich codziennie.
+              Każdy dzień ręcznej księgowości to stracony czas i niepotrzebne ryzyko.
             </p>
           </div>
         </div>
@@ -179,16 +161,31 @@ export default function Home() {
       <section className="py-12 sm:py-16 bg-white dark:bg-gray-950">
         <div className="container mx-auto px-4 sm:px-6 md:px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-6 sm:mb-8 px-2">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6 px-2">
               Oszczędza czas. Porządkuje. Skaluje się z Tobą.
             </h2>
+            <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 mb-4 px-2">
+              Mniej operacyjnej księgowości. Więcej decyzji.
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 sm:mb-8 px-2">
+              Zaprojektowane pod realne procesy firm w Polsce.
+            </p>
+            <div className="bg-gradient-to-br from-blue-50 to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl p-6 sm:p-8 mb-8 sm:mb-10 border border-blue-100 dark:border-gray-700">
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-3 text-center">
+                Jak wygląda księgowość po wdrożeniu KsięgaI?
+              </h3>
+              <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 text-center max-w-2xl mx-auto">
+                Faktury wpadają same. Płatności się dopasowują.<br />
+                Na koniec miesiąca wszystko jest gotowe — bez paniki.
+              </p>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 mt-8 sm:mt-10">
               <div className="text-center">
                 <div className="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mx-auto mb-4">
                   <Zap className="h-8 w-8 text-blue-600 dark:text-blue-400" />
                 </div>
                 <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2">
-                  Pierwsza faktura w mniej niż 5 minut
+                  Pierwsza faktura w 5 minut
                 </h3>
                 <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
                   Bez szkoleń, bez komplikacji
@@ -199,10 +196,10 @@ export default function Home() {
                   <CheckCircle2 className="h-8 w-8 text-green-600 dark:text-green-400" />
                 </div>
                 <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2">
-                  Wydatki pod kontrolą bez Excela
+                  Pełna struktura bez Excela
                 </h3>
                 <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-                  Wszystko w jednym miejscu
+                  Wszystko w jednym miejscu, gotowe do kontroli
                 </p>
               </div>
               <div className="text-center">
@@ -210,10 +207,10 @@ export default function Home() {
                   <Shield className="h-8 w-8 text-purple-600 dark:text-purple-400" />
                 </div>
                 <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2">
-                  Zawsze gotowe do sprawdzenia
+                  Koniec miesiąca bez paniki
                 </h3>
                 <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-                  Żadnych niespodzianek
+                  Raporty zawsze gotowe do sprawdzenia
                 </p>
               </div>
             </div>
@@ -225,13 +222,19 @@ export default function Home() {
       <section className="py-12 sm:py-16 bg-white dark:bg-gray-950">
         <div className="container mx-auto px-4 sm:px-6 md:px-4">
           <div className="max-w-4xl mx-auto text-center">
+            <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mb-3 px-2 font-medium">
+              To nie jest narzędzie „na chwilę". To infrastruktura.
+            </p>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6 px-2">
               Dla przedsiębiorców i księgowych, którzy chcą mieć pełną kontrolę
             </h2>
-            <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 mb-8 sm:mb-10 px-2 max-w-3xl mx-auto">
-              KsięgaI nie ogranicza Cię, gdy firma rośnie. Dla zaawansowanych użytkowników i biur rachunkowych system oferuje pełną strukturę danych, automatyzację i powtarzalność — bez chaosu i ręcznej pracy.
+            <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 mb-4 px-2 max-w-3xl mx-auto">
+              KsięgaI nie ogranicza Cię, gdy firma rośnie. System skaluje się bez chaosu i ręcznej pracy.
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 text-left">
+            <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mb-8 sm:mb-10 px-2 italic">
+              Masz 2+ firmy albo obsługujesz klientów? Tu zaczyna się realna przewaga.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 text-left">
               <div className="bg-gray-50 dark:bg-gray-900 p-6 sm:p-8 rounded-xl border border-gray-200 dark:border-gray-800">
                 <div className="flex items-start gap-3 mb-4">
                   <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
@@ -240,7 +243,7 @@ export default function Home() {
                   <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Obsługa wielu firm i klientów</h3>
                 </div>
                 <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-                  Zarządzaj wieloma podmiotami z jednego miejsca. Idealne dla przedsiębiorców z kilkoma firmami lub księgowych obsługujących wielu klientów.
+                  Jedno miejsce, wiele podmiotów. Bez przełączania systemów.
                 </p>
               </div>
               <div className="bg-gray-50 dark:bg-gray-900 p-6 sm:p-8 rounded-xl border border-gray-200 dark:border-gray-800">
@@ -248,38 +251,24 @@ export default function Home() {
                   <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center flex-shrink-0">
                     <FileText className="h-5 w-5 text-green-600 dark:text-green-400" />
                   </div>
-                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Spójne dane gotowe do kontroli</h3>
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Dane gotowe do kontroli</h3>
                 </div>
                 <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-                  Wszystkie dokumenty i rozliczenia w strukturze gotowej do audytu. Pełna historia zmian i raportowanie.
+                  Spójna struktura, ślad zmian, gotowe do kontroli i audytu.
                 </p>
               </div>
               <div className="bg-gray-50 dark:bg-gray-900 p-6 sm:p-8 rounded-xl border border-gray-200 dark:border-gray-800">
                 <div className="flex items-start gap-3 mb-4">
                   <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
-                    <Zap className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                  </div>
-                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Automatyzacja powtarzalnych czynności</h3>
-                </div>
-                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-                  System eliminuje ręczne wprowadzanie danych i powtarzalne zadania. Więcej czasu na analizę i decyzje.
-                </p>
-              </div>
-              <div className="bg-gray-50 dark:bg-gray-900 p-6 sm:p-8 rounded-xl border border-gray-200 dark:border-gray-800">
-                <div className="flex items-start gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0">
-                    <TrendingUp className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                    <TrendingUp className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                   </div>
                   <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Więcej klientów bez więcej godzin</h3>
                 </div>
                 <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-                  Dla księgowych: obsługuj więcej firm bez zwiększania liczby godzin. Mniej ręcznej pracy = większa przepustowość.
+                  Dla księgowych: większa przepustowość bez zwiększania zespołu.
                 </p>
               </div>
             </div>
-            <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mt-8 px-2 italic">
-              Dla księgowych: obsługuj więcej firm bez zwiększania liczby godzin. KsięgaI porządkuje dokumenty, dane i rozliczenia tak, żebyś mógł skupić się na decyzjach, nie ręcznym wprowadzaniu danych.
-            </p>
           </div>
         </div>
       </section>
@@ -294,10 +283,13 @@ export default function Home() {
                 <span className="text-amber-400 text-xs sm:text-sm font-medium">Premium</span>
               </div>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4 px-2">
-                Pełna automatyzacja i zgodność z przepisami
+                Premium to mniejsze ryzyko, mniej ręcznej pracy i gotowość do kontroli — na każdym etapie.
               </h2>
+              <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mb-4 px-2 italic">
+                Premium wybierają firmy, które nie chcą tłumaczyć się z chaosu.
+              </p>
               <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-400 mb-4 sm:mb-6 px-2">
-                Wszystko, czego potrzebujesz do profesjonalnej księgowości — KSeF, JPK, integracje bankowe i AI.
+                KSeF, JPK, integracje bankowe i AI — pełna struktura z pełną kontrolą.
               </p>
             </div>
 
@@ -310,7 +302,7 @@ export default function Home() {
                   <div>
                     <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2">KSeF & podatki</h3>
                     <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-4">
-                      Nie martwisz się, czy coś jest źle wysłane lub źle policzone.
+                      Automatyczne wysłanie, zgodność z przepisami, zatwierdzanie przed finalizacją.
                     </p>
                   </div>
                 </div>
@@ -338,7 +330,7 @@ export default function Home() {
                   <div>
                     <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2">Zaawansowana księgowość</h3>
                     <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-4">
-                      Gotowe dane, kiedy ich potrzebujesz — bez paniki przed terminami.
+                      Struktura audytowalna, raporty zawsze gotowe, pełna historia zmian.
                     </p>
                   </div>
                 </div>
@@ -366,7 +358,7 @@ export default function Home() {
                   <div>
                     <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2">AI</h3>
                     <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-4">
-                      Dokumenty same się ogarniają. Ty tylko zatwierdzasz.
+                      Mniej ręcznego wprowadzania, więcej czasu na decyzje — kontrola zawsze po Twojej stronie.
                     </p>
                   </div>
                 </div>
@@ -394,7 +386,7 @@ export default function Home() {
                   <div>
                     <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2">Bank</h3>
                     <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-4">
-                      Widzisz pieniądze w czasie rzeczywistym. Bez ręcznego dopasowywania.
+                      Automatyczne dopasowanie płatności do faktur — widzisz pieniądze w czasie rzeczywistym.
                     </p>
                   </div>
                 </div>
@@ -437,8 +429,11 @@ export default function Home() {
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4 sm:mb-6 px-2">
               Zostaw księgowość systemowi. Skup się na firmie.
             </h2>
-            <p className="text-base sm:text-lg md:text-xl text-blue-100 mb-6 sm:mb-8 px-2">
-              Załóż konto za darmo. Pierwsza faktura w 5 minut. Pełna kontrola od pierwszego dnia.
+            <p className="text-base sm:text-lg md:text-xl text-blue-100 mb-4 px-2">
+              Pierwsza faktura w 5 minut. Pełna kontrola od pierwszego dnia.
+            </p>
+            <p className="text-sm text-blue-200 mb-6 sm:mb-8 px-2">
+              Każdy miesiąc bez systemu to miesiąc ręcznej pracy, której nie musisz wykonywać.
             </p>
             <Link href="/rejestracja" className="inline-block">
               <button className="bg-white text-blue-600 hover:bg-gray-100 text-base sm:text-lg px-6 sm:px-10 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold shadow-xl hover:shadow-2xl transition-all inline-flex items-center gap-2">
@@ -447,10 +442,10 @@ export default function Home() {
               </button>
             </Link>
             <p className="mt-4 text-sm text-blue-100">
-              Bez karty kredytowej • Pełny dostęp • Anuluj w każdej chwili
+              Bez karty • Bez zobowiązań • Anuluj w każdej chwili
             </p>
             <p className="mt-2 text-xs text-blue-200">
-              Bez zobowiązań • Bez rozmów sprzedażowych
+              Zachowujesz pełny dostęp do swoich danych. Eksport w każdej chwili.
             </p>
           </div>
         </div>

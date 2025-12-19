@@ -76,7 +76,7 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-gray-800 bg-gray-900/80 backdrop-blur-lg">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-wrap items-center justify-between gap-3 md:gap-4 py-3">
+        <div className="flex flex-nowrap items-center justify-between gap-2 sm:gap-4 py-3 min-w-0">
           {/* Logo */}
           <Link href="/" className="text-lg sm:text-xl font-bold text-white hover:text-blue-400 transition-colors">
             KsięgaI
@@ -96,7 +96,7 @@ export default function Header() {
           </nav>
 
           {/* Right Section */}
-          <div className="flex items-center gap-2 sm:gap-3 md:gap-4 flex-wrap justify-end w-full md:w-auto">
+          <div className="ml-auto flex min-w-0 items-center gap-2 sm:gap-3 md:gap-4 flex-nowrap justify-end w-auto">
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
@@ -112,8 +112,8 @@ export default function Header() {
 
             {/* Auth Section */}
             {user ? (
-              <div className="flex items-center gap-2 sm:gap-3 md:gap-4 flex-wrap justify-end">
-                <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex items-center gap-2 sm:gap-3 md:gap-4 flex-nowrap justify-end">
+                <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                   <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-gray-700">
                     <User className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                   </div>
@@ -124,7 +124,7 @@ export default function Header() {
                   </div>
                   <button
                     onClick={handleLogout}
-                    className="text-[11px] sm:text-xs text-gray-400 hover:text-white flex items-center gap-1"
+                    className="text-[11px] sm:text-xs text-gray-400 hover:text-white flex items-center gap-1 whitespace-nowrap"
                   >
                     <LogOut className="h-3 w-3" />
                     <span className="hidden lg:inline">Wyloguj</span>
@@ -132,20 +132,20 @@ export default function Header() {
                 </div>
                 <button 
                   onClick={handleGoToApp}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-5 py-2 rounded-lg font-semibold transition-colors text-sm sm:text-base"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-5 py-2 rounded-lg font-semibold transition-colors text-sm sm:text-base whitespace-nowrap"
                 >
                   Przejdź do aplikacji
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex items-center gap-2 sm:gap-3 flex-nowrap">
                 <Link href="/logowanie">
-                  <button className="text-gray-300 hover:text-white px-3 sm:px-4 py-2 transition-colors text-sm sm:text-base">
+                  <button className="text-gray-300 hover:text-white px-2 sm:px-4 py-2 transition-colors text-sm sm:text-base whitespace-nowrap">
                     Zaloguj się
                   </button>
                 </Link>
                 <Link href="/rejestracja">
-                  <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-5 py-2 rounded-lg font-semibold transition-colors text-sm sm:text-base">
+                  <button className="bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-5 py-2 rounded-lg font-semibold transition-colors text-sm sm:text-base whitespace-nowrap">
                     Zarejestruj się
                   </button>
                 </Link>
