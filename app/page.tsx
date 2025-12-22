@@ -1,15 +1,15 @@
 import Link from "next/link";
 import Script from "next/script";
-import { ArrowRight, CheckCircle2, Shield, Zap, Building, Calculator, CreditCard, Crown, FileText, Users, TrendingUp, Receipt } from "lucide-react";
+import { ArrowRight, CheckCircle2, Shield, Zap, Building, Calculator, CreditCard, Crown, FileText, Users, TrendingUp, Receipt, Inbox, MessageSquare, ThumbsUp, Network, History, Lock } from "lucide-react";
 import type { Metadata } from "next";
 import FAQSection from "./faq-section";
 
 export const metadata: Metadata = {
-  title: "KsięgaI - Księgowość, która nie kradnie Twojego czasu | Tovernet",
-  description: "Automatyzacja faktur, podatków i KSeF dla polskich przedsiębiorców. Pełna zgodność z KSeF, JPK i polskimi przepisami. Proste w użyciu, zaawansowane dla księgowych i power-userów.",
+  title: "KsięgaI - Centralny system ewidencji działalności firmy",
+  description: "Formalny system rejestru firmy: dokumenty, uchwały, role i finanse w jednej strukturze z historią odpowiedzialności. Gotowe na KSeF.",
   openGraph: {
-    title: "KsięgaI - Księgowość, która nie kradnie Twojego czasu",
-    description: "Automatyzacja faktur, podatków i KSeF dla przedsiębiorców, którzy wolą budować firmę niż pilnować papierów.",
+    title: "KsięgaI - Centralny system ewidencji działalności firmy",
+    description: "Dokumenty, decyzje, finanse i operacje — w jednej, spójnej strukturze z pełnym śladem audytu i ciągłością odpowiedzialności.",
     url: "https://ksiegai.pl",
   },
   alternates: {
@@ -24,7 +24,7 @@ export default function Home() {
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 border-b border-blue-500">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <p className="text-center text-sm sm:text-base text-white font-medium">
-            KSeF wkrótce obowiązkowy. Uporządkuj dokumenty i proces już teraz — wejdziesz gotowy.
+            Przygotowanie do KSeF: uporządkowana ewidencja dokumentów, decyzji i rozliczeń w jednym systemie.
           </p>
         </div>
       </div>
@@ -46,48 +46,273 @@ export default function Home() {
               "name": "Tovernet Sp. z o.o.",
               "url": "https://tovernet.online"
             },
-            "description": "Automatyzacja faktur, podatków i KSeF dla polskich przedsiębiorców. Pełna zgodność z KSeF, JPK i polskimi przepisami.",
-            "featureList": "KSeF-ready (workflow + walidacje + archiwum); Generatory JPK (eksport); Import wyciągów bankowych; AI wspierające dekretację; Obsługa wielu firm; Role i ślad audytowy",
+            "description": "Centralny system ewidencji działalności firmy: dokumenty, uchwały, role i finanse w jednej spójnej strukturze.",
+            "featureList": "Rejestr dokumentów; Rejestr decyzji i uchwał; Kontrola finansów; Operacje i zasoby; KSeF-ready; Ślad audytowy",
             "inLanguage": "pl-PL"
           })
         }}
       />
 
       {/* Hero Section */}
-      <section className="relative py-8 sm:py-12 md:py-20 bg-gradient-to-br from-gray-900 via-gray-900 to-gray-950">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-blue-600/20 via-transparent to-transparent pointer-events-none" />
+      <section className="relative py-8 sm:py-12 md:py-20 bg-gray-950 border-b border-gray-800">
         <div className="container mx-auto px-4 sm:px-6 md:px-4 py-6 sm:py-8 md:py-12">
           <div className="mx-auto text-center max-w-5xl">
             <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-blue-600/10 border border-blue-500/30 mb-6 sm:mb-8 animate-fade-in">
-              <span className="text-sm sm:text-base">🇵🇱</span>
-              <span className="text-blue-300 text-xs sm:text-sm font-semibold">Dla polskich przedsiębiorców — także tych, którzy sprzedają za granicę</span>
+              <span className="text-blue-300 text-xs sm:text-sm font-semibold">Warstwa uzgodnień przed KSeF</span>
             </div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-white mb-4 sm:mb-6 leading-tight animate-fade-in px-2">
-              Księgowość, która nie kradnie Twojego czasu.
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-white mb-4 sm:mb-6 leading-tight animate-fade-in px-2 max-w-4xl mx-auto">
+              Faktura nie trafia do KSeF, dopóki strony jej nie uzgodnią
             </h1>
-            <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-gray-300 mb-4 sm:mb-6 font-medium leading-relaxed animate-fade-in px-2">
-              Faktury, podatki i raporty — bez chaosu, z pełną <span className="text-blue-400">kontrolą</span>.
+            <p className="text-lg sm:text-xl md:text-2xl text-gray-300 mb-4 font-medium leading-relaxed animate-fade-in px-2 max-w-3xl mx-auto">
+              KsięgaI to warstwa kontroli i odpowiedzialności między Twoim systemem ERP a KSeF — gdzie dokumenty są uzgadniane, zatwierdzane i weryfikowane przed ostatecznym wysłaniem.
             </p>
-            <p className="text-base sm:text-lg text-gray-400 mb-8 sm:mb-10 max-w-3xl mx-auto animate-fade-in px-2">
-              System przygotowuje dane. Ty zatwierdzasz wyjątki.
+            <p className="text-base sm:text-lg text-blue-300 mb-4 animate-fade-in px-2 max-w-2xl mx-auto font-medium">
+              Jeśli kontrahent jest w KsięgaI, faktura trafia do jego systemu, nie do maila. Email to tylko powiadomienie — dokument żyje w systemie.
+            </p>
+            <p className="text-sm text-gray-400 mb-8 animate-fade-in px-2 max-w-2xl mx-auto italic">
+              Ostatni checkpoint przed KSeF: negocjacje, korekty i akceptacje w jednym miejscu z pełnym śladem audytu.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-3 px-2 animate-fade-in">
               <Link
                 href="/rejestracja"
                 className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold shadow-xl hover:shadow-2xl transition-all"
               >
-                Zacznij za darmo
+                Dołącz do sieci zweryfikowanych firm
+                <ArrowRight className="h-5 w-5" />
+              </Link>
+              <Link
+                href="#mechanism"
+                className="inline-flex items-center justify-center gap-2 bg-transparent border border-gray-600 hover:border-gray-400 text-gray-300 text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold transition-all"
+              >
+                Zobacz jak działa uzgodnienie
               </Link>
             </div>
-            <p className="text-xs sm:text-sm text-gray-400 font-medium text-center animate-fade-in px-2 mb-3">
-              Pierwsza faktura w 5 minut • Bez karty • Bez zobowiązań
+            <p className="text-xs sm:text-sm text-gray-400 font-medium text-center animate-fade-in px-2">
+              Zweryfikowana sieć firm • Natywne dostarczanie dokumentów • Uzgodnienie przed KSeF
             </p>
-            <p className="text-xs sm:text-sm text-gray-500 text-center animate-fade-in px-2 mb-3">
-              Dla JDG i spółek • Ślad audytu • Eksport danych w każdej chwili
+
+            {/* Zakres ewidencji - specification block */}
+            <div className="mt-8 sm:mt-10 bg-gray-900/50 border border-gray-700 rounded-xl p-6 sm:p-8 max-w-3xl mx-auto animate-fade-in">
+              <h3 className="text-base sm:text-lg font-semibold text-white mb-4 text-center">
+                Workflow uzgodnienia dokumentu
+              </h3>
+              <ul className="space-y-2 text-sm text-gray-300">
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-blue-400 flex-shrink-0 mt-0.5" />
+                  <span>Natywne dostarczenie do zweryfikowanego kontrahenta</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-blue-400 flex-shrink-0 mt-0.5" />
+                  <span>Dyskusja i negocjacja przed akceptacją</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-blue-400 flex-shrink-0 mt-0.5" />
+                  <span>Korekty i uzgodnienia z pełnym śladem audytu</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-blue-400 flex-shrink-0 mt-0.5" />
+                  <span>Akceptacja przez obie strony przed wysłaniem</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-blue-400 flex-shrink-0 mt-0.5" />
+                  <span>Integracja z ERP i automatyczne przekazanie do KSeF</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ICP SEGMENTATION - Who needs this */}
+      <section className="py-12 sm:py-16 bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800">
+        <div className="container mx-auto px-4 sm:px-6 md:px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-8 sm:mb-10">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4 px-2">
+                Dla kogo jest warstwa uzgodnień
+              </h2>
+              <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 mb-8 px-2">
+                KsięgaI ma sens, gdy dokumenty wymagają uzgodnienia przed ostatecznym wysłaniem do KSeF — i gdy email nie wystarcza jako ślad audytu.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 mb-8">
+              <div className="bg-gray-50 dark:bg-gray-900 p-6 sm:p-8 rounded-xl border border-gray-200 dark:border-gray-800">
+                <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-4">
+                  <Building className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                </div>
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-3">
+                  Firmy z wieloma kontrahentami
+                </h3>
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+                  Gdy faktury wymagają negocjacji, korekty lub weryfikacji przed wysłaniem do KSeF — i email nie daje pełnego śladu.
+                </p>
+              </div>
+              <div className="bg-gray-50 dark:bg-gray-900 p-6 sm:p-8 rounded-xl border border-gray-200 dark:border-gray-800">
+                <div className="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4">
+                  <Users className="h-6 w-6 text-green-600 dark:text-green-400" />
+                </div>
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-3">
+                  Współpraca z księgowymi i ERP
+                </h3>
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+                  Księgowa widzi dyskusje, korekty i akceptacje — nie tylko gotowy dokument. Integracja z Comarch, enova365, Symfonia.
+                </p>
+              </div>
+              <div className="bg-gray-50 dark:bg-gray-900 p-6 sm:p-8 rounded-xl border border-gray-200 dark:border-gray-800">
+                <div className="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mb-4">
+                  <Network className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                </div>
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-3">
+                  Sieć zweryfikowanych firm
+                </h3>
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+                  Kontrahenci w KsięgaI otrzymują dokumenty natywnie w systemie — nie przez email. Domyślny standard dla audytu.
+                </p>
+              </div>
+            </div>
+            <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800 rounded-xl p-6 text-center">
+              <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300">
+                <strong>Jeśli wystawiasz faktury bez negocjacji i nie potrzebujesz śladu uzgodnień</strong> — tradycyjny ERP wystarczy. KsięgaI ma sens, gdy dokumenty wymagają akceptacji przed KSeF i audyt musi widzieć cały proces.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* GROUNDING SECTION - Where companies start */}
+      <section className="py-12 sm:py-16 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+        <div className="container mx-auto px-4 sm:px-6 md:px-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4 px-2">
+              Wdrożenie w tym samym dniu
+            </h2>
+            <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 mb-8 px-2">
+              Procedura uruchomienia rejestru: 4 kroki, 15–30 minut konfiguracji. Bez migracji historycznej, bez przenoszenia danych.
             </p>
-            <p className="text-xs sm:text-sm text-gray-500 text-center animate-fade-in px-2">
-              Projektowane z księgowymi w pętli feedbacku — workflow oparty o wyjątki, zatwierdzanie i ślad audytu.
-            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 max-w-3xl mx-auto">
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center flex-shrink-0 font-bold">
+                    1
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-gray-900 dark:text-white mb-2">Utwórz podmiot i role</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Określ strukturę uprawnień i pełnomocnictw w systemie.</p>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center flex-shrink-0 font-bold">
+                    2
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-gray-900 dark:text-white mb-2">Dodaj księgową / współpracowników</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Nadaj dostęp według ról do rejestru i dokumentów.</p>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center flex-shrink-0 font-bold">
+                    3
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-gray-900 dark:text-white mb-2">Uruchom rejestr wpływów i zasady akceptacji</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Skonfiguruj obieg dokumentów i warunki zatwierdzania.</p>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center flex-shrink-0 font-bold">
+                    4
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-gray-900 dark:text-white mb-2">Pierwszy miesiąc = tylko wyjątki</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">System pokazuje elementy wymagające decyzji lub uzupełnienia.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="mt-8 text-center">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                <strong>Start bez migracji:</strong> rejestr działa od pierwszego dnia. Historię możesz uzupełniać opcjonalnie.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* HOW IT WORKS - 3-step mechanism */}
+      <section id="mechanism" className="py-12 sm:py-16 bg-white dark:bg-gray-950">
+        <div className="container mx-auto px-4 sm:px-6 md:px-4">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-8 sm:mb-12">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4 px-2">
+                Model obiegu dokumentu
+              </h2>
+              <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 px-2 mb-2">
+                Standardowy proces: wpływ → uzgodnienie → zatwierdzenie. Każdy krok ma uprawnienia i ślad audytu.
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 px-2">
+                Efekt: mniej ręcznych czynności i spójny rejestr działań.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+              {/* Step 1: Wpływ */}
+              <div className="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-2xl border border-gray-200 dark:border-gray-800 text-center">
+                <div className="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center mx-auto mb-4">
+                  <Inbox className="h-8 w-8 text-white" />
+                </div>
+                <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white text-sm font-bold mb-3">
+                  1
+                </div>
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-3">
+                  Wpływ dokumentu
+                </h3>
+                <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300">
+                  Dokument trafia do rejestru i zostaje przypisany do kontekstu.
+                </p>
+              </div>
+
+              {/* Step 2: Uzgodnienie */}
+              <div className="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-2xl border border-gray-200 dark:border-gray-800 text-center">
+                <div className="w-16 h-16 rounded-full bg-green-600 flex items-center justify-center mx-auto mb-4">
+                  <MessageSquare className="h-8 w-8 text-white" />
+                </div>
+                <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-600 text-white text-sm font-bold mb-3">
+                  2
+                </div>
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-3">
+                  Uzgodnienie
+                </h3>
+                <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300">
+                  Komentarze i załączniki pozostają w kontekście dokumentu.
+                </p>
+              </div>
+
+              {/* Step 3: Zatwierdzenie */}
+              <div className="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-2xl border border-gray-200 dark:border-gray-800 text-center">
+                <div className="w-16 h-16 rounded-full bg-purple-600 flex items-center justify-center mx-auto mb-4">
+                  <ThumbsUp className="h-8 w-8 text-white" />
+                </div>
+                <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-purple-600 text-white text-sm font-bold mb-3">
+                  3
+                </div>
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-3">
+                  Akceptacja / dekretacja
+                </h3>
+                <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300">
+                  Decyzja zapisuje: kto, kiedy, na jakiej podstawie.
+                </p>
+              </div>
+            </div>
+            <div className="text-center mt-8 sm:mt-10">
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 px-2">
+                <span className="font-semibold text-gray-900 dark:text-white">Efekt:</span> mniej ręcznych czynności i spójny rejestr działań.
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -102,7 +327,7 @@ export default function Home() {
               </Link>
             </p>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4 px-2">
-              Masz lepsze rzeczy do robienia niż ręczna księgowość.
+              Najczęstsze źródła ryzyka formalnego
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mt-6 sm:mt-8 text-left">
               <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700">
@@ -111,7 +336,7 @@ export default function Home() {
                     <span className="text-red-600 dark:text-red-400 text-xl">✗</span>
                   </div>
                   <p className="text-gray-700 dark:text-gray-300 text-base sm:text-lg">
-                    Gubisz terminy i dokumenty — a potem gasisz pożary
+                    Brak kompletności dokumentów w okresie rozliczeniowym
                   </p>
                 </div>
               </div>
@@ -121,7 +346,7 @@ export default function Home() {
                     <span className="text-red-600 dark:text-red-400 text-xl">✗</span>
                   </div>
                   <p className="text-gray-700 dark:text-gray-300 text-base sm:text-lg">
-                    Nie masz pewności, czy wszystko jest zgodne z przepisami
+                    Nieciągłość decyzji i uzasadnień
                   </p>
                 </div>
               </div>
@@ -131,7 +356,7 @@ export default function Home() {
                     <span className="text-red-600 dark:text-red-400 text-xl">✗</span>
                   </div>
                   <p className="text-gray-700 dark:text-gray-300 text-base sm:text-lg">
-                    Każda ręczna poprawka to realny koszt — czasu, nerwów i potencjalnych kar
+                    Rozproszenie uzgodnień (mail/PDF/komunikatory)
                   </p>
                 </div>
               </div>
@@ -141,14 +366,14 @@ export default function Home() {
                     <span className="text-red-600 dark:text-red-400 text-xl">✗</span>
                   </div>
                   <p className="text-gray-700 dark:text-gray-300 text-base sm:text-lg">
-                    Chcesz kontroli, ale bez klepania Excela i PDF-ów
+                    Brak jednoznacznej odpowiedzialności za zatwierdzenia
                   </p>
                 </div>
               </div>
             </div>
             <div className="bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-900/10 dark:to-red-900/10 rounded-2xl p-6 sm:p-8 mt-6 sm:mt-8 border border-orange-200 dark:border-orange-800/30">
               <p className="text-base sm:text-lg text-gray-800 dark:text-gray-200 font-semibold text-center">
-                Każdy z tych problemów mnoży się przy obowiązkowym KSeF.
+                Przy obowiązkowym KSeF te problemy stają się widoczne w procesie i w kontroli.
               </p>
             </div>
             
@@ -158,19 +383,19 @@ export default function Home() {
                 <div className="flex items-start gap-3">
                   <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
                   <p className="text-base sm:text-lg text-gray-800 dark:text-gray-200 font-medium">
-                    Terminy i dokumenty pod kontrolą
+                    Terminy i kompletność ewidencji
                   </p>
                 </div>
                 <div className="flex items-start gap-3">
                   <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
                   <p className="text-base sm:text-lg text-gray-800 dark:text-gray-200 font-medium">
-                    Zatwierdzasz tylko wyjątki
+                    Akceptujesz wyjątki, reszta jest przygotowana
                   </p>
                 </div>
                 <div className="flex items-start gap-3">
                   <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
                   <p className="text-base sm:text-lg text-gray-800 dark:text-gray-200 font-medium">
-                    Wszystko ma ślad audytu
+                    Ślad audytu i historia decyzji
                   </p>
                 </div>
               </div>
@@ -188,11 +413,10 @@ export default function Home() {
             </p>
             <div className="bg-gradient-to-br from-blue-50 to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl p-6 sm:p-8 mb-8 sm:mb-10 border border-blue-100 dark:border-gray-700">
               <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-3 text-center">
-                Jak wygląda księgowość po wdrożeniu KsięgaI?
+                Jak wygląda praca w systemie ewidencji?
               </h3>
               <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 text-center max-w-2xl mx-auto">
-                Faktury wpadają same. Płatności się dopasowują.<br />
-                Na koniec miesiąca wszystko jest gotowe — bez paniki.
+                Dokumenty są kompletowane na bieżąco. Na koniec okresu rozliczeniowego system pokazuje wyjątki oraz brakujące elementy.
               </p>
             </div>
             {/* Dashboard Preview - Credibility Section */}
@@ -209,7 +433,7 @@ export default function Home() {
                 Podgląd panelu (przykład)
               </h3>
               <p className="text-center text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-6 px-2">
-                Tak wygląda praca w KsięgaI: wyjątki do zatwierdzenia + ślad audytu.
+                Przykładowy widok: wyjątki do zatwierdzenia + stan zgodności.
               </p>
               <div className="bg-gray-900 rounded-2xl p-6 sm:p-8 border border-gray-800 shadow-2xl">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -322,10 +546,10 @@ export default function Home() {
                   <Zap className="h-8 w-8 text-blue-600 dark:text-blue-400" />
                 </div>
                 <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2">
-                  Pierwsza faktura w 5 minut — bez stresu przed wejściem KSeF
+                  Start bez migracji
                 </h3>
                 <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-                  Bez szkoleń, bez komplikacji
+                  Rejestr działa od pierwszego dnia. Historię możesz uzupełniać opcjonalnie.
                 </p>
               </div>
               <div className="text-center">
@@ -333,10 +557,10 @@ export default function Home() {
                   <CheckCircle2 className="h-8 w-8 text-green-600 dark:text-green-400" />
                 </div>
                 <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2">
-                  Pełna struktura bez Excela
+                  Wyjątki do decyzji
                 </h3>
                 <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-                  Wszystko w jednym miejscu, gotowe do kontroli
+                  System pokazuje elementy wymagające akceptacji lub uzupełnienia.
                 </p>
               </div>
               <div className="text-center">
@@ -344,10 +568,10 @@ export default function Home() {
                   <Shield className="h-8 w-8 text-purple-600 dark:text-purple-400" />
                 </div>
                 <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2">
-                  Koniec miesiąca bez paniki
+                  Stan zgodności
                 </h3>
                 <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-                  Raporty zawsze gotowe do sprawdzenia
+                  Walidacje i kontrola kompletności w okresie rozliczeniowym.
                 </p>
               </div>
             </div>
@@ -372,31 +596,12 @@ export default function Home() {
               Masz 2+ firmy albo obsługujesz klientów? Tu zaczyna się realna przewaga.
             </p>
             
-            {/* Mid-page CTA Divider */}
-            <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-8 sm:p-10 mb-8 sm:mb-10 text-center">
-              <h3 className="text-2xl sm:text-3xl font-bold text-white mb-4">
-                Zacznij za darmo — pierwsza faktura w 5 minut
-              </h3>
-              <Link
-                href="/rejestracja"
-                className="inline-flex items-center gap-2 bg-white text-blue-600 hover:bg-gray-100 text-base sm:text-lg px-8 py-4 rounded-xl font-semibold shadow-xl hover:shadow-2xl transition-all"
-              >
-                Rozpocznij teraz
-                <ArrowRight className="h-5 w-5" />
-              </Link>
-              <p className="mt-4 text-sm text-blue-100">
-                Bez karty • Bez zobowiązań
-              </p>
-            </div>
-
             <div className="text-center mb-8 sm:mb-10">
-              <Link
-                href="/dla-ksiegowych"
-                className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-6 py-3 text-base font-semibold text-white transition hover:bg-blue-700"
-              >
-                Zobacz, jak pracują księgowi z KsięgaI
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
+              <p className="text-sm text-blue-600 dark:text-blue-400">
+                <Link href="/dla-ksiegowych" className="hover:underline transition-colors">
+                  Prowadzisz biuro rachunkowe? Zobacz wersję dla księgowych →
+                </Link>
+              </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 text-left">
               <div className="bg-gray-50 dark:bg-gray-900 p-6 sm:p-8 rounded-xl border border-gray-200 dark:border-gray-800">
@@ -418,7 +623,7 @@ export default function Home() {
                   <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Dane gotowe do kontroli</h3>
                 </div>
                 <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-                  Spójna struktura, ślad zmian, gotowe do kontroli i audytu.
+                  Spójna struktura, ślad zmian, odpowiedzialność i historia decyzji.
                 </p>
               </div>
               <div className="bg-gray-50 dark:bg-gray-900 p-6 sm:p-8 rounded-xl border border-gray-200 dark:border-gray-800">
@@ -437,7 +642,103 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Premium Features Section */}
+      {/* FREE INBOX - Plan Podstawowy */}
+      <section className="py-12 sm:py-16 bg-gradient-to-br from-green-50 to-blue-50 dark:from-green-900/10 dark:to-blue-900/10">
+        <div className="container mx-auto px-4 sm:px-6 md:px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-8 sm:mb-10">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-600 text-white mb-4">
+                <Inbox className="h-5 w-5" />
+                <span className="text-sm font-bold uppercase tracking-wide">Plan podstawowy (bez opłat)</span>
+              </div>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4 px-2">
+                Rejestr wpływów dokumentów
+              </h2>
+              <p className="text-lg sm:text-xl text-gray-700 dark:text-gray-300 mb-4 px-2">
+                Podstawowy zakres ewidencji: odbiór, podgląd, uzgodnienia i eksport.
+              </p>
+              <p className="text-base text-gray-600 dark:text-gray-400 mb-6 px-2">
+                Możesz używać tylko rejestru wpływów — albo dodać Premium dla pełnego obiegu zatwierdzeń i kontroli.
+              </p>
+            </div>
+
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 sm:p-8 border-2 border-green-500 dark:border-green-600 shadow-xl mb-8">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+                Zakres planu podstawowego:
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-400 flex-shrink-0 mt-1" />
+                  <div>
+                    <p className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-1">
+                      Rejestr wpływów
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Dokumenty trafiają do rejestru i są przypisywane do kontekstu
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-400 flex-shrink-0 mt-1" />
+                  <div>
+                    <p className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-1">
+                      Uzgodnienia przy dokumencie
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Komentarze i załączniki pozostają w kontekście ewidencji
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-400 flex-shrink-0 mt-1" />
+                  <div>
+                    <p className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-1">
+                      Eksport danych
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Pełny dostęp do własnych danych w formacie eksportu
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-400 flex-shrink-0 mt-1" />
+                  <div>
+                    <p className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-1">
+                      Wiele podmiotów
+                    </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Rejestr obsługuje wiele firm w jednej strukturze
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="text-center">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+                <Link
+                  href="/rejestracja"
+                  className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white text-lg px-10 py-4 rounded-2xl font-bold shadow-xl hover:shadow-2xl transition-all"
+                >
+                  Uruchom rejestr wpływów
+                  <ArrowRight className="h-5 w-5" />
+                </Link>
+                <Link
+                  href="#premium"
+                  className="inline-flex items-center gap-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-white text-lg px-10 py-4 rounded-2xl font-semibold transition-all"
+                >
+                  Zakres rozszerzony
+                </Link>
+              </div>
+              <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
+                Dostęp bez opłat • Plan podstawowy bezterminowo
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Premium Features Section - Risk Removal Pack */}
       <section id="premium" className="py-12 sm:py-16 bg-gray-50 dark:bg-gray-900">
         <div className="container mx-auto px-4 sm:px-6 md:px-4">
           <div className="max-w-4xl mx-auto">
@@ -447,19 +748,121 @@ export default function Home() {
                 <span className="text-amber-400 text-xs sm:text-sm font-medium">Premium</span>
               </div>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4 px-2">
-                Premium to mniejsze ryzyko, mniej ręcznej pracy i gotowość do kontroli — na każdym etapie.
+                Premium: Rozszerzony zakres ewidencji i kontroli
               </h2>
-              <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mb-4 px-2 italic">
-                Premium wybierają firmy, które nie chcą tłumaczyć się z chaosu.
+              <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 mb-4 px-2">
+                Dla firm, które wymagają obiegu zatwierdzeń, walidacji i pełnej rozliczalności procesowej.
               </p>
-              <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-400 mb-2 px-2">
-                KSeF, JPK, integracje bankowe i AI — pełna struktura z pełną kontrolą.
+            </div>
+
+            {/* Bundle Stack - What you get with Premium */}
+            <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/10 dark:to-orange-900/10 rounded-2xl p-6 sm:p-8 mb-8 sm:mb-10 border-2 border-amber-300 dark:border-amber-700">
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-4 text-center">
+                3 warstwy kontroli i zgodności:
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 text-center mb-6">
+                Zakres Premium rozszerza ewidencję o obieg zatwierdzeń, walidacje oraz rozrachunki.
               </p>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 px-2">
-                Szczególnie istotne przy zmianach regulacyjnych i obowiązkowym KSeF.
-              </p>
-              <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 mb-4 sm:mb-6 px-2 font-medium">
-                Jeśli masz spółkę / większy wolumen / biuro rachunkowe — Premium usuwa ryzyko i ręczną pracę na poziomie procesu.
+              <div className="space-y-4 max-w-2xl mx-auto">
+                <div className="bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-xl border border-amber-200 dark:border-amber-800/40">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-full bg-amber-600 text-white flex items-center justify-center flex-shrink-0 font-bold text-sm">
+                      1
+                    </div>
+                    <div>
+                      <h4 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-1">
+                        Workflow zatwierdzania + role
+                      </h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Kto, co, kiedy zatwierdził. Ślad audytowy zawsze gotowy.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-xl border border-amber-200 dark:border-amber-800/40">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-full bg-amber-600 text-white flex items-center justify-center flex-shrink-0 font-bold text-sm">
+                      2
+                    </div>
+                    <div>
+                      <h4 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-1">
+                        KSeF-ready + JPK + walidacje
+                      </h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        System przygotowuje dane. Ty zatwierdzasz przed wysyłką.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-xl border border-amber-200 dark:border-amber-800/40">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-full bg-amber-600 text-white flex items-center justify-center flex-shrink-0 font-bold text-sm">
+                      3
+                    </div>
+                    <div>
+                      <h4 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-1">
+                        Bank + auto-dopasowanie płatności
+                      </h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Widzisz pieniądze w czasie rzeczywistym. Płatności dopasowują się automatycznie.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Co dostajesz w 30 dni Premium - Concrete deliverables */}
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 sm:p-8 mb-8 sm:mb-10 border-2 border-blue-300 dark:border-blue-700">
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-4 text-center">
+                Co dostajesz w 30 dni Premium (konkretnie)
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto">
+                <div className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                  <CheckCircle2 className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white mb-1">Obieg akceptacji dla faktur kosztowych</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">Workflow zatwierdzeń z podziałem ról</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                  <CheckCircle2 className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white mb-1">Rejestr decyzji + powiązania</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">Ślad audytowy: kto, kiedy, na jakiej podstawie</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                  <CheckCircle2 className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white mb-1">Stan kompletności okresu</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">Kontrola dokumentów w okresie rozliczeniowym</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                  <CheckCircle2 className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white mb-1">Walidacje i eksport</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">Przygotowanie danych KSeF/JPK</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                  <CheckCircle2 className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white mb-1">Dostęp księgowej według ról</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">Uprawnienia i pełnomocnictwa w systemie</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                  <CheckCircle2 className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white mb-1">Rozrachunki i płatności</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">Integracja bankowa i dopasowanie transakcji</p>
+                  </div>
+                </div>
+              </div>
+              <p className="text-center text-xs text-gray-600 dark:text-gray-400 mt-6">
+                To nie jest marketing. To jest pakiet wdrożeniowy — konkretne funkcje dostępne w okresie testowym.
               </p>
             </div>
 
@@ -472,14 +875,14 @@ export default function Home() {
                   <div>
                     <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2">KSeF & podatki</h3>
                     <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-4">
-                      KSeF-ready: struktura danych, walidacje i workflow. System przygotowuje dokumenty i deklaracje — Ty zatwierdzasz wyjątki przed finalizacją.
+                      KSeF-ready workflow: przygotowanie danych i walidacje. System przygotowuje dokumenty — Ty zatwierdzasz wyjątki przed finalizacją.
                     </p>
                   </div>
                 </div>
                 <ul className="space-y-2 text-sm sm:text-base text-gray-600 dark:text-gray-400">
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span>Workflow wysyłki do KSeF + walidacje (KSeF-ready)</span>
+                    <span>Przygotowanie danych i paczek eksportu do KSeF</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
@@ -511,7 +914,7 @@ export default function Home() {
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span>Przygotowanie deklaracji PIT/CIT</span>
+                    <span>Wspiera przygotowanie deklaracji PIT/CIT</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
@@ -577,18 +980,168 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="text-center mt-10 sm:mt-12">
-              <Link
-                href="/premium"
-                className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-base sm:text-lg px-6 sm:px-10 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold shadow-xl hover:shadow-2xl transition-all"
-              >
-                Zobacz pełną ofertę Premium
-                <ArrowRight className="h-5 w-5" />
-              </Link>
-              <p className="mt-6 text-xs text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
+            <div className="text-center mt-8">
+              <p className="text-xs text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
                 <strong>Ważne:</strong> KsięgaI jest oprogramowaniem wspierającym księgowość. Nie świadczymy usług biura rachunkowego ani doradztwa podatkowego.
               </p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* NETWORK EFFECT Section */}
+      <section className="py-12 sm:py-16 bg-white dark:bg-gray-950">
+        <div className="container mx-auto px-4 sm:px-6 md:px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-8 sm:mb-10">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-600/10 border border-blue-500/30 mb-4">
+                <Network className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                <span className="text-sm font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wide">Efekt sieci</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4 px-2">
+                Standaryzacja wymiany dokumentów między firmami
+              </h2>
+              <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 mb-4 px-2">
+                Jeśli obie strony pracują w systemie ewidencji, dokument i uzgodnienia trafiają bezpośrednio do właściwego rejestru.
+              </p>
+              <div className="flex flex-wrap justify-center gap-3 mb-6 text-sm text-gray-700 dark:text-gray-300">
+                <span className="bg-white dark:bg-gray-800 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700">
+                  Mniej ponaglań i duplikatów
+                </span>
+                <span className="bg-white dark:bg-gray-800 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700">
+                  Mniej ponownych wysyłek i ręcznych korekt
+                </span>
+                <span className="bg-white dark:bg-gray-800 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700">
+                  Mniej rozbieżności w uzgodnieniach
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+              <div className="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-2xl border border-gray-200 dark:border-gray-800">
+                <div className="flex items-start gap-4 mb-4">
+                  <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
+                    <Inbox className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2">
+                      Bezpośrednia wymiana dokumentów
+                    </h3>
+                    <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300">
+                      Jeśli kontrahent pracuje w systemie ewidencji, dokument trafia bezpośrednio do rejestru wpływów z pełnym kontekstem.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-2xl border border-gray-200 dark:border-gray-800">
+                <div className="flex items-start gap-4 mb-4">
+                  <div className="w-12 h-12 rounded-full bg-green-600 flex items-center justify-center flex-shrink-0">
+                    <Users className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2">
+                      Dostęp dla uprawnionych
+                    </h3>
+                    <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300">
+                      Księgowy ma dostęp do rejestru według uprawnień. Uzgodnienia pozostają w kontekście dokumentu.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-2xl border border-gray-200 dark:border-gray-800">
+                <div className="flex items-start gap-4 mb-4">
+                  <div className="w-12 h-12 rounded-full bg-purple-600 flex items-center justify-center flex-shrink-0">
+                    <History className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2">
+                      Przygotowanie do KSeF
+                    </h3>
+                    <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300">
+                      Firmy z uporządkowaną ewidencją wchodzą w obowiązkowy KSeF z pełną historią dokumentów i uzgodnień.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-2xl border border-gray-200 dark:border-gray-800">
+                <div className="flex items-start gap-4 mb-4">
+                  <div className="w-12 h-12 rounded-full bg-amber-600 flex items-center justify-center flex-shrink-0">
+                    <FileText className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2">
+                      Uzgodnienia i decyzje w jednym miejscu
+                    </h3>
+                    <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300">
+                      Kto zatwierdził, kiedy, dlaczego. Załączniki + komentarze + historia zmian przy dokumencie.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* GUARANTEES & RISK REVERSAL Section */}
+      <section className="py-12 sm:py-16 bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-blue-900/10">
+        <div className="container mx-auto px-4 sm:px-6 md:px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-8 sm:mb-10">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-600 text-white mb-4">
+                <Shield className="h-5 w-5" />
+                <span className="text-sm font-bold uppercase tracking-wide">Zasady dostępu</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4 px-2">
+                Zasady danych i dostępu
+              </h2>
+              <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 mb-6 px-2">
+                Przenośność danych i dostęp według uprawnień.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+              <div className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-2xl border-2 border-green-500 dark:border-green-600 shadow-lg text-center">
+                <div className="w-16 h-16 rounded-full bg-green-600 flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle2 className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-3">
+                  Okres testowy Premium (30 dni)
+                </h3>
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+                  Możliwość testowania rozszerzonego zakresu przez 30 dni przed decyzją o kontynuacji.
+                </p>
+              </div>
+
+              <div className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-2xl border-2 border-blue-500 dark:border-blue-600 shadow-lg text-center">
+                <div className="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center mx-auto mb-4">
+                  <FileText className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-3">
+                  Eksport i przenośność danych
+                </h3>
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+                  Pełny dostęp do eksportu danych w standardowych formatach. Brak blokad technicznych.
+                </p>
+              </div>
+
+              <div className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-2xl border-2 border-purple-500 dark:border-purple-600 shadow-lg text-center">
+                <div className="w-16 h-16 rounded-full bg-purple-600 flex items-center justify-center mx-auto mb-4">
+                  <Inbox className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-3">
+                  Plan podstawowy bezterminowo
+                </h3>
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+                  Rejestr wpływów dostępny bez opłat i bez ograniczeń czasowych.
+                </p>
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
@@ -601,30 +1154,31 @@ export default function Home() {
         <div className="container mx-auto px-4 sm:px-6 md:px-4">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4 sm:mb-6 px-2">
-              Zostaw księgowość systemowi. Skup się na firmie.
+              Utwórz ewidencję firmy i rozpocznij obieg dokumentów
             </h2>
             <p className="text-base sm:text-lg md:text-xl text-blue-100 mb-4 px-2">
-              Pierwsza faktura w 5 minut. Pełna kontrola od pierwszego dnia.
+              System prowadzi rejestry i przygotowuje dane. Ty zatwierdzasz wyjątki według uprawnień.
             </p>
-            <p className="text-sm text-blue-200 mb-4 px-2">
-              Każdy miesiąc bez systemu to miesiąc ręcznej pracy, której nie musisz wykonywać.<br />
-              I miesiąc bliżej obowiązkowego KSeF bez przygotowania.
+            <p className="text-sm text-blue-200 mb-6 sm:mb-8 px-2">
+              Przygotowanie do obowiązkowego KSeF: uporządkowana ewidencja dokumentów, decyzji i rozliczeń.
             </p>
-            <p className="text-xs text-blue-300 mb-6 sm:mb-8 px-2 italic">
-              Nie pytanie czy KSeF wejdzie. Pytanie, czy wejdziesz w niego gotowy.
-            </p>
-            <Link
-              href="/rejestracja"
-              className="inline-flex items-center gap-2 bg-white text-blue-600 hover:bg-gray-100 text-base sm:text-lg px-6 sm:px-10 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold shadow-xl hover:shadow-2xl transition-all"
-            >
-              Zacznij za darmo
-              <ArrowRight className="h-5 w-5" />
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+              <Link
+                href="/rejestracja"
+                className="inline-flex items-center gap-2 bg-white text-blue-600 hover:bg-gray-100 text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold shadow-xl hover:shadow-2xl transition-all"
+              >
+                Rozpocznij ewidencję firmy
+                <ArrowRight className="h-5 w-5" />
+              </Link>
+              <Link
+                href="#premium"
+                className="inline-flex items-center gap-2 bg-blue-800 hover:bg-blue-900 text-white text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold transition-all"
+              >
+                Zakres funkcjonalny
+              </Link>
+            </div>
             <p className="mt-4 text-sm text-blue-100">
-              Bez karty • Bez zobowiązań • Anuluj w każdej chwili
-            </p>
-            <p className="mt-2 text-xs text-blue-200">
-              Zachowujesz pełny dostęp do swoich danych. Eksport w każdej chwili.
+              Dostęp według ról i pełnomocnictw • Plan podstawowy bez opłat
             </p>
             <p className="mt-4 text-xs text-blue-300">
               Prowadzisz biuro rachunkowe? <Link href="/dla-ksiegowych" className="underline hover:text-white transition-colors">Zobacz wersję dla księgowych →</Link>
