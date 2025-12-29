@@ -30,18 +30,8 @@ export default function AuthCallback() {
           user_id: session.user.id,
         });
 
-        // Check if user has business profile
-        const { data: profiles } = await supabase
-          .from('business_profiles')
-          .select('id')
-          .eq('user_id', session.user.id);
-
-        // Redirect to app subdomain
-        if (profiles && profiles.length > 0) {
-          redirectToApp('/dashboard');
-        } else {
-          redirectToApp('/welcome');
-        }
+        // Always redirect to app subdomain root - let app routing handle onboarding
+        redirectToApp('/');
       } else {
         // No session, redirect to registration
         window.location.href = '/rejestracja';

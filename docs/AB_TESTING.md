@@ -39,7 +39,7 @@ To use the A/B testing system in your landing page:
 ```tsx
 'use client';
 
-import { useVariant } from '@/hooks/useVariant';
+import { useVariant } from '@/shared/hooks/useVariant';
 import { HeroHeadline, HeroSubheadline, KSeFBanner } from '@/components/landing-variants';
 
 export default function LandingPage() {

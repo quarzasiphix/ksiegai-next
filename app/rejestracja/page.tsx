@@ -40,8 +40,8 @@ export default function Register() {
           user_id: session.user.id,
         });
 
-        // Redirect to app subdomain
-        redirectToApp('/welcome');
+        // Redirect to app subdomain root - let app routing handle onboarding
+        redirectToApp('/');
       }
     });
 
