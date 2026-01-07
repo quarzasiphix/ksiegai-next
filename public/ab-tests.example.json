@@ -1,0 +1,33 @@
+{
+  "/": {
+    "id": "example-test-id",
+    "test_key": "homepage_hero",
+    "name": "Homepage Hero Test",
+    "page_path": "/",
+    "traffic_allocation": 1.0,
+    "variants": [
+      {
+        "id": "control",
+        "name": "Control",
+        "weight": 0.5,
+        "changes": {
+          "heroTitle": "Faktura nie trafia do KSeF, dopóki strony jej nie uzgodnią",
+          "heroSubtitle": "KsięgaI to warstwa kontroli i odpowiedzialności między Twoim systemem ERP a KSeF — gdzie dokumenty są uzgadniane, zatwierdzane i weryfikowane przed ostatecznym wysłaniem.",
+          "ctaText": "Dołącz do sieci zweryfikowanych firm"
+        }
+      },
+      {
+        "id": "variant_a",
+        "name": "Variant A - Direct",
+        "weight": 0.5,
+        "changes": {
+          "heroTitle": "Uzgadniaj faktury przed wysłaniem do KSeF",
+          "heroSubtitle": "Negocjuj, weryfikuj i akceptuj dokumenty z pełnym śladem audytu — wszystko przed ostatecznym wysłaniem.",
+          "ctaText": "Rozpocznij za darmo"
+        }
+      }
+    ],
+    "primary_goal": "registration",
+    "secondary_goals": ["newsletter_signup", "demo_request"]
+  }
+}

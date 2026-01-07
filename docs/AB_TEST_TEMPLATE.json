@@ -1,0 +1,35 @@
+{
+  "name": "Homepage Hero CTA Test",
+  "test_key": "homepage_hero_cta",
+  "description": "Testing different hero section CTAs to improve registration conversion rate",
+  "page_path": "/",
+  "status": "active",
+  "traffic_allocation": 1.0,
+  "primary_goal": "registration",
+  "secondary_goals": ["newsletter_signup", "demo_request"],
+  "variants": [
+    {
+      "id": "control",
+      "name": "Control - Original",
+      "weight": 0.5,
+      "changes": {
+        "heroTitle": "Faktura nie trafia do KSeF, dopóki strony jej nie uzgodnią",
+        "heroSubtitle": "KsięgaI to warstwa kontroli i odpowiedzialności między Twoim systemem ERP a KSeF — gdzie dokumenty są uzgadniane, zatwierdzane i weryfikowane przed ostatecznym wysłaniem.",
+        "ctaText": "Dołącz do sieci zweryfikowanych firm",
+        "ctaColor": "blue"
+      }
+    },
+    {
+      "id": "variant_direct",
+      "name": "Variant A - Direct CTA",
+      "weight": 0.5,
+      "changes": {
+        "heroTitle": "Uzgadniaj faktury przed wysłaniem do KSeF",
+        "heroSubtitle": "Negocjuj, weryfikuj i akceptuj dokumenty z pełnym śladem audytu — wszystko przed ostatecznym wysłaniem.",
+        "ctaText": "Rozpocznij za darmo",
+        "ctaColor": "green"
+      }
+    }
+  ],
+  "notes": "Run for minimum 2 weeks or until 95% confidence. Target: 100+ conversions per variant."
+}

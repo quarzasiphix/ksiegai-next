@@ -1,0 +1,36 @@
+{
+  "/": {
+    "id": "2f1462a3-951b-4936-8c75-c602801c28b6",
+    "test_key": "home_page_headline_test",
+    "name": "Home Page Headline Test",
+    "page_path": "/",
+    "traffic_allocation": 1,
+    "variants": [
+      {
+        "id": "control",
+        "name": "Control",
+        "weight": 0.5,
+        "changes": {
+          "cta": "Rozpocznij za darmo",
+          "headline": "Fakturowanie bez bólu głowy",
+          "subheadline": "Automatyzacja faktur dla polskich firm"
+        }
+      },
+      {
+        "id": "variant_a",
+        "name": "Value Stack",
+        "weight": 0.5,
+        "changes": {
+          "cta": "Zobacz jak to działa",
+          "headline": "Zaoszczędź 10 godzin tygodniowo",
+          "subheadline": "Automatyczne faktury + KSeF + księgowość"
+        }
+      }
+    ],
+    "primary_goal": "signup",
+    "secondary_goals": [
+      "demo_request",
+      "pricing_view"
+    ]
+  }
+}

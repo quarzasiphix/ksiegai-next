@@ -4,12 +4,15 @@ import Link from "next/link";
 import Script from "next/script";
 import { ArrowRight, CheckCircle2, Shield, Zap, Building, Calculator, CreditCard, Crown, FileText, Users, TrendingUp, Receipt, Inbox, MessageSquare, ThumbsUp, Network, History, Lock } from "lucide-react";
 import FAQSection from "./faq-section";
-import { useABTest } from "@/hooks/useABTest";
+import { useABTestSSG } from "@/hooks/useABTestSSG";
 
 // Metadata moved to layout.tsx or metadata.ts for client components
 
 export default function Home() {
-  const { variant, isLoading, trackConversion, trackEvent } = useABTest('/');
+  const { variant, isLoading, trackConversion, trackEvent } = useABTestSSG('/', {
+    trackTime: true,
+    trackScroll: true,
+  });
 
   // Get variant-specific content
   const getHeroTitle = () => {
