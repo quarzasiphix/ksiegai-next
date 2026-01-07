@@ -1,23 +1,35 @@
+"use client";
+
 import Link from "next/link";
 import Script from "next/script";
 import { ArrowRight, CheckCircle2, Shield, Zap, Building, Calculator, CreditCard, Crown, FileText, Users, TrendingUp, Receipt, Inbox, MessageSquare, ThumbsUp, Network, History, Lock } from "lucide-react";
-import type { Metadata } from "next";
 import FAQSection from "./faq-section";
+import { useABTest } from "@/hooks/useABTest";
 
-export const metadata: Metadata = {
-  title: "KsięgaI - Centralny system ewidencji działalności firmy",
-  description: "Formalny system rejestru firmy: dokumenty, uchwały, role i finanse w jednej strukturze z historią odpowiedzialności. Gotowe na KSeF.",
-  openGraph: {
-    title: "KsięgaI - Centralny system ewidencji działalności firmy",
-    description: "Dokumenty, decyzje, finanse i operacje — w jednej, spójnej strukturze z pełnym śladem audytu i ciągłością odpowiedzialności.",
-    url: "https://ksiegai.pl",
-  },
-  alternates: {
-    canonical: "https://ksiegai.pl",
-  },
-};
+// Metadata moved to layout.tsx or metadata.ts for client components
 
 export default function Home() {
+  const { variant, isLoading, trackConversion, trackEvent } = useABTest('/');
+
+  // Get variant-specific content
+  const getHeroTitle = () => {
+    if (!variant) return "Faktura nie trafia do KSeF, dopóki strony jej nie uzgodnią";
+    return variant.changes?.heroTitle || "Faktura nie trafia do KSeF, dopóki strony jej nie uzgodnią";
+  };
+
+  const getHeroSubtitle = () => {
+    if (!variant) return "KsięgaI to warstwa kontroli i odpowiedzialności między Twoim systemem ERP a KSeF — gdzie dokumenty są uzgadniane, zatwierdzane i weryfikowane przed ostatecznym wysłaniem.";
+    return variant.changes?.heroSubtitle || "KsięgaI to warstwa kontroli i odpowiedzialności między Twoim systemem ERP a KSeF — gdzie dokumenty są uzgadniane, zatwierdzane i weryfikowane przed ostatecznym wysłaniem.";
+  };
+
+  const getCtaText = () => {
+    if (!variant) return "Dołącz do sieci zweryfikowanych firm";
+    return variant.changes?.ctaText || "Dołącz do sieci zweryfikowanych firm";
+  };
+
+  const handleCtaClick = () => {
+    trackEvent('click', 'hero_cta_clicked', { variant: variant?.name });
+  };
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
       {/* KSeF Readiness Banner */}
@@ -61,10 +73,10 @@ export default function Home() {
               <span className="text-blue-300 text-xs sm:text-sm font-semibold">Warstwa uzgodnień przed KSeF</span>
             </div>
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-white mb-4 sm:mb-6 leading-tight animate-fade-in px-2 max-w-4xl mx-auto">
-              Faktura nie trafia do KSeF, dopóki strony jej nie uzgodnią
+              {getHeroTitle()}
             </h1>
             <p className="text-lg sm:text-xl md:text-2xl text-gray-300 mb-4 font-medium leading-relaxed animate-fade-in px-2 max-w-3xl mx-auto">
-              KsięgaI to warstwa kontroli i odpowiedzialności między Twoim systemem ERP a KSeF — gdzie dokumenty są uzgadniane, zatwierdzane i weryfikowane przed ostatecznym wysłaniem.
+              {getHeroSubtitle()}
             </p>
             <p className="text-base sm:text-lg text-blue-300 mb-4 animate-fade-in px-2 max-w-2xl mx-auto font-medium">
               Jeśli kontrahent jest w KsięgaI, faktura trafia do jego systemu, nie do maila. Email to tylko powiadomienie — dokument żyje w systemie.
@@ -75,9 +87,10 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-3 px-2 animate-fade-in">
               <Link
                 href="/rejestracja"
+                onClick={handleCtaClick}
                 className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold shadow-xl hover:shadow-2xl transition-all"
               >
-                Dołącz do sieci zweryfikowanych firm
+                {getCtaText()}
                 <ArrowRight className="h-5 w-5" />
               </Link>
               <Link

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { Mail, ChevronDown } from "lucide-react";
 import { storeAuthToken, redirectToApp } from "@/lib/auth/crossDomainAuth";
+import { getSessionId } from "@/lib/ab-testing-supabase";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -27,11 +28,42 @@ export default function Register() {
   const [magicLinkSent, setMagicLinkSent] = useState(false);
   const [showEmailForm, setShowEmailForm] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
+  const [sessionId] = useState(() => getSessionId());
+  const [variantAssignments, setVariantAssignments] = useState<Record<string, string>>({});
+
+  // Load variant assignments from session storage on mount
+  useEffect(() => {
+    async function loadVariantAssignments() {
+      try {
+        const { data } = await supabase
+          .from('ab_test_assignments')
+          .select('test_id, variant_id')
+          .eq('session_id', sessionId);
+        
+        if (data) {
+          const assignments: Record<string, string> = {};
+          data.forEach(a => {
+            assignments[a.test_id] = a.variant_id;
+          });
+          setVariantAssignments(assignments);
+        }
+      } catch (err) {
+        console.error('Error loading variant assignments:', err);
+      }
+    }
+    
+    if (sessionId) {
+      loadVariantAssignments();
+    }
+  }, [sessionId]);
 
   // Handle auth state changes
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session) {
+        // Track registration conversion for all active A/B tests
+        await trackRegistrationConversion(session.user.id);
+        
         // Store token for cross-domain access
         storeAuthToken({
           access_token: session.access_token,
@@ -48,7 +80,7 @@ export default function Register() {
     return () => {
       authListener.subscription.unsubscribe();
     };
-  }, []);
+  }, [variantAssignments, sessionId]);
 
   // Resend cooldown timer
   useEffect(() => {
@@ -106,6 +138,59 @@ export default function Register() {
     }
   };
 
+  // Track registration conversion for all active A/B tests
+  const trackRegistrationConversion = async (userId: string) => {
+    try {
+      // Get all assignments for this session
+      const { data: assignments } = await supabase
+        .from('ab_test_assignments')
+        .select('id, test_id, variant_id')
+        .eq('session_id', sessionId);
+
+      if (!assignments || assignments.length === 0) return;
+
+      // Track conversion event for each test
+      const conversionEvents = assignments.map(assignment => ({
+        test_id: assignment.test_id,
+        assignment_id: assignment.id,
+        variant_id: assignment.variant_id,
+        event_type: 'conversion',
+        event_name: 'registration',
+        event_metadata: {
+          user_id: userId,
+          registration_method: email ? 'magic_link' : 'google_oauth',
+          timestamp: new Date().toISOString(),
+        },
+        created_at: new Date().toISOString(),
+      }));
+
+      await supabase.from('ab_test_events').insert(conversionEvents);
+
+      // Update assignments with user_id
+      await supabase
+        .from('ab_test_assignments')
+        .update({ user_id: userId })
+        .eq('session_id', sessionId);
+
+      // Store variant info in user metadata
+      if (assignments.length > 0) {
+        const variantData: Record<string, string> = {};
+        assignments.forEach(a => {
+          variantData[a.test_id] = a.variant_id;
+        });
+        
+        await supabase.auth.updateUser({
+          data: {
+            ab_test_variants: variantData,
+            ab_session_id: sessionId,
+          },
+        });
+      }
+    } catch (err) {
+      console.error('Error tracking registration conversion:', err);
+    }
+  };
+
   const handleGoogleSignIn = async () => {
     setError(null);
     setLoading(true);
@@ -122,6 +207,10 @@ export default function Register() {
       setError("Nie udało się zalogować przez Google. Spróbuj ponownie.");
       setLoading(false);
     }
+  };
+
+  const handleEmailVerified = () => {
+    redirectToApp('/');
   };
 
   return (
@@ -150,6 +239,13 @@ export default function Register() {
                   <strong>Kliknij link w e-mailu</strong>, a zostaniesz automatycznie zalogowany i przekierowany do aplikacji.
                 </p>
               </div>
+
+              <button
+                onClick={handleEmailVerified}
+                className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-xl transition-colors"
+              >
+                Email zweryfikowany — kontynuuj
+              </button>
 
               <div className="text-center pt-4">
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
