@@ -1,5 +1,7 @@
 'use client';
 
+import { supabase } from '@/lib/supabase-client';
+
 /**
  * A/B Testing for Static Site Generation (SSG)
  * Optimized for Cloudflare Pages with static export
@@ -19,6 +21,20 @@ export interface ABTestVariant {
   weight: number;
   changes: Record<string, any>;
 }
+
+declare global {
+  interface Window {
+    abTestDebug?: {
+      switchVariant: (testKey: string, variantId: string) => void;
+      clearVariant: (testKey: string) => void;
+      disableDebug: () => void;
+      listOverrides: () => Record<string, string>;
+    };
+  }
+}
+
+const DEBUG_OVERRIDE_STORAGE_KEY = 'ab_debug_variant_overrides';
+const DEBUG_SKIP_ANALYTICS_KEY = 'ab_debug_skip_analytics';
 
 export interface ABTest {
   id: string;
@@ -56,6 +72,71 @@ export function getSessionId(): string {
     setCookie('ab_session_id', sessionId, 365);
   }
   return sessionId;
+}
+
+// Get current variant assignments for session
+export function getVariantAssignments(): Record<string, string> {
+  if (typeof window === 'undefined') return {};
+  
+  const stored = localStorage.getItem('ab_variant_assignments');
+  if (stored) {
+    try {
+      return JSON.parse(stored);
+    } catch {
+      return {};
+    }
+  }
+  return {};
+}
+
+function getDebugOverrides(): Record<string, string> {
+  if (typeof window === 'undefined') return {};
+  const raw = window.localStorage.getItem(DEBUG_OVERRIDE_STORAGE_KEY);
+  if (!raw) return {};
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return {};
+  }
+}
+
+function getDebugOverride(testKey: string): string | null {
+  const overrides = getDebugOverrides();
+  return overrides[testKey] || null;
+}
+
+function setDebugOverride(testKey: string, variantId: string | null) {
+  if (typeof window === 'undefined') return;
+  const overrides = getDebugOverrides();
+  if (variantId) {
+    overrides[testKey] = variantId;
+  } else {
+    delete overrides[testKey];
+  }
+  window.localStorage.setItem(DEBUG_OVERRIDE_STORAGE_KEY, JSON.stringify(overrides));
+}
+
+function setDebugAnalyticsDisabled(disabled: boolean) {
+  if (typeof window === 'undefined') return;
+  if (disabled) {
+    window.localStorage.setItem(DEBUG_SKIP_ANALYTICS_KEY, 'true');
+  } else {
+    window.localStorage.removeItem(DEBUG_SKIP_ANALYTICS_KEY);
+  }
+}
+
+function isDebugAnalyticsDisabled(): boolean {
+  if (typeof window === 'undefined') return false;
+  return window.localStorage.getItem(DEBUG_SKIP_ANALYTICS_KEY) === 'true';
+}
+
+// Store variant assignment
+export function storeVariantAssignment(testId: string, variantId: string) {
+  if (typeof window === 'undefined') return;
+  
+  const assignments = getVariantAssignments();
+  assignments[testId] = variantId;
+  localStorage.setItem('ab_variant_assignments', JSON.stringify(assignments));
 }
 
 function generateSessionId(): string {
@@ -97,11 +178,48 @@ export async function loadABTests(): Promise<Record<string, ABTest>> {
       console.warn('No A/B tests configuration found');
       return {};
     }
-    return await response.json();
+    const tests = await response.json();
+    
+    // Cache in window for synchronous access
+    if (typeof window !== 'undefined') {
+      (window as any).__AB_TESTS_CACHE = tests;
+    }
+    
+    return tests;
   } catch (error) {
     console.error('Error loading A/B tests:', error);
     return {};
   }
+}
+
+function registerDebugCommands() {
+  if (typeof window === 'undefined' || window.abTestDebug) return;
+
+  window.abTestDebug = {
+    switchVariant: (testKey: string, variantId: string) => {
+      setDebugOverride(testKey, variantId);
+      setDebugAnalyticsDisabled(true);
+      const cookieName = `ab_${testKey}`;
+      setCookie(cookieName, variantId);
+      console.info(`[ABTest][debug] Forced ${testKey} => ${variantId}. Refresh to apply.`);
+    },
+    clearVariant: (testKey: string) => {
+      setDebugOverride(testKey, null);
+      console.info(`[ABTest][debug] Cleared override for ${testKey}`);
+    },
+    disableDebug: () => {
+      window.localStorage.removeItem(DEBUG_OVERRIDE_STORAGE_KEY);
+      setDebugAnalyticsDisabled(false);
+      console.info('[ABTest][debug] Disabled debug overrides');
+    },
+    listOverrides: () => getDebugOverrides(),
+  };
+
+  console.info('[ABTest][debug] Use window.abTestDebug.switchVariant(testKey, variantId) to force variants without analytics.');
+}
+
+if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'production') {
+  registerDebugCommands();
 }
 
 /**
@@ -119,12 +237,23 @@ export function getVariant(test: ABTest): ABTestVariant | null {
   
   // Check existing assignment
   const cookieName = `ab_${test.test_key}`;
+  const debugOverride = getDebugOverride(test.test_key);
+  if (debugOverride) {
+    const forcedVariant = test.variants.find(v => v.id === debugOverride);
+    if (forcedVariant) {
+      setCookie(cookieName, forcedVariant.id);
+      storeVariantAssignment(test.id, forcedVariant.id);
+      logVariantSelection(test.test_key, forcedVariant.id, 'debug override', forcedVariant.name);
+      return forcedVariant;
+    }
+  }
+
   const storedVariantId = getCookie(cookieName);
   
   if (storedVariantId) {
     const variant = test.variants.find(v => v.id === storedVariantId);
     if (variant) {
-      logVariantSelection(test.test_key, variant.id, 'existing');
+      logVariantSelection(test.test_key, variant.id, 'existing', variant.name);
       return variant;
     }
   }
@@ -133,9 +262,14 @@ export function getVariant(test: ABTest): ABTestVariant | null {
   const variant = selectVariantForTest(test);
   setCookie(cookieName, variant.id);
   
+  // Store in localStorage for cross-page persistence
+  storeVariantAssignment(test.id, variant.id);
+  
   // Track assignment (async, non-blocking)
-  trackAssignment(test.id, variant.id, sessionId);
-  logVariantSelection(test.test_key, variant.id, 'assigned');
+  if (!isDebugAnalyticsDisabled()) {
+    trackAssignment(test.id, variant.id, sessionId);
+  }
+  logVariantSelection(test.test_key, variant.id, 'assigned', variant.name);
   
   return variant;
 }
@@ -156,9 +290,16 @@ function selectVariantForTest(test: ABTest): ABTestVariant {
   return selectVariantByWeight(test.variants);
 }
 
-function logVariantSelection(testKey: string, variantId: string, source: 'existing' | 'assigned') {
+type VariantLogSource = 'existing' | 'assigned' | 'debug override';
+
+function logVariantSelection(
+  testKey: string,
+  variantId: string,
+  source: VariantLogSource,
+  variantName?: string
+) {
   if (typeof window === 'undefined') return;
-  const label = variantId === 'control' ? 'Variant A (control)' : `Variant B (${variantId})`;
+  const label = variantName ? `${variantName} (${variantId})` : variantId;
   console.log(`[ABTest] ${testKey}: ${label} (${source})`);
 }
 
@@ -166,21 +307,32 @@ function logVariantSelection(testKey: string, variantId: string, source: 'existi
  * Track assignment (fire and forget)
  */
 async function trackAssignment(testId: string, variantId: string, sessionId: string) {
+  if (isDebugAnalyticsDisabled()) {
+    console.debug('[ABTest][debug] Skipping assignment tracking');
+    return;
+  }
   try {
-    await fetch('/api/ab-track', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        test_id: testId,
-        variant_id: variantId,
-        session_id: sessionId,
-        event_type: 'assignment',
-        user_agent: navigator.userAgent,
-        referrer: document.referrer,
-        utm_source: new URLSearchParams(window.location.search).get('utm_source'),
-        utm_medium: new URLSearchParams(window.location.search).get('utm_medium'),
-        utm_campaign: new URLSearchParams(window.location.search).get('utm_campaign'),
-      }),
+    const { data: existing, error: fetchError } = await supabase
+      .from('ab_test_assignments')
+      .select('id')
+      .eq('test_id', testId)
+      .eq('session_id', sessionId)
+      .maybeSingle();
+
+    if (existing && !fetchError) {
+      return;
+    }
+
+    await supabase.from('ab_test_assignments').insert({
+      test_id: testId,
+      session_id: sessionId,
+      variant_id: variantId,
+      user_agent: navigator.userAgent,
+      referrer: document.referrer,
+      utm_source: new URLSearchParams(window.location.search).get('utm_source'),
+      utm_medium: new URLSearchParams(window.location.search).get('utm_medium'),
+      utm_campaign: new URLSearchParams(window.location.search).get('utm_campaign'),
+      assigned_at: new Date().toISOString(),
     });
   } catch (err) {
     console.error('Failed to track assignment:', err);
@@ -191,20 +343,31 @@ async function trackAssignment(testId: string, variantId: string, sessionId: str
  * Track page view with time tracking
  */
 export async function trackPageView(testId: string, variantId: string, pagePath: string) {
+  if (isDebugAnalyticsDisabled()) {
+    console.debug('[ABTest][debug] Skipping page view tracking');
+    return;
+  }
   const sessionId = getSessionId();
   
   try {
-    await fetch('/api/ab-track', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    // Get assignment ID first
+    const { data: assignment } = await supabase
+      .from('ab_test_assignments')
+      .select('id')
+      .eq('test_id', testId)
+      .eq('session_id', sessionId)
+      .single();
+
+    if (assignment) {
+      await supabase.from('ab_test_events').insert({
         test_id: testId,
+        assignment_id: assignment.id,
         variant_id: variantId,
-        session_id: sessionId,
         event_type: 'page_view',
         page_path: pagePath,
-      }),
-    });
+        created_at: new Date().toISOString(),
+      });
+    }
   } catch (err) {
     console.error('Failed to track page view:', err);
   }
@@ -214,6 +377,10 @@ export async function trackPageView(testId: string, variantId: string, pagePath:
  * Track conversion
  */
 export async function trackConversion(testKey: string, eventName: string, value?: number, metadata?: Record<string, any>) {
+  if (isDebugAnalyticsDisabled()) {
+    console.debug('[ABTest][debug] Skipping conversion tracking');
+    return;
+  }
   const sessionId = getSessionId();
   const cookieName = `ab_${testKey}`;
   const variantId = getCookie(cookieName);
@@ -221,19 +388,40 @@ export async function trackConversion(testKey: string, eventName: string, value?
   if (!variantId) return;
   
   try {
-    await fetch('/api/ab-track', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        test_key: testKey,
+    const { createClient } = await import('@supabase/supabase-js');
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+
+    // Get test ID from test_key
+    const { data: test } = await supabase
+      .from('ab_test_definitions')
+      .select('id')
+      .eq('test_key', testKey)
+      .single();
+    if (!test) return;
+
+    // Get assignment ID
+    const { data: assignment } = await supabase
+      .from('ab_test_assignments')
+      .select('id')
+      .eq('test_id', test.id)
+      .eq('session_id', sessionId)
+      .single();
+
+    if (assignment) {
+      await supabase.from('ab_test_events').insert({
+        test_id: test.id,
+        assignment_id: assignment.id,
         variant_id: variantId,
-        session_id: sessionId,
         event_type: 'conversion',
         event_name: eventName,
         event_value: value,
         event_metadata: metadata,
-      }),
-    });
+        created_at: new Date().toISOString(),
+      });
+    }
   } catch (err) {
     console.error('Failed to track conversion:', err);
   }
@@ -248,6 +436,10 @@ export async function trackEvent(
   eventName: string,
   metadata?: Record<string, any>
 ) {
+  if (isDebugAnalyticsDisabled()) {
+    console.debug('[ABTest][debug] Skipping event tracking');
+    return;
+  }
   const sessionId = getSessionId();
   const cookieName = `ab_${testKey}`;
   const variantId = getCookie(cookieName);
@@ -255,18 +447,50 @@ export async function trackEvent(
   if (!variantId) return;
   
   try {
-    await fetch('/api/ab-track', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        test_key: testKey,
+    const { createClient } = await import('@supabase/supabase-js');
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+
+    // Get test ID from test_key
+    const { data: test } = await supabase
+      .from('ab_test_definitions')
+      .select('id')
+      .eq('test_key', testKey)
+      .single();
+
+    if (!test) return;
+
+    // Get assignment ID
+    const { data: assignment } = await supabase
+      .from('ab_test_assignments')
+      .select('id')
+      .eq('test_id', test.id)
+      .eq('session_id', sessionId)
+      .single();
+
+    if (assignment) {
+      const eventData: any = {
+        test_id: test.id,
+        assignment_id: assignment.id,
         variant_id: variantId,
-        session_id: sessionId,
         event_type: eventType,
         event_name: eventName,
         event_metadata: metadata,
-      }),
-    });
+        created_at: new Date().toISOString(),
+      };
+
+      // Extract time_on_page and scroll_depth if present
+      if (metadata?.time_on_page !== undefined) {
+        eventData.time_on_page = metadata.time_on_page;
+      }
+      if (metadata?.scroll_depth !== undefined) {
+        eventData.scroll_depth = metadata.scroll_depth;
+      }
+
+      await supabase.from('ab_test_events').insert(eventData);
+    }
   } catch (err) {
     console.error('Failed to track event:', err);
   }

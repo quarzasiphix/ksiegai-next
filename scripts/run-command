@@ -1,0 +1,11 @@
+node scripts/fetch-ab-tests.js
+
+
+# variant B
+window.abTestDebug.switchVariant('home_page_headline_test', 'variant_b');
+
+# variant A
+window.abTestDebug.switchVariant('home_page_headline_test', 'variant_a');
+
+# reset
+window.abTestDebug.reset();

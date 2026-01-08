@@ -2,28 +2,38 @@
   "/": {
     "id": "2f1462a3-951b-4936-8c75-c602801c28b6",
     "test_key": "home_page_headline_test",
-    "name": "Home Page Headline Test",
+    "name": "Home Page Headline Test - Control & Safety vs Productivity & Scale",
     "page_path": "/",
     "traffic_allocation": 1,
     "variants": [
       {
-        "id": "control",
-        "name": "Control",
+        "id": "variant_a",
+        "name": "Variant A – Control & Safety",
         "weight": 0.5,
         "changes": {
-          "cta": "Rozpocznij za darmo",
-          "headline": "Fakturowanie bez bólu głowy",
-          "subheadline": "Automatyzacja faktur dla polskich firm"
+          "headline": "KSeF bez chaosu, błędów i stresu",
+          "subheadline": "Faktury są uzgadniane i zatwierdzane w systemie — zanim trafią do KSeF. Z pełnym śladem decyzji.",
+          "description": "KsięgaI działa między Twoim ERP a KSeF. Bez maili, bez ręcznego pilnowania, bez domysłów.",
+          "cta": "Zobacz jak wygląda bezpieczny KSeF",
+          "cta_secondary": "Rozpocznij za darmo",
+          "banner_badge": "Kontrola i bezpieczeństwo",
+          "banner_text": "Faktury uzgadniane przed KSeF — z pełnym śladem decyzji i audytu.",
+          "tagline": "Bezpieczny KSeF z pełną kontrolą nad dokumentami"
         }
       },
       {
-        "id": "variant_a",
-        "name": "Value Stack",
+        "id": "variant_b",
+        "name": "Variant B – Productivity & Scale",
         "weight": 0.5,
         "changes": {
-          "cta": "Zobacz jak to działa",
-          "headline": "Zaoszczędź 10 godzin tygodniowo",
-          "subheadline": "Automatyczne faktury + KSeF + księgowość"
+          "headline": "Jedno miejsce dla faktur, uzgodnień i księgowości",
+          "subheadline": "Automatyczne faktury, akceptacje kontrahentów i gotowość na KSeF — bez maili i ręcznego przepisywania.",
+          "description": "Twoi kontrahenci pracują na dokumentach w systemie. Email to tylko powiadomienie.",
+          "cta": "Zobacz jak to działa w praktyce",
+          "cta_secondary": "Rozpocznij za darmo",
+          "banner_badge": "Produktywność i skala",
+          "banner_text": "Automatyzacja faktur i uzgodnień — wszystko w jednym systemie.",
+          "tagline": "Efektywny KSeF bez ręcznej pracy"
         }
       }
     ],

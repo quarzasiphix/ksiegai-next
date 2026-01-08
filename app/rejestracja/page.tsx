@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { Mail, ChevronDown } from "lucide-react";
 import { storeAuthToken, redirectToApp } from "@/lib/auth/crossDomainAuth";
-import { getSessionId } from "@/lib/ab-testing-supabase";
+import { getSessionId, getVariantAssignments } from "@/lib/ab-testing-ssg";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -31,31 +31,11 @@ export default function Register() {
   const [sessionId] = useState(() => getSessionId());
   const [variantAssignments, setVariantAssignments] = useState<Record<string, string>>({});
 
-  // Load variant assignments from session storage on mount
+  // Load variant assignments from localStorage on mount
   useEffect(() => {
-    async function loadVariantAssignments() {
-      try {
-        const { data } = await supabase
-          .from('ab_test_assignments')
-          .select('test_id, variant_id')
-          .eq('session_id', sessionId);
-        
-        if (data) {
-          const assignments: Record<string, string> = {};
-          data.forEach(a => {
-            assignments[a.test_id] = a.variant_id;
-          });
-          setVariantAssignments(assignments);
-        }
-      } catch (err) {
-        console.error('Error loading variant assignments:', err);
-      }
-    }
-    
-    if (sessionId) {
-      loadVariantAssignments();
-    }
-  }, [sessionId]);
+    const assignments = getVariantAssignments();
+    setVariantAssignments(assignments);
+  }, []);
 
   // Handle auth state changes
   useEffect(() => {

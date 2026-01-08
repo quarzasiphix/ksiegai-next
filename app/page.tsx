@@ -5,41 +5,167 @@ import Script from "next/script";
 import { ArrowRight, CheckCircle2, Shield, Zap, Building, Calculator, CreditCard, Crown, FileText, Users, TrendingUp, Receipt, Inbox, MessageSquare, ThumbsUp, Network, History, Lock } from "lucide-react";
 import FAQSection from "./faq-section";
 import { useABTestSSG } from "@/hooks/useABTestSSG";
+import { useState, useEffect } from "react";
 
 // Metadata moved to layout.tsx or metadata.ts for client components
 
+// Default content (fallback - Variant A)
+const DEFAULT_CONTENT = {
+  bannerText: "Przygotowanie do KSeF: uporządkowana ewidencja dokumentów, decyzji i rozliczeń w jednym systemie.",
+  bannerBadge: "Kontrola i bezpieczeństwo",
+  headline: "KSeF bez chaosu, błędów i stresu",
+  subheadline: "Faktury są uzgadniane i zatwierdzane w systemie — zanim trafią do KSeF. Z pełnym śladem decyzji.",
+  description: "KsięgaI działa między Twoim ERP a KSeF. Bez maili, bez ręcznego pilnowania, bez domysłów.",
+  tagline: "Bezpieczny KSeF z pełną kontrolą nad dokumentami",
+  cta: "Zobacz jak wygląda bezpieczny KSeF",
+  ctaSecondary: "Rozpocznij za darmo",
+};
+
+// Get variant immediately from cookies/localStorage (like language detection)
+function getVariantContent() {
+  if (typeof window === 'undefined') return DEFAULT_CONTENT;
+  
+  const testKey = 'home_page_headline_test';
+  const cookieName = `ab_${testKey}`;
+  
+  // Check cookie first
+  const cookies = document.cookie.split('; ');
+  for (const cookie of cookies) {
+    if (cookie.startsWith(cookieName + '=')) {
+      const variantId = cookie.split('=')[1];
+      
+      // Try to get from cached JSON
+      const cached = (window as any).__AB_TESTS_CACHE;
+      if (cached?.['/']?.variants) {
+        const variant = cached['/'].variants.find((v: any) => v.id === variantId);
+        if (variant?.changes) {
+          return {
+            bannerText: variant.changes.banner_text || DEFAULT_CONTENT.bannerText,
+            bannerBadge: variant.changes.banner_badge || DEFAULT_CONTENT.bannerBadge,
+            headline: variant.changes.headline || DEFAULT_CONTENT.headline,
+            subheadline: variant.changes.subheadline || DEFAULT_CONTENT.subheadline,
+            description: variant.changes.description || DEFAULT_CONTENT.description,
+            tagline: variant.changes.tagline || DEFAULT_CONTENT.tagline,
+            cta: variant.changes.cta || DEFAULT_CONTENT.cta,
+            ctaSecondary: variant.changes.cta_secondary || DEFAULT_CONTENT.ctaSecondary,
+          };
+        }
+      }
+      break;
+    }
+  }
+  
+  return DEFAULT_CONTENT;
+}
+
 export default function Home() {
+  // Get content immediately on mount (like language switcher)
+  const [content, setContent] = useState(() => {
+    // Check if inline script already preloaded content
+    if (typeof window !== 'undefined' && (window as any).__AB_HERO_CONTENT) {
+      return (window as any).__AB_HERO_CONTENT;
+    }
+    return getVariantContent();
+  });
+  
   const { variant, isLoading, trackConversion, trackEvent } = useABTestSSG('/', {
     trackTime: true,
     trackScroll: true,
   });
 
-  // Get variant-specific content
-  const getHeroTitle = () => {
-    if (!variant) return "Faktura nie trafia do KSeF, dopóki strony jej nie uzgodnią";
-    return variant.changes?.heroTitle || "Faktura nie trafia do KSeF, dopóki strony jej nie uzgodnią";
-  };
-
-  const getHeroSubtitle = () => {
-    if (!variant) return "KsięgaI to warstwa kontroli i odpowiedzialności między Twoim systemem ERP a KSeF — gdzie dokumenty są uzgadniane, zatwierdzane i weryfikowane przed ostatecznym wysłaniem.";
-    return variant.changes?.heroSubtitle || "KsięgaI to warstwa kontroli i odpowiedzialności między Twoim systemem ERP a KSeF — gdzie dokumenty są uzgadniane, zatwierdzane i weryfikowane przed ostatecznym wysłaniem.";
-  };
-
-  const getCtaText = () => {
-    if (!variant) return "Dołącz do sieci zweryfikowanych firm";
-    return variant.changes?.ctaText || "Dołącz do sieci zweryfikowanych firm";
-  };
+  // Update content when variant loads from hook
+  useEffect(() => {
+    if (variant?.changes) {
+      setContent({
+        bannerText: variant.changes.banner_text || DEFAULT_CONTENT.bannerText,
+        bannerBadge: variant.changes.banner_badge || DEFAULT_CONTENT.bannerBadge,
+        headline: variant.changes.headline || DEFAULT_CONTENT.headline,
+        subheadline: variant.changes.subheadline || DEFAULT_CONTENT.subheadline,
+        description: variant.changes.description || DEFAULT_CONTENT.description,
+        tagline: variant.changes.tagline || DEFAULT_CONTENT.tagline,
+        cta: variant.changes.cta || DEFAULT_CONTENT.cta,
+        ctaSecondary: variant.changes.cta_secondary || DEFAULT_CONTENT.ctaSecondary,
+      });
+    }
+  }, [variant]);
 
   const handleCtaClick = () => {
     trackEvent('click', 'hero_cta_clicked', { variant: variant?.name });
   };
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950">
+    <>
+      {/* Preload variant before React renders (like i18n language detection) */}
+      <Script
+        id="ab-variant-preload"
+        strategy="beforeInteractive"
+        dangerouslySetInnerHTML={{
+          __html: `
+            (function() {
+              try {
+                // Check for existing variant assignment
+                var testKey = 'home_page_headline_test';
+                var cookieName = 'ab_' + testKey;
+                var cookies = document.cookie.split('; ');
+                var variantId = null;
+                
+                for (var i = 0; i < cookies.length; i++) {
+                  if (cookies[i].startsWith(cookieName + '=')) {
+                    variantId = cookies[i].split('=')[1];
+                    break;
+                  }
+                }
+                
+                // Check for debug override
+                var debugOverrides = localStorage.getItem('ab_debug_variant_overrides');
+                if (debugOverrides) {
+                  try {
+                    var overrides = JSON.parse(debugOverrides);
+                    if (overrides[testKey]) {
+                      variantId = overrides[testKey];
+                    }
+                  } catch (e) {}
+                }
+                
+                // If we have a variant, fetch and cache the content
+                if (variantId) {
+                  var xhr = new XMLHttpRequest();
+                  xhr.open('GET', '/ab-tests.json', false); // synchronous
+                  xhr.send();
+                  
+                  if (xhr.status === 200) {
+                    var tests = JSON.parse(xhr.responseText);
+                    window.__AB_TESTS_CACHE = tests;
+                    
+                    if (tests['/'] && tests['/'].variants) {
+                      var variant = tests['/'].variants.find(function(v) { return v.id === variantId; });
+                      if (variant && variant.changes) {
+                        window.__AB_HERO_CONTENT = {
+                          bannerText: variant.changes.banner_text || "Przygotowanie do KSeF: uporządkowana ewidencja dokumentów, decyzji i rozliczeń w jednym systemie.",
+                          bannerBadge: variant.changes.banner_badge || "Kontrola i bezpieczeństwo",
+                          headline: variant.changes.headline || "KSeF bez chaosu, błędów i stresu",
+                          subheadline: variant.changes.subheadline || "Faktury są uzgadniane i zatwierdzane w systemie — zanim trafią do KSeF. Z pełnym śladem decyzji.",
+                          description: variant.changes.description || "KsięgaI działa między Twoim ERP a KSeF. Bez maili, bez ręcznego pilnowania, bez domysłów.",
+                          tagline: variant.changes.tagline || "Bezpieczny KSeF z pełną kontrolą nad dokumentami",
+                          cta: variant.changes.cta || "Zobacz jak wygląda bezpieczny KSeF",
+                          ctaSecondary: variant.changes.cta_secondary || "Rozpocznij za darmo"
+                        };
+                      }
+                    }
+                  }
+                }
+              } catch (e) {
+                // Silent fail - will use defaults
+              }
+            })();
+          `,
+        }}
+      />
+      <div className="min-h-screen bg-white dark:bg-gray-950">
       {/* KSeF Readiness Banner */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 border-b border-blue-500">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <p className="text-center text-sm sm:text-base text-white font-medium">
-            Przygotowanie do KSeF: uporządkowana ewidencja dokumentów, decyzji i rozliczeń w jednym systemie.
+          <p className="text-center text-sm sm:text-base text-white font-medium" suppressHydrationWarning>
+            {content.bannerText}
           </p>
         </div>
       </div>
@@ -73,41 +199,41 @@ export default function Home() {
         <div className="container mx-auto px-4 sm:px-6 md:px-4 py-6 sm:py-8 md:py-12">
           <div className="mx-auto text-center max-w-5xl">
             <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-blue-600/10 border border-blue-500/30 mb-6 sm:mb-8 animate-fade-in">
-              <span className="text-blue-300 text-xs sm:text-sm font-semibold">Warstwa uzgodnień przed KSeF</span>
+              <span className="text-blue-300 text-xs sm:text-sm font-semibold" suppressHydrationWarning>{content.bannerBadge}</span>
             </div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-white mb-4 sm:mb-6 leading-tight animate-fade-in px-2 max-w-4xl mx-auto">
-              {getHeroTitle()}
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-white mb-4 sm:mb-6 leading-tight animate-fade-in px-2 max-w-4xl mx-auto" suppressHydrationWarning>
+              {content.headline}
             </h1>
-            <p className="text-lg sm:text-xl md:text-2xl text-gray-300 mb-4 font-medium leading-relaxed animate-fade-in px-2 max-w-3xl mx-auto">
-              {getHeroSubtitle()}
+            <p className="text-lg sm:text-xl md:text-2xl text-gray-300 mb-4 font-medium leading-relaxed animate-fade-in px-2 max-w-3xl mx-auto" suppressHydrationWarning>
+              {content.subheadline}
             </p>
-            <p className="text-base sm:text-lg text-blue-300 mb-4 animate-fade-in px-2 max-w-2xl mx-auto font-medium">
-              Jeśli kontrahent jest w KsięgaI, faktura trafia do jego systemu, nie do maila. Email to tylko powiadomienie — dokument żyje w systemie.
+            <p className="text-base sm:text-lg text-blue-300 mb-4 animate-fade-in px-2 max-w-2xl mx-auto font-medium" suppressHydrationWarning>
+              {content.description}
             </p>
-            <p className="text-sm text-gray-400 mb-8 animate-fade-in px-2 max-w-2xl mx-auto italic">
-              Ostatni checkpoint przed KSeF: negocjacje, korekty i akceptacje w jednym miejscu z pełnym śladem audytu.
+            <p className="text-sm text-gray-400 mb-8 animate-fade-in px-2 max-w-2xl mx-auto italic" suppressHydrationWarning>
+              {content.tagline}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-3 px-2 animate-fade-in">
               <Link
                 href="/rejestracja"
                 onClick={handleCtaClick}
-                className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold shadow-xl hover:shadow-2xl transition-all"
+                className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold shadow-xl hover:shadow-2xl transition-all whitespace-nowrap"
               >
-                {getCtaText()}
+                <span suppressHydrationWarning>{content.cta}</span>
                 <ArrowRight className="h-5 w-5" />
               </Link>
               <Link
                 href="#mechanism"
-                className="inline-flex items-center justify-center gap-2 bg-transparent border border-gray-600 hover:border-gray-400 text-gray-300 text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold transition-all"
+                className="inline-flex items-center justify-center gap-2 bg-transparent border border-gray-600 hover:border-gray-400 text-gray-300 text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold transition-all whitespace-nowrap"
               >
-                Zobacz jak działa uzgodnienie
+                <span suppressHydrationWarning>{content.ctaSecondary}</span>
               </Link>
             </div>
             <p className="text-xs sm:text-sm text-gray-400 font-medium text-center animate-fade-in px-2">
               Zweryfikowana sieć firm • Natywne dostarczanie dokumentów • Uzgodnienie przed KSeF
             </p>
 
-            {/* Zakres ewidencji - specification block */}
+            {/* Zakres ewidencji - specification block 
             <div className="mt-8 sm:mt-10 bg-gray-900/50 border border-gray-700 rounded-xl p-6 sm:p-8 max-w-3xl mx-auto animate-fade-in">
               <h3 className="text-base sm:text-lg font-semibold text-white mb-4 text-center">
                 Workflow uzgodnienia dokumentu
@@ -135,10 +261,11 @@ export default function Home() {
                 </li>
               </ul>
             </div>
+              */}
           </div>
         </div>
       </section>
-
+      
       {/* ICP SEGMENTATION - Who needs this */}
       <section className="py-12 sm:py-16 bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800">
         <div className="container mx-auto px-4 sm:px-6 md:px-4">
@@ -1203,5 +1330,6 @@ export default function Home() {
         </div>
       </section>
     </div>
+    </>
   );
 }
