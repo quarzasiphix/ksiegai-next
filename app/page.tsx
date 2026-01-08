@@ -90,7 +90,24 @@ export default function Home() {
   }, [variant]);
 
   const handleCtaClick = () => {
+    // Track with A/B testing system
     trackEvent('click', 'hero_cta_clicked', { variant: variant?.name });
+    
+    // Track with Google Tag Manager
+    if (typeof window !== 'undefined' && (window as any).dataLayer) {
+      (window as any).dataLayer.push({
+        event: 'cta_click',
+        event_category: 'engagement',
+        event_action: 'hero_register_button_click',
+        event_label: content.cta,
+        variant_name: variant?.name,
+        variant_id: variant?.id,
+        button_text: content.cta,
+        page_location: window.location.href,
+        page_path: window.location.pathname,
+        timestamp: new Date().toISOString()
+      });
+    }
   };
   return (
     <>
@@ -198,7 +215,7 @@ export default function Home() {
       <section className="relative py-8 sm:py-12 md:py-20 bg-gray-950 border-b border-gray-800">
         <div className="container mx-auto px-4 sm:px-6 md:px-4 py-6 sm:py-8 md:py-12">
           <div className="mx-auto text-center max-w-5xl">
-            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-blue-600/10 border border-blue-500/30 mb-6 sm:mb-8 animate-fade-in">
+            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-blue-900/40 border border-blue-500/30 mb-6 sm:mb-8 animate-fade-in">
               <span className="text-blue-300 text-xs sm:text-sm font-semibold" suppressHydrationWarning>{content.bannerBadge}</span>
             </div>
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-white mb-4 sm:mb-6 leading-tight animate-fade-in px-2 max-w-4xl mx-auto" suppressHydrationWarning>
@@ -217,7 +234,7 @@ export default function Home() {
               <Link
                 href="/rejestracja"
                 onClick={handleCtaClick}
-                className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold shadow-xl hover:shadow-2xl transition-all whitespace-nowrap"
+                className="inline-flex items-center justify-center gap-2 bg-blue-900 hover:bg-blue-800 text-white text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold shadow-xl hover:shadow-2xl transition-all whitespace-nowrap"
               >
                 <span suppressHydrationWarning>{content.cta}</span>
                 <ArrowRight className="h-5 w-5" />
@@ -398,15 +415,15 @@ export default function Home() {
               <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 px-2 mb-2">
                 Standardowy proces: wpływ → uzgodnienie → zatwierdzenie. Każdy krok ma uprawnienia i ślad audytu.
               </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 px-2">
+              <p className="text-sm text-gray-600 dark:text-gray-400 px-2">
                 Efekt: mniej ręcznych czynności i spójny rejestr działań.
               </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
               {/* Step 1: Wpływ */}
               <div className="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-2xl border border-gray-200 dark:border-gray-800 text-center">
-                <div className="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center mx-auto mb-4">
-                  <Inbox className="h-8 w-8 text-white" />
+                <div className="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mx-auto mb-4">
+                  <Inbox className="h-8 w-8 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white text-sm font-bold mb-3">
                   1
@@ -421,10 +438,10 @@ export default function Home() {
 
               {/* Step 2: Uzgodnienie */}
               <div className="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-2xl border border-gray-200 dark:border-gray-800 text-center">
-                <div className="w-16 h-16 rounded-full bg-green-600 flex items-center justify-center mx-auto mb-4">
-                  <MessageSquare className="h-8 w-8 text-white" />
+                <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto mb-4">
+                  <MessageSquare className="h-8 w-8 text-green-600 dark:text-green-400" />
                 </div>
-                <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-600 text-white text-sm font-bold mb-3">
+                <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-700 text-white text-sm font-bold mb-3">
                   2
                 </div>
                 <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-3">
@@ -437,8 +454,8 @@ export default function Home() {
 
               {/* Step 3: Zatwierdzenie */}
               <div className="bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-2xl border border-gray-200 dark:border-gray-800 text-center">
-                <div className="w-16 h-16 rounded-full bg-purple-600 flex items-center justify-center mx-auto mb-4">
-                  <ThumbsUp className="h-8 w-8 text-white" />
+                <div className="w-16 h-16 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mx-auto mb-4">
+                  <ThumbsUp className="h-8 w-8 text-purple-600 dark:text-purple-400" />
                 </div>
                 <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-purple-600 text-white text-sm font-bold mb-3">
                   3
@@ -551,7 +568,7 @@ export default function Home() {
       <section className="py-12 sm:py-16 bg-white dark:bg-gray-950">
         <div className="container mx-auto px-4 sm:px-6 md:px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 sm:mb-8 px-2">
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 px-2">
               Projektowane wspólnie z księgowymi: kolejka wyjątków, zatwierdzanie, role użytkowników i ślad audytu.
             </p>
             <div className="bg-gradient-to-br from-blue-50 to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl p-6 sm:p-8 mb-8 sm:mb-10 border border-blue-100 dark:border-gray-700">
@@ -599,7 +616,7 @@ export default function Home() {
                           <span className="text-amber-400 font-medium">3</span>
                         </div>
                         <div className="flex justify-between text-xs mt-3 pt-2 border-t border-gray-700">
-                          <span className="text-gray-500">Ostatnia walidacja</span>
+                          <span className="text-gray-400">Ostatnia walidacja</span>
                           <span className="text-gray-400">2 min temu</span>
                         </div>
                       </div>
@@ -726,7 +743,7 @@ export default function Home() {
       <section className="py-12 sm:py-16 bg-white dark:bg-gray-950">
         <div className="container mx-auto px-4 sm:px-6 md:px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mb-3 px-2 font-medium">
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-3 px-2 font-medium">
               To nie jest narzędzie „na chwilę". To infrastruktura.
             </p>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6 px-2">
@@ -735,7 +752,7 @@ export default function Home() {
             <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 mb-4 px-2 max-w-3xl mx-auto">
               KsięgaI nie ogranicza Cię, gdy firma rośnie. System skaluje się bez chaosu i ręcznej pracy.
             </p>
-            <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mb-6 px-2 italic">
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-6 px-2 italic">
               Masz 2+ firmy albo obsługujesz klientów? Tu zaczyna się realna przewaga.
             </p>
             
@@ -752,33 +769,39 @@ export default function Home() {
                   <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
                     <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                   </div>
-                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Obsługa wielu firm i klientów</h3>
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-3">
+                    Obsługa wielu firm i klientów
+                  </h3>
+                  <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+                    Jedno miejsce, wiele podmiotów. Bez przełączania systemów.
+                  </p>
                 </div>
-                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-                  Jedno miejsce, wiele podmiotów. Bez przełączania systemów.
-                </p>
               </div>
               <div className="bg-gray-50 dark:bg-gray-900 p-6 sm:p-8 rounded-xl border border-gray-200 dark:border-gray-800">
                 <div className="flex items-start gap-3 mb-4">
                   <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center flex-shrink-0">
                     <FileText className="h-5 w-5 text-green-600 dark:text-green-400" />
                   </div>
-                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Dane gotowe do kontroli</h3>
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-3">
+                    Dane gotowe do kontroli
+                  </h3>
+                  <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+                    Spójna struktura, ślad zmian, odpowiedzialność i historia decyzji.
+                  </p>
                 </div>
-                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-                  Spójna struktura, ślad zmian, odpowiedzialność i historia decyzji.
-                </p>
               </div>
               <div className="bg-gray-50 dark:bg-gray-900 p-6 sm:p-8 rounded-xl border border-gray-200 dark:border-gray-800">
                 <div className="flex items-start gap-3 mb-4">
                   <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
                     <TrendingUp className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                   </div>
-                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Więcej klientów bez więcej godzin</h3>
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-3">
+                    Więcej klientów bez więcej godzin
+                  </h3>
+                  <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+                    Dla księgowych: większa przepustowość bez zwiększania zespołu.
+                  </p>
                 </div>
-                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-                  Dla księgowych: większa przepustowość bez zwiększania zespołu.
-                </p>
               </div>
             </div>
           </div>
@@ -790,7 +813,7 @@ export default function Home() {
         <div className="container mx-auto px-4 sm:px-6 md:px-4">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-8 sm:mb-10">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-600 text-white mb-4">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-700 text-white mb-4">
                 <Inbox className="h-5 w-5" />
                 <span className="text-sm font-bold uppercase tracking-wide">Plan podstawowy (bez opłat)</span>
               </div>
@@ -809,7 +832,7 @@ export default function Home() {
               <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
                 Zakres planu podstawowego:
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto">
                 <div className="flex items-start gap-3">
                   <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-400 flex-shrink-0 mt-1" />
                   <div>
@@ -861,7 +884,7 @@ export default function Home() {
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                 <Link
                   href="/rejestracja"
-                  className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white text-lg px-10 py-4 rounded-2xl font-bold shadow-xl hover:shadow-2xl transition-all"
+                  className="inline-flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white text-lg px-10 py-4 rounded-2xl font-bold shadow-xl hover:shadow-2xl transition-all"
                 >
                   Uruchom rejestr wpływów
                   <ArrowRight className="h-5 w-5" />
@@ -870,7 +893,7 @@ export default function Home() {
                   href="#premium"
                   className="inline-flex items-center gap-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-white text-lg px-10 py-4 rounded-2xl font-semibold transition-all"
                 >
-                  Zakres rozszerzony
+                  Zobacz plan Premium
                 </Link>
               </div>
               <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
@@ -1124,7 +1147,7 @@ export default function Home() {
             </div>
 
             <div className="text-center mt-8">
-              <p className="text-xs text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
+              <p className="text-xs text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
                 <strong>Ważne:</strong> KsięgaI jest oprogramowaniem wspierającym księgowość. Nie świadczymy usług biura rachunkowego ani doradztwa podatkowego.
               </p>
             </div>
@@ -1139,7 +1162,7 @@ export default function Home() {
             <div className="text-center mb-8 sm:mb-10">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-600/10 border border-blue-500/30 mb-4">
                 <Network className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                <span className="text-sm font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wide">Efekt sieci</span>
+                <span className="text-sm font-semibold text-blue-500 dark:text-blue-300 uppercase tracking-wide">Efekt sieci</span>
               </div>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4 px-2">
                 Standaryzacja wymiany dokumentów między firmami
@@ -1317,7 +1340,7 @@ export default function Home() {
                 href="#premium"
                 className="inline-flex items-center gap-2 bg-blue-800 hover:bg-blue-900 text-white text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold transition-all"
               >
-                Zakres funkcjonalny
+                Pełny zakres funkcji
               </Link>
             </div>
             <p className="mt-4 text-sm text-blue-100">

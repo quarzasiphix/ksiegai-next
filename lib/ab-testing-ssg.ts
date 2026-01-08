@@ -275,19 +275,24 @@ export function getVariant(test: ABTest): ABTestVariant | null {
 }
 
 function selectVariantForTest(test: ABTest): ABTestVariant {
-  if (typeof window !== 'undefined' && test.variants.length === 2) {
-    const toggleKey = `ab_${test.test_key}_toggle`;
-    const lastAssigned = window.localStorage.getItem(toggleKey);
-
-    // Alternate between 0 and 1 for strict 50/50 distribution per browser session
-    const nextIndex = lastAssigned === '0' ? 1 : 0;
-    window.localStorage.setItem(toggleKey, nextIndex.toString());
-
-    const alternatingVariant = test.variants[nextIndex] ?? test.variants[0];
-    return alternatingVariant;
+  // Use deterministic hash-based selection for consistent assignment
+  // This ensures the same user always gets the same variant across sessions
+  const sessionId = getSessionId();
+  const hash = simpleHash(sessionId + test.test_key);
+  
+  // Convert hash (0-1) to variant using cumulative weights
+  const totalWeight = test.variants.reduce((sum, v) => sum + v.weight, 0);
+  let threshold = hash * totalWeight;
+  
+  for (const variant of test.variants) {
+    threshold -= variant.weight;
+    if (threshold <= 0) {
+      return variant;
+    }
   }
-
-  return selectVariantByWeight(test.variants);
+  
+  // Fallback to first variant
+  return test.variants[0];
 }
 
 type VariantLogSource = 'existing' | 'assigned' | 'debug override';

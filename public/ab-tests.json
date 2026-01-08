@@ -1,46 +1,46 @@
 {
   "/": {
     "id": "2f1462a3-951b-4936-8c75-c602801c28b6",
-    "test_key": "home_page_headline_test",
-    "name": "Home Page Headline Test - Control & Safety vs Productivity & Scale",
+    "test_key": "ksef_fear_vs_efficiency_test",
+    "name": "Home Page Headline Test – Risk Control vs Operational Efficiency",
     "page_path": "/",
     "traffic_allocation": 1,
+    "primary_goal": "signup",
+    "secondary_goals": [
+      "demo_request",
+      "pricing_view"
+    ],
     "variants": [
       {
         "id": "variant_a",
-        "name": "Variant A – Control & Safety",
+        "name": "Variant A – Control & Risk",
         "weight": 0.5,
         "changes": {
-          "headline": "KSeF bez chaosu, błędów i stresu",
-          "subheadline": "Faktury są uzgadniane i zatwierdzane w systemie — zanim trafią do KSeF. Z pełnym śladem decyzji.",
+          "headline": "KSeF bez chaosu, błędów i ryzyka kontroli",
+          "subheadline": "Każda faktura jest uzgodniona i zatwierdzona w systemie — zanim trafi do KSeF. Z pełnym śladem decyzji.",
           "description": "KsięgaI działa między Twoim ERP a KSeF. Bez maili, bez ręcznego pilnowania, bez domysłów.",
           "cta": "Zobacz jak wygląda bezpieczny KSeF",
           "cta_secondary": "Rozpocznij za darmo",
           "banner_badge": "Kontrola i bezpieczeństwo",
           "banner_text": "Faktury uzgadniane przed KSeF — z pełnym śladem decyzji i audytu.",
-          "tagline": "Bezpieczny KSeF z pełną kontrolą nad dokumentami"
+          "tagline": "Pełna kontrola nad dokumentami przed KSeF"
         }
       },
       {
         "id": "variant_b",
-        "name": "Variant B – Productivity & Scale",
+        "name": "Variant B – Efficiency & Scale",
         "weight": 0.5,
         "changes": {
-          "headline": "Jedno miejsce dla faktur, uzgodnień i księgowości",
-          "subheadline": "Automatyczne faktury, akceptacje kontrahentów i gotowość na KSeF — bez maili i ręcznego przepisywania.",
-          "description": "Twoi kontrahenci pracują na dokumentach w systemie. Email to tylko powiadomienie.",
+          "headline": "Koniec maili, Excela i ręcznego pilnowania faktur",
+          "subheadline": "Faktury, uzgodnienia i księgowość w jednym systemie — gotowe na KSeF bez chaosu.",
+          "description": "Twoi kontrahenci pracują bezpośrednio na dokumentach. Ty widzisz status, decyzje i historię w jednym miejscu.",
           "cta": "Zobacz jak to działa w praktyce",
           "cta_secondary": "Rozpocznij za darmo",
-          "banner_badge": "Produktywność i skala",
-          "banner_text": "Automatyzacja faktur i uzgodnień — wszystko w jednym systemie.",
+          "banner_badge": "Produktywność zespołu",
+          "banner_text": "Jedno miejsce dla faktur, uzgodnień i księgowości.",
           "tagline": "Efektywny KSeF bez ręcznej pracy"
         }
       }
-    ],
-    "primary_goal": "signup",
-    "secondary_goals": [
-      "demo_request",
-      "pricing_view"
     ]
   }
 }
