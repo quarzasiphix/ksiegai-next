@@ -119,52 +119,33 @@ export default function Register() {
   };
 
   // Track registration conversion for all active A/B tests
+  // Uses secure RPC function to prevent abuse
   const trackRegistrationConversion = async (userId: string) => {
     try {
-      // Get all assignments for this session
-      const { data: assignments } = await supabase
-        .from('ab_test_assignments')
-        .select('id, test_id, variant_id')
-        .eq('session_id', sessionId);
+      // Determine registration method
+      const registrationMethod = email ? 'magic_link' : 'google_oauth';
 
-      if (!assignments || assignments.length === 0) return;
+      // Call secure RPC function
+      // This function verifies authentication, checks session ownership,
+      // prevents duplicate conversions, and updates all tables atomically
+      const { data, error } = await supabase.rpc('track_registration_conversion', {
+        p_session_id: sessionId,
+        p_registration_method: registrationMethod,
+      });
 
-      // Track conversion event for each test
-      const conversionEvents = assignments.map(assignment => ({
-        test_id: assignment.test_id,
-        assignment_id: assignment.id,
-        variant_id: assignment.variant_id,
-        event_type: 'conversion',
-        event_name: 'registration',
-        event_metadata: {
-          user_id: userId,
-          registration_method: email ? 'magic_link' : 'google_oauth',
-          timestamp: new Date().toISOString(),
-        },
-        created_at: new Date().toISOString(),
-      }));
+      if (error) {
+        console.error('Error tracking conversion via RPC:', error);
+        return;
+      }
 
-      await supabase.from('ab_test_events').insert(conversionEvents);
-
-      // Update assignments with user_id
-      await supabase
-        .from('ab_test_assignments')
-        .update({ user_id: userId })
-        .eq('session_id', sessionId);
-
-      // Store variant info in user metadata
-      if (assignments.length > 0) {
-        const variantData: Record<string, string> = {};
-        assignments.forEach(a => {
-          variantData[a.test_id] = a.variant_id;
+      if (data?.success) {
+        console.log('✅ Registration conversion tracked:', {
+          user_id: data.user_id,
+          conversions: data.conversions_tracked,
+          session_id: data.session_id,
         });
-        
-        await supabase.auth.updateUser({
-          data: {
-            ab_test_variants: variantData,
-            ab_session_id: sessionId,
-          },
-        });
+      } else {
+        console.error('❌ Conversion tracking failed:', data?.error);
       }
     } catch (err) {
       console.error('Error tracking registration conversion:', err);
