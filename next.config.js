@@ -6,7 +6,12 @@ const nextConfig = {
   // Generate pure static output for Cloudflare Pages
   output: "export",
   images: { unoptimized: true },
-  trailingSlash: false,
+  trailingSlash: true, // Changed to true for static hosting
+
+  // Ensure CSS is properly bundled for static export
+  experimental: {
+    missingSuspenseWithCSRBailout: false,
+  },
 
   async rewrites() {
     return [

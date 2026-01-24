@@ -1,25 +1,22 @@
 "use client";
 
 import { useEffect } from "react";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabase";
 import { storeAuthToken, redirectToApp } from "@/lib/auth/crossDomainAuth";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 export default function AuthCallback() {
   useEffect(() => {
     const handleCallback = async () => {
-      // Get the session from the URL hash
-      const { data: { session }, error } = await supabase.auth.getSession();
+      // Handle OAuth callback - exchange code for session
+      const { data, error } = await supabase.auth.exchangeCodeForSession(window.location.href);
 
       if (error) {
         console.error('Auth callback error:', error);
         window.location.href = '/rejestracja?error=auth_failed';
         return;
       }
+
+      const { session } = data;
 
       if (session) {
         // Store token for cross-domain access

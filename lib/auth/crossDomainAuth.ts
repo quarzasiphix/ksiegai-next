@@ -26,6 +26,9 @@ export const storeAuthToken = (token: AuthToken): void => {
     hostname: window.location.hostname 
   });
 
+  // Clear any existing tokens first
+  clearAuthToken();
+
   // Store in localStorage as backup
   localStorage.setItem(COOKIE_NAME, tokenString);
 

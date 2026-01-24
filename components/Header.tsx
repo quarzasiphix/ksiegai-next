@@ -2,14 +2,9 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabase";
 import { getAuthToken, redirectToApp, clearAuthToken, storeAuthToken } from "@/lib/auth/crossDomainAuth";
 import { User, Crown, LogOut, Sun, Moon } from "lucide-react";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 export default function Header() {
   const [user, setUser] = useState<any>(null);
@@ -20,10 +15,20 @@ export default function Header() {
     const token = getAuthToken();
     if (token) {
       console.log("[Header] Found cross-domain token, restoring session");
-      supabase.auth.setSession({
-        access_token: token.access_token,
-        refresh_token: token.refresh_token,
-      });
+      // Only set session if it's not expired
+      if (token.expires_at * 1000 > Date.now()) {
+        supabase.auth.setSession({
+          access_token: token.access_token,
+          refresh_token: token.refresh_token,
+        }).catch(error => {
+          console.error("[Header] Failed to restore session:", error);
+          // Clear invalid token
+          clearAuthToken();
+        });
+      } else {
+        console.log("[Header] Token expired, clearing");
+        clearAuthToken();
+      }
     } else {
       console.log("[Header] No cross-domain token found");
     }
@@ -31,6 +36,20 @@ export default function Header() {
     // Listen for auth changes
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       console.log("[Header] Auth state changed:", event, session?.user?.id);
+      
+      if (event === 'SIGNED_IN' && session) {
+        // Store new token for cross-domain access
+        storeAuthToken({
+          access_token: session.access_token,
+          refresh_token: session.refresh_token,
+          expires_at: session.expires_at || 0,
+          user_id: session.user.id,
+        });
+      } else if (event === 'SIGNED_OUT') {
+        // Clear token on sign out
+        clearAuthToken();
+      }
+      
       setUser(session?.user || null);
     });
 

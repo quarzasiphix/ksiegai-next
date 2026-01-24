@@ -393,11 +393,7 @@ export async function trackConversion(testKey: string, eventName: string, value?
   if (!variantId) return;
   
   try {
-    const { createClient } = await import('@supabase/supabase-js');
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
+    const { supabase } = await import('./supabase');
 
     // Get test ID from test_key
     const { data: test } = await supabase
@@ -452,11 +448,7 @@ export async function trackEvent(
   if (!variantId) return;
   
   try {
-    const { createClient } = await import('@supabase/supabase-js');
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
+    const { supabase } = await import('./supabase');
 
     // Get test ID from test_key
     const { data: test } = await supabase
