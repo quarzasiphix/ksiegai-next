@@ -33,11 +33,32 @@ export default function Header() {
       console.log("[Header] No cross-domain token found");
     }
 
-    // Check if we need to redirect back to localhost after login
+    // Check if we need to handle Google login for localhost
     const urlParams = new URLSearchParams(window.location.search);
     const redirectFrom = urlParams.get('from');
     const localhostPort = urlParams.get('port');
+    const action = urlParams.get('action');
     
+    // Handle Google login action for localhost
+    if (action === 'google_login' && redirectFrom === 'localhost' && localhostPort) {
+      console.log("[Header] Initiating Google login for localhost:", localhostPort);
+      // Store localhost info for post-login redirect
+      sessionStorage.setItem('localhost_redirect', JSON.stringify({
+        from: 'localhost',
+        port: localhostPort
+      }));
+      
+      // Initiate Google OAuth flow
+      supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      return;
+    }
+    
+    // Check if we need to redirect back to localhost after login
     if (redirectFrom === 'localhost' && localhostPort && !token) {
       console.log("[Header] Waiting for login to redirect back to localhost:", localhostPort);
       // Don't redirect yet, wait for login to complete
@@ -62,6 +83,17 @@ export default function Header() {
         });
         
         // Check if we need to redirect back to localhost after login
+        const localhostRedirect = sessionStorage.getItem('localhost_redirect');
+        if (localhostRedirect) {
+          const { from, port } = JSON.parse(localhostRedirect);
+          console.log("[Header] Google login complete, redirecting back to localhost:", port);
+          const localUrl = `http://localhost:${port}/dashboard`;
+          sessionStorage.removeItem('localhost_redirect');
+          window.location.href = localUrl;
+          return;
+        }
+        
+        // Check URL parameters for localhost redirect
         const urlParams = new URLSearchParams(window.location.search);
         const redirectFrom = urlParams.get('from');
         const localhostPort = urlParams.get('port');

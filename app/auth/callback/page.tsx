@@ -27,6 +27,29 @@ export default function AuthCallback() {
           user_id: session.user.id,
         });
 
+        // Check if we need to redirect back to localhost
+        const localhostRedirect = sessionStorage.getItem('localhost_redirect');
+        if (localhostRedirect) {
+          const { from, port } = JSON.parse(localhostRedirect);
+          console.log("[AuthCallback] Redirecting back to localhost:", port);
+          sessionStorage.removeItem('localhost_redirect');
+          
+          // Redirect back to localhost
+          window.location.href = `http://localhost:${port}/dashboard`;
+          return;
+        }
+        
+        // Check URL parameters for localhost redirect
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirectFrom = urlParams.get('from');
+        const localhostPort = urlParams.get('port');
+        
+        if (redirectFrom === 'localhost' && localhostPort) {
+          console.log("[AuthCallback] Redirecting back to localhost from URL params:", localhostPort);
+          window.location.href = `http://localhost:${localhostPort}/dashboard`;
+          return;
+        }
+
         // Always redirect to app subdomain root - let app routing handle onboarding
         redirectToApp('/');
       } else {
