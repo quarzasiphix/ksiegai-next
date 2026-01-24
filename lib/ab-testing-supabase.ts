@@ -26,16 +26,17 @@ export async function getActiveTest(pagePath: string): Promise<ABTest | null> {
   try {
     const { data, error } = await supabase.rpc('get_active_test_for_page', {
       page: pagePath,
-    });
+    } as any); // Type assertion to bypass TypeScript issues
 
-    if (error || !data || data.length === 0) {
+    if (error || !data || (data as any).length === 0) {
       return null;
     }
 
+    const result = data as any;
     return {
-      id: data[0].test_id,
-      test_key: data[0].test_key,
-      variants: data[0].variants,
+      id: result[0].test_id,
+      test_key: result[0].test_key,
+      variants: result[0].variants,
       page_path: pagePath,
     };
   } catch (error) {
@@ -62,7 +63,7 @@ export async function getVariantAssignment(
       .single();
 
     if (existing && !fetchError) {
-      return existing.variant_id;
+      return (existing as any).variant_id;
     }
 
     // Assign new variant based on weights
@@ -77,7 +78,7 @@ export async function getVariantAssignment(
         variant_id: variant.id,
         user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : null,
         assigned_at: new Date().toISOString(),
-      });
+      } as any);
 
     if (insertError) {
       console.error('Error storing assignment:', insertError);
@@ -125,7 +126,7 @@ export async function trackPageView(
       event_type: 'page_view',
       page_path: pagePath,
       created_at: new Date().toISOString(),
-    });
+    } as any);
   } catch (error) {
     console.error('Error tracking page view:', error);
   }
@@ -149,7 +150,7 @@ export async function trackConversion(
       .select('id')
       .eq('test_id', testId)
       .eq('session_id', sessionId)
-      .single();
+      .single() as any;
 
     if (!assignment) {
       console.error('No assignment found for conversion tracking');
@@ -158,14 +159,14 @@ export async function trackConversion(
 
     await supabase.from('ab_test_events').insert({
       test_id: testId,
-      assignment_id: assignment.id,
+      assignment_id: (assignment as any).id,
       variant_id: variantId,
       event_type: 'conversion',
       event_name: eventName,
       event_value: eventValue,
       event_metadata: metadata || {},
       created_at: new Date().toISOString(),
-    });
+    } as any);
   } catch (error) {
     console.error('Error tracking conversion:', error);
   }
@@ -188,19 +189,19 @@ export async function trackEvent(
       .select('id')
       .eq('test_id', testId)
       .eq('session_id', sessionId)
-      .single();
+      .single() as any;
 
-    if (!assignment) return;
-
-    await supabase.from('ab_test_events').insert({
-      test_id: testId,
-      assignment_id: assignment.id,
-      variant_id: variantId,
-      event_type: eventType,
-      event_name: eventName,
-      event_metadata: metadata || {},
-      created_at: new Date().toISOString(),
-    });
+    if (assignment) {
+      await supabase.from('ab_test_events').insert({
+        test_id: testId,
+        assignment_id: (assignment as any).id,
+        variant_id: variantId,
+        event_type: eventType,
+        event_name: eventName,
+        event_metadata: metadata || {},
+        created_at: new Date().toISOString(),
+      } as any);
+    }
   } catch (error) {
     console.error('Error tracking event:', error);
   }
