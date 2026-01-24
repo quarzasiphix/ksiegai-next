@@ -98,10 +98,43 @@ export const redirectToApp = (path: string = '/dashboard'): void => {
   if (typeof window === 'undefined') return;
 
   const appUrl = window.location.hostname.includes('localhost')
-    ? `http://localhost:8080${path}` // Local dev - React app runs on port 8080
+    ? `http://localhost:3000${path}` // Local dev - React app runs on port 3000
     : `https://${APP_DOMAIN}${path}`; // Production
 
   window.location.href = appUrl;
+};
+
+/**
+ * Check if user came from localhost and redirect back after login
+ */
+export const checkAndRedirectToLocalhost = (path: string = '/dashboard'): void => {
+  if (typeof window === 'undefined') return;
+
+  // Check if there's a localhost redirect parameter in URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const redirectFrom = urlParams.get('from');
+  const localhostPort = urlParams.get('port');
+  
+  if (redirectFrom === 'localhost' && localhostPort) {
+    console.log('[crossDomainAuth] Redirecting back to localhost:', localhostPort);
+    const localUrl = `http://localhost:${localhostPort}${path}`;
+    window.location.href = localUrl;
+    return;
+  }
+  
+  // Default redirect
+  redirectToApp(path);
+};
+
+/**
+ * Store auth token and redirect back to localhost if needed
+ */
+export const storeAndRedirect = (token: AuthToken, path: string = '/dashboard'): void => {
+  // Store token first
+  storeAuthToken(token);
+  
+  // Check if we need to redirect back to localhost
+  checkAndRedirectToLocalhost(path);
 };
 
 /**

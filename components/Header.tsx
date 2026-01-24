@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { getAuthToken, redirectToApp, clearAuthToken, storeAuthToken } from "@/lib/auth/crossDomainAuth";
+import { getAuthToken, redirectToApp, clearAuthToken, storeAuthToken, storeAndRedirect, checkAndRedirectToLocalhost } from "@/lib/auth/crossDomainAuth";
 import { User, Crown, LogOut, Sun, Moon } from "lucide-react";
 
 export default function Header() {
@@ -33,6 +33,21 @@ export default function Header() {
       console.log("[Header] No cross-domain token found");
     }
 
+    // Check if we need to redirect back to localhost after login
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirectFrom = urlParams.get('from');
+    const localhostPort = urlParams.get('port');
+    
+    if (redirectFrom === 'localhost' && localhostPort && !token) {
+      console.log("[Header] Waiting for login to redirect back to localhost:", localhostPort);
+      // Don't redirect yet, wait for login to complete
+    } else if (redirectFrom === 'localhost' && localhostPort && token) {
+      console.log("[Header] Already logged in, redirecting back to localhost:", localhostPort);
+      const localUrl = `http://localhost:${localhostPort}/dashboard`;
+      window.location.href = localUrl;
+      return;
+    }
+
     // Listen for auth changes
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       console.log("[Header] Auth state changed:", event, session?.user?.id);
@@ -45,6 +60,18 @@ export default function Header() {
           expires_at: session.expires_at || 0,
           user_id: session.user.id,
         });
+        
+        // Check if we need to redirect back to localhost after login
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirectFrom = urlParams.get('from');
+        const localhostPort = urlParams.get('port');
+        
+        if (redirectFrom === 'localhost' && localhostPort) {
+          console.log("[Header] Login complete, redirecting back to localhost:", localhostPort);
+          const localUrl = `http://localhost:${localhostPort}/dashboard`;
+          window.location.href = localUrl;
+          return;
+        }
       } else if (event === 'SIGNED_OUT') {
         // Clear token on sign out
         clearAuthToken();
@@ -76,14 +103,17 @@ export default function Header() {
     // Get current session and store token before redirecting
     const { data: { session } } = await supabase.auth.getSession();
     if (session) {
-      storeAuthToken({
+      // Use the new storeAndRedirect function that handles localhost detection
+      storeAndRedirect({
         access_token: session.access_token,
         refresh_token: session.refresh_token,
         expires_at: session.expires_at || 0,
         user_id: session.user.id,
       });
+    } else {
+      // Fallback to regular redirect
+      redirectToApp('/dashboard');
     }
-    redirectToApp('/dashboard');
   };
 
   const toggleTheme = () => {
