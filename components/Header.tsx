@@ -11,6 +11,69 @@ export default function Header() {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
 
   useEffect(() => {
+    // Check if this is an OAuth callback with tokens in URL hash
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const accessToken = hashParams.get('access_token');
+    const refreshToken = hashParams.get('refresh_token');
+    const expiresIn = hashParams.get('expires_in');
+    
+    if (accessToken && refreshToken) {
+      console.log("[Header] Detected OAuth callback in URL hash, processing...");
+      
+      // Create session from the tokens
+      const expiresAt = expiresIn ? Math.floor(Date.now() / 1000) + parseInt(expiresIn) : undefined;
+      
+      supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      }).then(({ data, error }) => {
+        if (error) {
+          console.error("[Header] Failed to set session from OAuth callback:", error);
+          window.location.href = '/logowanie?error=oauth_failed';
+          return;
+        }
+        
+        if (data.session) {
+          console.log("[Header] OAuth session created successfully:", data.session.user.id);
+          
+          // Store token for cross-domain access
+          storeAuthToken({
+            access_token: data.session.access_token,
+            refresh_token: data.session.refresh_token,
+            expires_at: data.session.expires_at || 0,
+            user_id: data.session.user.id,
+          });
+          
+          // Check if we need to redirect back to localhost
+          const localhostRedirect = sessionStorage.getItem('localhost_redirect');
+          if (localhostRedirect) {
+            const { from, port } = JSON.parse(localhostRedirect);
+            console.log("[Header] OAuth complete, redirecting back to localhost:", port);
+            sessionStorage.removeItem('localhost_redirect');
+            window.location.href = `http://localhost:${port}/dashboard`;
+            return;
+          }
+          
+          // Check URL parameters for localhost redirect
+          const urlParams = new URLSearchParams(window.location.search);
+          const redirectFrom = urlParams.get('from');
+          const localhostPort = urlParams.get('port');
+          
+          if (redirectFrom === 'localhost' && localhostPort) {
+            console.log("[Header] OAuth complete, redirecting back to localhost from URL params:", localhostPort);
+            window.location.href = `http://localhost:${localhostPort}/dashboard`;
+            return;
+          }
+          
+          // Default: redirect to app dashboard
+          console.log("[Header] OAuth complete, redirecting to app dashboard");
+          redirectToApp('/');
+        }
+      });
+      
+      return; // Don't continue with normal auth flow
+    }
+
     // Check for existing auth token from cross-domain cookie
     const token = getAuthToken();
     if (token) {
