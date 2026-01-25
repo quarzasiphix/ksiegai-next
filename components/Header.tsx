@@ -11,6 +11,21 @@ export default function Header() {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
 
   useEffect(() => {
+    // Check for logout flag from app domain
+    const logoutParams = new URLSearchParams(window.location.search);
+    const logoutFlag = logoutParams.get('logout');
+    
+    if (logoutFlag === 'true') {
+      console.log("[Header] Logout flag detected from app, clearing session");
+      clearAuthToken();
+      supabase.auth.signOut({ scope: 'local' });
+      setUser(null);
+      
+      // Clean URL without reload
+      window.history.replaceState({}, '', window.location.pathname);
+      return;
+    }
+    
     // Check if this is an OAuth callback with tokens in URL hash
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     const accessToken = hashParams.get('access_token');
