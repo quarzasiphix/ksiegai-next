@@ -53,18 +53,23 @@ export default function Footer() {
             <h3 className="text-white font-semibold mb-4">Firma</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/o-nas" className="text-gray-400 hover:text-white transition-colors text-sm">
-                  O nas
+                <Link href="/jak-to-dziala" className="text-gray-400 hover:text-white transition-colors text-sm">
+                  Jak to działa
                 </Link>
               </li>
               <li>
-                <Link href="/kontakt" className="text-gray-400 hover:text-white transition-colors text-sm">
+                <a href="mailto:kontakt@ksiegai.pl" className="text-gray-400 hover:text-white transition-colors text-sm">
                   Kontakt
+                </a>
+              </li>
+              <li>
+                <Link href="/infrastructure" className="text-gray-400 hover:text-white transition-colors text-sm">
+                  Infrastruktura
                 </Link>
               </li>
               <li>
-                <Link href="/blog" className="text-gray-400 hover:text-white transition-colors text-sm">
-                  Blog
+                <Link href="/governance" className="text-gray-400 hover:text-white transition-colors text-sm">
+                  Governance
                 </Link>
               </li>
             </ul>

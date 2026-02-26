@@ -5,6 +5,16 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Infrastruktura decyzyjna - KsięgaI",
   description: "System, na którym można polegać. Gdzie decyzje, pieniądze i zasoby się spotykają.",
+  alternates: {
+    canonical: "https://ksiegai.pl/infrastructure",
+  },
+  openGraph: {
+    title: "Infrastruktura decyzyjna - KsięgaI",
+    description: "System, na którym można polegać. Gdzie decyzje, pieniądze i zasoby się spotykają.",
+    url: "https://ksiegai.pl/infrastructure",
+    type: "website",
+    locale: "pl_PL",
+  },
 };
 
 export default function InfrastructurePage() {

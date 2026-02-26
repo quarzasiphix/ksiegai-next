@@ -11,12 +11,12 @@ export const metadata: Metadata = {
     title: "KsięgaI dla księgowych – skaluj bez chaosu",
     description:
       "System eliminuje operacyjną robotę, księgowy podejmuje decyzje. Obsługuj więcej klientów z pełną kontrolą i audytowalnością.",
-    url: "https://www.ksiegai.pl/dla-ksiegowych",
+    url: "https://ksiegai.pl/dla-ksiegowych",
     type: "website",
     locale: "pl_PL",
   },
   alternates: {
-    canonical: "https://www.ksiegai.pl/dla-ksiegowych",
+    canonical: "https://ksiegai.pl/dla-ksiegowych",
   },
 };
 

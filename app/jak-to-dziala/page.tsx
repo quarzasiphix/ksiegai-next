@@ -7,13 +7,13 @@ export const metadata: Metadata = {
   description:
     "Zobacz, jak działa KsięgaI w praktyce. Interaktywny przewodnik po systemie dla JDG i spółek z o.o. — od pierwszej faktury po pełną księgowość.",
   alternates: {
-    canonical: "https://www.ksiegai.pl/jak-to-dziala",
+    canonical: "https://ksiegai.pl/jak-to-dziala",
   },
   openGraph: {
     title: "Jak działa KsięgaI? Workflow księgowości krok po kroku",
     description:
       "Interaktywny przewodnik: jak wygląda praca w KsięgaI dla JDG i spółek. Zobacz dashboard, workflow i automatyzacje.",
-    url: "https://www.ksiegai.pl/jak-to-dziala",
+    url: "https://ksiegai.pl/jak-to-dziala",
     type: "website",
     locale: "pl_PL",
   },

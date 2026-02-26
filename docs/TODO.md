@@ -1,0 +1,102 @@
+# TODO (Multi-agent)
+
+## Ownership zones
+- Agent A: frontend/UI/UX and SEO content/pages
+- Agent B: backend/auth/email integration and infrastructure
+
+## QUEUE
+- [ ] T-302: Implement fixes from registration/email/SEO audit
+  - DoD:
+    - [ ] Registration flow gaps fixed end-to-end
+    - [ ] Email send triggers verified (welcome/confirm/reset where applicable)
+    - [ ] SEO metadata/sitemap/robots issues fixed
+    - [ ] Typecheck/lint/build checks recorded
+  - Suggested owner: Agent B
+  - Notes:
+    - Depends on T-301 findings and priority classification.
+- [ ] T-305: Deploy and verify `send-auth-email` in Supabase environment
+  - DoD:
+    - [ ] `send-auth-email` deployed from repo source
+    - [ ] Required secrets set (`GMAIL_TOKEN_ENCRYPTION_KEY_B64`, Google OAuth creds)
+    - [ ] Active `admin_gmail_connections.primary` confirmed
+    - [ ] Smoke test returns `200` for valid authenticated payload
+    - [ ] Fresh signup receives welcome email
+  - Suggested owner: Agent B
+  - Notes:
+    - Follows T-304 implementation; environment-level action required.
+## IN PROGRESS
+- [ ] T-303: Restore registration conversion attribution tracking
+  - Owner: Codex (Agent B)
+  - Started: 2026-02-26 13:12
+  - Branch: main (shared)
+  - Reviewer: Agent A
+  - Status: pr_ready
+  - Notes:
+    - Re-enabled conversion tracking in `/rejestracja`.
+    - Primary path uses RPC `track_registration_conversion`.
+    - Fallback path posts `signup` events to `/api/ab-track` per active variant assignment.
+    - Added duplicate guard key in localStorage: `ab_registration_conversion_sent:<sessionId>:<userId>`.
+  - Files touched (actual):
+    - `ksiegai-next/app/rejestracja/page.tsx`
+    - `ksiegai-next/docs/TODO.md`
+    - `tovernet/docs/workspace/WORK_LOG.md`
+  - Checks run:
+    - `cd ksiegai-next && npx tsc --noEmit` (pass)
+  - Reviewer instructions:
+    - Validate signup conversion is stored once per session/user.
+    - Validate fallback emits `event_type='signup'` and `event_name='registration_completed'`.
+
+- [ ] T-304: Fix `send-auth-email` runtime configuration in Supabase
+  - Owner: Codex (Agent B)
+  - Started: 2026-02-26 13:02
+  - Branch: main (shared)
+  - Reviewer: Agent A
+  - Status: pr_ready
+  - Notes:
+    - Runtime currently responds `500 {"error":"Email service not configured"}`.
+    - `send-auth-email` is called from ksiegai-next welcome flow but function source is missing in repo; create and harden managed function under `ksef-ai/supabase/functions`.
+  - Files touched (actual):
+    - `ksef-ai/supabase/functions/send-auth-email/index.ts`
+    - `ksef-ai/docs/SEND_AUTH_EMAIL_RUNBOOK.md`
+    - `ksiegai-next/docs/TODO.md`
+    - `tovernet/docs/workspace/WORK_LOG.md`
+  - Checks run:
+    - `cd ksiegai-next && npx tsc --noEmit` (pass)
+    - Remote probe still returns provider-config error until secrets/connection are set.
+  - Reviewer instructions:
+    - Review auth boundary: recipient must match authenticated user email.
+    - Verify template key path + Gmail provider usage are consistent with existing edge email functions.
+    - Confirm runbook covers required secrets and smoke test.
+
+- [ ] T-301: Audit ksiegai-next registration flow + marketing email delivery + SEO baseline
+  - Owner: Codex (Agent B)
+  - Started: 2026-02-26 12:24
+  - Branch: main (shared)
+  - Reviewer: Agent A
+  - Status: pr_ready
+  - Notes:
+    - Scope: map real flow (`/rejestracja`, `/logowanie`, `/auth/callback`, cross-domain handoff), validate email-related triggers/config assumptions, inspect SEO implementation and technical crawlability.
+    - Live probe: `send-auth-email` exists but returns provider-config error for valid payload.
+  - Files touched (actual):
+    - `ksiegai-next/app/layout.tsx`
+    - `ksiegai-next/app/cennik/page.tsx`
+    - `ksiegai-next/app/dla-ksiegowych/page.tsx`
+    - `ksiegai-next/app/jak-to-dziala/page.tsx`
+    - `ksiegai-next/app/infrastructure/page.tsx`
+    - `ksiegai-next/app/sitemap.ts`
+    - `ksiegai-next/app/logowanie/metadata.ts`
+    - `ksiegai-next/app/rejestracja/metadata.ts`
+    - `ksiegai-next/components/Footer.tsx`
+    - `ksiegai-next/docs/auth/REGISTRATION_FLOW_AUDIT_2026-02-26.md`
+    - `ksiegai-next/docs/TODO.md`
+    - `tovernet/docs/workspace/WORK_LOG.md`
+  - Checks run:
+    - `cd ksiegai-next && npx tsc --noEmit` (pass)
+    - `cd ksiegai-next && npm run build` (blocked in sandbox: Next Jest worker crash after SWC/cache permission constraints)
+  - Reviewer instructions:
+    - Verify canonical/OG host consistency and auth page noindex metadata.
+    - Recheck sitemap coverage against current public route set.
+    - Confirm footer has no internal 404 links.
+    - Confirm audit doc reflects current runtime probe outputs.
+
+## DONE

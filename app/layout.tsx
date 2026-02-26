@@ -65,23 +65,26 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const gtmId = process.env.NEXT_PUBLIC_GTM_ID;
+
   return (
     <html lang="pl" className="dark">
       <head>
-        {/* Google Tag Manager - Initialize dataLayer */}
-        <Script
-          id="gtm-init"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              window.dataLayer.push({
-                'gtm.start': new Date().getTime(),
-                event: 'gtm.js'
-              });
-            `,
-          }}
-        />
+        {gtmId && (
+          <Script
+            id="gtm-init"
+            strategy="beforeInteractive"
+            dangerouslySetInnerHTML={{
+              __html: `
+                window.dataLayer = window.dataLayer || [];
+                window.dataLayer.push({
+                  'gtm.start': new Date().getTime(),
+                  event: 'gtm.js'
+                });
+              `,
+            }}
+          />
+        )}
         
         <link rel="preconnect" href="https://rncrzxjyffxmfbnxlqtm.supabase.co" />
         <link rel="dns-prefetch" href="https://rncrzxjyffxmfbnxlqtm.supabase.co" />
@@ -91,12 +94,13 @@ export default function RootLayout({
         <meta name="format-detection" content="telephone=no" />
       </head>
       <body className={inter.className}>
-        {/* Google Tag Manager - Main Script */}
-        <Script
-          id="gtm-script"
-          src="https://www.googletagmanager.com/gtm.js?id=GTM-XXXXXXX"
-          strategy="afterInteractive"
-        />
+        {gtmId && (
+          <Script
+            id="gtm-script"
+            src={`https://www.googletagmanager.com/gtm.js?id=${gtmId}`}
+            strategy="afterInteractive"
+          />
+        )}
         
         <Header />
         <main>
@@ -104,12 +108,13 @@ export default function RootLayout({
         </main>
         <Footer />
         
-        {/* Google Tag Manager - Noscript fallback */}
-        <noscript
-          dangerouslySetInnerHTML={{
-            __html: `<iframe src="https://www.googletagmanager.com/ns.html?id=GTM-XXXXXXX" height="0" width="0" style="display:none;visibility:hidden"></iframe>`,
-          }}
-        />
+        {gtmId && (
+          <noscript
+            dangerouslySetInnerHTML={{
+              __html: `<iframe src="https://www.googletagmanager.com/ns.html?id=${gtmId}" height="0" width="0" style="display:none;visibility:hidden"></iframe>`,
+            }}
+          />
+        )}
       </body>
     </html>
   );

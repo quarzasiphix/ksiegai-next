@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { storeAuthToken, redirectToApp } from "@/lib/auth/crossDomainAuth";
+import { sendWelcomeEmailIfNewUser } from "@/lib/auth/welcomeEmail";
 
 export default function AuthCallback() {
   useEffect(() => {
@@ -19,6 +20,12 @@ export default function AuthCallback() {
       const { session } = data;
 
       if (session) {
+        await sendWelcomeEmailIfNewUser({
+          userId: session.user.id,
+          email: session.user.email,
+          createdAt: session.user.created_at,
+        });
+
         // Store token for cross-domain access
         storeAuthToken({
           access_token: session.access_token,

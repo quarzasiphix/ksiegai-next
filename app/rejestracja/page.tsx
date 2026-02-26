@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { storeAuthToken, redirectToApp } from "@/lib/auth/crossDomainAuth";
+import { sendWelcomeEmailIfNewUser } from "@/lib/auth/welcomeEmail";
 import { getSessionId, getVariantAssignments } from "@/lib/ab-testing-ssg";
 import { Mail, ChevronDown } from "lucide-react";
 
@@ -38,6 +39,12 @@ export default function Register() {
       if (event === 'SIGNED_IN' && session) {
         // Track registration conversion for all active A/B tests
         await trackRegistrationConversion(session.user.id);
+
+        await sendWelcomeEmailIfNewUser({
+          userId: session.user.id,
+          email: session.user.email,
+          createdAt: session.user.created_at,
+        });
         
         // Store token for cross-domain access
         storeAuthToken({
@@ -117,41 +124,53 @@ export default function Register() {
   // Uses secure RPC function to prevent abuse
   const trackRegistrationConversion = async (userId: string) => {
     try {
-      // Determine registration method
-      const registrationMethod = email ? 'magic_link' : 'google_oauth';
-
-      // Call secure RPC function
-      // This function verifies authentication, checks session ownership,
-      // prevents duplicate conversions, and updates all tables atomically
-      // TODO: Fix RPC typing issues - temporarily commented out for deployment
-      /*
-      const rpcCall = supabase.rpc('track_registration_conversion', {
-        p_session_id: sessionId,
-        p_registration_method: registrationMethod,
-      });
-      
-      const { data, error } = await rpcCall;
-
-      if (error) {
-        console.error('Error tracking conversion via RPC:', error);
+      const conversionKey = `ab_registration_conversion_sent:${sessionId}:${userId}`;
+      if (typeof window !== "undefined" && localStorage.getItem(conversionKey) === "1") {
         return;
       }
 
-      // Type assertion for the RPC response
-      const result = data as any;
-      
-      if (result?.success) {
-        console.log('✅ Registration conversion tracked:', {
-          user_id: result.user_id,
-          conversions: result.conversions_tracked,
-          session_id: result.session_id,
-        });
-      } else {
-        console.error('❌ Conversion tracking failed:', result?.error);
+      // Determine registration method
+      const registrationMethod = email ? 'magic_link' : 'google_oauth';
+
+      // Preferred path: secure RPC function
+      const { data, error } = await (supabase.rpc as any)('track_registration_conversion', {
+        p_session_id: sessionId,
+        p_registration_method: registrationMethod,
+      });
+
+      if (error) {
+        // Fallback path: post signup event(s) through API endpoint for active assignments
+        const assignmentEntries = Object.entries(variantAssignments || {});
+        for (const [testId, variantId] of assignmentEntries) {
+          await fetch('/api/ab-track', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              test_id: testId,
+              variant_id: variantId,
+              session_id: sessionId,
+              event_type: 'signup',
+              event_name: 'registration_completed',
+              event_metadata: {
+                registration_method: registrationMethod,
+                user_id: userId,
+              },
+              page_path: '/rejestracja',
+            }),
+          });
+        }
+        if (typeof window !== "undefined") {
+          localStorage.setItem(conversionKey, "1");
+        }
+        return;
       }
-      */
-      
-      console.log('📊 Registration conversion tracking temporarily disabled for deployment');
+
+      const result = data as any;
+      if (result?.success) {
+        if (typeof window !== "undefined") {
+          localStorage.setItem(conversionKey, "1");
+        }
+      }
     } catch (err) {
       console.error('Error tracking registration conversion:', err);
     }

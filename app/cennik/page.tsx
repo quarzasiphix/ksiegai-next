@@ -7,13 +7,13 @@ export const metadata: Metadata = {
   description:
     "Transparentny cennik KsięgaI. Plan dla JDG od 19 zł, pakiet Spółka Standard z pełną automatyzacją (89 zł) oraz rozwiązania Enterprise. Wybierz model dopasowany do odpowiedzialności Twojej firmy.",
   alternates: {
-    canonical: "https://www.ksiegai.pl/cennik",
+    canonical: "https://ksiegai.pl/cennik",
   },
   openGraph: {
     title: "KsięgaI – cennik dla JDG i spółek",
     description:
       "Jedno narzędzie do rozliczeń KSeF, CIT, JPK i governance. Sprawdź, który plan KsięgaI najlepiej chroni Twoją firmę.",
-    url: "https://www.ksiegai.pl/cennik",
+    url: "https://ksiegai.pl/cennik",
     type: "website",
     locale: "pl_PL",
   },
@@ -124,7 +124,7 @@ const pricingSchema = {
   brand: { "@type": "Brand", name: "KsięgaI" },
   offers: {
     "@type": "Offer",
-    url: "https://www.ksiegai.pl/cennik",
+    url: "https://ksiegai.pl/cennik",
     priceCurrency: "PLN",
     price: "89",
     priceValidUntil: "2026-12-31",
