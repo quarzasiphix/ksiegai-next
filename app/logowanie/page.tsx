@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { storeAuthToken, redirectToApp } from "@/lib/auth/crossDomainAuth";
+import { setAuthFlowOrigin } from "@/lib/auth/welcomeEmail";
 import { Mail, Lock, ChevronDown } from "lucide-react";
 import Link from "next/link";
 
@@ -60,6 +61,7 @@ export default function Login() {
     }
 
     setLoading(true);
+    setAuthFlowOrigin("login");
     const { error } = await supabase.auth.signInWithOtp({
       email: email,
       options: {
@@ -102,6 +104,7 @@ export default function Login() {
     
     setError(null);
     setLoading(true);
+    setAuthFlowOrigin("login");
     const { error } = await supabase.auth.signInWithOtp({
       email: email,
       options: {
@@ -120,6 +123,7 @@ export default function Login() {
   const handleGoogleSignIn = async () => {
     setError(null);
     setLoading(true);
+    setAuthFlowOrigin("login");
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',

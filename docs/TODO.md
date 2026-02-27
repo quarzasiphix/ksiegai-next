@@ -25,6 +25,54 @@
   - Notes:
     - Follows T-304 implementation; environment-level action required.
 ## IN PROGRESS
+- [ ] T-306: Fix `/logowanie` missing Next static assets (CSS/JS 404) + manifest icons
+  - Owner: Codex (Agent A)
+  - Started: 2026-02-27 10:49
+  - Branch: main (shared)
+  - Reviewer: Agent B
+  - Status: pr_ready
+  - Notes:
+    - Repro from user: `/logowanie/` loads unstyled, network 404 for `/_next/static/chunks/main-app.js`, `/_next/static/chunks/app-pages-internals.js`, `/_next/static/css/app/layout.css`.
+    - Additional warning: `/icon-192.png` missing while `manifest.webmanifest` is present.
+    - Scope freeze: runtime/config/static asset fix only; no auth/business logic.
+    - Follow-up (2026-02-27): hardened dev detection to lifecycle-event based guard (`npm_lifecycle_event === 'dev'`) because env-based check could re-enable `output: "export"` during local dev and reproduce `_next/static` 404.
+  - Files touched (actual):
+    - `ksiegai-next/next.config.js`
+    - `ksiegai-next/next.config.ts` (removed duplicate config)
+    - `ksiegai-next/public/icon-192.png`
+    - `ksiegai-next/public/icon-512.png`
+    - `ksiegai-next/docs/TODO.md`
+    - `tovernet/docs/workspace/WORK_LOG.md`
+  - Checks run:
+    - `cd ksiegai-next && npx tsc --noEmit` (pass)
+    - `cd ksiegai-next && npm run build` (blocked in sandbox: Next Jest worker crash)
+  - Reviewer instructions:
+    - Validate `/logowanie/` loads with styles and without `/_next/static/*` 404s in local run.
+    - Validate `manifest.webmanifest` icon warnings are gone (`/icon-192.png`, `/icon-512.png` resolve 200).
+
+- [ ] T-307: Ensure registration flow reliably sends welcome email (registration intent + callback force)
+  - Owner: Codex (Agent B)
+  - Started: 2026-02-27 10:53
+  - Branch: main (shared)
+  - Reviewer: Agent A
+  - Status: pr_ready
+  - Notes:
+    - Added explicit auth-flow origin tracking (`register` vs `login`) in sessionStorage.
+    - Auth callback now forces welcome email send only for registration-origin flows.
+    - Registration page marks origin before OTP/OAuth start and forces send on direct SIGNED_IN path.
+  - Files touched (actual):
+    - `ksiegai-next/lib/auth/welcomeEmail.ts`
+    - `ksiegai-next/app/rejestracja/page.tsx`
+    - `ksiegai-next/app/logowanie/page.tsx`
+    - `ksiegai-next/app/auth/callback/page.tsx`
+    - `ksiegai-next/docs/TODO.md`
+    - `tovernet/docs/workspace/WORK_LOG.md`
+  - Checks run:
+    - `cd ksiegai-next && npx tsc --noEmit` (pass)
+  - Reviewer instructions:
+    - Register from `/rejestracja` with Google and magic-link path; confirm welcome email trigger executes after callback/session.
+    - Login from `/logowanie`; confirm no registration-force override is applied.
+
 - [ ] T-303: Restore registration conversion attribution tracking
   - Owner: Codex (Agent B)
   - Started: 2026-02-26 13:12

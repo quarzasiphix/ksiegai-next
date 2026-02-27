@@ -2,6 +2,9 @@ import { supabase } from "@/lib/supabase";
 
 const WELCOME_SENT_PREFIX = "welcome_email_sent:";
 const NEW_USER_WINDOW_MS = 24 * 60 * 60 * 1000;
+const AUTH_FLOW_ORIGIN_KEY = "ksiegai_auth_flow_origin";
+
+export type AuthFlowOrigin = "register" | "login";
 
 function getWelcomeSentKey(userId: string): string {
   return `${WELCOME_SENT_PREFIX}${userId}`;
@@ -14,14 +17,30 @@ function isFreshlyRegistered(createdAt?: string): boolean {
   return Date.now() - createdMs <= NEW_USER_WINDOW_MS;
 }
 
+export function setAuthFlowOrigin(origin: AuthFlowOrigin): void {
+  if (typeof window === "undefined") return;
+  sessionStorage.setItem(AUTH_FLOW_ORIGIN_KEY, origin);
+}
+
+export function consumeAuthFlowOrigin(): AuthFlowOrigin | null {
+  if (typeof window === "undefined") return null;
+  const value = sessionStorage.getItem(AUTH_FLOW_ORIGIN_KEY);
+  sessionStorage.removeItem(AUTH_FLOW_ORIGIN_KEY);
+  if (value === "register" || value === "login") {
+    return value;
+  }
+  return null;
+}
+
 export async function sendWelcomeEmailIfNewUser(params: {
   userId: string;
   email?: string;
   createdAt?: string;
+  force?: boolean;
 }): Promise<void> {
-  const { userId, email, createdAt } = params;
+  const { userId, email, createdAt, force = false } = params;
   if (!userId || !email) return;
-  if (!isFreshlyRegistered(createdAt)) return;
+  if (!force && !isFreshlyRegistered(createdAt)) return;
   if (typeof window === "undefined") return;
 
   const sentKey = getWelcomeSentKey(userId);

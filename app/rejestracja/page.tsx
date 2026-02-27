@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { storeAuthToken, redirectToApp } from "@/lib/auth/crossDomainAuth";
-import { sendWelcomeEmailIfNewUser } from "@/lib/auth/welcomeEmail";
+import { sendWelcomeEmailIfNewUser, setAuthFlowOrigin } from "@/lib/auth/welcomeEmail";
 import { getSessionId, getVariantAssignments } from "@/lib/ab-testing-ssg";
 import { Mail, ChevronDown } from "lucide-react";
 
@@ -44,6 +44,7 @@ export default function Register() {
           userId: session.user.id,
           email: session.user.email,
           createdAt: session.user.created_at,
+          force: true,
         });
         
         // Store token for cross-domain access
@@ -83,6 +84,7 @@ export default function Register() {
     }
 
     setLoading(true);
+    setAuthFlowOrigin("register");
     const { error } = await supabase.auth.signInWithOtp({
       email: email,
       options: {
@@ -179,6 +181,7 @@ export default function Register() {
   const handleGoogleSignIn = async () => {
     setError(null);
     setLoading(true);
+    setAuthFlowOrigin("register");
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
