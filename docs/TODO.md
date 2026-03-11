@@ -165,6 +165,14 @@
     - NIP input is now the visual primary action and lookup auto-starts after entering 10 digits
   - PR/Commit: `3eaf818`
   - Date: 2026-03-11
+- [x] T-311: Align anonymous invoice PDF renderer with `ksef-ai` template-based export
+  - Owner: Codex
+  - Reviewer: self
+  - Verified:
+    - `cd ksiegai-next && npx tsc --noEmit` passed
+    - anonymous generator now renders a dedicated invoice template and converts that rendered page into PDF instead of drawing a separate ad-hoc canvas layout
+  - PR/Commit: pending
+  - Date: 2026-03-11
 - [x] T-309: Add anonymous invoice generator page with NIP autofill and local PDF export
   - Owner: Codex
   - Reviewer: self
