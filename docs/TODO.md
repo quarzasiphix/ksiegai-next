@@ -148,6 +148,14 @@
     - Confirm audit doc reflects current runtime probe outputs.
 
 ## DONE
+- [x] T-310: Emphasize NIP-first workflow in anonymous invoice generator
+  - Owner: Codex
+  - Reviewer: self
+  - Verified:
+    - `cd ksiegai-next && npx tsc --noEmit` passed
+    - NIP input is now the visual primary action and lookup auto-starts after entering 10 digits
+  - PR/Commit: `3eaf818`
+  - Date: 2026-03-11
 - [x] T-309: Add anonymous invoice generator page with NIP autofill and local PDF export
   - Owner: Codex
   - Reviewer: self
