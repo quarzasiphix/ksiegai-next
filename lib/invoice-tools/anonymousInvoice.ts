@@ -34,12 +34,16 @@ export type InvoiceTotals = {
   gross: number;
 };
 
-export type ViesLookupResult = {
+export type TaxIdLookupSource = "mf_vat";
+
+export type TaxIdLookupResult = {
   name: string;
   taxId: string;
   street: string;
   postalCode: string;
   city: string;
+  source: TaxIdLookupSource;
+  sourceLabel: string;
 };
 
 export const SELLER_STORAGE_KEY = "ksiegai:anonymous-invoice:seller";
@@ -159,52 +163,65 @@ export const clearStoredSeller = () => {
   window.localStorage.removeItem(SELLER_STORAGE_KEY);
 };
 
-export const fetchCompanyByTaxId = async (taxId: string): Promise<ViesLookupResult> => {
+export const isValidPolishTaxId = (taxId: string) => {
+  const normalizedTaxId = sanitizeTaxId(taxId);
+  if (normalizedTaxId.length !== 10) {
+    return false;
+  }
+
+  const digits = normalizedTaxId.split("").map(Number);
+  const weights = [6, 5, 7, 2, 3, 4, 5, 6, 7];
+  const checksum = weights.reduce((sum, weight, index) => sum + weight * digits[index], 0) % 11;
+  return checksum === digits[9];
+};
+
+export const fetchCompanyByTaxId = async (taxId: string): Promise<TaxIdLookupResult> => {
   const normalizedTaxId = sanitizeTaxId(taxId);
   if (normalizedTaxId.length !== 10) {
     throw new Error("Podaj poprawny 10-cyfrowy NIP.");
   }
 
-  const date = toIsoDate(new Date());
-  const response = await fetch(
-    `https://wl-api.mf.gov.pl/api/search/nip/${normalizedTaxId}?date=${date}`,
-    {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-      cache: "no-store",
-    },
+  if (!isValidPolishTaxId(normalizedTaxId)) {
+    throw new Error("Ten NIP ma nieprawidłową sumę kontrolną.");
+  }
+
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  const attempts = [toIsoDate(today), toIsoDate(yesterday)];
+  let lastNetworkFailure = false;
+
+  for (const date of attempts) {
+    const result = await fetchSubjectFromMfVatRegistry(normalizedTaxId, date);
+    if (result.networkFailure) {
+      lastNetworkFailure = true;
+    }
+
+    const subject = result.subject;
+    if (!subject) {
+      continue;
+    }
+
+    const address = parsePolishAddress(subject.workingAddress || subject.residenceAddress || "");
+    return {
+      name: subject.name ?? normalizedTaxId,
+      taxId: subject.nip || normalizedTaxId,
+      street: address.street,
+      postalCode: address.postalCode,
+      city: address.city,
+      source: "mf_vat",
+      sourceLabel: "Wykaz VAT MF",
+    };
+  }
+
+  if (lastNetworkFailure) {
+    throw new Error("Nie udało się połączyć z wykazem VAT MF. Spróbuj ponownie albo wpisz dane ręcznie.");
+  }
+
+  throw new Error(
+    "Nie znaleziono firmy w wykazie VAT MF. CEIDG to osobny rejestr i jego API wymaga autoryzowanego backendu, więc w tym darmowym generatorze wpisz dane ręcznie, jeśli NIP nie wraca z MF.",
   );
-
-  if (!response.ok) {
-    throw new Error("Nie udało się pobrać danych z rejestru VAT MF.");
-  }
-
-  const payload = (await response.json()) as {
-    result?: {
-      subject?: {
-        name?: string | null;
-        nip?: string | null;
-        workingAddress?: string | null;
-        residenceAddress?: string | null;
-      } | null;
-    } | null;
-  };
-
-  const subject = payload.result?.subject;
-  if (!subject?.name) {
-    throw new Error("Nie znaleziono firmy dla podanego NIP.");
-  }
-
-  const address = parsePolishAddress(subject.workingAddress || subject.residenceAddress || "");
-  return {
-    name: subject.name,
-    taxId: subject.nip || normalizedTaxId,
-    street: address.street,
-    postalCode: address.postalCode,
-    city: address.city,
-  };
 };
 
 export const buildInvoiceFilename = (invoiceNumber: string) => {
@@ -228,6 +245,42 @@ const getSuggestedInvoiceNumber = (date: Date) => {
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
   return `FV/${year}/${month}/${day}`;
+};
+
+const fetchSubjectFromMfVatRegistry = async (taxId: string, date: string) => {
+  try {
+    const response = await fetch(`https://wl-api.mf.gov.pl/api/search/nip/${taxId}?date=${date}`, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      return { subject: null, networkFailure: false };
+    }
+
+    const payload = (await response.json()) as {
+      result?: {
+        subject?: {
+          name?: string | null;
+          nip?: string | null;
+          workingAddress?: string | null;
+          residenceAddress?: string | null;
+        } | null;
+      } | null;
+    };
+
+    const subject = payload.result?.subject;
+    if (!subject?.name) {
+      return { subject: null, networkFailure: false };
+    }
+
+    return { subject, networkFailure: false };
+  } catch {
+    return { subject: null, networkFailure: true };
+  }
 };
 
 const parsePolishAddress = (rawAddress: string) => {

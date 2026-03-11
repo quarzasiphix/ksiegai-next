@@ -29,6 +29,7 @@ import {
   loadStoredSeller,
   saveSellerToStorage,
   sanitizeTaxId,
+  type TaxIdLookupSource,
   type AnonymousInvoiceDraft,
   type InvoiceItemDraft,
   type InvoicePartyDraft,
@@ -43,6 +44,10 @@ export default function AnonymousInvoiceGenerator() {
   const [lookupState, setLookupState] = useState<{ party: PartyKey | null; loading: boolean }>({
     party: null,
     loading: false,
+  });
+  const [lookupSource, setLookupSource] = useState<Record<PartyKey, TaxIdLookupSource | null>>({
+    seller: null,
+    buyer: null,
   });
   const [isSavingSeller, setIsSavingSeller] = useState(false);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
@@ -155,12 +160,20 @@ export default function AnonymousInvoiceGenerator() {
           city: result.city,
         },
       }));
+      setLookupSource((currentState) => ({
+        ...currentState,
+        [partyKey]: result.source,
+      }));
       setMessage(
         partyKey === "seller"
-          ? "Dane sprzedawcy pobrane z rejestru VAT MF."
-          : "Dane nabywcy pobrane z rejestru VAT MF.",
+          ? `Dane sprzedawcy pobrane z: ${result.sourceLabel}.`
+          : `Dane nabywcy pobrane z: ${result.sourceLabel}.`,
       );
     } catch (error) {
+      setLookupSource((currentState) => ({
+        ...currentState,
+        [partyKey]: null,
+      }));
       setMessage(error instanceof Error ? error.message : "Nie udało się pobrać danych z rejestru VAT MF.");
     } finally {
       setLookupState({ party: null, loading: false });
@@ -285,6 +298,7 @@ export default function AnonymousInvoiceGenerator() {
                   onLookup={() => handleLookup("seller")}
                   isLookupLoading={lookupState.loading && lookupState.party === "seller"}
                   lookupModeLabel="Autowyszukiwanie po NIP"
+                  lookupSource={lookupSource.seller}
                   footer={
                     <div className="flex flex-wrap gap-3">
                       <ActionButton icon={Save} onClick={handleSaveSeller} disabled={isSavingSeller}>
@@ -305,6 +319,7 @@ export default function AnonymousInvoiceGenerator() {
                   onLookup={() => handleLookup("buyer")}
                   isLookupLoading={lookupState.loading && lookupState.party === "buyer"}
                   lookupModeLabel="Automatyczne uzupełnianie kontrahenta"
+                  lookupSource={lookupSource.buyer}
                 />
               </div>
 
@@ -499,6 +514,7 @@ function PartyCard({
   onLookup,
   isLookupLoading,
   lookupModeLabel,
+  lookupSource,
   footer,
 }: {
   title: string;
@@ -508,6 +524,7 @@ function PartyCard({
   onLookup: () => void;
   isLookupLoading: boolean;
   lookupModeLabel: string;
+  lookupSource: TaxIdLookupSource | null;
   footer?: React.ReactNode;
 }) {
   return (
@@ -550,6 +567,14 @@ function PartyCard({
             </label>
             <p className="mt-2 text-sm text-slate-500">
               {party.taxId ? `Wpisany NIP: ${formatTaxId(party.taxId)}` : "Wpisz 10 cyfr, a lookup uruchomi się automatycznie."}
+            </p>
+            <p className="mt-1 text-xs uppercase tracking-[0.18em] text-slate-400">
+              {lookupSource === "mf_vat"
+                ? "Źródło lookupu: Wykaz VAT MF"
+                : "Źródło lookupu: najpierw lokalna walidacja NIP, potem wykaz VAT MF"}
+            </p>
+            <p className="mt-2 text-sm text-slate-500">
+              CEIDG jest osobnym rejestrem. Jego API wymaga autoryzowanego backendu, więc ten darmowy generator nie łączy się z nim bezpośrednio z przeglądarki.
             </p>
           </div>
         </div>
