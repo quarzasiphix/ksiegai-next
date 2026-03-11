@@ -148,6 +148,15 @@
     - Confirm audit doc reflects current runtime probe outputs.
 
 ## DONE
+- [x] T-311: Harden anonymous invoice NIP lookup and clarify CEIDG limitation
+  - Owner: Codex
+  - Reviewer: self
+  - Verified:
+    - `cd ksiegai-next && npx tsc --noEmit` passed
+    - lookup now validates NIP checksum locally and retries MF VAT lookup for today and yesterday before failing
+    - UI now shows lookup source and explains CEIDG cannot be called directly from this browser-only page
+  - PR/Commit: `314f8b8`
+  - Date: 2026-03-11
 - [x] T-310: Emphasize NIP-first workflow in anonymous invoice generator
   - Owner: Codex
   - Reviewer: self
