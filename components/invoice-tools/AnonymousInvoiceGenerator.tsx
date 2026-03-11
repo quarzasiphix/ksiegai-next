@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -14,6 +14,7 @@ import {
   ShieldCheck,
   Sparkles,
   Trash2,
+  Wand2,
 } from "lucide-react";
 import {
   clearStoredSeller,
@@ -46,6 +47,10 @@ export default function AnonymousInvoiceGenerator() {
   const [isSavingSeller, setIsSavingSeller] = useState(false);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [showSignupPrompt, setShowSignupPrompt] = useState(false);
+  const lastAutoLookupRef = useRef<Record<PartyKey, string>>({
+    seller: "",
+    buyer: "",
+  });
 
   useEffect(() => {
     const storedSeller = loadStoredSeller();
@@ -59,6 +64,36 @@ export default function AnonymousInvoiceGenerator() {
       },
     }));
   }, []);
+
+  useEffect(() => {
+    const normalizedTaxId = sanitizeTaxId(draft.seller.taxId);
+    if (normalizedTaxId.length < 10) {
+      lastAutoLookupRef.current.seller = "";
+      return;
+    }
+
+    if (lookupState.loading || lastAutoLookupRef.current.seller === normalizedTaxId) {
+      return;
+    }
+
+    lastAutoLookupRef.current.seller = normalizedTaxId;
+    void handleLookup("seller");
+  }, [draft.seller.taxId, lookupState.loading]);
+
+  useEffect(() => {
+    const normalizedTaxId = sanitizeTaxId(draft.buyer.taxId);
+    if (normalizedTaxId.length < 10) {
+      lastAutoLookupRef.current.buyer = "";
+      return;
+    }
+
+    if (lookupState.loading || lastAutoLookupRef.current.buyer === normalizedTaxId) {
+      return;
+    }
+
+    lastAutoLookupRef.current.buyer = normalizedTaxId;
+    void handleLookup("buyer");
+  }, [draft.buyer.taxId, lookupState.loading]);
 
   const totals = useMemo(() => getInvoiceTotals(draft.items), [draft.items]);
   const canGeneratePdf = useMemo(() => isInvoiceDraftValid(draft), [draft]);
@@ -197,13 +232,27 @@ export default function AnonymousInvoiceGenerator() {
                 <FeaturePill icon={Building2} text="Autouzupełnianie NIP z oficjalnego rejestru MF" />
                 <FeaturePill icon={ReceiptText} text="PDF gotowy do pobrania od razu po wypełnieniu" />
               </div>
+              <div className="mt-8 max-w-2xl rounded-3xl border border-blue-400/20 bg-blue-500/10 p-5">
+                <div className="flex items-start gap-3">
+                  <div className="rounded-2xl bg-blue-500/20 p-3 text-blue-100">
+                    <Wand2 className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold uppercase tracking-[0.24em] text-blue-200">Najpierw NIP</p>
+                    <p className="mt-2 text-base leading-7 text-slate-100">
+                      Zacznij od pola NIP sprzedawcy. Po wpisaniu 10 cyfr generator sam spróbuje pobrać nazwę i adres z
+                      rejestru VAT MF, więc reszta formularza robi się prawie sama.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
               <p className="text-sm uppercase tracking-[0.28em] text-blue-200">Szybki workflow</p>
               <ol className="mt-5 space-y-4 text-sm text-slate-200">
-                <li className="rounded-2xl border border-white/10 bg-slate-900/70 p-4">
-                  1. Uzupełnij swoje dane lub pobierz je po NIP.
+                <li className="rounded-2xl border border-blue-400/20 bg-blue-500/10 p-4 text-blue-50">
+                  1. Wpisz pierwszy NIP. Po 10 cyfrach uruchamiamy wyszukiwanie automatycznie.
                 </li>
                 <li className="rounded-2xl border border-white/10 bg-slate-900/70 p-4">
                   2. Dodaj nabywcę i pozycje faktury.
@@ -230,11 +279,12 @@ export default function AnonymousInvoiceGenerator() {
               <div className="grid gap-6 lg:grid-cols-2">
                 <PartyCard
                   title="Sprzedawca"
-                  description="Twoje dane. Możesz je zapisać lokalnie, żeby następnym razem zaczynać od gotowego formularza."
+                  description="To jest pierwszy krok. Zacznij od NIP, a resztę danych spróbujemy uzupełnić automatycznie."
                   party={draft.seller}
                   onChange={(field, value) => updateParty("seller", field, value)}
                   onLookup={() => handleLookup("seller")}
                   isLookupLoading={lookupState.loading && lookupState.party === "seller"}
+                  lookupModeLabel="Autowyszukiwanie po NIP"
                   footer={
                     <div className="flex flex-wrap gap-3">
                       <ActionButton icon={Save} onClick={handleSaveSeller} disabled={isSavingSeller}>
@@ -249,11 +299,12 @@ export default function AnonymousInvoiceGenerator() {
 
                 <PartyCard
                   title="Nabywca"
-                  description="Jeśli kontrahent ma NIP, pobierz dane z rejestru VAT MF. Gdy API nie odpowiada, wpisz je ręcznie."
+                  description="Jeśli kontrahent ma NIP, też pobierzemy dane automatycznie. Gdy API nie odpowiada, wpisz je ręcznie."
                   party={draft.buyer}
                   onChange={(field, value) => updateParty("buyer", field, value)}
                   onLookup={() => handleLookup("buyer")}
                   isLookupLoading={lookupState.loading && lookupState.party === "buyer"}
+                  lookupModeLabel="Automatyczne uzupełnianie kontrahenta"
                 />
               </div>
 
@@ -447,6 +498,7 @@ function PartyCard({
   onChange,
   onLookup,
   isLookupLoading,
+  lookupModeLabel,
   footer,
 }: {
   title: string;
@@ -455,28 +507,55 @@ function PartyCard({
   onChange: (field: keyof InvoicePartyDraft, value: string) => void;
   onLookup: () => void;
   isLookupLoading: boolean;
+  lookupModeLabel: string;
   footer?: React.ReactNode;
 }) {
   return (
     <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-semibold text-slate-950">{title}</h2>
-          <p className="mt-1 text-sm leading-6 text-slate-600">{description}</p>
+      <div>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-2xl font-semibold text-slate-950">{title}</h2>
+            <p className="mt-1 text-sm leading-6 text-slate-600">{description}</p>
+          </div>
         </div>
-        <button
-          type="button"
-          onClick={onLookup}
-          disabled={isLookupLoading}
-          className="inline-flex shrink-0 items-center gap-2 rounded-full border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-blue-300 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {isLookupLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
-          Pobierz po NIP
-        </button>
+
+        <div className="mt-6 rounded-3xl border border-blue-200 bg-blue-50 p-4">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue-700">{lookupModeLabel}</p>
+              <p className="mt-1 text-sm text-slate-600">Najważniejsze pole. Po wpisaniu pełnego NIP dane powinny wpaść same.</p>
+            </div>
+            <button
+              type="button"
+              onClick={onLookup}
+              disabled={isLookupLoading}
+              className="inline-flex shrink-0 items-center gap-2 rounded-full border border-blue-300 bg-white px-4 py-2 text-sm font-medium text-blue-700 transition hover:border-blue-400 hover:text-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isLookupLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+              Szukaj po NIP
+            </button>
+          </div>
+
+          <div className="mt-4">
+            <label className="block">
+              <span className="mb-2 block text-sm font-medium text-slate-700">NIP</span>
+              <input
+                type="text"
+                value={party.taxId}
+                onChange={(event) => onChange("taxId", event.target.value)}
+                placeholder="1234567890"
+                className="w-full rounded-2xl border-2 border-blue-300 bg-white px-4 py-4 text-xl font-semibold tracking-[0.16em] text-slate-950 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+              />
+            </label>
+            <p className="mt-2 text-sm text-slate-500">
+              {party.taxId ? `Wpisany NIP: ${formatTaxId(party.taxId)}` : "Wpisz 10 cyfr, a lookup uruchomi się automatycznie."}
+            </p>
+          </div>
+        </div>
       </div>
 
       <div className="mt-6 grid gap-4 md:grid-cols-2">
-        <LabeledInput label="NIP" value={party.taxId} onChange={(value) => onChange("taxId", value)} placeholder="1234567890" />
         <LabeledInput label="Email" value={party.email} onChange={(value) => onChange("email", value)} placeholder="biuro@firma.pl" />
         <div className="md:col-span-2">
           <LabeledInput label="Nazwa" value={party.name} onChange={(value) => onChange("name", value)} placeholder="Pełna nazwa firmy" />
