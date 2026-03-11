@@ -171,7 +171,7 @@
   - Verified:
     - `cd ksiegai-next && npx tsc --noEmit` passed
     - anonymous generator now renders a dedicated invoice template and converts that rendered page into PDF instead of drawing a separate ad-hoc canvas layout
-  - PR/Commit: pending
+  - PR/Commit: `cb1b316`
   - Date: 2026-03-11
 - [x] T-309: Add anonymous invoice generator page with NIP autofill and local PDF export
   - Owner: Codex
