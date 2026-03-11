@@ -148,6 +148,15 @@
     - Confirm audit doc reflects current runtime probe outputs.
 
 ## DONE
+- [x] T-309: Add anonymous invoice generator page with NIP autofill and local PDF export
+  - Owner: Codex
+  - Reviewer: self
+  - Verified:
+    - `cd ksiegai-next && npx tsc --noEmit` passed
+    - `cd ksiegai-next && npm run build` still hits the repo's existing Next worker failure: `Jest worker encountered 1 child process exceptions, exceeding retry limit`
+    - feature scope stayed static-export safe: client-only page, no backend persistence, sitemap entry added
+  - PR/Commit: `d2f8dd1`
+  - Date: 2026-03-11
 - [x] T-308: Fix `/auth/confirm` signup email links for static export
   - Owner: Codex
   - Reviewer: self
