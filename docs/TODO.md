@@ -148,6 +148,15 @@
     - Confirm audit doc reflects current runtime probe outputs.
 
 ## DONE
+- [x] T-313: Make anonymous invoice generator follow the global dark theme toggle
+  - Owner: Codex
+  - Reviewer: self
+  - Verified:
+    - `cd ksiegai-next && npx tsc --noEmit` passed
+    - `/darmowy-generator-faktur` now uses `dark:` variants across form cards, inputs, summary, and modal, so it follows the existing header theme switcher
+    - leftover lookup-source helper copy was removed from the NIP flow
+  - PR/Commit: `51408d2`
+  - Date: 2026-03-13
 - [x] T-311: Harden anonymous invoice NIP lookup and clarify CEIDG limitation
   - Owner: Codex
   - Reviewer: self
