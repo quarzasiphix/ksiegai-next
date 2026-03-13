@@ -245,6 +245,13 @@ export default function Home() {
               >
                 <span suppressHydrationWarning>{content.ctaSecondary}</span>
               </Link>
+              <Link
+                href="/darmowy-generator-faktur"
+                className="inline-flex items-center justify-center gap-2 bg-white text-gray-950 hover:bg-gray-100 text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold transition-all whitespace-nowrap"
+              >
+                <Receipt className="h-5 w-5" />
+                <span>Darmowy generator faktur</span>
+              </Link>
             </div>
             <p className="text-xs sm:text-sm text-gray-400 font-medium text-center animate-fade-in px-2">
               Zweryfikowana sieć firm • Natywne dostarczanie dokumentów • Uzgodnienie przed KSeF

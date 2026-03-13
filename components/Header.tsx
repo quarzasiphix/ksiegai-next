@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { getAuthToken, redirectToApp, clearAuthToken, storeAuthToken, storeAndRedirect, checkAndRedirectToLocalhost } from "@/lib/auth/crossDomainAuth";
-import { User, Crown, LogOut, Sun, Moon } from "lucide-react";
+import { User, Crown, LogOut, Sun, Moon, ReceiptText } from "lucide-react";
 
 export default function Header() {
   const [user, setUser] = useState<any>(null);
@@ -246,6 +246,9 @@ export default function Header() {
             <a href="/#funkcje" className="text-gray-300 hover:text-white transition-colors text-sm lg:text-base">
               Funkcje
             </a>
+            <Link href="/darmowy-generator-faktur" className="text-gray-300 hover:text-white transition-colors text-sm lg:text-base">
+              Generator faktur
+            </Link>
             <Link href="/premium" className="text-gray-300 hover:text-white transition-colors text-sm lg:text-base">
               Premium
             </Link>
@@ -301,6 +304,12 @@ export default function Header() {
               </div>
             ) : (
               <div className="flex items-center gap-2 sm:gap-3 flex-nowrap">
+                <Link href="/darmowy-generator-faktur">
+                  <button className="hidden sm:inline-flex items-center gap-2 border border-gray-700 text-gray-200 hover:border-gray-500 hover:text-white px-3 sm:px-4 py-2 rounded-lg font-medium transition-colors text-sm whitespace-nowrap">
+                    <ReceiptText className="h-4 w-4" />
+                    Generator faktur
+                  </button>
+                </Link>
                 <Link href="/logowanie">
                   <button className="text-gray-300 hover:text-white px-2 sm:px-4 py-2 transition-colors text-sm sm:text-base whitespace-nowrap">
                     Zaloguj się

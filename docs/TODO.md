@@ -173,6 +173,14 @@
     - anonymous generator now renders a dedicated invoice template and converts that rendered page into PDF instead of drawing a separate ad-hoc canvas layout
   - PR/Commit: `cb1b316`
   - Date: 2026-03-11
+- [x] T-312: Add `/darmowy-generator-faktur` CTA in header and homepage
+  - Owner: Codex
+  - Reviewer: self
+  - Verified:
+    - `cd ksiegai-next && npx tsc --noEmit` passed
+    - header now exposes a direct generator CTA and homepage hero includes a dedicated button to the same route
+  - PR/Commit: pending
+  - Date: 2026-03-13
 - [x] T-309: Add anonymous invoice generator page with NIP autofill and local PDF export
   - Owner: Codex
   - Reviewer: self
