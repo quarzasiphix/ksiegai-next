@@ -148,6 +148,17 @@
     - Confirm audit doc reflects current runtime probe outputs.
 
 ## DONE
+- [x] T-316: Add opted-in newsletter lead capture to anonymous generator
+  - Owner: Codex
+  - Reviewer: self
+  - Verified:
+    - `cd ksiegai-next && npx tsc --noEmit` passed
+    - `cd ksef-ai && npx tsc --noEmit` passed
+    - Supabase MCP: columns `lead_email`, `lead_subscribed_at` exist on `anonymous_generated_invoices`
+    - Supabase MCP: RPC `link_newsletter_subscriber_to_business_profile` exists
+    - live smoke test via `curl` to `store-anonymous-invoice` with `wantsNewsletter=true` returned `{\"success\":true,...}` and probe rows were deleted afterward
+  - PR/Commit: `ksiegai-next 7a0327f`, `ksef-ai b0f84b8`
+  - Date: 2026-03-13
 - [x] T-315: Persist anonymous generator invoices and recover them after account creation
   - Owner: Codex
   - Reviewer: self
