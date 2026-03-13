@@ -246,9 +246,6 @@ export default function Header() {
             <a href="/#funkcje" className="text-gray-300 hover:text-white transition-colors text-sm lg:text-base">
               Funkcje
             </a>
-            <Link href="/darmowy-generator-faktur" className="text-gray-300 hover:text-white transition-colors text-sm lg:text-base">
-              Generator faktur
-            </Link>
             <Link href="/premium" className="text-gray-300 hover:text-white transition-colors text-sm lg:text-base">
               Premium
             </Link>
