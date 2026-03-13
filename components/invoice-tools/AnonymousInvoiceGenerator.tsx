@@ -10,7 +10,6 @@ import {
   Loader2,
   ReceiptText,
   Save,
-  Search,
   ShieldCheck,
   Sparkles,
   Trash2,
@@ -29,7 +28,6 @@ import {
   loadStoredSeller,
   saveSellerToStorage,
   sanitizeTaxId,
-  type TaxIdLookupSource,
   type AnonymousInvoiceDraft,
   type InvoiceItemDraft,
   type InvoicePartyDraft,
@@ -44,10 +42,6 @@ export default function AnonymousInvoiceGenerator() {
   const [lookupState, setLookupState] = useState<{ party: PartyKey | null; loading: boolean }>({
     party: null,
     loading: false,
-  });
-  const [lookupSource, setLookupSource] = useState<Record<PartyKey, TaxIdLookupSource | null>>({
-    seller: null,
-    buyer: null,
   });
   const [isSavingSeller, setIsSavingSeller] = useState(false);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
@@ -160,20 +154,7 @@ export default function AnonymousInvoiceGenerator() {
           city: result.city,
         },
       }));
-      setLookupSource((currentState) => ({
-        ...currentState,
-        [partyKey]: result.source,
-      }));
-      setMessage(
-        partyKey === "seller"
-          ? `Dane sprzedawcy pobrane z: ${result.sourceLabel}.`
-          : `Dane nabywcy pobrane z: ${result.sourceLabel}.`,
-      );
     } catch (error) {
-      setLookupSource((currentState) => ({
-        ...currentState,
-        [partyKey]: null,
-      }));
       setMessage(error instanceof Error ? error.message : "Nie udało się pobrać danych z rejestru VAT MF.");
     } finally {
       setLookupState({ party: null, loading: false });
@@ -279,10 +260,10 @@ export default function AnonymousInvoiceGenerator() {
         </div>
       </section>
 
-      <section className="bg-slate-50">
+      <section className="bg-slate-50 dark:bg-slate-950">
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
           {message && (
-            <div className="mb-8 rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900">
+            <div className="mb-8 rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900 dark:border-blue-900/60 dark:bg-blue-950/50 dark:text-blue-100">
               {message}
             </div>
           )}
@@ -295,10 +276,6 @@ export default function AnonymousInvoiceGenerator() {
                   description="To jest pierwszy krok. Zacznij od NIP, a resztę danych spróbujemy uzupełnić automatycznie."
                   party={draft.seller}
                   onChange={(field, value) => updateParty("seller", field, value)}
-                  onLookup={() => handleLookup("seller")}
-                  isLookupLoading={lookupState.loading && lookupState.party === "seller"}
-                  lookupModeLabel="Autowyszukiwanie po NIP"
-                  lookupSource={lookupSource.seller}
                   footer={
                     <div className="flex flex-wrap gap-3">
                       <ActionButton icon={Save} onClick={handleSaveSeller} disabled={isSavingSeller}>
@@ -316,18 +293,14 @@ export default function AnonymousInvoiceGenerator() {
                   description="Jeśli kontrahent ma NIP, też pobierzemy dane automatycznie. Gdy API nie odpowiada, wpisz je ręcznie."
                   party={draft.buyer}
                   onChange={(field, value) => updateParty("buyer", field, value)}
-                  onLookup={() => handleLookup("buyer")}
-                  isLookupLoading={lookupState.loading && lookupState.party === "buyer"}
-                  lookupModeLabel="Automatyczne uzupełnianie kontrahenta"
-                  lookupSource={lookupSource.buyer}
                 />
               </div>
 
-              <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                   <div>
-                    <h2 className="text-2xl font-semibold text-slate-950">Dane faktury</h2>
-                    <p className="mt-1 text-sm text-slate-600">Ustaw numer, daty i płatność. Wszystko działa lokalnie.</p>
+                    <h2 className="text-2xl font-semibold text-slate-950 dark:text-slate-50">Dane faktury</h2>
+                    <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">Ustaw numer, daty i płatność. Wszystko działa lokalnie.</p>
                   </div>
                 </div>
 
@@ -344,16 +317,16 @@ export default function AnonymousInvoiceGenerator() {
                 </div>
               </div>
 
-              <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                   <div>
-                    <h2 className="text-2xl font-semibold text-slate-950">Pozycje faktury</h2>
-                    <p className="mt-1 text-sm text-slate-600">Dodaj usługę lub towar. Kwoty netto, VAT i brutto przeliczymy od razu.</p>
+                    <h2 className="text-2xl font-semibold text-slate-950 dark:text-slate-50">Pozycje faktury</h2>
+                    <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">Dodaj usługę lub towar. Kwoty netto, VAT i brutto przeliczymy od razu.</p>
                   </div>
                   <button
                     type="button"
                     onClick={addItem}
-                    className="inline-flex items-center justify-center rounded-full bg-slate-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
+                    className="inline-flex items-center justify-center rounded-full bg-slate-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-500"
                   >
                     Dodaj pozycję
                   </button>
@@ -364,16 +337,16 @@ export default function AnonymousInvoiceGenerator() {
                     const itemTotals = getItemTotals(item);
 
                     return (
-                      <div key={item.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                      <div key={item.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950/70">
                         <div className="mb-4 flex items-center justify-between">
-                          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">
+                          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">
                             Pozycja {index + 1}
                           </p>
                           {draft.items.length > 1 && (
                             <button
                               type="button"
                               onClick={() => removeItem(item.id)}
-                              className="text-sm font-medium text-slate-500 transition hover:text-rose-600"
+                              className="text-sm font-medium text-slate-500 transition hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400"
                             >
                               Usuń
                             </button>
@@ -388,7 +361,7 @@ export default function AnonymousInvoiceGenerator() {
                           <LabeledInput label="VAT %" type="number" value={String(item.vatRate)} onChange={(value) => updateItem(item.id, "vatRate", Number(value) || 0)} />
                         </div>
 
-                        <div className="mt-4 grid gap-3 rounded-2xl bg-white p-4 sm:grid-cols-3">
+                        <div className="mt-4 grid gap-3 rounded-2xl bg-white p-4 sm:grid-cols-3 dark:bg-slate-900">
                           <Stat label="Netto" value={formatCurrency(itemTotals.net)} />
                           <Stat label="VAT" value={formatCurrency(itemTotals.vat)} />
                           <Stat label="Brutto" value={formatCurrency(itemTotals.gross)} />
@@ -401,14 +374,14 @@ export default function AnonymousInvoiceGenerator() {
             </div>
 
             <aside className="space-y-6">
-              <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm xl:sticky xl:top-24">
+              <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm xl:sticky xl:top-24 dark:border-slate-800 dark:bg-slate-900">
                 <div className="flex items-center gap-3">
-                  <div className="rounded-2xl bg-blue-100 p-3 text-blue-700">
+                  <div className="rounded-2xl bg-blue-100 p-3 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300">
                     <ReceiptText className="h-6 w-6" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-semibold text-slate-950">Podsumowanie</h2>
-                    <p className="text-sm text-slate-600">Gotowe do pobrania jako PDF.</p>
+                    <h2 className="text-xl font-semibold text-slate-950 dark:text-slate-50">Podsumowanie</h2>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">Gotowe do pobrania jako PDF.</p>
                   </div>
                 </div>
 
@@ -444,20 +417,20 @@ export default function AnonymousInvoiceGenerator() {
                   type="button"
                   onClick={handleGeneratePdf}
                   disabled={!canGeneratePdf || isGeneratingPdf}
-                  className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 px-5 py-3.5 text-base font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-slate-300"
+                  className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 px-5 py-3.5 text-base font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-slate-300 dark:disabled:bg-slate-700"
                 >
                   {isGeneratingPdf ? <Loader2 className="h-5 w-5 animate-spin" /> : <Download className="h-5 w-5" />}
                   Pobierz PDF
                 </button>
 
                 {!canGeneratePdf && (
-                  <p className="mt-3 text-sm text-slate-500">
+                  <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
                     Uzupełnij sprzedawcę, nabywcę i co najmniej jedną pozycję, aby pobrać gotową fakturę.
                   </p>
                 )}
 
-                <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
-                  <p className="font-semibold text-slate-900">Jak działa pamięć danych?</p>
+                <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400">
+                  <p className="font-semibold text-slate-900 dark:text-slate-100">Jak działa pamięć danych?</p>
                   <p className="mt-2">
                     Tylko dane sprzedawcy zapisujemy lokalnie w `localStorage`, żeby przy kolejnej fakturze nie wpisywać ich od zera.
                   </p>
@@ -470,15 +443,15 @@ export default function AnonymousInvoiceGenerator() {
 
       {showSignupPrompt && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 px-4">
-          <div className="w-full max-w-xl rounded-3xl bg-white p-8 shadow-2xl">
-            <div className="flex items-center gap-3 text-blue-600">
+          <div className="w-full max-w-xl rounded-3xl bg-white p-8 shadow-2xl dark:bg-slate-900">
+            <div className="flex items-center gap-3 text-blue-600 dark:text-blue-400">
               <CheckCircle2 className="h-8 w-8" />
               <p className="text-sm font-semibold uppercase tracking-[0.24em]">Faktura gotowa</p>
             </div>
-            <h3 className="mt-5 text-3xl font-semibold text-slate-950">
+            <h3 className="mt-5 text-3xl font-semibold text-slate-950 dark:text-slate-50">
               Chcesz już nie robić tego ręcznie następnym razem?
             </h3>
-            <p className="mt-4 text-base leading-7 text-slate-600">
+            <p className="mt-4 text-base leading-7 text-slate-600 dark:text-slate-400">
               Konto w KsięgaI pozwala zapisywać klientów, historię faktur i wracać do dokumentów bez lokalnych szkiców. Jeśli
               na razie potrzebujesz tylko jednego PDF, po prostu zamknij to okno.
             </p>
@@ -486,7 +459,7 @@ export default function AnonymousInvoiceGenerator() {
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link
                 href="/rejestracja"
-                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-950 px-5 py-3.5 text-base font-semibold text-white transition hover:bg-slate-800"
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-950 px-5 py-3.5 text-base font-semibold text-white transition hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-500"
               >
                 Załóż konto w KsięgaI
                 <ArrowRight className="h-5 w-5" />
@@ -494,7 +467,7 @@ export default function AnonymousInvoiceGenerator() {
               <button
                 type="button"
                 onClick={() => setShowSignupPrompt(false)}
-                className="rounded-2xl border border-slate-300 px-5 py-3.5 text-base font-medium text-slate-700 transition hover:border-slate-400 hover:text-slate-950"
+                className="rounded-2xl border border-slate-300 px-5 py-3.5 text-base font-medium text-slate-700 transition hover:border-slate-400 hover:text-slate-950 dark:border-slate-700 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:text-slate-50"
               >
                 Zostań przy darmowym generatorze
               </button>
@@ -511,70 +484,38 @@ function PartyCard({
   description,
   party,
   onChange,
-  onLookup,
-  isLookupLoading,
-  lookupModeLabel,
-  lookupSource,
   footer,
 }: {
   title: string;
   description: string;
   party: InvoicePartyDraft;
   onChange: (field: keyof InvoicePartyDraft, value: string) => void;
-  onLookup: () => void;
-  isLookupLoading: boolean;
-  lookupModeLabel: string;
-  lookupSource: TaxIdLookupSource | null;
   footer?: React.ReactNode;
 }) {
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
       <div>
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-semibold text-slate-950">{title}</h2>
-            <p className="mt-1 text-sm leading-6 text-slate-600">{description}</p>
+            <h2 className="text-2xl font-semibold text-slate-950 dark:text-slate-50">{title}</h2>
+            <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-400">{description}</p>
           </div>
         </div>
 
-        <div className="mt-6 rounded-3xl border border-blue-200 bg-blue-50 p-4">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue-700">{lookupModeLabel}</p>
-              <p className="mt-1 text-sm text-slate-600">Najważniejsze pole. Po wpisaniu pełnego NIP dane powinny wpaść same.</p>
-            </div>
-            <button
-              type="button"
-              onClick={onLookup}
-              disabled={isLookupLoading}
-              className="inline-flex shrink-0 items-center gap-2 rounded-full border border-blue-300 bg-white px-4 py-2 text-sm font-medium text-blue-700 transition hover:border-blue-400 hover:text-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {isLookupLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
-              Szukaj po NIP
-            </button>
-          </div>
-
+        <div className="mt-6 rounded-3xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-900/60 dark:bg-blue-950/40">
           <div className="mt-4">
             <label className="block">
-              <span className="mb-2 block text-sm font-medium text-slate-700">NIP</span>
+              <span className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">NIP</span>
               <input
                 type="text"
                 value={party.taxId}
                 onChange={(event) => onChange("taxId", event.target.value)}
                 placeholder="1234567890"
-                className="w-full rounded-2xl border-2 border-blue-300 bg-white px-4 py-4 text-xl font-semibold tracking-[0.16em] text-slate-950 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                className="w-full rounded-2xl border-2 border-blue-300 bg-white px-4 py-4 text-xl font-semibold tracking-[0.16em] text-slate-950 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:border-blue-800 dark:bg-slate-900 dark:text-slate-50 dark:focus:border-blue-400 dark:focus:ring-blue-950"
               />
             </label>
-            <p className="mt-2 text-sm text-slate-500">
+            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
               {party.taxId ? `Wpisany NIP: ${formatTaxId(party.taxId)}` : "Wpisz 10 cyfr, a lookup uruchomi się automatycznie."}
-            </p>
-            <p className="mt-1 text-xs uppercase tracking-[0.18em] text-slate-400">
-              {lookupSource === "mf_vat"
-                ? "Źródło lookupu: Wykaz VAT MF"
-                : "Źródło lookupu: najpierw lokalna walidacja NIP, potem wykaz VAT MF"}
-            </p>
-            <p className="mt-2 text-sm text-slate-500">
-              CEIDG jest osobnym rejestrem. Jego API wymaga autoryzowanego backendu, więc ten darmowy generator nie łączy się z nim bezpośrednio z przeglądarki.
             </p>
           </div>
         </div>
@@ -612,13 +553,13 @@ function LabeledInput({
 }) {
   return (
     <label className="block">
-      <span className="mb-2 block text-sm font-medium text-slate-700">{label}</span>
+      <span className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">{label}</span>
       <input
         type={type}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
-        className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-base text-slate-950 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+        className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-base text-slate-950 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-50 dark:placeholder:text-slate-500 dark:focus:border-blue-400 dark:focus:ring-blue-950"
       />
     </label>
   );
@@ -648,8 +589,8 @@ function ActionButton({
 }) {
   const className =
     variant === "primary"
-      ? "bg-slate-950 text-white hover:bg-slate-800"
-      : "border border-slate-300 text-slate-700 hover:border-slate-400 hover:text-slate-950";
+      ? "bg-slate-950 text-white hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-500"
+      : "border border-slate-300 text-slate-700 hover:border-slate-400 hover:text-slate-950 dark:border-slate-700 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:text-slate-50";
 
   return (
     <button
@@ -668,7 +609,7 @@ function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <p className="text-xs uppercase tracking-[0.2em] text-slate-400">{label}</p>
-      <p className="mt-2 text-lg font-semibold text-slate-950">{value}</p>
+      <p className="mt-2 text-lg font-semibold text-slate-950 dark:text-slate-50">{value}</p>
     </div>
   );
 }
