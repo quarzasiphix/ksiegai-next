@@ -315,8 +315,8 @@ export default function AnonymousInvoicePdfTemplate({ draft }: AnonymousInvoiceP
       </div>
 
       <div style={styles.footer}>
-        Dokument wygenerowany lokalnie w KsięgaI bez zakładania konta. Dane pozostają w tej przeglądarce, dopóki nie
-        zdecydujesz się ich zapisać lub utworzyć konta.
+        Dokument wygenerowany w KsięgaI bez zakładania konta. Po rejestracji dla tego samego NIP-u odzyskasz tę
+        fakturę w historii dokumentów.
       </div>
     </div>
   );

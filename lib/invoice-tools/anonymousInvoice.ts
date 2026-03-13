@@ -220,7 +220,7 @@ export const fetchCompanyByTaxId = async (taxId: string): Promise<TaxIdLookupRes
   }
 
   throw new Error(
-    "Nie znaleziono firmy w wykazie VAT MF. CEIDG to osobny rejestr i jego API wymaga autoryzowanego backendu, więc w tym darmowym generatorze wpisz dane ręcznie, jeśli NIP nie wraca z MF.",
+    "Nie znaleziono firmy w wykazie VAT MF. Jeśli wpis nie wraca z rejestru, uzupełnij dane ręcznie i wystaw fakturę dalej bez blokady.",
   );
 };
 

@@ -32,6 +32,7 @@ import {
   type InvoiceItemDraft,
   type InvoicePartyDraft,
 } from "@/lib/invoice-tools/anonymousInvoice";
+import { persistAnonymousInvoiceDraft } from "@/lib/invoice-tools/persistence";
 import { downloadAnonymousInvoicePdf } from "@/lib/invoice-tools/pdf";
 
 type PartyKey = "seller" | "buyer";
@@ -46,6 +47,7 @@ export default function AnonymousInvoiceGenerator() {
   const [isSavingSeller, setIsSavingSeller] = useState(false);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [showSignupPrompt, setShowSignupPrompt] = useState(false);
+  const [lastSaveStatus, setLastSaveStatus] = useState<"saved" | "save_failed" | null>(null);
   const lastAutoLookupRef = useRef<Record<PartyKey, string>>({
     seller: "",
     buyer: "",
@@ -191,13 +193,33 @@ export default function AnonymousInvoiceGenerator() {
   const handleGeneratePdf = async () => {
     setMessage(null);
     setIsGeneratingPdf(true);
+    let saveStatus: "saved" | "save_failed" = "saved";
 
     try {
+      try {
+        await persistAnonymousInvoiceDraft(draft);
+        setLastSaveStatus("saved");
+      } catch (error) {
+        saveStatus = "save_failed";
+        setLastSaveStatus("save_failed");
+        console.error("Anonymous invoice persistence failed:", error);
+      }
+
       await downloadAnonymousInvoicePdf(draft);
       setShowSignupPrompt(true);
-      setMessage("Faktura została pobrana jako PDF.");
+      setMessage(
+        saveStatus === "saved"
+          ? "Faktura została pobrana jako PDF i zapisana pod NIP-em sprzedawcy. Po rejestracji odzyskasz ją w KsięgaI."
+          : "Faktura została pobrana jako PDF, ale tej próby nie udało się zapisać do późniejszego odzyskania. Jeśli chcesz mieć ją w historii po rejestracji, spróbuj wygenerować ją ponownie.",
+      );
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Nie udało się wygenerować PDF.");
+      setMessage(
+        saveStatus === "saved"
+          ? "Faktura została zapisana pod NIP-em sprzedawcy, ale nie udało się wygenerować PDF. Spróbuj pobrać ją ponownie za chwilę."
+          : error instanceof Error
+            ? error.message
+            : "Nie udało się wygenerować PDF.",
+      );
     } finally {
       setIsGeneratingPdf(false);
     }
@@ -218,13 +240,14 @@ export default function AnonymousInvoiceGenerator() {
                 Wystaw fakturę w 2 minuty. Bez rejestracji.
               </h1>
               <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-300">
-                Wpisz NIP, dane firmy uzupełnią się automatycznie z rejestru VAT MF. Pobierz PDF od razu. Jeśli
-                później założysz konto, wszystkie Twoje faktury będą już zapisane w systemie.
+                Wpisz NIP, pobierz dane z rejestru VAT MF i od razu wygeneruj PDF. Jeśli później założysz konto,
+                Twoje faktury będą już czekać w KsięgaI pod NIP-em sprzedawcy.
               </p>
               <div className="mt-8 flex flex-wrap gap-3 text-sm text-slate-200">
-                <FeaturePill icon={ShieldCheck} text="Dane sprzedawcy zapisujemy tylko w Twojej przeglądarce" />
+                <FeaturePill icon={ShieldCheck} text="Fakturę wystawisz bez zakładania konta" />
                 <FeaturePill icon={Building2} text="Autouzupełnianie NIP z oficjalnego rejestru MF" />
                 <FeaturePill icon={ReceiptText} text="PDF gotowy do pobrania od razu po wypełnieniu" />
+                <FeaturePill icon={Save} text="Po rejestracji odzyskasz wcześniej wygenerowane faktury" />
               </div>
               <div className="mt-8 max-w-2xl rounded-3xl border border-blue-400/20 bg-blue-500/10 p-5">
                 <div className="flex items-start gap-3">
@@ -235,7 +258,8 @@ export default function AnonymousInvoiceGenerator() {
                     <p className="text-sm font-semibold uppercase tracking-[0.24em] text-blue-200">Najpierw NIP</p>
                     <p className="mt-2 text-base leading-7 text-slate-100">
                       Zacznij od pola NIP sprzedawcy. Po wpisaniu 10 cyfr generator sam spróbuje pobrać nazwę i adres z
-                      rejestru VAT MF, więc reszta formularza robi się prawie sama.
+                      rejestru VAT MF, a po pobraniu PDF zapisze fakturę pod tym NIP-em do późniejszego odzyskania po
+                      rejestracji.
                     </p>
                   </div>
                 </div>
@@ -252,7 +276,7 @@ export default function AnonymousInvoiceGenerator() {
                   2. Dodaj nabywcę i pozycje faktury.
                 </li>
                 <li className="rounded-2xl border border-white/10 bg-slate-900/70 p-4">
-                  3. Pobierz PDF i opcjonalnie przejdź do pełnego konta KsięgaI.
+                  3. Pobierz PDF teraz, a konto załóż później, żeby odzyskać historię swoich faktur.
                 </li>
               </ol>
             </div>
@@ -300,7 +324,9 @@ export default function AnonymousInvoiceGenerator() {
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                   <div>
                     <h2 className="text-2xl font-semibold text-slate-950 dark:text-slate-50">Dane faktury</h2>
-                    <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">Ustaw numer, daty i płatność. Wszystko działa lokalnie.</p>
+                    <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+                      Ustaw numer, daty i płatność. PDF pobierzesz od razu, a wystawiona faktura może później trafić do Twojego konta.
+                    </p>
                   </div>
                 </div>
 
@@ -429,10 +455,17 @@ export default function AnonymousInvoiceGenerator() {
                   </p>
                 )}
 
+                <p className="mt-4 text-sm text-slate-600 dark:text-slate-400">
+                  Ta faktura zapisze się pod NIP-em sprzedawcy. Po rejestracji odzyskasz ją w KsięgaI i zaczniesz zarządzać całą historią w jednym miejscu.
+                </p>
+
                 <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400">
-                  <p className="font-semibold text-slate-900 dark:text-slate-100">Jak działa pamięć danych?</p>
+                  <p className="font-semibold text-slate-900 dark:text-slate-100">Jak działa zapis danych?</p>
                   <p className="mt-2">
-                    Tylko dane sprzedawcy zapisujemy lokalnie w `localStorage`, żeby przy kolejnej fakturze nie wpisywać ich od zera.
+                    Dane sprzedawcy możesz zapamiętać lokalnie w tej przeglądarce, żeby przy kolejnej fakturze nie wpisywać ich od zera.
+                  </p>
+                  <p className="mt-2">
+                    Sama wygenerowana faktura zapisuje się w KsięgaI pod NIP-em sprzedawcy, dzięki czemu po późniejszej rejestracji odzyskasz ją w swoim koncie.
                   </p>
                 </div>
               </div>
@@ -449,11 +482,12 @@ export default function AnonymousInvoiceGenerator() {
               <p className="text-sm font-semibold uppercase tracking-[0.24em]">Faktura gotowa</p>
             </div>
             <h3 className="mt-5 text-3xl font-semibold text-slate-950 dark:text-slate-50">
-              Chcesz już nie robić tego ręcznie następnym razem?
+              {lastSaveStatus === "saved" ? "Twoja faktura już czeka w KsięgaI" : "Chcesz zarządzać fakturami po rejestracji?"}
             </h3>
             <p className="mt-4 text-base leading-7 text-slate-600 dark:text-slate-400">
-              Konto w KsięgaI pozwala zapisywać klientów, historię faktur i wracać do dokumentów bez lokalnych szkiców. Jeśli
-              na razie potrzebujesz tylko jednego PDF, po prostu zamknij to okno.
+              {lastSaveStatus === "saved"
+                ? "Załóż konto dla tego samego NIP-u, a wcześniej wygenerowane faktury pojawią się od razu w historii. Potem możesz przejść do księgowości, zarządzania klientami i pełnej pracy na dokumentach."
+                : "Załóż konto później, aby zarządzać historią faktur, klientami i księgowością w jednym miejscu. Jeśli teraz potrzebujesz tylko jednego PDF, po prostu zamknij to okno."}
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
