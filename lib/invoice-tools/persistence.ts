@@ -3,7 +3,12 @@ import { getInvoiceTotals, sanitizeTaxId, type AnonymousInvoiceDraft } from "@/l
 
 const ANONYMOUS_INVOICE_SOURCE = "anonymous_generator";
 
-export async function persistAnonymousInvoiceDraft(draft: AnonymousInvoiceDraft) {
+type AnonymousLeadPayload = {
+  email: string;
+  wantsNewsletter: boolean;
+};
+
+export async function persistAnonymousInvoiceDraft(draft: AnonymousInvoiceDraft, lead?: AnonymousLeadPayload) {
   const submissionId = crypto.randomUUID();
   const totals = getInvoiceTotals(draft.items);
 
@@ -33,6 +38,8 @@ export async function persistAnonymousInvoiceDraft(draft: AnonymousInvoiceDraft)
         vatRate: item.vatRate,
       })),
       totals,
+      leadEmail: lead?.email,
+      wantsNewsletter: lead?.wantsNewsletter ?? false,
     },
   });
 

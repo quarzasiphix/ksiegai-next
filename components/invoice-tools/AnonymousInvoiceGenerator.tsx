@@ -40,6 +40,8 @@ type PartyKey = "seller" | "buyer";
 export default function AnonymousInvoiceGenerator() {
   const [draft, setDraft] = useState<AnonymousInvoiceDraft>(() => getDefaultInvoiceDraft());
   const [message, setMessage] = useState<string | null>(null);
+  const [leadEmail, setLeadEmail] = useState("");
+  const [wantsNewsletter, setWantsNewsletter] = useState(false);
   const [lookupState, setLookupState] = useState<{ party: PartyKey | null; loading: boolean }>({
     party: null,
     loading: false,
@@ -194,10 +196,20 @@ export default function AnonymousInvoiceGenerator() {
     setMessage(null);
     setIsGeneratingPdf(true);
     let saveStatus: "saved" | "save_failed" = "saved";
+    const normalizedLeadEmail = leadEmail.trim().toLowerCase();
+    const validLeadEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedLeadEmail);
 
     try {
       try {
-        await persistAnonymousInvoiceDraft(draft);
+        await persistAnonymousInvoiceDraft(
+          draft,
+          wantsNewsletter && validLeadEmail
+            ? {
+                email: normalizedLeadEmail,
+                wantsNewsletter: true,
+              }
+            : undefined,
+        );
         setLastSaveStatus("saved");
       } catch (error) {
         saveStatus = "save_failed";
@@ -209,7 +221,11 @@ export default function AnonymousInvoiceGenerator() {
       setShowSignupPrompt(true);
       setMessage(
         saveStatus === "saved"
-          ? "Faktura została pobrana jako PDF i zapisana pod NIP-em sprzedawcy. Po rejestracji odzyskasz ją w KsięgaI."
+          ? wantsNewsletter && !validLeadEmail
+            ? "Faktura została pobrana jako PDF i zapisana pod NIP-em sprzedawcy. Newsletter nie został włączony, bo adres email jest niepoprawny."
+            : wantsNewsletter
+              ? "Faktura została pobrana jako PDF, zapisana pod NIP-em sprzedawcy i połączona z Twoim emailem do newslettera."
+              : "Faktura została pobrana jako PDF i zapisana pod NIP-em sprzedawcy. Po rejestracji odzyskasz ją w KsięgaI."
           : "Faktura została pobrana jako PDF, ale tej próby nie udało się zapisać do późniejszego odzyskania. Jeśli chcesz mieć ją w historii po rejestracji, spróbuj wygenerować ją ponownie.",
       );
     } catch (error) {
@@ -458,6 +474,34 @@ export default function AnonymousInvoiceGenerator() {
                 <p className="mt-4 text-sm text-slate-600 dark:text-slate-400">
                   Ta faktura zapisze się pod NIP-em sprzedawcy. Po rejestracji odzyskasz ją w KsięgaI i zaczniesz zarządzać całą historią w jednym miejscu.
                 </p>
+
+                <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-950 dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-100">
+                  <p className="font-semibold">Chcesz rabaty, aktualizacje i przypomnienie o odzyskaniu faktur?</p>
+                  <p className="mt-2 text-emerald-800 dark:text-emerald-200">
+                    To opcjonalne. Zostaw email, jeśli chcesz dostać newsletter KsięgaI i oferty dla firm z tym NIP-em.
+                  </p>
+                  <div className="mt-4">
+                    <LabeledInput
+                      label="Email do newslettera"
+                      value={leadEmail}
+                      onChange={setLeadEmail}
+                      placeholder="twoj@adres.pl"
+                      type="email"
+                    />
+                  </div>
+                  <label className="mt-4 flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      checked={wantsNewsletter}
+                      onChange={(event) => setWantsNewsletter(event.target.checked)}
+                      className="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-950"
+                    />
+                    <span className="text-sm leading-6 text-slate-700 dark:text-slate-300">
+                      Chcę otrzymywać mailem newsletter, zniżki i aktualizacje KsięgaI. Ten email połączymy z NIP-em
+                      sprzedawcy, żeby później łatwiej odzyskać historię po rejestracji. Zgodę mogę wycofać w każdej chwili.
+                    </span>
+                  </label>
+                </div>
 
                 <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400">
                   <p className="font-semibold text-slate-900 dark:text-slate-100">Jak działa zapis danych?</p>
