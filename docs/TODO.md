@@ -148,6 +148,18 @@
     - Confirm audit doc reflects current runtime probe outputs.
 
 ## DONE
+- [x] T-315: Persist anonymous generator invoices and recover them after account creation
+  - Owner: Codex
+  - Reviewer: self
+  - Verified:
+    - `cd ksiegai-next && npx tsc --noEmit` passed
+    - `cd ksef-ai && npx tsc --noEmit` passed
+    - `cd ksiegai-next && npm run build` still hits the repo's existing Next worker crash: `Jest worker encountered 1 child process exceptions, exceeding retry limit`
+    - `cd ksiegai-next && npm run lint` is still blocked by the repo prompting for first-time Next ESLint setup
+    - Supabase MCP: migration applied for `anonymous_generated_invoices`, RPC `claim_anonymous_generator_invoices` exists, Edge Function `store-anonymous-invoice` is active
+    - Live smoke test via `curl` to `store-anonymous-invoice` returned `{\"success\":true,...}` and the probe row was deleted afterward
+  - PR/Commit: `ksiegai-next 0d46374`, `ksef-ai 05a62c9`
+  - Date: 2026-03-13
 - [x] T-314: Align anonymous generator hero copy with saved-invoices roadmap
   - Owner: Codex
   - Reviewer: self
