@@ -148,6 +148,15 @@
     - Confirm audit doc reflects current runtime probe outputs.
 
 ## DONE
+- [x] T-314: Align anonymous generator hero copy with saved-invoices roadmap
+  - Owner: Codex
+  - Reviewer: self
+  - Verified:
+    - `cd ksiegai-next && npx tsc --noEmit` passed
+    - hero no longer claims invoices are not saved in the system
+    - subtext now frames later registration as unlocking already-saved invoices in KsięgaI
+  - PR/Commit: `77d0099`
+  - Date: 2026-03-13
 - [x] T-313: Make anonymous invoice generator follow the global dark theme toggle
   - Owner: Codex
   - Reviewer: self
