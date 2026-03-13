@@ -215,11 +215,11 @@ export default function AnonymousInvoiceGenerator() {
                 Darmowy generator faktur bez konta
               </div>
               <h1 className="mt-6 text-4xl font-semibold tracking-tight sm:text-5xl">
-                Wystaw fakturę w 2 minuty. Bez rejestracji, bez zapisywania w systemie.
+                Wystaw fakturę w 2 minuty. Bez rejestracji.
               </h1>
               <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-300">
-                Wpisujesz NIP, pobierasz dane z rejestru VAT MF, zapisujesz swoje dane lokalnie na później i od
-                razu pobierasz PDF. Dopiero po wygenerowaniu faktury możesz zdecydować, czy chcesz założyć konto.
+                Wpisz NIP, dane firmy uzupełnią się automatycznie z rejestru VAT MF. Pobierz PDF od razu. Jeśli
+                później założysz konto, wszystkie Twoje faktury będą już zapisane w systemie.
               </p>
               <div className="mt-8 flex flex-wrap gap-3 text-sm text-slate-200">
                 <FeaturePill icon={ShieldCheck} text="Dane sprzedawcy zapisujemy tylko w Twojej przeglądarce" />
