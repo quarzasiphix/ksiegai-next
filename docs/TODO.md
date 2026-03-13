@@ -179,7 +179,7 @@
   - Verified:
     - `cd ksiegai-next && npx tsc --noEmit` passed
     - header now exposes a direct generator CTA and homepage hero includes a dedicated button to the same route
-  - PR/Commit: pending
+  - PR/Commit: `60e3f8b`
   - Date: 2026-03-13
 - [x] T-309: Add anonymous invoice generator page with NIP autofill and local PDF export
   - Owner: Codex
