@@ -1,5 +1,16 @@
 # Notes
 
+## 2026-03-22 - Removed public shared invoice ledger route
+
+What changed:
+- Removed the dedicated public route `app/udostepnione-faktury/page.tsx`.
+- Deleted `components/public/SharedInvoicesLedger.tsx` and `lib/publicShare.ts`.
+- The client invoice list now lives only in `ksef-ai` behind the existing `/share/:slug` slug-gated flow.
+
+Verification evidence (2026-03-22):
+- `trash-put .next/types/app/udostepnione-faktury` to clear stale generated type output after deleting the route
+- `cd ksiegai-next && npx tsc --noEmit` -> passed
+
 ## 2026-03-22 - Shared invoice ledger access
 
 What changed:
