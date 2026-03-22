@@ -148,11 +148,11 @@ export default function SharedInvoicesLedger() {
               </span>
               <div className="space-y-2">
                 <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-                  Wszystkie udostępnione faktury klienta
+                  Aktywne faktury tego klienta
                 </h1>
                 <p className="max-w-3xl text-sm leading-6 text-slate-300 sm:text-base">
-                  Ten widok pokazuje faktury, które zostały jawnie udostępnione temu samemu odbiorcy.
-                  Lista jest zawężona do tego samego klienta i tego samego wystawcy.
+                  Ten widok pokazuje inne faktury tego samego klienta, jeśli wystawca nadal ma dla nich aktywny link
+                  udostępnienia. Lista jest zawężona do tego samego klienta i tego samego wystawcy.
                 </p>
               </div>
             </div>
@@ -177,7 +177,7 @@ export default function SharedInvoicesLedger() {
             <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
               <div className="text-xs uppercase tracking-[0.2em] text-slate-400">Liczba faktur</div>
               <div className="mt-2 text-lg font-semibold text-white">{invoiceRows.length}</div>
-              <div className="mt-1 text-sm text-slate-300">Widoczne są tylko aktywne linki do faktur.</div>
+              <div className="mt-1 text-sm text-slate-300">Widoczne są tylko faktury z aktywnym linkiem udostępnienia.</div>
             </div>
             <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
               <div className="text-xs uppercase tracking-[0.2em] text-slate-400">Aktualny link</div>
@@ -203,7 +203,7 @@ export default function SharedInvoicesLedger() {
             <div className="space-y-4 px-6 py-10 text-slate-200">
               <h2 className="text-xl font-semibold text-white">Brak innych udostępnionych faktur</h2>
               <p className="max-w-2xl text-sm leading-6 text-slate-300">
-                Dla tego odbiorcy nie ma obecnie innych aktywnych, jawnie udostępnionych faktur.
+                Dla tego klienta nie ma obecnie innych aktywnych linków do faktur od tego samego wystawcy.
               </p>
             </div>
           ) : (

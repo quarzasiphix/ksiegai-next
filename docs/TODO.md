@@ -25,6 +25,31 @@
   - Notes:
     - Follows T-304 implementation; environment-level action required.
 ## IN PROGRESS
+- [ ] T-317: Let an active shared invoice link unlock the client's other active invoice links
+  - Owner: Codex (Agent B)
+  - Started: 2026-03-22 19:21
+  - Branch: main (shared)
+  - Reviewer: Agent A
+  - Status: pr_ready
+  - Notes:
+    - User-requested scope: from any valid shared invoice URL, the client can open a ledger-style view of that same client's other active invoice shares while the originating link remains active.
+    - Safety boundary: do not broaden anonymous access beyond slug-based active shares for the same issuer and the same client identity.
+    - Fixed gap: `shared-doc` now resolves related invoice links for any active share row carrying an invoice (`invoice` or `combo`) while still requiring slug-based access and same issuer/client matching.
+  - Files touched (actual):
+    - `ksef-ai/supabase/functions/shared-doc/index.ts`
+    - `ksiegai-next/components/public/SharedInvoicesLedger.tsx`
+    - `ksef-ai/src/pages/public/ShareDocuments.tsx`
+    - `ksiegai-next/docs/NOTES.md`
+    - `ksiegai-next/docs/TODO.md`
+    - `tovernet/docs/workspace/WORK_LOG.md`
+  - Checks run:
+    - `cd ksiegai-next && npx tsc --noEmit` (pass)
+    - `cd ksef-ai && npx tsc --noEmit` (pass)
+  - Reviewer instructions:
+    - Verify a plain invoice share slug still opens the ledger and lists only same-client active invoice links.
+    - Verify an invoice shared as `combo` now unlocks the same ledger behavior.
+    - Confirm expired or consumed `view_once` links do not appear in the ledger list.
+
 - [ ] T-306: Fix `/logowanie` missing Next static assets (CSS/JS 404) + manifest icons
   - Owner: Codex (Agent A)
   - Started: 2026-02-27 10:49
