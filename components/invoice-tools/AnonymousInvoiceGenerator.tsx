@@ -6,13 +6,15 @@ import {
   ArrowRight,
   Building2,
   CheckCircle2,
+  ChevronDown,
+  ChevronUp,
   Download,
   Loader2,
   ReceiptText,
+  XCircle,
   Save,
   ShieldCheck,
   Sparkles,
-  Trash2,
   Wand2,
 } from "lucide-react";
 import {
@@ -36,6 +38,7 @@ import { persistAnonymousInvoiceDraft } from "@/lib/invoice-tools/persistence";
 import { downloadAnonymousInvoicePdf } from "@/lib/invoice-tools/pdf";
 
 type PartyKey = "seller" | "buyer";
+type LookupFeedbackState = "idle" | "loading" | "success" | "error";
 
 export default function AnonymousInvoiceGenerator() {
   const [draft, setDraft] = useState<AnonymousInvoiceDraft>(() => getDefaultInvoiceDraft());
@@ -46,10 +49,18 @@ export default function AnonymousInvoiceGenerator() {
     party: null,
     loading: false,
   });
-  const [isSavingSeller, setIsSavingSeller] = useState(false);
+  const [lookupFeedback, setLookupFeedback] = useState<Record<PartyKey, LookupFeedbackState>>({
+    seller: "idle",
+    buyer: "idle",
+  });
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [showSignupPrompt, setShowSignupPrompt] = useState(false);
   const [lastSaveStatus, setLastSaveStatus] = useState<"saved" | "save_failed" | null>(null);
+  const [sellerSource, setSellerSource] = useState<"manual" | "stored_profile" | "lookup_success">("manual");
+  const [collapsedCards, setCollapsedCards] = useState<Record<PartyKey, boolean>>({
+    seller: false,
+    buyer: true,
+  });
   const lastAutoLookupRef = useRef<Record<PartyKey, string>>({
     seller: "",
     buyer: "",
@@ -66,6 +77,7 @@ export default function AnonymousInvoiceGenerator() {
         ...storedSeller,
       },
     }));
+    setSellerSource("stored_profile");
   }, []);
 
   useEffect(() => {
@@ -100,13 +112,59 @@ export default function AnonymousInvoiceGenerator() {
 
   const totals = useMemo(() => getInvoiceTotals(draft.items), [draft.items]);
   const canGeneratePdf = useMemo(() => isInvoiceDraftValid(draft), [draft]);
+  const sellerTaxId = useMemo(() => sanitizeTaxId(draft.seller.taxId), [draft.seller.taxId]);
+  const hasStoredSellerData = useMemo(() => Object.values(draft.seller).some((value) => value.trim().length > 0), [draft.seller]);
+  const sellerLooksReady = useMemo(
+    () => Boolean(draft.seller.name.trim() && sellerTaxId.length === 10 && draft.seller.street.trim() && draft.seller.postalCode.trim() && draft.seller.city.trim()),
+    [draft.seller, sellerTaxId],
+  );
+  const buyerTaxId = useMemo(() => sanitizeTaxId(draft.buyer.taxId), [draft.buyer.taxId]);
+  const buyerLooksReady = useMemo(
+    () => Boolean(
+      draft.buyer.name.trim() && ((draft.buyer.street.trim() && draft.buyer.postalCode.trim() && draft.buyer.city.trim()) || buyerTaxId.length === 10)
+    ),
+    [draft.buyer, buyerTaxId],
+  );
+  const previousSellerReadyRef = useRef(sellerLooksReady);
+  const previousBuyerReadyRef = useRef(buyerLooksReady);
+
+  useEffect(() => {
+    if (!hasStoredSellerData) {
+      clearStoredSeller();
+      return;
+    }
+
+    saveSellerToStorage(draft.seller);
+  }, [draft.seller, hasStoredSellerData]);
+
+  useEffect(() => {
+    if (sellerLooksReady && !previousSellerReadyRef.current) {
+      setCollapsedCards({ seller: true, buyer: false });
+    }
+
+    if (buyerLooksReady && !previousBuyerReadyRef.current) {
+      setCollapsedCards((current) => ({ ...current, buyer: true }));
+    }
+
+    previousSellerReadyRef.current = sellerLooksReady;
+    previousBuyerReadyRef.current = buyerLooksReady;
+  }, [sellerLooksReady, buyerLooksReady]);
 
   const updateParty = (partyKey: PartyKey, field: keyof InvoicePartyDraft, value: string) => {
+    const nextValue = field === "taxId" ? sanitizeTaxId(value) : value;
+
+    if (field === "taxId") {
+      setLookupFeedback((current) => ({
+        ...current,
+        [partyKey]: sanitizeTaxId(nextValue).length < 10 ? "idle" : current[partyKey],
+      }));
+    }
+
     setDraft((currentDraft) => ({
       ...currentDraft,
       [partyKey]: {
         ...currentDraft[partyKey],
-        [field]: field === "taxId" ? sanitizeTaxId(value) : value,
+        [field]: nextValue,
       },
     }));
   };
@@ -143,6 +201,7 @@ export default function AnonymousInvoiceGenerator() {
 
   const handleLookup = async (partyKey: PartyKey) => {
     setMessage(null);
+    setLookupFeedback((current) => ({ ...current, [partyKey]: "loading" }));
     setLookupState({ party: partyKey, loading: true });
 
     try {
@@ -158,20 +217,15 @@ export default function AnonymousInvoiceGenerator() {
           city: result.city,
         },
       }));
+      if (partyKey === "seller") {
+        setSellerSource("lookup_success");
+      }
+      setLookupFeedback((current) => ({ ...current, [partyKey]: "success" }));
     } catch (error) {
+      setLookupFeedback((current) => ({ ...current, [partyKey]: "error" }));
       setMessage(error instanceof Error ? error.message : "Nie udało się pobrać danych z rejestru VAT MF.");
     } finally {
       setLookupState({ party: null, loading: false });
-    }
-  };
-
-  const handleSaveSeller = () => {
-    setIsSavingSeller(true);
-    try {
-      saveSellerToStorage(draft.seller);
-      setMessage("Dane sprzedawcy zapisane lokalnie w tej przeglądarce.");
-    } finally {
-      setIsSavingSeller(false);
     }
   };
 
@@ -189,6 +243,8 @@ export default function AnonymousInvoiceGenerator() {
         email: "",
       },
     }));
+    setSellerSource("manual");
+    setCollapsedCards({ seller: false, buyer: true });
     setMessage("Lokalnie zapisane dane sprzedawcy zostały usunięte.");
   };
 
@@ -310,29 +366,44 @@ export default function AnonymousInvoiceGenerator() {
 
           <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
             <div className="space-y-6">
-              <div className="grid gap-6 lg:grid-cols-2">
+              <div className="space-y-6">
                 <PartyCard
                   title="Sprzedawca"
-                  description="To jest pierwszy krok. Zacznij od NIP, a resztę danych spróbujemy uzupełnić automatycznie."
+                  description="Najpierw wpisz NIP sprzedawcy. Gdy znajdziemy firmę w rejestrze, uzupełnimy resztę danych i schowamy ten blok do skrótu."
                   party={draft.seller}
                   onChange={(field, value) => updateParty("seller", field, value)}
+                  lookupFeedback={lookupFeedback.seller}
+                  successMessage={
+                    sellerSource === "stored_profile"
+                      ? "Saved profile loaded. You can keep using it or expand this section to edit the seller data."
+                      : sellerSource === "lookup_success"
+                        ? "Successfully grabbed business info from the registry."
+                        : undefined
+                  }
+                  isCollapsed={collapsedCards.seller}
+                  isComplete={sellerLooksReady}
+                  onToggle={() => setCollapsedCards((current) => ({ ...current, seller: !current.seller }))}
                   footer={
-                    <div className="flex flex-wrap gap-3">
-                      <ActionButton icon={Save} onClick={handleSaveSeller} disabled={isSavingSeller}>
-                        Zapamiętaj lokalnie
-                      </ActionButton>
-                      <ActionButton icon={Trash2} onClick={handleClearSeller} variant="secondary">
-                        Usuń zapisane dane
-                      </ActionButton>
-                    </div>
+                    hasStoredSellerData ? (
+                      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-100">
+                        <span>Sprzedawca zapisuje się automatycznie w tej przeglądarce i podpowie się przy kolejnej fakturze.</span>
+                        <ActionButton icon={CheckCircle2} onClick={handleClearSeller} variant="secondary">
+                          Wyczyść zapisane dane
+                        </ActionButton>
+                      </div>
+                    ) : null
                   }
                 />
 
                 <PartyCard
                   title="Nabywca"
-                  description="Jeśli kontrahent ma NIP, też pobierzemy dane automatycznie. Gdy API nie odpowiada, wpisz je ręcznie."
+                  description=""
                   party={draft.buyer}
                   onChange={(field, value) => updateParty("buyer", field, value)}
+                  lookupFeedback={lookupFeedback.buyer}
+                  isCollapsed={collapsedCards.buyer}
+                  isComplete={buyerLooksReady}
+                  onToggle={() => setCollapsedCards((current) => ({ ...current, buyer: !current.buyer }))}
                 />
               </div>
 
@@ -472,7 +543,7 @@ export default function AnonymousInvoiceGenerator() {
                 )}
 
                 <p className="mt-4 text-sm text-slate-600 dark:text-slate-400">
-                  Ta faktura zapisze się pod NIP-em sprzedawcy. Po rejestracji odzyskasz ją w KsięgaI i zaczniesz zarządzać całą historią w jednym miejscu.
+                  Ta faktura zapisze się pod NIP-em sprzedawcy. Po rejestracji odzyskasz ją w KsięgaI, wejdziesz do księgowości, a dokumenty i odpowiedzi od kontrahentów uporządkujesz później w Inboxie.
                 </p>
 
                 <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-950 dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-100">
@@ -506,10 +577,10 @@ export default function AnonymousInvoiceGenerator() {
                 <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400">
                   <p className="font-semibold text-slate-900 dark:text-slate-100">Jak działa zapis danych?</p>
                   <p className="mt-2">
-                    Dane sprzedawcy możesz zapamiętać lokalnie w tej przeglądarce, żeby przy kolejnej fakturze nie wpisywać ich od zera.
+                    Dane sprzedawcy zapisują się lokalnie automatycznie już podczas wypełniania formularza, więc kolejna faktura zacznie się od gotowego NIP-u i danych firmy.
                   </p>
                   <p className="mt-2">
-                    Sama wygenerowana faktura zapisuje się w KsięgaI pod NIP-em sprzedawcy, dzięki czemu po późniejszej rejestracji odzyskasz ją w swoim koncie.
+                    Ten sam NIP przeniesiemy też do zakładania profilu firmy po rejestracji, żeby szybciej wejść do księgowości, historii faktur i Inboxu dokumentów.
                   </p>
                 </div>
               </div>
@@ -530,16 +601,16 @@ export default function AnonymousInvoiceGenerator() {
             </h3>
             <p className="mt-4 text-base leading-7 text-slate-600 dark:text-slate-400">
               {lastSaveStatus === "saved"
-                ? "Załóż konto dla tego samego NIP-u, a wcześniej wygenerowane faktury pojawią się od razu w historii. Potem możesz przejść do księgowości, zarządzania klientami i pełnej pracy na dokumentach."
-                : "Załóż konto później, aby zarządzać historią faktur, klientami i księgowością w jednym miejscu. Jeśli teraz potrzebujesz tylko jednego PDF, po prostu zamknij to okno."}
+                ? "Załóż konto dla tego samego NIP-u, a wcześniej wygenerowane faktury pojawią się od razu w historii. Od razu wejdziesz też do księgowości, listy klientów i Inboxu dokumentów bez ponownego wpisywania firmy."
+                : "Załóż konto później, aby zarządzać historią faktur, klientami, księgowością i Inboxem dokumentów w jednym miejscu. Jeśli teraz potrzebujesz tylko jednego PDF, po prostu zamknij to okno."}
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link
-                href="/rejestracja"
+                href={`/rejestracja${sellerTaxId ? `?generatorNip=${sellerTaxId}` : ""}`}
                 className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-950 px-5 py-3.5 text-base font-semibold text-white transition hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-500"
               >
-                Załóż konto w KsięgaI
+                Załóż konto i odblokuj księgowość + Inbox
                 <ArrowRight className="h-5 w-5" />
               </Link>
               <button
@@ -563,55 +634,123 @@ function PartyCard({
   party,
   onChange,
   footer,
+  lookupFeedback = "idle",
+  successMessage,
+  isCollapsed = false,
+  isComplete = false,
+  onToggle,
 }: {
   title: string;
   description: string;
   party: InvoicePartyDraft;
   onChange: (field: keyof InvoicePartyDraft, value: string) => void;
   footer?: React.ReactNode;
+  lookupFeedback?: LookupFeedbackState;
+  successMessage?: string;
+  isCollapsed?: boolean;
+  isComplete?: boolean;
+  onToggle: () => void;
 }) {
+  const summaryParts = [party.name.trim() || "Brak nazwy", party.taxId ? `NIP ${formatTaxId(party.taxId)}` : "Brak NIP-u"];
+
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-      <div>
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h2 className="text-2xl font-semibold text-slate-950 dark:text-slate-50">{title}</h2>
-            <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-400">{description}</p>
-          </div>
-        </div>
-
-        <div className="mt-6 rounded-3xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-900/60 dark:bg-blue-950/40">
-          <div className="mt-4">
-            <label className="block">
-              <span className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">NIP</span>
-              <input
-                type="text"
-                value={party.taxId}
-                onChange={(event) => onChange("taxId", event.target.value)}
-                placeholder="1234567890"
-                className="w-full rounded-2xl border-2 border-blue-300 bg-white px-4 py-4 text-xl font-semibold tracking-[0.16em] text-slate-950 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:border-blue-800 dark:bg-slate-900 dark:text-slate-50 dark:focus:border-blue-400 dark:focus:ring-blue-950"
-              />
-            </label>
-            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-              {party.taxId ? `Wpisany NIP: ${formatTaxId(party.taxId)}` : "Wpisz 10 cyfr, a lookup uruchomi się automatycznie."}
+    <div className={`rounded-3xl border p-6 shadow-sm transition-colors dark:bg-slate-900 ${
+      isCollapsed && isComplete
+        ? "border-emerald-500 bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-950/20"
+        : isComplete
+          ? "border-emerald-300 bg-emerald-50/40 dark:border-emerald-800"
+          : "border-slate-200 bg-white dark:border-slate-800"
+    }`}>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-semibold text-slate-950 dark:text-slate-50">{title}</h2>
+          <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-400">{description}</p>
+          {isCollapsed && (
+            <p className={`mt-3 inline-flex rounded-full border px-3 py-1 text-sm font-medium ${
+              isComplete
+                ? "border-emerald-300 bg-emerald-100 text-emerald-900 dark:border-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-100"
+                : "border-slate-200 bg-slate-100 text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+            }`}>
+              {summaryParts.join(" • ")}
             </p>
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={onToggle}
+          className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-400 hover:text-slate-950 dark:border-slate-700 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:text-slate-50"
+        >
+          {isCollapsed ? (
+            <>
+              Rozwiń
+              <ChevronDown className="h-4 w-4" />
+            </>
+          ) : (
+            <>
+              Zwiń
+              <ChevronUp className="h-4 w-4" />
+            </>
+          )}
+        </button>
+      </div>
+
+      {!isCollapsed && (
+        <>
+          <div className={`mt-6 rounded-3xl border p-4 transition-colors ${
+            isComplete
+              ? "border-emerald-300 bg-emerald-50 dark:border-emerald-900/60 dark:bg-emerald-950/30"
+              : "border-blue-200 bg-blue-50 dark:border-blue-900/60 dark:bg-blue-950/40"
+          }`}>
+            <div className="mt-4">
+              <label className="block">
+                <span className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">NIP</span>
+                <input
+                  type="text"
+                  value={party.taxId}
+                  onChange={(event) => onChange("taxId", event.target.value)}
+                  placeholder="1234567890"
+                  className={`w-full rounded-2xl border-2 bg-white px-4 py-4 text-xl font-semibold tracking-[0.16em] text-slate-950 outline-none transition dark:bg-slate-900 dark:text-slate-50 ${
+                    isComplete
+                      ? "border-emerald-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 dark:border-emerald-700 dark:focus:border-emerald-500 dark:focus:ring-emerald-950"
+                      : "border-blue-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:border-blue-800 dark:focus:border-blue-400 dark:focus:ring-blue-950"
+                  }`}
+                />
+              </label>
+              <div className="mt-2 flex min-h-5 items-center gap-2 text-sm">
+                {lookupFeedback === "loading" && <Loader2 className="h-4 w-4 animate-spin text-blue-600 dark:text-blue-300" />}
+                {lookupFeedback === "error" && <XCircle className="h-4 w-4 text-rose-600 dark:text-rose-400" />}
+                <p className={lookupFeedback === "error" ? "text-rose-600 dark:text-rose-400" : "text-slate-500 dark:text-slate-400"}>
+                  {lookupFeedback === "loading"
+                    ? "Pobieramy dane z rejestru VAT MF..."
+                    : lookupFeedback === "error"
+                      ? "Nie znaleziono danych albo lookup się nie udał. Możesz wpisać je ręcznie."
+                      : successMessage && isComplete
+                        ? successMessage
+                        : party.taxId
+                          ? isComplete
+                            ? `Wpisany NIP: ${formatTaxId(party.taxId)}. Dane wyglądają na kompletne.`
+                            : `Wpisany NIP: ${formatTaxId(party.taxId)}`
+                          : "Wpisz 10 cyfr, a lookup uruchomi się automatycznie."}
+                </p>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <div className="mt-6 grid gap-4 md:grid-cols-2">
-        <LabeledInput label="Email" value={party.email} onChange={(value) => onChange("email", value)} placeholder="biuro@firma.pl" />
-        <div className="md:col-span-2">
-          <LabeledInput label="Nazwa" value={party.name} onChange={(value) => onChange("name", value)} placeholder="Pełna nazwa firmy" />
-        </div>
-        <div className="md:col-span-2">
-          <LabeledInput label="Ulica i numer" value={party.street} onChange={(value) => onChange("street", value)} placeholder="ul. Przykładowa 10/2" />
-        </div>
-        <LabeledInput label="Kod pocztowy" value={party.postalCode} onChange={(value) => onChange("postalCode", value)} placeholder="00-000" />
-        <LabeledInput label="Miasto" value={party.city} onChange={(value) => onChange("city", value)} placeholder="Warszawa" />
-      </div>
+          <div className="mt-6 grid gap-4 md:grid-cols-2">
+            <LabeledInput label="Email" value={party.email} onChange={(value) => onChange("email", value)} placeholder="biuro@firma.pl" />
+            <div className="md:col-span-2">
+              <LabeledInput label="Nazwa" value={party.name} onChange={(value) => onChange("name", value)} placeholder="Pełna nazwa firmy" />
+            </div>
+            <div className="md:col-span-2">
+              <LabeledInput label="Ulica i numer" value={party.street} onChange={(value) => onChange("street", value)} placeholder="ul. Przykładowa 10/2" />
+            </div>
+            <LabeledInput label="Kod pocztowy" value={party.postalCode} onChange={(value) => onChange("postalCode", value)} placeholder="00-000" />
+            <LabeledInput label="Miasto" value={party.city} onChange={(value) => onChange("city", value)} placeholder="Warszawa" />
+          </div>
 
-      {footer && <div className="mt-6">{footer}</div>}
+          {footer && <div className="mt-6">{footer}</div>}
+        </>
+      )}
     </div>
   );
 }

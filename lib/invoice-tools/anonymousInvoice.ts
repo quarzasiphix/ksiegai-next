@@ -47,6 +47,8 @@ export type TaxIdLookupResult = {
 };
 
 export const SELLER_STORAGE_KEY = "ksiegai:anonymous-invoice:seller";
+export const SELLER_COOKIE_KEY = "ksiegai_anonymous_invoice_seller";
+const SELLER_COOKIE_MAX_AGE = 60 * 60 * 24 * 180;
 
 const DEFAULT_VAT_RATE = 23;
 
@@ -125,18 +127,68 @@ export const getInvoiceTotals = (items: InvoiceItemDraft[]): InvoiceTotals =>
     { net: 0, vat: 0, gross: 0 },
   );
 
+const serializeSeller = (seller: Partial<InvoicePartyDraft>) =>
+  JSON.stringify({
+    name: seller.name ?? "",
+    taxId: sanitizeTaxId(seller.taxId ?? ""),
+    street: seller.street ?? "",
+    postalCode: seller.postalCode ?? "",
+    city: seller.city ?? "",
+    email: seller.email ?? "",
+  });
+
+const readSellerCookie = () => {
+  if (typeof document === "undefined") return null;
+
+  const cookie = document.cookie
+    .split(";")
+    .find((entry) => entry.trim().startsWith(`${SELLER_COOKIE_KEY}=`));
+
+  if (!cookie) return null;
+
+  try {
+    return decodeURIComponent(cookie.split("=")[1] ?? "");
+  } catch {
+    return null;
+  }
+};
+
+const writeSellerCookie = (serializedSeller: string) => {
+  if (typeof document === "undefined" || typeof window === "undefined") return;
+
+  const secure = window.location.protocol === "https:" ? "; secure" : "";
+  const domain = window.location.hostname.includes("localhost") ? "localhost" : ".ksiegai.pl";
+  document.cookie = `${SELLER_COOKIE_KEY}=${encodeURIComponent(serializedSeller)}; domain=${domain}; path=/; max-age=${SELLER_COOKIE_MAX_AGE}; samesite=lax${secure}`;
+};
+
+const clearSellerCookie = () => {
+  if (typeof document === "undefined" || typeof window === "undefined") return;
+
+  const domains = window.location.hostname.includes("localhost")
+    ? ["localhost"]
+    : [".ksiegai.pl", "ksiegai.pl", window.location.hostname];
+
+  domains.forEach((domain) => {
+    document.cookie = `${SELLER_COOKIE_KEY}=; domain=${domain}; path=/; max-age=0`;
+  });
+};
+
 export const loadStoredSeller = (): InvoicePartyDraft | null => {
   if (typeof window === "undefined") return null;
 
   try {
-    const rawValue = window.localStorage.getItem(SELLER_STORAGE_KEY);
+    const rawValue = window.localStorage.getItem(SELLER_STORAGE_KEY) ?? readSellerCookie();
     if (!rawValue) return null;
 
     const parsed = JSON.parse(rawValue) as Partial<InvoicePartyDraft>;
-    return {
+    const seller = {
       ...createEmptyParty(),
       ...parsed,
+      taxId: sanitizeTaxId(parsed.taxId ?? ""),
     };
+
+    window.localStorage.setItem(SELLER_STORAGE_KEY, serializeSeller(seller));
+    return seller;
   } catch {
     return null;
   }
@@ -145,22 +197,15 @@ export const loadStoredSeller = (): InvoicePartyDraft | null => {
 export const saveSellerToStorage = (seller: InvoicePartyDraft) => {
   if (typeof window === "undefined") return;
 
-  window.localStorage.setItem(
-    SELLER_STORAGE_KEY,
-    JSON.stringify({
-      name: seller.name,
-      taxId: sanitizeTaxId(seller.taxId),
-      street: seller.street,
-      postalCode: seller.postalCode,
-      city: seller.city,
-      email: seller.email,
-    }),
-  );
+  const serializedSeller = serializeSeller(seller);
+  window.localStorage.setItem(SELLER_STORAGE_KEY, serializedSeller);
+  writeSellerCookie(serializedSeller);
 };
 
 export const clearStoredSeller = () => {
   if (typeof window === "undefined") return;
   window.localStorage.removeItem(SELLER_STORAGE_KEY);
+  clearSellerCookie();
 };
 
 export const isValidPolishTaxId = (taxId: string) => {

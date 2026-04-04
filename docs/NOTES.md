@@ -1,5 +1,59 @@
 # Notes
 
+## 2026-04-04 - Google auth callback now hands off to `app.ksiegai.pl` immediately
+
+What changed:
+- `/auth/callback` no longer waits for the welcome-email side effect before redirecting the browser to the app domain.
+- Successful Google auth now stores the cross-domain token and hands off to `app.ksiegai.pl` on the fast path, while the welcome-email attempt continues in the background.
+- Localhost post-login redirect handling remains unchanged.
+
+Verification evidence (2026-04-04):
+- `cd ksiegai-next && npx tsc --noEmit` -> passed
+- `git diff --check -- ksiegai-next/app/auth/callback/page.tsx ksiegai-next/docs/TODO.md ksiegai-next/docs/NOTES.md tovernet/docs/workspace/WORK_LOG.md` -> passed
+
+Scope notes:
+- No database schema, RLS, or Supabase backend contract changes.
+- No change to the `ksiegai_auth_token` cross-domain handoff contract.
+
+## 2026-04-02 - `/logowanie` session resume and saved-account continue flow
+
+What changed:
+- `/logowanie` now explicitly bootstraps auth state before committing to the plain login form:
+  - checks the current Supabase session,
+  - falls back to restoring from the existing cross-domain `ksiegai_auth_token`,
+  - surfaces a "Kontynuuj do aplikacji" card when a live resumable session exists.
+- Remembered login profiles now store the last successful login method so saved accounts can behave differently:
+  - `google` -> one-click OAuth resume,
+  - `magic_link` -> one-click resend of the login link,
+  - `password` -> immediately open password confirmation for that saved email.
+- Saved password profiles now lock the email field and only ask for the missing password, which is the closest safe equivalent to the Facebook-style saved-account picker without storing credentials.
+- `/auth/callback` now persists the successful profile together with its last used login method, so future visits can choose the correct resume path.
+
+Verification evidence (2026-04-02):
+- `cd ksiegai-next && npx tsc --noEmit` -> passed
+- `git diff --check -- ksiegai-next/lib/auth/loginProfiles.ts ksiegai-next/app/logowanie/page.tsx ksiegai-next/app/auth/callback/page.tsx ksiegai-next/docs/TODO.md` -> passed
+
+Scope notes:
+- No database schema, RLS, or Supabase backend contract changes.
+- No change to the `ksiegai_auth_token` cross-domain handoff contract.
+- Password profiles still require the user to re-enter a password; this is intentional because the app does not and should not store reusable passwords locally.
+
+## 2026-04-02 - Remembered login profiles on `/logowanie`
+
+What changed:
+- Added client-side remembered login profiles so `/logowanie` can show the most recently used user and keep a short list of saved identities.
+- Added persistent pending-login state so password, magic-link, and Google sign-in flows keep showing which user is being authenticated even after refresh/navigation.
+- Updated `/auth/callback` to reuse that pending identity label and save the successful user profile immediately after session exchange.
+
+Verification evidence (2026-04-02):
+- `cd ksiegai-next && npx tsc --noEmit` -> passed
+- `cd ksiegai-next && npm run build` -> blocked by existing repo/runtime issue: missing Next SWC linux/x64 binary, followed by the known `Jest worker encountered 1 child process exceptions, exceeding retry limit`
+- `git diff --check -- ksiegai-next/lib/auth/loginProfiles.ts ksiegai-next/app/logowanie/page.tsx ksiegai-next/app/auth/callback/page.tsx` -> passed
+
+Scope notes:
+- No database schema, RLS, or Supabase contract changes.
+- No change to the `ksiegai_auth_token` cross-domain handoff contract.
+
 ## 2026-03-22 - Removed public shared invoice ledger route
 
 What changed:

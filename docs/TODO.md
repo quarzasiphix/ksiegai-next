@@ -25,6 +25,83 @@
   - Notes:
     - Follows T-304 implementation; environment-level action required.
 ## IN PROGRESS
+- [ ] T-321: Make Google auth callback hand off to `app.ksiegai.pl` immediately
+  - Owner: Codex (Agent B)
+  - Started: 2026-04-04 11:52
+  - Branch: main (shared)
+  - Reviewer: Agent A
+  - Status: pr_ready
+  - Notes:
+    - Scope freeze: `ksiegai-next` Google login handoff only.
+    - Removed the blocking `await` around welcome-email sending in `/auth/callback`, so the Google success path now redirects to the app as soon as the session is exchanged and the `ksiegai_auth_token` handoff is stored.
+    - No schema, RLS, or `ksiegai_auth_token` contract changes.
+  - Files touched (actual):
+    - `ksiegai-next/app/auth/callback/page.tsx`
+    - `ksiegai-next/docs/TODO.md`
+    - `ksiegai-next/docs/NOTES.md`
+    - `tovernet/docs/workspace/WORK_LOG.md`
+  - DoD:
+    - [x] Successful Google auth no longer waits on non-critical callback work before redirect
+    - [x] Redirect target remains `app.ksiegai.pl` in production and localhost override still works
+    - [x] `cd ksiegai-next && npx tsc --noEmit` passes
+  - Checks run:
+    - `cd ksiegai-next && npx tsc --noEmit` (pass)
+    - `git diff --check -- ksiegai-next/app/auth/callback/page.tsx ksiegai-next/docs/TODO.md ksiegai-next/docs/NOTES.md tovernet/docs/workspace/WORK_LOG.md` (pass)
+  - Reviewer instructions:
+    - Start Google login from `/logowanie` and confirm the callback page immediately hands off to `https://app.ksiegai.pl/`.
+    - Re-test localhost OAuth flow and confirm `localhost_redirect` still wins over the production handoff.
+- [ ] T-320: Stabilize `/logowanie` session resume and saved-account continue flow
+  - Owner: Codex (Agent B)
+  - Started: 2026-04-02 23:47
+  - Branch: main (shared)
+  - Reviewer: Agent A
+  - Status: pr_ready
+  - Notes:
+    - Scope freeze: `ksiegai-next` login/session UX only.
+    - Goal: stop showing the login form prematurely when a resumable session exists, add an explicit "continue to app" path for the active user, and make remembered accounts behave more like a saved-account chooser.
+    - No schema, RLS, or `ksiegai_auth_token` contract changes.
+  - Files touched (actual):
+    - `ksiegai-next/lib/auth/loginProfiles.ts`
+    - `ksiegai-next/app/logowanie/page.tsx`
+    - `ksiegai-next/app/auth/callback/page.tsx`
+    - `ksiegai-next/docs/TODO.md`
+    - `ksiegai-next/docs/NOTES.md`
+    - `tovernet/docs/workspace/WORK_LOG.md`
+  - DoD:
+    - [x] `/logowanie` waits for resumable session detection before committing to the plain login state
+    - [x] active session users get a dedicated `Kontynuuj do aplikacji` path with name + email
+    - [x] remembered accounts choose resume behavior based on last successful login method
+    - [x] saved password profiles fall back to password confirmation instead of a cold full-form login
+    - [x] `cd ksiegai-next && npx tsc --noEmit` passes
+  - Checks run:
+    - `cd ksiegai-next && npx tsc --noEmit` (pass)
+    - `git diff --check -- ksiegai-next/lib/auth/loginProfiles.ts ksiegai-next/app/logowanie/page.tsx ksiegai-next/app/auth/callback/page.tsx ksiegai-next/docs/TODO.md` (pass)
+  - Reviewer instructions:
+    - Otwórz `/logowanie` z aktywną sesją i potwierdź kartę `Kontynuuj do aplikacji`.
+    - Kliknij zapisany profil Google i sprawdź, że wznawia logowanie OAuth bez ręcznego wpisywania e-maila.
+    - Kliknij zapisany profil hasłowy i sprawdź, że e-mail jest zablokowany, a UI prosi tylko o hasło.
+    - Wyczyść/zepsuj sesję i potwierdź, że po nieudanej próbie wznowienia użytkownik ląduje bezpiecznie na odpowiednim fallbacku zamiast na pustym spinnerze.
+
+- [ ] T-318: Auto-persist free invoice seller data and reuse seller NIP during signup onboarding
+  - Owner: Codex
+  - Started: 2026-03-23 00:00
+  - Branch: main
+  - Reviewer: self
+  - Status: claimed
+  - Notes:
+    - Scope freeze: `ksiegai-next` anonymous generator seller persistence/UI state/copy plus `ksef-ai` new-business NIP prefill only.
+    - No schema, RLS, or auth token contract changes.
+    - Goal: remove manual seller-save friction, carry the seller NIP into onboarding, and strengthen registration CTA toward accounting + inbox.
+  - Files touched (planned):
+    - `ksiegai-next/components/invoice-tools/AnonymousInvoiceGenerator.tsx`
+    - `ksiegai-next/lib/invoice-tools/anonymousInvoice.ts`
+    - `ksef-ai/src/modules/settings/screens/NewBusinessProfile.tsx`
+    - `ksef-ai/src/modules/onboarding/components/wizard/JDGWizard.tsx`
+    - `ksef-ai/src/modules/onboarding/components/wizard/SpoolkaWizard.tsx`
+    - `ksiegai-next/docs/TODO.md`
+    - `ksiegai-next/docs/NOTES.md`
+    - `tovernet/docs/workspace/WORK_LOG.md`
+
 - [ ] T-306: Fix `/logowanie` missing Next static assets (CSS/JS 404) + manifest icons
   - Owner: Codex (Agent A)
   - Started: 2026-02-27 10:49
@@ -148,6 +225,17 @@
     - Confirm audit doc reflects current runtime probe outputs.
 
 ## DONE
+- [x] T-319: Add remembered login profiles and persistent in-progress identity on `/logowanie`
+  - Owner: Codex
+  - Reviewer: self
+  - Verified:
+    - `cd ksiegai-next && npx tsc --noEmit` passed
+    - `git diff --check -- ksiegai-next/lib/auth/loginProfiles.ts ksiegai-next/app/logowanie/page.tsx ksiegai-next/app/auth/callback/page.tsx` passed
+    - `cd ksiegai-next && npm run build` still hits the repo/runtime blocker: missing Next SWC linux/x64 binary and `Jest worker encountered 1 child process exceptions, exceeding retry limit`
+    - `/logowanie` now surfaces remembered profiles, prefills the latest remembered email, and shows the pending user label during password, magic-link, and Google login flows
+    - `/auth/callback` now shows the pending user identity while the Supabase session exchange is running and stores the successful profile for later visits
+  - PR/Commit: pending
+  - Date: 2026-04-02
 - [x] T-317: Let an active shared invoice link unlock the client's other active invoice links
   - Owner: Codex (Agent B)
   - Reviewer: self

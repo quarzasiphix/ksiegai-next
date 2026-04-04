@@ -1,1 +1,48 @@
-{}
+{
+  "/": {
+    "id": "2f1462a3-951b-4936-8c75-c602801c28b6",
+    "test_key": "ksef_fear_vs_efficiency_test",
+    "name": "ksef fear vs efficiency test",
+    "page_path": "/",
+    "traffic_allocation": 1,
+    "variants": [
+      {
+        "id": "variant_a",
+        "name": "Variant A – Control",
+        "weight": 0.5,
+        "changes": {
+          "cta": "Dołącz do sieci zweryfikowanych firm",
+          "tagline": "Ostatni checkpoint przed KSeF: negocjacje, korekty i akceptacje w jednym miejscu z pełnym śladem audytu.",
+          "headline": "Faktura nie trafia do KSeF, dopóki strony jej nie uzgodnią",
+          "banner_text": "Przygotowanie do KSeF: uporządkowana ewidencja dokumentów, decyzji i rozliczeń w jednym systemie.",
+          "description": "Jeśli kontrahent jest w KsięgaI, faktura trafia do jego systemu, nie do maila. Email to tylko powiadomienie — dokument żyje w systemie.",
+          "subheadline": "KsięgaI to warstwa kontroli i odpowiedzialności między Twoim systemem ERP a KSeF — gdzie dokumenty są uzgadniane, zatwierdzane i weryfikowane przed ostatecznym wysłaniem.",
+          "banner_badge": "Warstwa uzgodnień przed KSeF",
+          "cta_secondary": "Zobacz jak działa uzgodnienie"
+        },
+        "is_active": true
+      },
+      {
+        "id": "variant_b",
+        "name": "Variant B – Value Stack",
+        "weight": 0.5,
+        "changes": {
+          "cta": "Rozpocznij za darmo",
+          "tagline": "Pełna automatyzacja: od wystawienia faktury przez uzgodnienie po księgowość i KSeF.",
+          "headline": "Zaoszczędź 10 godzin tygodniowo na fakturowaniu",
+          "banner_text": "KSeF 2025: Automatyzacja faktur + księgowość + uzgodnienia w jednym systemie",
+          "description": "Twoi kontrahenci otrzymują faktury bezpośrednio w systemie. Żadnych maili, żadnego chaosu — wszystko w jednym miejscu z pełną historią.",
+          "subheadline": "Automatyczne faktury + KSeF + księgowość w jednym miejscu. Bez ręcznego przepisywania, bez błędów, bez stresu.",
+          "banner_badge": "Gotowe na KSeF",
+          "cta_secondary": "Zobacz jak to działa"
+        },
+        "is_active": false
+      }
+    ],
+    "primary_goal": "signup",
+    "secondary_goals": [
+      "demo_request",
+      "pricing_view"
+    ]
+  }
+}

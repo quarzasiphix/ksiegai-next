@@ -78,7 +78,14 @@ function ConfirmEmailInner() {
           user_id: session.user.id,
         });
 
-        redirectToApp(type === "recovery" ? "/dashboard" : "/");
+        const targetPath =
+          type === "signup" || type === "invite"
+            ? "/settings/password"
+            : type === "recovery"
+              ? "/dashboard"
+              : "/";
+
+        redirectToApp(targetPath);
       } catch (error) {
         if (!cancelled) {
           console.error("[auth/confirm] Unexpected confirmation error:", error);
