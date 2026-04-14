@@ -6,6 +6,7 @@ import { ArrowRight, CheckCircle2, Shield, Zap, Building, Calculator, CreditCard
 import FAQSection from "./faq-section";
 import { useABTestSSG } from "@/hooks/useABTestSSG";
 import { useState, useEffect } from "react";
+import HomeHero from "@/components/home/HomeHero";
 
 // Metadata moved to layout.tsx or metadata.ts for client components
 
@@ -211,84 +212,7 @@ export default function Home() {
         }}
       />
 
-      {/* Hero Section */}
-      <section className="relative py-8 sm:py-12 md:py-20 bg-gray-950 border-b border-gray-800">
-        <div className="container mx-auto px-4 sm:px-6 md:px-4 py-6 sm:py-8 md:py-12">
-          <div className="mx-auto text-center max-w-5xl">
-            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-blue-900/40 border border-blue-500/30 mb-6 sm:mb-8 animate-fade-in">
-              <span className="text-blue-300 text-xs sm:text-sm font-semibold" suppressHydrationWarning>{content.bannerBadge}</span>
-            </div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-white mb-4 sm:mb-6 leading-tight animate-fade-in px-2 max-w-4xl mx-auto" suppressHydrationWarning>
-              {content.headline}
-            </h1>
-            <p className="text-lg sm:text-xl md:text-2xl text-gray-300 mb-4 font-medium leading-relaxed animate-fade-in px-2 max-w-3xl mx-auto" suppressHydrationWarning>
-              {content.subheadline}
-            </p>
-            <p className="text-base sm:text-lg text-blue-300 mb-4 animate-fade-in px-2 max-w-2xl mx-auto font-medium" suppressHydrationWarning>
-              {content.description}
-            </p>
-            <p className="text-sm text-gray-400 mb-8 animate-fade-in px-2 max-w-2xl mx-auto italic" suppressHydrationWarning>
-              {content.tagline}
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-3 px-2 animate-fade-in">
-              <Link
-                href="/rejestracja"
-                onClick={handleCtaClick}
-                className="inline-flex items-center justify-center gap-2 bg-blue-900 hover:bg-blue-800 text-white text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold shadow-xl hover:shadow-2xl transition-all whitespace-nowrap"
-              >
-                <span suppressHydrationWarning>{content.cta}</span>
-                <ArrowRight className="h-5 w-5" />
-              </Link>
-              <Link
-                href="#mechanism"
-                className="inline-flex items-center justify-center gap-2 bg-transparent border border-gray-600 hover:border-gray-400 text-gray-300 text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold transition-all whitespace-nowrap"
-              >
-                <span suppressHydrationWarning>{content.ctaSecondary}</span>
-              </Link>
-              <Link
-                href="/darmowy-generator-faktur"
-                className="inline-flex items-center justify-center gap-2 bg-white text-gray-950 hover:bg-gray-100 text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold transition-all whitespace-nowrap"
-              >
-                <Receipt className="h-5 w-5" />
-                <span>Darmowy generator faktur</span>
-              </Link>
-            </div>
-            <p className="text-xs sm:text-sm text-gray-400 font-medium text-center animate-fade-in px-2">
-              Zweryfikowana sieć firm • Natywne dostarczanie dokumentów • Uzgodnienie przed KSeF
-            </p>
-
-            {/* Zakres ewidencji - specification block 
-            <div className="mt-8 sm:mt-10 bg-gray-900/50 border border-gray-700 rounded-xl p-6 sm:p-8 max-w-3xl mx-auto animate-fade-in">
-              <h3 className="text-base sm:text-lg font-semibold text-white mb-4 text-center">
-                Workflow uzgodnienia dokumentu
-              </h3>
-              <ul className="space-y-2 text-sm text-gray-300">
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-blue-400 flex-shrink-0 mt-0.5" />
-                  <span>Natywne dostarczenie do zweryfikowanego kontrahenta</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-blue-400 flex-shrink-0 mt-0.5" />
-                  <span>Dyskusja i negocjacja przed akceptacją</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-blue-400 flex-shrink-0 mt-0.5" />
-                  <span>Korekty i uzgodnienia z pełnym śladem audytu</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-blue-400 flex-shrink-0 mt-0.5" />
-                  <span>Akceptacja przez obie strony przed wysłaniem</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-blue-400 flex-shrink-0 mt-0.5" />
-                  <span>Integracja z ERP i automatyczne przekazanie do KSeF</span>
-                </li>
-              </ul>
-            </div>
-              */}
-          </div>
-        </div>
-      </section>
+      <HomeHero content={content} onAnonymousPrimaryCtaClick={handleCtaClick} />
       
       {/* ICP SEGMENTATION - Who needs this */}
       <section className="py-12 sm:py-16 bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800">

@@ -1,5 +1,28 @@
 # Notes
 
+## 2026-04-11 - Logged-in homepage hero with business profiles and selected-app handoff
+
+What changed:
+- Replaced the anonymous homepage hero for authenticated users with a dedicated return panel on `/`:
+  - shows a welcome-back state,
+  - loads accessible business profiles,
+  - shows pending/unread KSeF evidence counts from `ksef_invoices_received`,
+  - lets the user choose which business profile should open in the app.
+- Added empty-state hero behavior for authenticated users without any business profiles:
+  - primary CTA now sends them straight to `ksef-ai` business-profile creation,
+  - copy makes clear the setup should take about 5 minutes.
+- Extended the shared `ksiegai-next` -> `ksef-ai` redirect helper so app entry can carry an incoming `businessProfileId` query without changing the existing `ksiegai_auth_token` payload.
+- Updated `ksef-ai` business-profile bootstrap to consume that incoming `businessProfileId` once, validate it against accessible profiles, persist it as the selected profile, and then clean the URL.
+
+Verification evidence (2026-04-11):
+- `cd ksiegai-next && npx tsc --noEmit` -> passed
+- `cd ksef-ai && npx tsc --noEmit` -> passed
+
+Scope notes:
+- No database schema, RLS, or Supabase backend contract changes.
+- No change to the `ksiegai_auth_token` cross-domain handoff contract.
+- Anonymous visitors still see the existing marketing hero.
+
 ## 2026-04-04 - Google auth callback now hands off to `app.ksiegai.pl` immediately
 
 What changed:

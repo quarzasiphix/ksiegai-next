@@ -225,6 +225,16 @@
     - Confirm audit doc reflects current runtime probe outputs.
 
 ## DONE
+- [x] T-322: Logged-in homepage hero with business profile panel + app handoff
+  - Owner: Codex
+  - Reviewer: self
+  - Verified:
+    - `cd ksiegai-next && npx tsc --noEmit` passed
+    - `cd ksef-ai && npx tsc --noEmit` passed
+    - logged-in users now see a hero-level return panel with accessible business profiles, unread KSeF counts, and direct app entry
+    - authenticated users without any business profiles now get a dedicated `Dodaj profil firmy` hero path into app onboarding
+    - selected business profile is forwarded into `ksef-ai` and consumed by `BusinessProfileContext` on entry
+  - Date: 2026-04-11
 - [x] T-319: Add remembered login profiles and persistent in-progress identity on `/logowanie`
   - Owner: Codex
   - Reviewer: self

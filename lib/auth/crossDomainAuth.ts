@@ -12,6 +12,28 @@ interface AuthToken {
   user_id: string;
 }
 
+type RedirectParams = Record<string, string | number | boolean | null | undefined>;
+
+const buildAppPath = (path: string, params?: RedirectParams): string => {
+  if (!params) {
+    return path;
+  }
+
+  const searchParams = new URLSearchParams();
+
+  for (const [key, value] of Object.entries(params)) {
+    if (value == null) continue;
+    searchParams.set(key, String(value));
+  }
+
+  const query = searchParams.toString();
+  if (!query) {
+    return path;
+  }
+
+  return `${path}${path.includes('?') ? '&' : '?'}${query}`;
+};
+
 /**
  * Store auth token in cookie for cross-domain access
  * Sets cookie on parent domain (.ksiegai.pl) so both www and app can access
@@ -94,12 +116,13 @@ export const clearAuthToken = (): void => {
  * Redirect to app subdomain with auth token
  * Token is already in cookie, so app can read it immediately
  */
-export const redirectToApp = (path: string = '/dashboard'): void => {
+export const redirectToApp = (path: string = '/dashboard', params?: RedirectParams): void => {
   if (typeof window === 'undefined') return;
 
+  const resolvedPath = buildAppPath(path, params);
   const appUrl = window.location.hostname.includes('localhost')
-    ? `http://localhost:8080${path}` // Local dev - React app runs on port 8080
-    : `https://${APP_DOMAIN}${path}`; // Production
+    ? `http://localhost:8080${resolvedPath}` // Local dev - React app runs on port 8080
+    : `https://${APP_DOMAIN}${resolvedPath}`; // Production
 
   window.location.href = appUrl;
 };
@@ -107,34 +130,39 @@ export const redirectToApp = (path: string = '/dashboard'): void => {
 /**
  * Check if user came from localhost and redirect back after login
  */
-export const checkAndRedirectToLocalhost = (path: string = '/dashboard'): void => {
+export const checkAndRedirectToLocalhost = (path: string = '/dashboard', params?: RedirectParams): void => {
   if (typeof window === 'undefined') return;
 
   // Check if there's a localhost redirect parameter in URL
   const urlParams = new URLSearchParams(window.location.search);
   const redirectFrom = urlParams.get('from');
   const localhostPort = urlParams.get('port');
+  const resolvedPath = buildAppPath(path, params);
   
   if (redirectFrom === 'localhost' && localhostPort) {
     console.log('[crossDomainAuth] Redirecting back to localhost:', localhostPort);
-    const localUrl = `http://localhost:${localhostPort}${path}`;
+    const localUrl = `http://localhost:${localhostPort}${resolvedPath}`;
     window.location.href = localUrl;
     return;
   }
   
   // Default redirect
-  redirectToApp(path);
+  redirectToApp(path, params);
 };
 
 /**
  * Store auth token and redirect back to localhost if needed
  */
-export const storeAndRedirect = (token: AuthToken, path: string = '/dashboard'): void => {
+export const storeAndRedirect = (
+  token: AuthToken,
+  path: string = '/dashboard',
+  params?: RedirectParams,
+): void => {
   // Store token first
   storeAuthToken(token);
   
   // Check if we need to redirect back to localhost
-  checkAndRedirectToLocalhost(path);
+  checkAndRedirectToLocalhost(path, params);
 };
 
 /**
