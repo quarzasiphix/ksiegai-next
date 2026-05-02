@@ -1,12 +1,12 @@
 const { createClient } = require('@supabase/supabase-js');
+const { loadEnvConfig } = require('@next/env');
 const fs = require('fs');
 const path = require('path');
 
-const NEXT_PUBLIC_SUPABASE_URL = "https://rncrzxjyffxmfbnxlqtm.supabase.co"
-const SUPABASE_SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJuY3J6eGp5ZmZ4bWZibnhscXRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc0MjQ5MjAsImV4cCI6MjA2MzAwMDkyMH0.stheZYA6jcCAjOi-c4NPLBe3Jxfv3Rs9LWk8JTqBS8s"
+loadEnvConfig(process.cwd());
 
-const supabaseUrl = NEXT_PUBLIC_SUPABASE_URL;
-const supabaseServiceKey = SUPABASE_SERVICE_ROLE_KEY;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!supabaseUrl || !supabaseServiceKey) {
   console.error('❌ Missing Supabase environment variables');
