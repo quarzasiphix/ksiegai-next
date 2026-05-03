@@ -148,6 +148,15 @@
     - Confirm audit doc reflects current runtime probe outputs.
 
 ## DONE
+- [x] T-309: Add public `/generator-faktur` page in ksiegai-next
+  - Owner: Codex
+  - Reviewer: self
+  - Verified:
+    - `cd ksiegai-next && ./node_modules/.bin/tsc --noEmit --pretty false` passed
+    - `cd ksiegai-next && npm run lint` blocked because `next lint` opened first-run ESLint setup prompt instead of running checks
+    - runtime smoke blocked in sandbox because `next dev` did not bind to `127.0.0.1:3000` during CLI verification attempt
+  - PR/Commit: pending
+  - Date: 2026-03-13
 - [x] T-308: Fix `/auth/confirm` signup email links for static export
   - Owner: Codex
   - Reviewer: self
