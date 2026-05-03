@@ -25,6 +25,83 @@
   - Notes:
     - Follows T-304 implementation; environment-level action required.
 ## IN PROGRESS
+- [ ] T-321: Make Google auth callback hand off to `app.ksiegai.pl` immediately
+  - Owner: Codex (Agent B)
+  - Started: 2026-04-04 11:52
+  - Branch: main (shared)
+  - Reviewer: Agent A
+  - Status: pr_ready
+  - Notes:
+    - Scope freeze: `ksiegai-next` Google login handoff only.
+    - Removed the blocking `await` around welcome-email sending in `/auth/callback`, so the Google success path now redirects to the app as soon as the session is exchanged and the `ksiegai_auth_token` handoff is stored.
+    - No schema, RLS, or `ksiegai_auth_token` contract changes.
+  - Files touched (actual):
+    - `ksiegai-next/app/auth/callback/page.tsx`
+    - `ksiegai-next/docs/TODO.md`
+    - `ksiegai-next/docs/NOTES.md`
+    - `tovernet/docs/workspace/WORK_LOG.md`
+  - DoD:
+    - [x] Successful Google auth no longer waits on non-critical callback work before redirect
+    - [x] Redirect target remains `app.ksiegai.pl` in production and localhost override still works
+    - [x] `cd ksiegai-next && npx tsc --noEmit` passes
+  - Checks run:
+    - `cd ksiegai-next && npx tsc --noEmit` (pass)
+    - `git diff --check -- ksiegai-next/app/auth/callback/page.tsx ksiegai-next/docs/TODO.md ksiegai-next/docs/NOTES.md tovernet/docs/workspace/WORK_LOG.md` (pass)
+  - Reviewer instructions:
+    - Start Google login from `/logowanie` and confirm the callback page immediately hands off to `https://app.ksiegai.pl/`.
+    - Re-test localhost OAuth flow and confirm `localhost_redirect` still wins over the production handoff.
+- [ ] T-320: Stabilize `/logowanie` session resume and saved-account continue flow
+  - Owner: Codex (Agent B)
+  - Started: 2026-04-02 23:47
+  - Branch: main (shared)
+  - Reviewer: Agent A
+  - Status: pr_ready
+  - Notes:
+    - Scope freeze: `ksiegai-next` login/session UX only.
+    - Goal: stop showing the login form prematurely when a resumable session exists, add an explicit "continue to app" path for the active user, and make remembered accounts behave more like a saved-account chooser.
+    - No schema, RLS, or `ksiegai_auth_token` contract changes.
+  - Files touched (actual):
+    - `ksiegai-next/lib/auth/loginProfiles.ts`
+    - `ksiegai-next/app/logowanie/page.tsx`
+    - `ksiegai-next/app/auth/callback/page.tsx`
+    - `ksiegai-next/docs/TODO.md`
+    - `ksiegai-next/docs/NOTES.md`
+    - `tovernet/docs/workspace/WORK_LOG.md`
+  - DoD:
+    - [x] `/logowanie` waits for resumable session detection before committing to the plain login state
+    - [x] active session users get a dedicated `Kontynuuj do aplikacji` path with name + email
+    - [x] remembered accounts choose resume behavior based on last successful login method
+    - [x] saved password profiles fall back to password confirmation instead of a cold full-form login
+    - [x] `cd ksiegai-next && npx tsc --noEmit` passes
+  - Checks run:
+    - `cd ksiegai-next && npx tsc --noEmit` (pass)
+    - `git diff --check -- ksiegai-next/lib/auth/loginProfiles.ts ksiegai-next/app/logowanie/page.tsx ksiegai-next/app/auth/callback/page.tsx ksiegai-next/docs/TODO.md` (pass)
+  - Reviewer instructions:
+    - Otwórz `/logowanie` z aktywną sesją i potwierdź kartę `Kontynuuj do aplikacji`.
+    - Kliknij zapisany profil Google i sprawdź, że wznawia logowanie OAuth bez ręcznego wpisywania e-maila.
+    - Kliknij zapisany profil hasłowy i sprawdź, że e-mail jest zablokowany, a UI prosi tylko o hasło.
+    - Wyczyść/zepsuj sesję i potwierdź, że po nieudanej próbie wznowienia użytkownik ląduje bezpiecznie na odpowiednim fallbacku zamiast na pustym spinnerze.
+
+- [ ] T-318: Auto-persist free invoice seller data and reuse seller NIP during signup onboarding
+  - Owner: Codex
+  - Started: 2026-03-23 00:00
+  - Branch: main
+  - Reviewer: self
+  - Status: claimed
+  - Notes:
+    - Scope freeze: `ksiegai-next` anonymous generator seller persistence/UI state/copy plus `ksef-ai` new-business NIP prefill only.
+    - No schema, RLS, or auth token contract changes.
+    - Goal: remove manual seller-save friction, carry the seller NIP into onboarding, and strengthen registration CTA toward accounting + inbox.
+  - Files touched (planned):
+    - `ksiegai-next/components/invoice-tools/AnonymousInvoiceGenerator.tsx`
+    - `ksiegai-next/lib/invoice-tools/anonymousInvoice.ts`
+    - `ksef-ai/src/modules/settings/screens/NewBusinessProfile.tsx`
+    - `ksef-ai/src/modules/onboarding/components/wizard/JDGWizard.tsx`
+    - `ksef-ai/src/modules/onboarding/components/wizard/SpoolkaWizard.tsx`
+    - `ksiegai-next/docs/TODO.md`
+    - `ksiegai-next/docs/NOTES.md`
+    - `tovernet/docs/workspace/WORK_LOG.md`
+
 - [ ] T-306: Fix `/logowanie` missing Next static assets (CSS/JS 404) + manifest icons
   - Owner: Codex (Agent A)
   - Started: 2026-02-27 10:49
@@ -148,6 +225,7 @@
     - Confirm audit doc reflects current runtime probe outputs.
 
 ## DONE
+<<<<<<< HEAD
 - [x] T-309: Add public `/generator-faktur` page in ksiegai-next
   - Owner: Codex
   - Reviewer: self
@@ -157,6 +235,124 @@
     - runtime smoke blocked in sandbox because `next dev` did not bind to `127.0.0.1:3000` during CLI verification attempt
   - PR/Commit: pending
   - Date: 2026-03-13
+=======
+- [x] T-322: Logged-in homepage hero with business profile panel + app handoff
+  - Owner: Codex
+  - Reviewer: self
+  - Verified:
+    - `cd ksiegai-next && npx tsc --noEmit` passed
+    - `cd ksef-ai && npx tsc --noEmit` passed
+    - logged-in users now see a hero-level return panel with accessible business profiles, unread KSeF counts, and direct app entry
+    - authenticated users without any business profiles now get a dedicated `Dodaj profil firmy` hero path into app onboarding
+    - selected business profile is forwarded into `ksef-ai` and consumed by `BusinessProfileContext` on entry
+  - Date: 2026-04-11
+- [x] T-319: Add remembered login profiles and persistent in-progress identity on `/logowanie`
+  - Owner: Codex
+  - Reviewer: self
+  - Verified:
+    - `cd ksiegai-next && npx tsc --noEmit` passed
+    - `git diff --check -- ksiegai-next/lib/auth/loginProfiles.ts ksiegai-next/app/logowanie/page.tsx ksiegai-next/app/auth/callback/page.tsx` passed
+    - `cd ksiegai-next && npm run build` still hits the repo/runtime blocker: missing Next SWC linux/x64 binary and `Jest worker encountered 1 child process exceptions, exceeding retry limit`
+    - `/logowanie` now surfaces remembered profiles, prefills the latest remembered email, and shows the pending user label during password, magic-link, and Google login flows
+    - `/auth/callback` now shows the pending user identity while the Supabase session exchange is running and stores the successful profile for later visits
+  - PR/Commit: pending
+  - Date: 2026-04-02
+- [x] T-317: Let an active shared invoice link unlock the client's other active invoice links
+  - Owner: Codex (Agent B)
+  - Reviewer: self
+  - Verified:
+    - `cd ksiegai-next && npx tsc --noEmit` passed
+    - `cd ksef-ai && npx tsc --noEmit` passed
+    - `shared-doc` now resolves related invoice links for any active share row carrying an invoice (`invoice` or `combo`) while still requiring slug-based access and same issuer/client matching
+    - public share UI now labels the ledger path as other active shared invoices only
+  - PR/Commit:
+    - `ksiegai-next e81e641`
+    - `ksef-ai 9b1cb65`
+  - Date: 2026-03-22
+- [x] T-316: Add opted-in newsletter lead capture to anonymous generator
+  - Owner: Codex
+  - Reviewer: self
+  - Verified:
+    - `cd ksiegai-next && npx tsc --noEmit` passed
+    - `cd ksef-ai && npx tsc --noEmit` passed
+    - Supabase MCP: columns `lead_email`, `lead_subscribed_at` exist on `anonymous_generated_invoices`
+    - Supabase MCP: RPC `link_newsletter_subscriber_to_business_profile` exists
+    - live smoke test via `curl` to `store-anonymous-invoice` with `wantsNewsletter=true` returned `{\"success\":true,...}` and probe rows were deleted afterward
+  - PR/Commit: `ksiegai-next 7a0327f`, `ksef-ai b0f84b8`
+  - Date: 2026-03-13
+- [x] T-315: Persist anonymous generator invoices and recover them after account creation
+  - Owner: Codex
+  - Reviewer: self
+  - Verified:
+    - `cd ksiegai-next && npx tsc --noEmit` passed
+    - `cd ksef-ai && npx tsc --noEmit` passed
+    - `cd ksiegai-next && npm run build` still hits the repo's existing Next worker crash: `Jest worker encountered 1 child process exceptions, exceeding retry limit`
+    - `cd ksiegai-next && npm run lint` is still blocked by the repo prompting for first-time Next ESLint setup
+    - Supabase MCP: migration applied for `anonymous_generated_invoices`, RPC `claim_anonymous_generator_invoices` exists, Edge Function `store-anonymous-invoice` is active
+    - Live smoke test via `curl` to `store-anonymous-invoice` returned `{\"success\":true,...}` and the probe row was deleted afterward
+  - PR/Commit: `ksiegai-next 0d46374`, `ksef-ai 05a62c9`
+  - Date: 2026-03-13
+- [x] T-314: Align anonymous generator hero copy with saved-invoices roadmap
+  - Owner: Codex
+  - Reviewer: self
+  - Verified:
+    - `cd ksiegai-next && npx tsc --noEmit` passed
+    - hero no longer claims invoices are not saved in the system
+    - subtext now frames later registration as unlocking already-saved invoices in KsięgaI
+  - PR/Commit: `77d0099`
+  - Date: 2026-03-13
+- [x] T-313: Make anonymous invoice generator follow the global dark theme toggle
+  - Owner: Codex
+  - Reviewer: self
+  - Verified:
+    - `cd ksiegai-next && npx tsc --noEmit` passed
+    - `/darmowy-generator-faktur` now uses `dark:` variants across form cards, inputs, summary, and modal, so it follows the existing header theme switcher
+    - leftover lookup-source helper copy was removed from the NIP flow
+  - PR/Commit: `51408d2`
+  - Date: 2026-03-13
+- [x] T-311: Harden anonymous invoice NIP lookup and clarify CEIDG limitation
+  - Owner: Codex
+  - Reviewer: self
+  - Verified:
+    - `cd ksiegai-next && npx tsc --noEmit` passed
+    - lookup now validates NIP checksum locally and retries MF VAT lookup for today and yesterday before failing
+    - UI now shows lookup source and explains CEIDG cannot be called directly from this browser-only page
+  - PR/Commit: `314f8b8`
+  - Date: 2026-03-11
+- [x] T-310: Emphasize NIP-first workflow in anonymous invoice generator
+  - Owner: Codex
+  - Reviewer: self
+  - Verified:
+    - `cd ksiegai-next && npx tsc --noEmit` passed
+    - NIP input is now the visual primary action and lookup auto-starts after entering 10 digits
+  - PR/Commit: `3eaf818`
+  - Date: 2026-03-11
+- [x] T-311: Align anonymous invoice PDF renderer with `ksef-ai` template-based export
+  - Owner: Codex
+  - Reviewer: self
+  - Verified:
+    - `cd ksiegai-next && npx tsc --noEmit` passed
+    - anonymous generator now renders a dedicated invoice template and converts that rendered page into PDF instead of drawing a separate ad-hoc canvas layout
+  - PR/Commit: `cb1b316`
+  - Date: 2026-03-11
+- [x] T-312: Add `/darmowy-generator-faktur` CTA in header and homepage
+  - Owner: Codex
+  - Reviewer: self
+  - Verified:
+    - `cd ksiegai-next && npx tsc --noEmit` passed
+    - header now exposes a direct generator CTA and homepage hero includes a dedicated button to the same route
+  - PR/Commit: `60e3f8b`
+  - Date: 2026-03-13
+- [x] T-309: Add anonymous invoice generator page with NIP autofill and local PDF export
+  - Owner: Codex
+  - Reviewer: self
+  - Verified:
+    - `cd ksiegai-next && npx tsc --noEmit` passed
+    - `cd ksiegai-next && npm run build` still hits the repo's existing Next worker failure: `Jest worker encountered 1 child process exceptions, exceeding retry limit`
+    - feature scope stayed static-export safe: client-only page, no backend persistence, sitemap entry added
+  - PR/Commit: `d2f8dd1`
+  - Date: 2026-03-11
+>>>>>>> 003750cfdd806cb7dff430bbdf1a9d26a423e5e3
 - [x] T-308: Fix `/auth/confirm` signup email links for static export
   - Owner: Codex
   - Reviewer: self

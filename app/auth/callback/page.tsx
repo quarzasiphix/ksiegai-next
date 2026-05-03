@@ -1,18 +1,30 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { storeAuthToken, redirectToApp } from "@/lib/auth/crossDomainAuth";
 import { consumeAuthFlowOrigin, sendWelcomeEmailIfNewUser } from "@/lib/auth/welcomeEmail";
+import {
+  clearPendingLoginAttempt,
+  getPendingLoginAttempt,
+  getPendingLoginLabel,
+  saveRememberedProfile,
+} from "@/lib/auth/loginProfiles";
 
 export default function AuthCallback() {
+  const [pendingLoginLabel, setPendingLoginLabel] = useState<string | null>(null);
+
   useEffect(() => {
+    const initialPendingAttempt = getPendingLoginAttempt();
+    setPendingLoginLabel(getPendingLoginLabel(initialPendingAttempt));
+
     const handleCallback = async () => {
       // Handle OAuth callback - exchange code for session
       const { data, error } = await supabase.auth.exchangeCodeForSession(window.location.href);
 
       if (error) {
         console.error('Auth callback error:', error);
+        clearPendingLoginAttempt();
         window.location.href = '/rejestracja?error=auth_failed';
         return;
       }
@@ -21,8 +33,15 @@ export default function AuthCallback() {
 
       if (session) {
         const authFlowOrigin = consumeAuthFlowOrigin();
+        const pendingAttempt = getPendingLoginAttempt();
+        const rememberedProfile = saveRememberedProfile(session.user, pendingAttempt?.method ?? null);
+        clearPendingLoginAttempt();
+        setPendingLoginLabel(
+          rememberedProfile?.email || rememberedProfile?.displayName || session.user.email || null,
+        );
 
-        await sendWelcomeEmailIfNewUser({
+        // Welcome email must not delay the cross-domain auth handoff.
+        void sendWelcomeEmailIfNewUser({
           userId: session.user.id,
           email: session.user.email,
           createdAt: session.user.created_at,
@@ -64,6 +83,7 @@ export default function AuthCallback() {
         redirectToApp('/');
       } else {
         // No session, redirect to registration
+        clearPendingLoginAttempt();
         window.location.href = '/rejestracja';
       }
     };
@@ -75,7 +95,9 @@ export default function AuthCallback() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 flex items-center justify-center">
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-        <p className="text-gray-600 dark:text-gray-400">Logowanie...</p>
+        <p className="text-gray-600 dark:text-gray-400">
+          {pendingLoginLabel ? `Logowanie użytkownika ${pendingLoginLabel}...` : "Logowanie..."}
+        </p>
       </div>
     </div>
   );

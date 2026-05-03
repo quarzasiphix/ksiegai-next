@@ -1,0 +1,832 @@
+"use client";
+
+import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
+import {
+  ArrowRight,
+  Building2,
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Download,
+  Loader2,
+  ReceiptText,
+  XCircle,
+  Save,
+  ShieldCheck,
+  Sparkles,
+  Wand2,
+} from "lucide-react";
+import {
+  clearStoredSeller,
+  createEmptyItem,
+  fetchCompanyByTaxId,
+  formatCurrency,
+  formatTaxId,
+  getDefaultInvoiceDraft,
+  getInvoiceTotals,
+  getItemTotals,
+  isInvoiceDraftValid,
+  loadStoredSeller,
+  saveSellerToStorage,
+  sanitizeTaxId,
+  type AnonymousInvoiceDraft,
+  type InvoiceItemDraft,
+  type InvoicePartyDraft,
+} from "@/lib/invoice-tools/anonymousInvoice";
+import { persistAnonymousInvoiceDraft } from "@/lib/invoice-tools/persistence";
+import { downloadAnonymousInvoicePdf } from "@/lib/invoice-tools/pdf";
+
+type PartyKey = "seller" | "buyer";
+type LookupFeedbackState = "idle" | "loading" | "success" | "error";
+
+export default function AnonymousInvoiceGenerator() {
+  const [draft, setDraft] = useState<AnonymousInvoiceDraft>(() => getDefaultInvoiceDraft());
+  const [message, setMessage] = useState<string | null>(null);
+  const [leadEmail, setLeadEmail] = useState("");
+  const [wantsNewsletter, setWantsNewsletter] = useState(false);
+  const [lookupState, setLookupState] = useState<{ party: PartyKey | null; loading: boolean }>({
+    party: null,
+    loading: false,
+  });
+  const [lookupFeedback, setLookupFeedback] = useState<Record<PartyKey, LookupFeedbackState>>({
+    seller: "idle",
+    buyer: "idle",
+  });
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [showSignupPrompt, setShowSignupPrompt] = useState(false);
+  const [lastSaveStatus, setLastSaveStatus] = useState<"saved" | "save_failed" | null>(null);
+  const [sellerSource, setSellerSource] = useState<"manual" | "stored_profile" | "lookup_success">("manual");
+  const [collapsedCards, setCollapsedCards] = useState<Record<PartyKey, boolean>>({
+    seller: false,
+    buyer: true,
+  });
+  const lastAutoLookupRef = useRef<Record<PartyKey, string>>({
+    seller: "",
+    buyer: "",
+  });
+
+  useEffect(() => {
+    const storedSeller = loadStoredSeller();
+    if (!storedSeller) return;
+
+    setDraft((currentDraft) => ({
+      ...currentDraft,
+      seller: {
+        ...currentDraft.seller,
+        ...storedSeller,
+      },
+    }));
+    setSellerSource("stored_profile");
+  }, []);
+
+  useEffect(() => {
+    const normalizedTaxId = sanitizeTaxId(draft.seller.taxId);
+    if (normalizedTaxId.length < 10) {
+      lastAutoLookupRef.current.seller = "";
+      return;
+    }
+
+    if (lookupState.loading || lastAutoLookupRef.current.seller === normalizedTaxId) {
+      return;
+    }
+
+    lastAutoLookupRef.current.seller = normalizedTaxId;
+    void handleLookup("seller");
+  }, [draft.seller.taxId, lookupState.loading]);
+
+  useEffect(() => {
+    const normalizedTaxId = sanitizeTaxId(draft.buyer.taxId);
+    if (normalizedTaxId.length < 10) {
+      lastAutoLookupRef.current.buyer = "";
+      return;
+    }
+
+    if (lookupState.loading || lastAutoLookupRef.current.buyer === normalizedTaxId) {
+      return;
+    }
+
+    lastAutoLookupRef.current.buyer = normalizedTaxId;
+    void handleLookup("buyer");
+  }, [draft.buyer.taxId, lookupState.loading]);
+
+  const totals = useMemo(() => getInvoiceTotals(draft.items), [draft.items]);
+  const canGeneratePdf = useMemo(() => isInvoiceDraftValid(draft), [draft]);
+  const sellerTaxId = useMemo(() => sanitizeTaxId(draft.seller.taxId), [draft.seller.taxId]);
+  const hasStoredSellerData = useMemo(() => Object.values(draft.seller).some((value) => value.trim().length > 0), [draft.seller]);
+  const sellerLooksReady = useMemo(
+    () => Boolean(draft.seller.name.trim() && sellerTaxId.length === 10 && draft.seller.street.trim() && draft.seller.postalCode.trim() && draft.seller.city.trim()),
+    [draft.seller, sellerTaxId],
+  );
+  const buyerTaxId = useMemo(() => sanitizeTaxId(draft.buyer.taxId), [draft.buyer.taxId]);
+  const buyerLooksReady = useMemo(
+    () => Boolean(
+      draft.buyer.name.trim() && ((draft.buyer.street.trim() && draft.buyer.postalCode.trim() && draft.buyer.city.trim()) || buyerTaxId.length === 10)
+    ),
+    [draft.buyer, buyerTaxId],
+  );
+  const previousSellerReadyRef = useRef(sellerLooksReady);
+  const previousBuyerReadyRef = useRef(buyerLooksReady);
+
+  useEffect(() => {
+    if (!hasStoredSellerData) {
+      clearStoredSeller();
+      return;
+    }
+
+    saveSellerToStorage(draft.seller);
+  }, [draft.seller, hasStoredSellerData]);
+
+  useEffect(() => {
+    if (sellerLooksReady && !previousSellerReadyRef.current) {
+      setCollapsedCards({ seller: true, buyer: false });
+    }
+
+    if (buyerLooksReady && !previousBuyerReadyRef.current) {
+      setCollapsedCards((current) => ({ ...current, buyer: true }));
+    }
+
+    previousSellerReadyRef.current = sellerLooksReady;
+    previousBuyerReadyRef.current = buyerLooksReady;
+  }, [sellerLooksReady, buyerLooksReady]);
+
+  const updateParty = (partyKey: PartyKey, field: keyof InvoicePartyDraft, value: string) => {
+    const nextValue = field === "taxId" ? sanitizeTaxId(value) : value;
+
+    if (field === "taxId") {
+      setLookupFeedback((current) => ({
+        ...current,
+        [partyKey]: sanitizeTaxId(nextValue).length < 10 ? "idle" : current[partyKey],
+      }));
+    }
+
+    setDraft((currentDraft) => ({
+      ...currentDraft,
+      [partyKey]: {
+        ...currentDraft[partyKey],
+        [field]: nextValue,
+      },
+    }));
+  };
+
+  const updateInvoiceField = (field: keyof AnonymousInvoiceDraft, value: string) => {
+    setDraft((currentDraft) => ({
+      ...currentDraft,
+      [field]: value,
+    }));
+  };
+
+  const updateItem = <K extends keyof InvoiceItemDraft>(itemId: string, field: K, value: InvoiceItemDraft[K]) => {
+    setDraft((currentDraft) => ({
+      ...currentDraft,
+      items: currentDraft.items.map((item) => (item.id === itemId ? { ...item, [field]: value } : item)),
+    }));
+  };
+
+  const addItem = () => {
+    setDraft((currentDraft) => ({
+      ...currentDraft,
+      items: [...currentDraft.items, createEmptyItem()],
+    }));
+  };
+
+  const removeItem = (itemId: string) => {
+    setDraft((currentDraft) => ({
+      ...currentDraft,
+      items: currentDraft.items.length === 1
+        ? currentDraft.items
+        : currentDraft.items.filter((item) => item.id !== itemId),
+    }));
+  };
+
+  const handleLookup = async (partyKey: PartyKey) => {
+    setMessage(null);
+    setLookupFeedback((current) => ({ ...current, [partyKey]: "loading" }));
+    setLookupState({ party: partyKey, loading: true });
+
+    try {
+      const result = await fetchCompanyByTaxId(draft[partyKey].taxId);
+      setDraft((currentDraft) => ({
+        ...currentDraft,
+        [partyKey]: {
+          ...currentDraft[partyKey],
+          name: result.name,
+          taxId: result.taxId,
+          street: result.street,
+          postalCode: result.postalCode,
+          city: result.city,
+        },
+      }));
+      if (partyKey === "seller") {
+        setSellerSource("lookup_success");
+      }
+      setLookupFeedback((current) => ({ ...current, [partyKey]: "success" }));
+    } catch (error) {
+      setLookupFeedback((current) => ({ ...current, [partyKey]: "error" }));
+      setMessage(error instanceof Error ? error.message : "Nie udało się pobrać danych z rejestru VAT MF.");
+    } finally {
+      setLookupState({ party: null, loading: false });
+    }
+  };
+
+  const handleClearSeller = () => {
+    clearStoredSeller();
+    setDraft((currentDraft) => ({
+      ...currentDraft,
+      seller: {
+        ...currentDraft.seller,
+        name: "",
+        taxId: "",
+        street: "",
+        postalCode: "",
+        city: "",
+        email: "",
+      },
+    }));
+    setSellerSource("manual");
+    setCollapsedCards({ seller: false, buyer: true });
+    setMessage("Lokalnie zapisane dane sprzedawcy zostały usunięte.");
+  };
+
+  const handleGeneratePdf = async () => {
+    setMessage(null);
+    setIsGeneratingPdf(true);
+    let saveStatus: "saved" | "save_failed" = "saved";
+    const normalizedLeadEmail = leadEmail.trim().toLowerCase();
+    const validLeadEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedLeadEmail);
+
+    try {
+      try {
+        await persistAnonymousInvoiceDraft(
+          draft,
+          wantsNewsletter && validLeadEmail
+            ? {
+                email: normalizedLeadEmail,
+                wantsNewsletter: true,
+              }
+            : undefined,
+        );
+        setLastSaveStatus("saved");
+      } catch (error) {
+        saveStatus = "save_failed";
+        setLastSaveStatus("save_failed");
+        console.error("Anonymous invoice persistence failed:", error);
+      }
+
+      await downloadAnonymousInvoicePdf(draft);
+      setShowSignupPrompt(true);
+      setMessage(
+        saveStatus === "saved"
+          ? wantsNewsletter && !validLeadEmail
+            ? "Faktura została pobrana jako PDF i zapisana pod NIP-em sprzedawcy. Newsletter nie został włączony, bo adres email jest niepoprawny."
+            : wantsNewsletter
+              ? "Faktura została pobrana jako PDF, zapisana pod NIP-em sprzedawcy i połączona z Twoim emailem do newslettera."
+              : "Faktura została pobrana jako PDF i zapisana pod NIP-em sprzedawcy. Po rejestracji odzyskasz ją w KsięgaI."
+          : "Faktura została pobrana jako PDF, ale tej próby nie udało się zapisać do późniejszego odzyskania. Jeśli chcesz mieć ją w historii po rejestracji, spróbuj wygenerować ją ponownie.",
+      );
+    } catch (error) {
+      setMessage(
+        saveStatus === "saved"
+          ? "Faktura została zapisana pod NIP-em sprzedawcy, ale nie udało się wygenerować PDF. Spróbuj pobrać ją ponownie za chwilę."
+          : error instanceof Error
+            ? error.message
+            : "Nie udało się wygenerować PDF.",
+      );
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  };
+
+  return (
+    <>
+      <section className="relative overflow-hidden bg-slate-950 text-white">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(37,99,235,0.22),_transparent_42%),radial-gradient(circle_at_bottom_right,_rgba(14,165,233,0.18),_transparent_35%)]" />
+        <div className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
+          <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
+            <div className="max-w-3xl">
+              <div className="inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-500/10 px-4 py-2 text-sm text-blue-100">
+                <Sparkles className="h-4 w-4" />
+                Darmowy generator faktur bez konta
+              </div>
+              <h1 className="mt-6 text-4xl font-semibold tracking-tight sm:text-5xl">
+                Wystaw fakturę w 2 minuty. Bez rejestracji.
+              </h1>
+              <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-300">
+                Wpisz NIP, pobierz dane z rejestru VAT MF i od razu wygeneruj PDF. Jeśli później założysz konto,
+                Twoje faktury będą już czekać w KsięgaI pod NIP-em sprzedawcy.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3 text-sm text-slate-200">
+                <FeaturePill icon={ShieldCheck} text="Fakturę wystawisz bez zakładania konta" />
+                <FeaturePill icon={Building2} text="Autouzupełnianie NIP z oficjalnego rejestru MF" />
+                <FeaturePill icon={ReceiptText} text="PDF gotowy do pobrania od razu po wypełnieniu" />
+                <FeaturePill icon={Save} text="Po rejestracji odzyskasz wcześniej wygenerowane faktury" />
+              </div>
+              <div className="mt-8 max-w-2xl rounded-3xl border border-blue-400/20 bg-blue-500/10 p-5">
+                <div className="flex items-start gap-3">
+                  <div className="rounded-2xl bg-blue-500/20 p-3 text-blue-100">
+                    <Wand2 className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold uppercase tracking-[0.24em] text-blue-200">Najpierw NIP</p>
+                    <p className="mt-2 text-base leading-7 text-slate-100">
+                      Zacznij od pola NIP sprzedawcy. Po wpisaniu 10 cyfr generator sam spróbuje pobrać nazwę i adres z
+                      rejestru VAT MF, a po pobraniu PDF zapisze fakturę pod tym NIP-em do późniejszego odzyskania po
+                      rejestracji.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
+              <p className="text-sm uppercase tracking-[0.28em] text-blue-200">Szybki workflow</p>
+              <ol className="mt-5 space-y-4 text-sm text-slate-200">
+                <li className="rounded-2xl border border-blue-400/20 bg-blue-500/10 p-4 text-blue-50">
+                  1. Wpisz pierwszy NIP. Po 10 cyfrach uruchamiamy wyszukiwanie automatycznie.
+                </li>
+                <li className="rounded-2xl border border-white/10 bg-slate-900/70 p-4">
+                  2. Dodaj nabywcę i pozycje faktury.
+                </li>
+                <li className="rounded-2xl border border-white/10 bg-slate-900/70 p-4">
+                  3. Pobierz PDF teraz, a konto załóż później, żeby odzyskać historię swoich faktur.
+                </li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-slate-50 dark:bg-slate-950">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+          {message && (
+            <div className="mb-8 rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900 dark:border-blue-900/60 dark:bg-blue-950/50 dark:text-blue-100">
+              {message}
+            </div>
+          )}
+
+          <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
+            <div className="space-y-6">
+              <div className="space-y-6">
+                <PartyCard
+                  title="Sprzedawca"
+                  description="Najpierw wpisz NIP sprzedawcy. Gdy znajdziemy firmę w rejestrze, uzupełnimy resztę danych i schowamy ten blok do skrótu."
+                  party={draft.seller}
+                  onChange={(field, value) => updateParty("seller", field, value)}
+                  lookupFeedback={lookupFeedback.seller}
+                  successMessage={
+                    sellerSource === "stored_profile"
+                      ? "Saved profile loaded. You can keep using it or expand this section to edit the seller data."
+                      : sellerSource === "lookup_success"
+                        ? "Successfully grabbed business info from the registry."
+                        : undefined
+                  }
+                  isCollapsed={collapsedCards.seller}
+                  isComplete={sellerLooksReady}
+                  onToggle={() => setCollapsedCards((current) => ({ ...current, seller: !current.seller }))}
+                  footer={
+                    hasStoredSellerData ? (
+                      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-100">
+                        <span>Sprzedawca zapisuje się automatycznie w tej przeglądarce i podpowie się przy kolejnej fakturze.</span>
+                        <ActionButton icon={CheckCircle2} onClick={handleClearSeller} variant="secondary">
+                          Wyczyść zapisane dane
+                        </ActionButton>
+                      </div>
+                    ) : null
+                  }
+                />
+
+                <PartyCard
+                  title="Nabywca"
+                  description=""
+                  party={draft.buyer}
+                  onChange={(field, value) => updateParty("buyer", field, value)}
+                  lookupFeedback={lookupFeedback.buyer}
+                  isCollapsed={collapsedCards.buyer}
+                  isComplete={buyerLooksReady}
+                  onToggle={() => setCollapsedCards((current) => ({ ...current, buyer: !current.buyer }))}
+                />
+              </div>
+
+              <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                  <div>
+                    <h2 className="text-2xl font-semibold text-slate-950 dark:text-slate-50">Dane faktury</h2>
+                    <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+                      Ustaw numer, daty i płatność. PDF pobierzesz od razu, a wystawiona faktura może później trafić do Twojego konta.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+                  <LabeledInput label="Numer faktury" value={draft.invoiceNumber} onChange={(value) => updateInvoiceField("invoiceNumber", value)} />
+                  <LabeledInput label="Data wystawienia" type="date" value={draft.issueDate} onChange={(value) => updateInvoiceField("issueDate", value)} />
+                  <LabeledInput label="Data sprzedaży" type="date" value={draft.saleDate} onChange={(value) => updateInvoiceField("saleDate", value)} />
+                  <LabeledInput label="Termin płatności" type="date" value={draft.dueDate} onChange={(value) => updateInvoiceField("dueDate", value)} />
+                  <LabeledInput label="Metoda płatności" value={draft.paymentMethod} onChange={(value) => updateInvoiceField("paymentMethod", value)} />
+                </div>
+
+                <div className="mt-4">
+                  <LabeledInput label="Uwagi na fakturze" value={draft.notes} onChange={(value) => updateInvoiceField("notes", value)} placeholder="Np. Dziękujemy za współpracę." />
+                </div>
+              </div>
+
+              <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                  <div>
+                    <h2 className="text-2xl font-semibold text-slate-950 dark:text-slate-50">Pozycje faktury</h2>
+                    <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">Dodaj usługę lub towar. Kwoty netto, VAT i brutto przeliczymy od razu.</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={addItem}
+                    className="inline-flex items-center justify-center rounded-full bg-slate-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-500"
+                  >
+                    Dodaj pozycję
+                  </button>
+                </div>
+
+                <div className="mt-6 space-y-4">
+                  {draft.items.map((item, index) => {
+                    const itemTotals = getItemTotals(item);
+
+                    return (
+                      <div key={item.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950/70">
+                        <div className="mb-4 flex items-center justify-between">
+                          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">
+                            Pozycja {index + 1}
+                          </p>
+                          {draft.items.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => removeItem(item.id)}
+                              className="text-sm font-medium text-slate-500 transition hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400"
+                            >
+                              Usuń
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="grid gap-4 xl:grid-cols-[minmax(0,2fr)_110px_110px_130px_110px]">
+                          <LabeledInput label="Nazwa" value={item.name} onChange={(value) => updateItem(item.id, "name", value)} placeholder="Np. Obsługa administracyjna marzec 2026" />
+                          <LabeledInput label="Ilość" type="number" value={String(item.quantity)} onChange={(value) => updateItem(item.id, "quantity", Number(value) || 0)} />
+                          <LabeledInput label="Jednostka" value={item.unit} onChange={(value) => updateItem(item.id, "unit", value)} />
+                          <LabeledInput label="Cena netto" type="number" value={String(item.unitPrice)} onChange={(value) => updateItem(item.id, "unitPrice", Number(value) || 0)} />
+                          <LabeledInput label="VAT %" type="number" value={String(item.vatRate)} onChange={(value) => updateItem(item.id, "vatRate", Number(value) || 0)} />
+                        </div>
+
+                        <div className="mt-4 grid gap-3 rounded-2xl bg-white p-4 sm:grid-cols-3 dark:bg-slate-900">
+                          <Stat label="Netto" value={formatCurrency(itemTotals.net)} />
+                          <Stat label="VAT" value={formatCurrency(itemTotals.vat)} />
+                          <Stat label="Brutto" value={formatCurrency(itemTotals.gross)} />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            <aside className="space-y-6">
+              <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm xl:sticky xl:top-24 dark:border-slate-800 dark:bg-slate-900">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-2xl bg-blue-100 p-3 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300">
+                    <ReceiptText className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-semibold text-slate-950 dark:text-slate-50">Podsumowanie</h2>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">Gotowe do pobrania jako PDF.</p>
+                  </div>
+                </div>
+
+                <div className="mt-6 rounded-2xl bg-slate-950 p-5 text-white">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-sm uppercase tracking-[0.28em] text-blue-200">Do zapłaty</p>
+                      <p className="mt-2 text-4xl font-semibold">{formatCurrency(totals.gross)}</p>
+                    </div>
+                    <CheckCircle2 className="mt-1 h-6 w-6 text-emerald-300" />
+                  </div>
+                  <div className="mt-6 grid gap-3 text-sm text-slate-200">
+                    <div className="flex items-center justify-between">
+                      <span>Łącznie netto</span>
+                      <span>{formatCurrency(totals.net)}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>VAT</span>
+                      <span>{formatCurrency(totals.vat)}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>Sprzedawca</span>
+                      <span className="max-w-[180px] truncate text-right">{draft.seller.name || "Uzupełnij dane"}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>NIP sprzedawcy</span>
+                      <span>{draft.seller.taxId ? formatTaxId(draft.seller.taxId) : "-"}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleGeneratePdf}
+                  disabled={!canGeneratePdf || isGeneratingPdf}
+                  className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 px-5 py-3.5 text-base font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-slate-300 dark:disabled:bg-slate-700"
+                >
+                  {isGeneratingPdf ? <Loader2 className="h-5 w-5 animate-spin" /> : <Download className="h-5 w-5" />}
+                  Pobierz PDF
+                </button>
+
+                {!canGeneratePdf && (
+                  <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
+                    Uzupełnij sprzedawcę, nabywcę i co najmniej jedną pozycję, aby pobrać gotową fakturę.
+                  </p>
+                )}
+
+                <p className="mt-4 text-sm text-slate-600 dark:text-slate-400">
+                  Ta faktura zapisze się pod NIP-em sprzedawcy. Po rejestracji odzyskasz ją w KsięgaI, wejdziesz do księgowości, a dokumenty i odpowiedzi od kontrahentów uporządkujesz później w Inboxie.
+                </p>
+
+                <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-950 dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-100">
+                  <p className="font-semibold">Chcesz rabaty, aktualizacje i przypomnienie o odzyskaniu faktur?</p>
+                  <p className="mt-2 text-emerald-800 dark:text-emerald-200">
+                    To opcjonalne. Zostaw email, jeśli chcesz dostać newsletter KsięgaI i oferty dla firm z tym NIP-em.
+                  </p>
+                  <div className="mt-4">
+                    <LabeledInput
+                      label="Email do newslettera"
+                      value={leadEmail}
+                      onChange={setLeadEmail}
+                      placeholder="twoj@adres.pl"
+                      type="email"
+                    />
+                  </div>
+                  <label className="mt-4 flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      checked={wantsNewsletter}
+                      onChange={(event) => setWantsNewsletter(event.target.checked)}
+                      className="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-950"
+                    />
+                    <span className="text-sm leading-6 text-slate-700 dark:text-slate-300">
+                      Chcę otrzymywać mailem newsletter, zniżki i aktualizacje KsięgaI. Ten email połączymy z NIP-em
+                      sprzedawcy, żeby później łatwiej odzyskać historię po rejestracji. Zgodę mogę wycofać w każdej chwili.
+                    </span>
+                  </label>
+                </div>
+
+                <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400">
+                  <p className="font-semibold text-slate-900 dark:text-slate-100">Jak działa zapis danych?</p>
+                  <p className="mt-2">
+                    Dane sprzedawcy zapisują się lokalnie automatycznie już podczas wypełniania formularza, więc kolejna faktura zacznie się od gotowego NIP-u i danych firmy.
+                  </p>
+                  <p className="mt-2">
+                    Ten sam NIP przeniesiemy też do zakładania profilu firmy po rejestracji, żeby szybciej wejść do księgowości, historii faktur i Inboxu dokumentów.
+                  </p>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      {showSignupPrompt && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 px-4">
+          <div className="w-full max-w-xl rounded-3xl bg-white p-8 shadow-2xl dark:bg-slate-900">
+            <div className="flex items-center gap-3 text-blue-600 dark:text-blue-400">
+              <CheckCircle2 className="h-8 w-8" />
+              <p className="text-sm font-semibold uppercase tracking-[0.24em]">Faktura gotowa</p>
+            </div>
+            <h3 className="mt-5 text-3xl font-semibold text-slate-950 dark:text-slate-50">
+              {lastSaveStatus === "saved" ? "Twoja faktura już czeka w KsięgaI" : "Chcesz zarządzać fakturami po rejestracji?"}
+            </h3>
+            <p className="mt-4 text-base leading-7 text-slate-600 dark:text-slate-400">
+              {lastSaveStatus === "saved"
+                ? "Załóż konto dla tego samego NIP-u, a wcześniej wygenerowane faktury pojawią się od razu w historii. Od razu wejdziesz też do księgowości, listy klientów i Inboxu dokumentów bez ponownego wpisywania firmy."
+                : "Załóż konto później, aby zarządzać historią faktur, klientami, księgowością i Inboxem dokumentów w jednym miejscu. Jeśli teraz potrzebujesz tylko jednego PDF, po prostu zamknij to okno."}
+            </p>
+
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <Link
+                href={`/rejestracja${sellerTaxId ? `?generatorNip=${sellerTaxId}` : ""}`}
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-950 px-5 py-3.5 text-base font-semibold text-white transition hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-500"
+              >
+                Załóż konto i odblokuj księgowość + Inbox
+                <ArrowRight className="h-5 w-5" />
+              </Link>
+              <button
+                type="button"
+                onClick={() => setShowSignupPrompt(false)}
+                className="rounded-2xl border border-slate-300 px-5 py-3.5 text-base font-medium text-slate-700 transition hover:border-slate-400 hover:text-slate-950 dark:border-slate-700 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:text-slate-50"
+              >
+                Zostań przy darmowym generatorze
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+function PartyCard({
+  title,
+  description,
+  party,
+  onChange,
+  footer,
+  lookupFeedback = "idle",
+  successMessage,
+  isCollapsed = false,
+  isComplete = false,
+  onToggle,
+}: {
+  title: string;
+  description: string;
+  party: InvoicePartyDraft;
+  onChange: (field: keyof InvoicePartyDraft, value: string) => void;
+  footer?: React.ReactNode;
+  lookupFeedback?: LookupFeedbackState;
+  successMessage?: string;
+  isCollapsed?: boolean;
+  isComplete?: boolean;
+  onToggle: () => void;
+}) {
+  const summaryParts = [party.name.trim() || "Brak nazwy", party.taxId ? `NIP ${formatTaxId(party.taxId)}` : "Brak NIP-u"];
+
+  return (
+    <div className={`rounded-3xl border p-6 shadow-sm transition-colors dark:bg-slate-900 ${
+      isCollapsed && isComplete
+        ? "border-emerald-500 bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-950/20"
+        : isComplete
+          ? "border-emerald-300 bg-emerald-50/40 dark:border-emerald-800"
+          : "border-slate-200 bg-white dark:border-slate-800"
+    }`}>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-semibold text-slate-950 dark:text-slate-50">{title}</h2>
+          <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-400">{description}</p>
+          {isCollapsed && (
+            <p className={`mt-3 inline-flex rounded-full border px-3 py-1 text-sm font-medium ${
+              isComplete
+                ? "border-emerald-300 bg-emerald-100 text-emerald-900 dark:border-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-100"
+                : "border-slate-200 bg-slate-100 text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+            }`}>
+              {summaryParts.join(" • ")}
+            </p>
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={onToggle}
+          className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-400 hover:text-slate-950 dark:border-slate-700 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:text-slate-50"
+        >
+          {isCollapsed ? (
+            <>
+              Rozwiń
+              <ChevronDown className="h-4 w-4" />
+            </>
+          ) : (
+            <>
+              Zwiń
+              <ChevronUp className="h-4 w-4" />
+            </>
+          )}
+        </button>
+      </div>
+
+      {!isCollapsed && (
+        <>
+          <div className={`mt-6 rounded-3xl border p-4 transition-colors ${
+            isComplete
+              ? "border-emerald-300 bg-emerald-50 dark:border-emerald-900/60 dark:bg-emerald-950/30"
+              : "border-blue-200 bg-blue-50 dark:border-blue-900/60 dark:bg-blue-950/40"
+          }`}>
+            <div className="mt-4">
+              <label className="block">
+                <span className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">NIP</span>
+                <input
+                  type="text"
+                  value={party.taxId}
+                  onChange={(event) => onChange("taxId", event.target.value)}
+                  placeholder="1234567890"
+                  className={`w-full rounded-2xl border-2 bg-white px-4 py-4 text-xl font-semibold tracking-[0.16em] text-slate-950 outline-none transition dark:bg-slate-900 dark:text-slate-50 ${
+                    isComplete
+                      ? "border-emerald-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 dark:border-emerald-700 dark:focus:border-emerald-500 dark:focus:ring-emerald-950"
+                      : "border-blue-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:border-blue-800 dark:focus:border-blue-400 dark:focus:ring-blue-950"
+                  }`}
+                />
+              </label>
+              <div className="mt-2 flex min-h-5 items-center gap-2 text-sm">
+                {lookupFeedback === "loading" && <Loader2 className="h-4 w-4 animate-spin text-blue-600 dark:text-blue-300" />}
+                {lookupFeedback === "error" && <XCircle className="h-4 w-4 text-rose-600 dark:text-rose-400" />}
+                <p className={lookupFeedback === "error" ? "text-rose-600 dark:text-rose-400" : "text-slate-500 dark:text-slate-400"}>
+                  {lookupFeedback === "loading"
+                    ? "Pobieramy dane z rejestru VAT MF..."
+                    : lookupFeedback === "error"
+                      ? "Nie znaleziono danych albo lookup się nie udał. Możesz wpisać je ręcznie."
+                      : successMessage && isComplete
+                        ? successMessage
+                        : party.taxId
+                          ? isComplete
+                            ? `Wpisany NIP: ${formatTaxId(party.taxId)}. Dane wyglądają na kompletne.`
+                            : `Wpisany NIP: ${formatTaxId(party.taxId)}`
+                          : "Wpisz 10 cyfr, a lookup uruchomi się automatycznie."}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 grid gap-4 md:grid-cols-2">
+            <LabeledInput label="Email" value={party.email} onChange={(value) => onChange("email", value)} placeholder="biuro@firma.pl" />
+            <div className="md:col-span-2">
+              <LabeledInput label="Nazwa" value={party.name} onChange={(value) => onChange("name", value)} placeholder="Pełna nazwa firmy" />
+            </div>
+            <div className="md:col-span-2">
+              <LabeledInput label="Ulica i numer" value={party.street} onChange={(value) => onChange("street", value)} placeholder="ul. Przykładowa 10/2" />
+            </div>
+            <LabeledInput label="Kod pocztowy" value={party.postalCode} onChange={(value) => onChange("postalCode", value)} placeholder="00-000" />
+            <LabeledInput label="Miasto" value={party.city} onChange={(value) => onChange("city", value)} placeholder="Warszawa" />
+          </div>
+
+          {footer && <div className="mt-6">{footer}</div>}
+        </>
+      )}
+    </div>
+  );
+}
+
+function LabeledInput({
+  label,
+  value,
+  onChange,
+  placeholder,
+  type = "text",
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  type?: string;
+}) {
+  return (
+    <label className="block">
+      <span className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">{label}</span>
+      <input
+        type={type}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
+        className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-base text-slate-950 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-50 dark:placeholder:text-slate-500 dark:focus:border-blue-400 dark:focus:ring-blue-950"
+      />
+    </label>
+  );
+}
+
+function FeaturePill({ icon: Icon, text }: { icon: typeof ShieldCheck; text: string }) {
+  return (
+    <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2">
+      <Icon className="h-4 w-4 text-blue-200" />
+      {text}
+    </span>
+  );
+}
+
+function ActionButton({
+  icon: Icon,
+  children,
+  onClick,
+  disabled,
+  variant = "primary",
+}: {
+  icon: typeof Save;
+  children: React.ReactNode;
+  onClick: () => void;
+  disabled?: boolean;
+  variant?: "primary" | "secondary";
+}) {
+  const className =
+    variant === "primary"
+      ? "bg-slate-950 text-white hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-500"
+      : "border border-slate-300 text-slate-700 hover:border-slate-400 hover:text-slate-950 dark:border-slate-700 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:text-slate-50";
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={`inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-60 ${className}`}
+    >
+      <Icon className="h-4 w-4" />
+      {children}
+    </button>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-xs uppercase tracking-[0.2em] text-slate-400">{label}</p>
+      <p className="mt-2 text-lg font-semibold text-slate-950 dark:text-slate-50">{value}</p>
+    </div>
+  );
+}

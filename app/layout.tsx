@@ -66,6 +66,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const gtmId = process.env.NEXT_PUBLIC_GTM_ID;
+  const supabaseOrigin = process.env.NEXT_PUBLIC_SUPABASE_URL;
 
   return (
     <html lang="pl" className="dark">
@@ -85,9 +86,8 @@ export default function RootLayout({
             }}
           />
         )}
-        
-        <link rel="preconnect" href="https://rncrzxjyffxmfbnxlqtm.supabase.co" />
-        <link rel="dns-prefetch" href="https://rncrzxjyffxmfbnxlqtm.supabase.co" />
+        {supabaseOrigin && <link rel="preconnect" href={supabaseOrigin} />}
+        {supabaseOrigin && <link rel="dns-prefetch" href={supabaseOrigin} />}
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
         <meta name="bingbot" content="index, follow" />
         <meta name="googlebot" content="index, follow" />

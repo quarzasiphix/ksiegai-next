@@ -2,9 +2,29 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { storeAuthToken, redirectToApp } from "@/lib/auth/crossDomainAuth";
+import {
+  clearAuthToken,
+  getAuthToken,
+  isTokenExpired,
+  redirectToApp,
+  storeAuthToken,
+  storeAndRedirect,
+} from "@/lib/auth/crossDomainAuth";
 import { setAuthFlowOrigin } from "@/lib/auth/welcomeEmail";
-import { Mail, Lock, ChevronDown } from "lucide-react";
+import {
+  clearPendingLoginAttempt,
+  createPendingLoginAttempt,
+  getLatestRememberedProfile,
+  getPendingLoginAttempt,
+  getPendingLoginLabel,
+  loadRememberedProfiles,
+  removeRememberedProfile,
+  saveRememberedProfile,
+  setPendingLoginAttempt as persistPendingLoginAttempt,
+  type PendingLoginAttempt,
+  type RememberedLoginProfile,
+} from "@/lib/auth/loginProfiles";
+import { Mail, Lock, Loader2, UserRoundCheck, X } from "lucide-react";
 import Link from "next/link";
 
 // Google Icon Component
@@ -21,25 +41,135 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [sessionBootstrapping, setSessionBootstrapping] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [magicLinkSent, setMagicLinkSent] = useState(false);
   const [useMagicLink, setUseMagicLink] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
+  const [rememberedProfiles, setRememberedProfiles] = useState<RememberedLoginProfile[]>([]);
+  const [pendingLoginAttempt, setPendingLoginAttemptState] = useState<PendingLoginAttempt | null>(null);
+  const [activeSessionProfile, setActiveSessionProfile] = useState<RememberedLoginProfile | null>(null);
+  const [selectedSavedPasswordProfile, setSelectedSavedPasswordProfile] = useState<RememberedLoginProfile | null>(null);
+
+  const refreshRememberedProfiles = () => {
+    const profiles = loadRememberedProfiles();
+    setRememberedProfiles(profiles);
+
+    if (!email && !selectedSavedPasswordProfile) {
+      const latestProfile = profiles[0];
+      if (latestProfile?.email) {
+        setEmail(latestProfile.email);
+      }
+    }
+  };
+
+  const setPendingAttempt = (attempt: PendingLoginAttempt) => {
+    setPendingLoginAttemptState(attempt);
+    persistPendingLoginAttempt(attempt);
+  };
+
+  const applyAuthenticatedSession = async (session: Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"]) => {
+    if (!session) return null;
+
+    const pendingAttempt = getPendingLoginAttempt();
+    const rememberedProfile = saveRememberedProfile(session.user, pendingAttempt?.method ?? null);
+    const sessionProfile =
+      rememberedProfile ??
+      ({
+        userId: session.user.id,
+        email: session.user.email ?? "",
+        displayName:
+          session.user.user_metadata?.full_name ||
+          session.user.user_metadata?.name ||
+          session.user.email?.split("@")[0] ||
+          "Użytkownik",
+        avatarUrl: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || null,
+        lastLoginMethod: pendingAttempt?.method ?? null,
+        lastUsedAt: new Date().toISOString(),
+      } satisfies RememberedLoginProfile);
+
+    clearPendingLoginAttempt();
+    setPendingLoginAttemptState(null);
+    setActiveSessionProfile(sessionProfile);
+    setSelectedSavedPasswordProfile(null);
+    setEmail(sessionProfile.email);
+    refreshRememberedProfiles();
+
+    return sessionProfile;
+  };
+
+  const resumeSessionIfPossible = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      await applyAuthenticatedSession(session);
+      return session;
+    }
+
+    const token = getAuthToken();
+    if (!token) return null;
+
+    if (isTokenExpired(token)) {
+      clearAuthToken();
+      return null;
+    }
+
+    const { data, error } = await supabase.auth.setSession({
+      access_token: token.access_token,
+      refresh_token: token.refresh_token,
+    });
+
+    if (error) {
+      console.error("[Login] Failed to resume session from cross-domain token:", error);
+      clearAuthToken();
+      return null;
+    }
+
+    if (data.session) {
+      await applyAuthenticatedSession(data.session);
+    }
+
+    return data.session ?? null;
+  };
 
   useEffect(() => {
+    let isMounted = true;
+
+    refreshRememberedProfiles();
+    setPendingLoginAttemptState(getPendingLoginAttempt());
+
+    void (async () => {
+      try {
+        await resumeSessionIfPossible();
+      } finally {
+        if (isMounted) {
+          setSessionBootstrapping(false);
+        }
+      }
+    })();
+
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session) {
+        const hadPendingAttempt = Boolean(getPendingLoginAttempt());
+        const sessionProfile = await applyAuthenticatedSession(session);
         storeAuthToken({
           access_token: session.access_token,
           refresh_token: session.refresh_token,
           expires_at: session.expires_at || 0,
           user_id: session.user.id,
         });
-        redirectToApp('/dashboard');
+        if (sessionProfile && isMounted) {
+          setActiveSessionProfile(sessionProfile);
+        }
+        if (hadPendingAttempt) {
+          redirectToApp('/dashboard');
+        }
+      } else if (event === 'SIGNED_OUT' && isMounted) {
+        setActiveSessionProfile(null);
       }
     });
 
     return () => {
+      isMounted = false;
       authListener.subscription.unsubscribe();
     };
   }, []);
@@ -53,17 +183,27 @@ export default function Login() {
 
   const handleMagicLink = async (e: React.FormEvent) => {
     e.preventDefault();
+    await startMagicLinkLogin(email, selectedSavedPasswordProfile?.displayName);
+  };
+
+  const startMagicLinkLogin = async (nextEmail: string, displayName?: string) => {
     setError(null);
 
-    if (!email) {
+    if (!nextEmail) {
       setError("Podaj adres e-mail");
-      return;
+      return false;
     }
 
     setLoading(true);
     setAuthFlowOrigin("login");
+    const pendingAttempt = createPendingLoginAttempt({
+      email: nextEmail,
+      displayName,
+      method: "magic_link",
+    });
+    setPendingAttempt(pendingAttempt);
     const { error } = await supabase.auth.signInWithOtp({
-      email: email,
+      email: nextEmail,
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
@@ -71,11 +211,16 @@ export default function Login() {
     setLoading(false);
 
     if (error) {
+      clearPendingLoginAttempt();
+      setPendingLoginAttemptState(null);
       setError("Nie udało się wysłać linku. Spróbuj ponownie.");
-    } else {
-      setMagicLinkSent(true);
-      setResendCooldown(60);
+      return false;
     }
+
+    setEmail(nextEmail);
+    setMagicLinkSent(true);
+    setResendCooldown(60);
+    return true;
   };
 
   const handlePasswordLogin = async (e: React.FormEvent) => {
@@ -88,6 +233,12 @@ export default function Login() {
     }
 
     setLoading(true);
+    const pendingAttempt = createPendingLoginAttempt({
+      email,
+      displayName: selectedSavedPasswordProfile?.displayName,
+      method: "password",
+    });
+    setPendingAttempt(pendingAttempt);
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -95,35 +246,32 @@ export default function Login() {
     setLoading(false);
 
     if (error) {
+      clearPendingLoginAttempt();
+      setPendingLoginAttemptState(null);
       setError("Nieprawidłowy e-mail lub hasło");
     }
   };
 
   const handleResend = async () => {
     if (resendCooldown > 0) return;
-    
-    setError(null);
-    setLoading(true);
-    setAuthFlowOrigin("login");
-    const { error } = await supabase.auth.signInWithOtp({
-      email: email,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-    setLoading(false);
 
-    if (error) {
-      setError("Nie udało się wysłać linku. Spróbuj ponownie.");
-    } else {
-      setResendCooldown(60);
-    }
+    await startMagicLinkLogin(email, selectedSavedPasswordProfile?.displayName);
   };
 
   const handleGoogleSignIn = async () => {
     setError(null);
     setLoading(true);
     setAuthFlowOrigin("login");
+    const resolvedEmail = selectedSavedPasswordProfile?.email || email;
+    const selectedProfile =
+      selectedSavedPasswordProfile ||
+      rememberedProfiles.find((profile) => profile.email === resolvedEmail.trim().toLowerCase());
+    const pendingAttempt = createPendingLoginAttempt({
+      email: resolvedEmail,
+      displayName: selectedProfile?.displayName || "konto Google",
+      method: "google",
+    });
+    setPendingAttempt(pendingAttempt);
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -134,10 +282,95 @@ export default function Login() {
       
       if (error) throw error;
     } catch (err) {
+      clearPendingLoginAttempt();
+      setPendingLoginAttemptState(null);
       setError("Nie udało się zalogować przez Google. Spróbuj ponownie.");
       setLoading(false);
     }
   };
+
+  const handleProfileSelect = (profile: RememberedLoginProfile) => {
+    void handleSavedProfileContinue(profile);
+  };
+
+  const handleSavedProfileContinue = async (profile: RememberedLoginProfile) => {
+    setError(null);
+    setMagicLinkSent(false);
+    setEmail(profile.email);
+
+    if (activeSessionProfile?.email === profile.email) {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        storeAndRedirect({
+          access_token: session.access_token,
+          refresh_token: session.refresh_token,
+          expires_at: session.expires_at || 0,
+          user_id: session.user.id,
+        });
+        return;
+      }
+    }
+
+    if (profile.lastLoginMethod === "google") {
+      setSelectedSavedPasswordProfile(null);
+      setUseMagicLink(false);
+      setLoading(true);
+      setAuthFlowOrigin("login");
+      const pendingAttempt = createPendingLoginAttempt({
+        email: profile.email,
+        displayName: profile.displayName,
+        method: "google",
+      });
+      setPendingAttempt(pendingAttempt);
+
+      try {
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: `${window.location.origin}/auth/callback`,
+          },
+        });
+
+        if (error) throw error;
+      } catch (err) {
+        clearPendingLoginAttempt();
+        setPendingLoginAttemptState(null);
+        setLoading(false);
+        setSelectedSavedPasswordProfile(profile);
+        setError("Nie udało się wznowić logowania Google. Potwierdź hasłem albo użyj linku logowania.");
+      }
+      return;
+    }
+
+    if (profile.lastLoginMethod === "magic_link") {
+      setSelectedSavedPasswordProfile(null);
+      setUseMagicLink(true);
+      await startMagicLinkLogin(profile.email, profile.displayName);
+      return;
+    }
+
+    setSelectedSavedPasswordProfile(profile);
+    setUseMagicLink(false);
+    setPassword("");
+  };
+
+  const handleProfileRemove = (profile: RememberedLoginProfile) => {
+    removeRememberedProfile(profile.userId);
+    const nextProfiles = loadRememberedProfiles();
+    setRememberedProfiles(nextProfiles);
+    if (selectedSavedPasswordProfile?.userId === profile.userId) {
+      setSelectedSavedPasswordProfile(null);
+    }
+
+    if (email === profile.email) {
+      setEmail(nextProfiles[0]?.email ?? "");
+    }
+  };
+
+  const pendingLoginLabel = getPendingLoginLabel(pendingLoginAttempt);
+  const latestRememberedProfile = rememberedProfiles[0] ?? null;
+  const resumeCandidateProfile = activeSessionProfile ?? latestRememberedProfile ?? getLatestRememberedProfile();
+  const shouldShowBootstrapCard = sessionBootstrapping && !magicLinkSent && Boolean(resumeCandidateProfile);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 flex items-center justify-center p-4">
@@ -160,6 +393,17 @@ export default function Login() {
             </div>
 
             <div className="space-y-4">
+              {pendingLoginLabel ? (
+                <div className="bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-700 rounded-xl p-4">
+                  <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
+                    Trwa logowanie użytkownika: {pendingLoginLabel}
+                  </p>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                    Czekamy na kliknięcie linku z wiadomości e-mail.
+                  </p>
+                </div>
+              ) : null}
+
               <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
                 <p className="text-sm text-blue-900 dark:text-blue-100">
                   <strong>Kliknij link w e-mailu</strong>, a zostaniesz automatycznie zalogowany.
@@ -189,12 +433,146 @@ export default function Login() {
                 Witaj ponownie
               </h1>
               <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
-                Zaloguj się do swojego konta
+                {latestRememberedProfile
+                  ? `Ostatnio logował się ${latestRememberedProfile.displayName}.`
+                  : "Zaloguj się do swojego konta"}
               </p>
             </div>
             
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 animate-fade-in">
               <div className="space-y-4">
+                {shouldShowBootstrapCard && resumeCandidateProfile ? (
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900/50">
+                    <div className="flex items-start gap-3">
+                      <div className="mt-0.5 rounded-full bg-blue-100 p-2 text-blue-700 dark:bg-blue-900/40 dark:text-blue-200">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                          Przywracamy sesję dla {resumeCandidateProfile.displayName}
+                        </p>
+                        <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
+                          {resumeCandidateProfile.email}. Jeśli sesja nadal jest ważna, pokażemy przycisk przejścia do aplikacji zamiast ponownego logowania.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+
+                {activeSessionProfile ? (
+                  <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-900/60 dark:bg-emerald-950/30">
+                    <div className="flex items-start gap-3">
+                      <div className="mt-0.5 rounded-full bg-emerald-100 p-2 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-200">
+                        <UserRoundCheck className="h-4 w-4" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-emerald-900 dark:text-emerald-100">
+                          Witaj ponownie, {activeSessionProfile.displayName}
+                        </p>
+                        <p className="mt-1 text-xs text-emerald-700 dark:text-emerald-300">
+                          {activeSessionProfile.email}
+                        </p>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              const { data: { session } } = await supabase.auth.getSession();
+                              if (session) {
+                                storeAndRedirect({
+                                  access_token: session.access_token,
+                                  refresh_token: session.refresh_token,
+                                  expires_at: session.expires_at || 0,
+                                  user_id: session.user.id,
+                                });
+                              } else {
+                                setActiveSessionProfile(null);
+                              }
+                            }}
+                            className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
+                          >
+                            Kontynuuj do aplikacji
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setActiveSessionProfile(null);
+                              setSelectedSavedPasswordProfile(null);
+                              setPassword("");
+                              setError(null);
+                            }}
+                            className="rounded-lg border border-emerald-300 px-4 py-2 text-sm font-medium text-emerald-800 transition hover:bg-emerald-100 dark:border-emerald-800 dark:text-emerald-200 dark:hover:bg-emerald-900/40"
+                          >
+                            Użyj innego konta
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+
+                {pendingLoginLabel ? (
+                  <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-900/60 dark:bg-blue-950/40">
+                    <p className="text-sm font-semibold text-blue-900 dark:text-blue-100">
+                      W toku: logowanie użytkownika {pendingLoginLabel}
+                    </p>
+                    <p className="mt-1 text-xs text-blue-700 dark:text-blue-300">
+                      Zachowaliśmy ten wybór, więc po odświeżeniu nadal widać, dla którego profilu trwa logowanie.
+                    </p>
+                  </div>
+                ) : null}
+
+                {rememberedProfiles.length > 0 ? (
+                  <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900/40">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                      Zapisane profile
+                    </p>
+                    <div className="mt-3 space-y-2">
+                      {rememberedProfiles.map((profile) => (
+                        <div
+                          key={profile.userId}
+                          className="flex items-center justify-between gap-3 rounded-xl bg-white px-3 py-3 shadow-sm ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700"
+                        >
+                          <button
+                            type="button"
+                            onClick={() => handleProfileSelect(profile)}
+                            className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                          >
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700 dark:bg-blue-900/40 dark:text-blue-200">
+                              {profile.displayName.slice(0, 1).toUpperCase()}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
+                                {profile.displayName}
+                              </p>
+                              <p className="truncate text-xs text-gray-500 dark:text-gray-400">
+                                {profile.email}
+                              </p>
+                            </div>
+                          </button>
+                          <div className="hidden sm:block text-[11px] text-gray-400 dark:text-gray-500">
+                            {profile.lastLoginMethod === "google"
+                              ? "Google"
+                              : profile.lastLoginMethod === "magic_link"
+                                ? "Link logowania"
+                                : "Hasło"}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleProfileRemove(profile)}
+                            className="rounded-lg p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-200"
+                            aria-label={`Usuń zapisany profil ${profile.email}`}
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                      Kliknięcie profilu spróbuje wznowić logowanie ostatnio używaną metodą. Profile hasłowe poproszą tylko o hasło.
+                    </p>
+                  </div>
+                ) : null}
+
                 <button
                   onClick={handleGoogleSignIn}
                   disabled={loading}
@@ -215,6 +593,40 @@ export default function Login() {
 
                 {!useMagicLink ? (
                   <form onSubmit={handlePasswordLogin} className="space-y-4">
+                    {selectedSavedPasswordProfile ? (
+                      <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900/40">
+                        <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                          Dokończ logowanie jako {selectedSavedPasswordProfile.displayName}
+                        </p>
+                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                          {selectedSavedPasswordProfile.email}
+                        </p>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedSavedPasswordProfile(null);
+                              setPassword("");
+                              setError(null);
+                            }}
+                            className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                          >
+                            Wybierz inne konto
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setUseMagicLink(true);
+                              setError(null);
+                            }}
+                            className="text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                          >
+                            Użyj linku logowania
+                          </button>
+                        </div>
+                      </div>
+                    ) : null}
+
                     <div className="space-y-2">
                       <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         Adres e-mail
@@ -227,8 +639,9 @@ export default function Login() {
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           required
+                          readOnly={Boolean(selectedSavedPasswordProfile)}
                           placeholder="twoj@email.pl"
-                          className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                          className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white read-only:bg-gray-50 read-only:text-gray-500 dark:read-only:bg-gray-800 dark:read-only:text-gray-300"
                         />
                       </div>
                     </div>
@@ -275,6 +688,17 @@ export default function Login() {
                   </form>
                 ) : (
                   <form onSubmit={handleMagicLink} className="space-y-4">
+                    {selectedSavedPasswordProfile ? (
+                      <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900/40">
+                        <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                          Wyślij link logowania do {selectedSavedPasswordProfile.displayName}
+                        </p>
+                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                          {selectedSavedPasswordProfile.email}
+                        </p>
+                      </div>
+                    ) : null}
+
                     <div className="space-y-2">
                       <label htmlFor="email-magic" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         Adres e-mail
@@ -287,8 +711,9 @@ export default function Login() {
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           required
+                          readOnly={Boolean(selectedSavedPasswordProfile)}
                           placeholder="twoj@email.pl"
-                          className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                          className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white read-only:bg-gray-50 read-only:text-gray-500 dark:read-only:bg-gray-800 dark:read-only:text-gray-300"
                         />
                       </div>
                       <p className="text-xs text-gray-500 dark:text-gray-400">

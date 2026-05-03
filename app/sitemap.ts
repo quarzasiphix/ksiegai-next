@@ -29,7 +29,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     },
     {
+<<<<<<< HEAD
       url: `${baseUrl}/generator-faktur`,
+=======
+      url: `${baseUrl}/darmowy-generator-faktur`,
+>>>>>>> 003750cfdd806cb7dff430bbdf1a9d26a423e5e3
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.8,
