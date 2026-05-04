@@ -41,6 +41,11 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/generator-faktur" className="text-gray-400 hover:text-white transition-colors text-sm">
+                  Generator faktur
+                </Link>
+              </li>
+              <li>
                 <Link href="/premium" className="text-gray-400 hover:text-white transition-colors text-sm">
                   Dla spółek
                 </Link>
