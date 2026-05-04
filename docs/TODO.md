@@ -247,6 +247,14 @@
     - Confirm audit doc reflects current runtime probe outputs.
 
 ## DONE
+- [x] T-326: Fix production-only install typecheck dependencies
+  - Owner: Codex
+  - Reviewer: self
+  - Verified:
+    - `typescript`, `@types/node`, `@types/react`, and `@types/react-dom` are now in `dependencies`
+    - `package-lock.json` root entry matches the production dependency split
+    - `cd ksiegai-next && npx tsc --noEmit` passed
+  - Date: 2026-05-04
 - [x] T-325: Remove `ksiegai-next` runtime path-alias dependency
   - Owner: Codex
   - Reviewer: self

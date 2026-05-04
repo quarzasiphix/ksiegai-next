@@ -1,5 +1,19 @@
 # Notes
 
+## 2026-05-04 - Moved TypeScript build toolchain into production deps
+
+What changed:
+- Moved `typescript`, `@types/node`, `@types/react`, and `@types/react-dom` into `dependencies` in `package.json`.
+- Refreshed `package-lock.json` so production-only installs use the same dependency split.
+
+Verification evidence (2026-05-04):
+- `cd ksiegai-next && npx tsc --noEmit` -> passed
+- `package-lock.json` root package entry now lists the TypeScript toolchain under `dependencies`
+
+Scope notes:
+- No database schema, RLS, or Supabase backend contract changes.
+- No change to the `ksiegai_auth_token` cross-domain handoff contract.
+
 ## 2026-05-04 - Removed runtime `@/` imports from `ksiegai-next`
 
 What changed:
