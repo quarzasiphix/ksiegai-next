@@ -35,3 +35,8 @@ next-env.d.ts
 # wrangler
 .wrangler/
 wrangler.toml
+
+.env
+.env.local
+.env.development
+.env.copy.local

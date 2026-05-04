@@ -14,7 +14,6 @@ import { setAuthFlowOrigin } from "@/lib/auth/welcomeEmail";
 import {
   clearPendingLoginAttempt,
   createPendingLoginAttempt,
-  getLatestRememberedProfile,
   getPendingLoginAttempt,
   getPendingLoginLabel,
   loadRememberedProfiles,
@@ -369,7 +368,7 @@ export default function Login() {
 
   const pendingLoginLabel = getPendingLoginLabel(pendingLoginAttempt);
   const latestRememberedProfile = rememberedProfiles[0] ?? null;
-  const resumeCandidateProfile = activeSessionProfile ?? latestRememberedProfile ?? getLatestRememberedProfile();
+  const resumeCandidateProfile = activeSessionProfile ?? latestRememberedProfile;
   const shouldShowBootstrapCard = sessionBootstrapping && !magicLinkSent && Boolean(resumeCandidateProfile);
 
   return (

@@ -25,6 +25,28 @@
   - Notes:
     - Follows T-304 implementation; environment-level action required.
 ## IN PROGRESS
+- [ ] T-322: Fix `/logowanie` hydration mismatch from remembered-profile bootstrap
+  - Owner: Codex
+  - Started: 2026-05-03 00:00
+  - Branch: main (shared)
+  - Reviewer: self
+  - Status: pr_ready
+  - Notes:
+    - Scope freeze: `ksiegai-next` login hydration fix only.
+    - Root cause: `/logowanie` was calling `getLatestRememberedProfile()` during render, so the first client render could read localStorage and insert remembered-profile bootstrap UI that the server HTML did not contain.
+    - Fix: keep remembered-profile bootstrap fully state-driven after client mount; do not read storage-backed fallback directly in render.
+    - No schema, RLS, or `ksiegai_auth_token` contract changes.
+  - Files touched (actual):
+    - `ksiegai-next/app/logowanie/page.tsx`
+    - `ksiegai-next/docs/TODO.md`
+    - `ksiegai-next/docs/NOTES.md`
+  - DoD:
+    - [x] `/logowanie` server render matches first client render
+    - [x] remembered-profile resume still works after client bootstrapping
+    - [x] `cd ksiegai-next && npx tsc --noEmit` passes
+  - Checks run:
+    - `cd ksiegai-next && npx tsc --noEmit` (pass)
+
 - [ ] T-321: Make Google auth callback hand off to `app.ksiegai.pl` immediately
   - Owner: Codex (Agent B)
   - Started: 2026-04-04 11:52
@@ -225,6 +247,13 @@
     - Confirm audit doc reflects current runtime probe outputs.
 
 ## DONE
+- [x] T-323: Create `ksiegai-next/.env.production` scaffold
+  - Owner: Codex
+  - Reviewer: self
+  - Verified:
+    - `ksiegai-next/.env.production` now matches the app's current production-facing public env contract
+    - `SUPABASE_SERVICE_ROLE_KEY` intentionally remains a replacement placeholder because no production secret is tracked in-repo
+  - Date: 2026-05-04
 - [x] T-322: Logged-in homepage hero with business profile panel + app handoff
   - Owner: Codex
   - Reviewer: self

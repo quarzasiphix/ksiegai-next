@@ -1,5 +1,31 @@
 # Notes
 
+## 2026-05-04 - Added `ksiegai-next/.env.production` scaffold
+
+What changed:
+- Added `ksiegai-next/.env.production` with the production Supabase URL, anon key, app domain, marketing domain, optional GTM slot, and `NODE_ENV=production`.
+- Left `SUPABASE_SERVICE_ROLE_KEY` as an explicit replacement token because no private production secret is stored in the repo and this file should not invent one.
+
+Verification evidence (2026-05-04):
+- Cross-checked file contents against current `ksiegai-next` runtime env usage in `app/layout.tsx`, `app/api/ab-track/route.ts`, `lib/supabase.ts`, `lib/abTesting.ts`, and `lib/auth/crossDomainAuth.ts`.
+
+Scope notes:
+- No database schema, RLS, or Supabase backend contract changes.
+- No change to the `ksiegai_auth_token` cross-domain handoff contract.
+
+## 2026-05-03 - `/logowanie` hydration mismatch from remembered-profile bootstrap
+
+What changed:
+- Removed the render-time fallback to `getLatestRememberedProfile()` inside `app/logowanie/page.tsx`.
+- The login page now derives remembered-profile bootstrap only from React state that is populated after client mount, so the server HTML and first client render stay aligned.
+
+Verification evidence (2026-05-03):
+- `cd ksiegai-next && npx tsc --noEmit` -> passed
+
+Scope notes:
+- No database schema, RLS, or Supabase backend contract changes.
+- No change to the `ksiegai_auth_token` cross-domain handoff contract.
+
 ## 2026-04-11 - Logged-in homepage hero with business profiles and selected-app handoff
 
 What changed:
