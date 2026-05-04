@@ -1,5 +1,21 @@
 # Notes
 
+## 2026-05-04 - Fixed Cloudflare build blockers in `ksiegai-next`
+
+What changed:
+- Moved `tailwindcss`, `postcss`, and `autoprefixer` into runtime `dependencies` in `package.json` so production-only installs still have the CSS toolchain that `next build` requires.
+- Added `baseUrl: "."` to `tsconfig.json` so the existing `@/*` alias resolves reliably during Next builds.
+- Resolved a leftover merge conflict in `app/sitemap.ts` by keeping both live public routes: `/generator-faktur` and `/darmowy-generator-faktur`.
+- Refreshed `package-lock.json` after the dependency section change.
+
+Verification evidence (2026-05-04):
+- `cd ksiegai-next && npx tsc --noEmit` -> originally failed on merge conflict markers in `app/sitemap.ts`; passed after conflict cleanup.
+- `cd ksiegai-next && npm run build` -> advanced past the earlier Tailwind/alias failures; local build now stops only on missing Linux SWC binary in this WSL workspace (`node_modules/@next` contains `swc-win32-x64-msvc`, not the Linux package).
+
+Scope notes:
+- No database schema, RLS, or Supabase backend contract changes.
+- No change to the `ksiegai_auth_token` cross-domain handoff contract.
+
 ## 2026-05-04 - Added `ksiegai-next/.env.production` scaffold
 
 What changed:

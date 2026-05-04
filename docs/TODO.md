@@ -247,6 +247,16 @@
     - Confirm audit doc reflects current runtime probe outputs.
 
 ## DONE
+- [x] T-324: Fix `ksiegai-next` Cloudflare build blockers
+  - Owner: Codex
+  - Reviewer: self
+  - Verified:
+    - production CSS toolchain packages are now in `dependencies`, so `npm clean-install` / production installs keep `tailwindcss`
+    - `tsconfig.json` now has `baseUrl`, matching the existing `@/*` alias contract
+    - `app/sitemap.ts` no longer contains merge conflict markers
+    - `cd ksiegai-next && npx tsc --noEmit` passed after the sitemap fix
+    - `cd ksiegai-next && npm run build` moved past the original Tailwind + alias failures; remaining local failure is WSL-specific missing Linux SWC binary
+  - Date: 2026-05-04
 - [x] T-323: Create `ksiegai-next/.env.production` scaffold
   - Owner: Codex
   - Reviewer: self
