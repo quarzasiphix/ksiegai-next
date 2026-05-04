@@ -11,17 +11,17 @@ import {
   Receipt,
   Shield,
 } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "../../lib/supabase";
 import {
   clearAuthToken,
   getAuthToken,
   isTokenExpired,
   storeAndRedirect,
-} from "@/lib/auth/crossDomainAuth";
+} from "../../lib/auth/crossDomainAuth";
 import {
   getHomeBusinessDashboardData,
   type HomeBusinessDashboardData,
-} from "@/lib/home/businessProfiles";
+} from "../../lib/home/businessProfiles";
 
 type HeroContent = {
   bannerBadge: string;

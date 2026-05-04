@@ -1,6 +1,6 @@
 'use client';
 
-import { supabase } from '@/lib/supabase-client';
+import { supabase } from "./supabase-client";
 
 /**
  * A/B Testing for Static Site Generation (SSG)

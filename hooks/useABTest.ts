@@ -8,7 +8,7 @@ import {
   trackEvent as trackEventDB,
   type ABTest,
   type ABTestVariant,
-} from '@/lib/ab-testing-supabase';
+} from "../lib/ab-testing-supabase";
 
 interface UseABTestResult {
   variant: ABTestVariant | null;

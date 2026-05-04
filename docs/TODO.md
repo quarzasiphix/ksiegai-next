@@ -247,6 +247,14 @@
     - Confirm audit doc reflects current runtime probe outputs.
 
 ## DONE
+- [x] T-325: Remove `ksiegai-next` runtime path-alias dependency
+  - Owner: Codex
+  - Reviewer: self
+  - Verified:
+    - runtime `@/` imports were replaced with relative imports across `app/`, `components/`, `hooks/`, and `lib/`
+    - alias scan over executable code returned clean
+    - `cd ksiegai-next && npx tsc --noEmit` passed
+  - Date: 2026-05-04
 - [x] T-324: Fix `ksiegai-next` Cloudflare build blockers
   - Owner: Codex
   - Reviewer: self

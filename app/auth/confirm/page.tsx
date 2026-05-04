@@ -2,9 +2,9 @@
 
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { Suspense, useEffect, useState } from "react";
-import { redirectToApp, storeAuthToken } from "@/lib/auth/crossDomainAuth";
-import { sendWelcomeEmailIfNewUser } from "@/lib/auth/welcomeEmail";
-import { supabase } from "@/lib/supabase";
+import { redirectToApp, storeAuthToken } from "../../../lib/auth/crossDomainAuth";
+import { sendWelcomeEmailIfNewUser } from "../../../lib/auth/welcomeEmail";
+import { supabase } from "../../../lib/supabase";
 
 const SUPPORTED_EMAIL_OTP_TYPES = new Set<EmailOtpType>([
   "signup",

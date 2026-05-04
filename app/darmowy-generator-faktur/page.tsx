@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import AnonymousInvoiceGenerator from "@/components/invoice-tools/AnonymousInvoiceGenerator";
+import AnonymousInvoiceGenerator from "../../components/invoice-tools/AnonymousInvoiceGenerator";
 
 export const metadata: Metadata = {
   title: "Darmowy generator faktur bez konta | KsięgaI",

@@ -1,5 +1,19 @@
 # Notes
 
+## 2026-05-04 - Removed runtime `@/` imports from `ksiegai-next`
+
+What changed:
+- Replaced runtime `@/` path-alias imports across `app/`, `components/`, `hooks/`, and `lib/` with relative imports.
+- Kept the same module graph and behavior; this is a build-compatibility change only.
+
+Verification evidence (2026-05-04):
+- `rg` scan across `app/`, `components/`, `hooks/`, and `lib/` found no remaining runtime `@/` imports.
+- `cd ksiegai-next && npx tsc --noEmit` -> passed
+
+Scope notes:
+- No database schema, RLS, or Supabase backend contract changes.
+- No change to the `ksiegai_auth_token` cross-domain handoff contract.
+
 ## 2026-05-04 - Fixed Cloudflare build blockers in `ksiegai-next`
 
 What changed:

@@ -1,15 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
-import { storeAuthToken, redirectToApp } from "@/lib/auth/crossDomainAuth";
-import { consumeAuthFlowOrigin, sendWelcomeEmailIfNewUser } from "@/lib/auth/welcomeEmail";
+import { supabase } from "../../../lib/supabase";
+import { storeAuthToken, redirectToApp } from "../../../lib/auth/crossDomainAuth";
+import { consumeAuthFlowOrigin, sendWelcomeEmailIfNewUser } from "../../../lib/auth/welcomeEmail";
 import {
   clearPendingLoginAttempt,
   getPendingLoginAttempt,
   getPendingLoginLabel,
   saveRememberedProfile,
-} from "@/lib/auth/loginProfiles";
+} from "../../../lib/auth/loginProfiles";
 
 export default function AuthCallback() {
   const [pendingLoginLabel, setPendingLoginLabel] = useState<string | null>(null);

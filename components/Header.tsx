@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
-import { getAuthToken, redirectToApp, clearAuthToken, storeAuthToken, storeAndRedirect, checkAndRedirectToLocalhost } from "@/lib/auth/crossDomainAuth";
+import { supabase } from "../lib/supabase";
+import { getAuthToken, redirectToApp, clearAuthToken, storeAuthToken, storeAndRedirect, checkAndRedirectToLocalhost } from "../lib/auth/crossDomainAuth";
 import { User, Crown, LogOut, Sun, Moon, ReceiptText } from "lucide-react";
 
 export default function Header() {

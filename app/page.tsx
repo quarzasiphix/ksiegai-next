@@ -4,9 +4,9 @@ import Link from "next/link";
 import Script from "next/script";
 import { ArrowRight, CheckCircle2, Shield, Zap, Building, Calculator, CreditCard, Crown, FileText, Users, TrendingUp, Receipt, Inbox, MessageSquare, ThumbsUp, Network, History, Lock } from "lucide-react";
 import FAQSection from "./faq-section";
-import { useABTestSSG } from "@/hooks/useABTestSSG";
+import { useABTestSSG } from "../hooks/useABTestSSG";
 import { useState, useEffect } from "react";
-import HomeHero from "@/components/home/HomeHero";
+import HomeHero from "../components/home/HomeHero";
 
 // Metadata moved to layout.tsx or metadata.ts for client components
 

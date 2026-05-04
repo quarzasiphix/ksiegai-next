@@ -4,7 +4,7 @@ import {
   formatTaxId,
   getInvoiceTotals,
   getItemTotals,
-} from "@/lib/invoice-tools/anonymousInvoice";
+} from "../../lib/invoice-tools/anonymousInvoice";
 
 type AnonymousInvoicePdfTemplateProps = {
   draft: AnonymousInvoiceDraft;

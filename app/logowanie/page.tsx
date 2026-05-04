@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "../../lib/supabase";
 import {
   clearAuthToken,
   getAuthToken,
@@ -9,8 +9,8 @@ import {
   redirectToApp,
   storeAuthToken,
   storeAndRedirect,
-} from "@/lib/auth/crossDomainAuth";
-import { setAuthFlowOrigin } from "@/lib/auth/welcomeEmail";
+} from "../../lib/auth/crossDomainAuth";
+import { setAuthFlowOrigin } from "../../lib/auth/welcomeEmail";
 import {
   clearPendingLoginAttempt,
   createPendingLoginAttempt,
@@ -22,7 +22,7 @@ import {
   setPendingLoginAttempt as persistPendingLoginAttempt,
   type PendingLoginAttempt,
   type RememberedLoginProfile,
-} from "@/lib/auth/loginProfiles";
+} from "../../lib/auth/loginProfiles";
 import { Mail, Lock, Loader2, UserRoundCheck, X } from "lucide-react";
 import Link from "next/link";
 

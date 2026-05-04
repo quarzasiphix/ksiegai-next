@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
-import { storeAuthToken, redirectToApp } from "@/lib/auth/crossDomainAuth";
-import { sendWelcomeEmailIfNewUser, setAuthFlowOrigin } from "@/lib/auth/welcomeEmail";
-import { getSessionId, getVariantAssignments } from "@/lib/ab-testing-ssg";
+import { supabase } from "../../lib/supabase";
+import { storeAuthToken, redirectToApp } from "../../lib/auth/crossDomainAuth";
+import { sendWelcomeEmailIfNewUser, setAuthFlowOrigin } from "../../lib/auth/welcomeEmail";
+import { getSessionId, getVariantAssignments } from "../../lib/ab-testing-ssg";
 import { Mail, ChevronDown } from "lucide-react";
 
 // Google Icon Component
