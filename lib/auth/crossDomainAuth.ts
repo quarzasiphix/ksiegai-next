@@ -5,12 +5,17 @@ const APP_DOMAIN = process.env.NEXT_PUBLIC_APP_DOMAIN || 'app.ksiegai.pl';
 const COOKIE_NAME = 'ksiegai_auth_token';
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
 
-interface AuthToken {
+export interface AuthToken {
   access_token: string;
   refresh_token: string;
   expires_at: number;
   user_id: string;
 }
+
+type SessionSetter = (session: {
+  access_token: string;
+  refresh_token: string;
+}) => Promise<{ data: { session: unknown | null }; error: unknown | null }>;
 
 type RedirectParams = Record<string, string | number | boolean | null | undefined>;
 
@@ -182,4 +187,33 @@ export const validateToken = async (token: AuthToken): Promise<boolean> => {
     return false;
   }
   return true;
+};
+
+export const restoreSessionFromAuthToken = async (
+  setSession: SessionSetter,
+  options?: {
+    token?: AuthToken | null;
+    onRestoreFailure?: (token: AuthToken) => void;
+  },
+): Promise<{ restored: boolean; token: AuthToken | null }> => {
+  const token = options?.token ?? getAuthToken();
+  if (!token) {
+    return { restored: false, token: null };
+  }
+
+  const { data, error } = await setSession({
+    access_token: token.access_token,
+    refresh_token: token.refresh_token,
+  });
+
+  if (error || !data.session) {
+    if (options?.onRestoreFailure) {
+      options.onRestoreFailure(token);
+    } else {
+      clearAuthToken();
+    }
+    return { restored: false, token };
+  }
+
+  return { restored: true, token };
 };

@@ -3,10 +3,8 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
 import {
-  clearAuthToken,
-  getAuthToken,
-  isTokenExpired,
   redirectToApp,
+  restoreSessionFromAuthToken,
   storeAuthToken,
   storeAndRedirect,
 } from "../../lib/auth/crossDomainAuth";
@@ -14,11 +12,16 @@ import { setAuthFlowOrigin } from "../../lib/auth/welcomeEmail";
 import {
   clearPendingLoginAttempt,
   createPendingLoginAttempt,
+  getRememberedProfileAuthToken,
+  getPreferredLoginProfile,
   getPendingLoginAttempt,
   getPendingLoginLabel,
   loadRememberedProfiles,
   removeRememberedProfile,
+  removeRememberedProfileAuthToken,
   saveRememberedProfile,
+  saveRememberedProfileAuthToken,
+  setPreferredLoginProfile,
   setPendingLoginAttempt as persistPendingLoginAttempt,
   type PendingLoginAttempt,
   type RememberedLoginProfile,
@@ -92,6 +95,16 @@ export default function Login() {
     setActiveSessionProfile(sessionProfile);
     setSelectedSavedPasswordProfile(null);
     setEmail(sessionProfile.email);
+    setPreferredLoginProfile({
+      userId: sessionProfile.userId,
+      email: sessionProfile.email,
+    });
+    saveRememberedProfileAuthToken(session.user, {
+      access_token: session.access_token,
+      refresh_token: session.refresh_token,
+      expires_at: session.expires_at || 0,
+      user_id: session.user.id,
+    });
     refreshRememberedProfiles();
 
     return sessionProfile;
@@ -104,30 +117,62 @@ export default function Login() {
       return session;
     }
 
-    const token = getAuthToken();
-    if (!token) return null;
-
-    if (isTokenExpired(token)) {
-      clearAuthToken();
+    const { restored } = await restoreSessionFromAuthToken((tokens) =>
+      supabase.auth.setSession(tokens),
+    );
+    if (!restored) {
       return null;
     }
+    const {
+      data: { session: restoredSession },
+    } = await supabase.auth.getSession();
+    if (restoredSession) {
+      await applyAuthenticatedSession(restoredSession);
+    }
+    return restoredSession ?? null;
+  };
 
-    const { data, error } = await supabase.auth.setSession({
-      access_token: token.access_token,
-      refresh_token: token.refresh_token,
+  const resumeSavedProfileSession = async (profile: RememberedLoginProfile) => {
+    const profileToken = getRememberedProfileAuthToken(profile);
+    if (!profileToken) {
+      return false;
+    }
+
+    setLoading(true);
+    const { restored } = await restoreSessionFromAuthToken(
+      (tokens) => supabase.auth.setSession(tokens),
+      {
+        token: profileToken,
+        onRestoreFailure: () => {
+          removeRememberedProfileAuthToken(profile.userId);
+        },
+      },
+    );
+
+    if (!restored) {
+      refreshRememberedProfiles();
+      setLoading(false);
+      return false;
+    }
+
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session) {
+      setLoading(false);
+      return false;
+    }
+
+    await applyAuthenticatedSession(session);
+    storeAndRedirect({
+      access_token: session.access_token,
+      refresh_token: session.refresh_token,
+      expires_at: session.expires_at || 0,
+      user_id: session.user.id,
     });
-
-    if (error) {
-      console.error("[Login] Failed to resume session from cross-domain token:", error);
-      clearAuthToken();
-      return null;
-    }
-
-    if (data.session) {
-      await applyAuthenticatedSession(data.session);
-    }
-
-    return data.session ?? null;
+    setLoading(false);
+    return true;
   };
 
   useEffect(() => {
@@ -135,6 +180,14 @@ export default function Login() {
 
     refreshRememberedProfiles();
     setPendingLoginAttemptState(getPendingLoginAttempt());
+    const preferredProfile = getPreferredLoginProfile();
+    if (preferredProfile) {
+      setSelectedSavedPasswordProfile(
+        preferredProfile.lastLoginMethod === "password" ? preferredProfile : null,
+      );
+      setEmail(preferredProfile.email);
+      setUseMagicLink(preferredProfile.lastLoginMethod === "magic_link");
+    }
 
     void (async () => {
       try {
@@ -147,7 +200,7 @@ export default function Login() {
     })();
 
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session) {
+      if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session) {
         const hadPendingAttempt = Boolean(getPendingLoginAttempt());
         const sessionProfile = await applyAuthenticatedSession(session);
         storeAuthToken({
@@ -296,6 +349,10 @@ export default function Login() {
     setError(null);
     setMagicLinkSent(false);
     setEmail(profile.email);
+    setPreferredLoginProfile({
+      userId: profile.userId,
+      email: profile.email,
+    });
 
     if (activeSessionProfile?.email === profile.email) {
       const { data: { session } } = await supabase.auth.getSession();
@@ -308,6 +365,10 @@ export default function Login() {
         });
         return;
       }
+    }
+
+    if (await resumeSavedProfileSession(profile)) {
+      return;
     }
 
     if (profile.lastLoginMethod === "google") {
@@ -567,7 +628,7 @@ export default function Login() {
                       ))}
                     </div>
                     <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
-                      Kliknięcie profilu spróbuje wznowić logowanie ostatnio używaną metodą. Profile hasłowe poproszą tylko o hasło.
+                      Kliknięcie profilu najpierw spróbuje przywrócić zapisaną sesję tego konta. Jeśli token wygasł, wrócimy do ostatnio użytej metody logowania.
                     </p>
                   </div>
                 ) : null}
@@ -634,11 +695,15 @@ export default function Login() {
                         <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                         <input
                           id="email"
+                          name="email"
                           type="email"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           required
                           readOnly={Boolean(selectedSavedPasswordProfile)}
+                          autoComplete="username"
+                          autoCapitalize="none"
+                          autoCorrect="off"
                           placeholder="twoj@email.pl"
                           className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white read-only:bg-gray-50 read-only:text-gray-500 dark:read-only:bg-gray-800 dark:read-only:text-gray-300"
                         />
@@ -653,10 +718,12 @@ export default function Login() {
                         <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                         <input
                           id="password"
+                          name="password"
                           type="password"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                           required
+                          autoComplete="current-password"
                           placeholder="••••••••"
                           className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         />
@@ -706,11 +773,15 @@ export default function Login() {
                         <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                         <input
                           id="email-magic"
+                          name="email"
                           type="email"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           required
                           readOnly={Boolean(selectedSavedPasswordProfile)}
+                          autoComplete="username"
+                          autoCapitalize="none"
+                          autoCorrect="off"
                           placeholder="twoj@email.pl"
                           className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white read-only:bg-gray-50 read-only:text-gray-500 dark:read-only:bg-gray-800 dark:read-only:text-gray-300"
                         />

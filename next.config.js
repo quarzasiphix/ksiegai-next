@@ -5,6 +5,7 @@ const isDevCommand = lifecycleEvent === "dev";
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  distDir: isDevCommand ? ".next-dev" : ".next",
 
   // Keep dev runtime on normal Next server to avoid static asset 404s.
   // Build/export path stays static for Cloudflare Pages.

@@ -9,6 +9,8 @@ import {
   getPendingLoginAttempt,
   getPendingLoginLabel,
   saveRememberedProfile,
+  saveRememberedProfileAuthToken,
+  setPreferredLoginProfile,
 } from "../../../lib/auth/loginProfiles";
 
 export default function AuthCallback() {
@@ -35,10 +37,22 @@ export default function AuthCallback() {
         const authFlowOrigin = consumeAuthFlowOrigin();
         const pendingAttempt = getPendingLoginAttempt();
         const rememberedProfile = saveRememberedProfile(session.user, pendingAttempt?.method ?? null);
+        if (rememberedProfile) {
+          setPreferredLoginProfile({
+            userId: rememberedProfile.userId,
+            email: rememberedProfile.email,
+          });
+        }
         clearPendingLoginAttempt();
         setPendingLoginLabel(
           rememberedProfile?.email || rememberedProfile?.displayName || session.user.email || null,
         );
+        saveRememberedProfileAuthToken(session.user, {
+          access_token: session.access_token,
+          refresh_token: session.refresh_token,
+          expires_at: session.expires_at || 0,
+          user_id: session.user.id,
+        });
 
         // Welcome email must not delay the cross-domain auth handoff.
         void sendWelcomeEmailIfNewUser({

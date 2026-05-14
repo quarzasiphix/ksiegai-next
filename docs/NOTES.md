@@ -1,4 +1,40 @@
 # Notes
+Created: legacy-existing (exact date unknown)
+Last modified: 2026-05-09 18:52 CEST
+
+## 2026-05-09 - Token-based quick resume for saved `/logowanie` profiles
+
+What changed:
+- Added per-profile remembered session token storage alongside the existing remembered-profile list.
+- `/logowanie` now tries direct session restore for the clicked profile before falling back to Google, magic-link, or password confirmation.
+- `/auth/callback`, `/logowanie`, and the shared header auth listener now refresh the stored profile token whenever a session is created or refreshed.
+
+Verification evidence (2026-05-09):
+- `cd ksiegai-next && npx tsc --noEmit` -> passed
+- `cd ksiegai-next && npm run build` -> passed
+
+Scope notes:
+- No database schema, RLS, or Supabase backend contract changes.
+- No change to the `ksiegai_auth_token` cross-domain handoff contract.
+
+## 2026-05-04 - Split local dev and export build output directories
+
+What changed:
+- Added `distDir: isDevCommand ? ".next-dev" : ".next"` in `next.config.js`.
+- Local `next dev` now writes to `.next-dev`, while build/export keeps using `.next`.
+
+Why:
+- The app mixes two incompatible modes:
+  - local dev server (`next dev`)
+  - static export build for Cloudflare Pages (`next build` with `output: "export"`)
+- Reusing the same `.next` directory let local runtime pick up stale export artifacts, which caused missing manifest errors such as `middleware-manifest.json`.
+
+Verification evidence (2026-05-04):
+- Config inspection confirms dev/build outputs are now separated by lifecycle event.
+
+Scope notes:
+- No database schema, RLS, or Supabase backend contract changes.
+- No change to the `ksiegai_auth_token` cross-domain handoff contract.
 
 ## 2026-05-04 - Moved TypeScript build toolchain into production deps
 

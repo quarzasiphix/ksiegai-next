@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
-import { getAuthToken, redirectToApp, clearAuthToken, storeAuthToken, storeAndRedirect, checkAndRedirectToLocalhost } from "../lib/auth/crossDomainAuth";
+import { getAuthToken, redirectToApp, clearAuthToken, storeAuthToken, storeAndRedirect, checkAndRedirectToLocalhost, restoreSessionFromAuthToken } from "../lib/auth/crossDomainAuth";
+import { saveRememberedProfile, saveRememberedProfileAuthToken } from "../lib/auth/loginProfiles";
 import { User, Crown, LogOut, Sun, Moon, ReceiptText } from "lucide-react";
 
 export default function Header() {
@@ -50,6 +51,13 @@ export default function Header() {
         
         if (data.session) {
           console.log("[Header] OAuth session created successfully:", data.session.user.id);
+          saveRememberedProfile(data.session.user, "google");
+          saveRememberedProfileAuthToken(data.session.user, {
+            access_token: data.session.access_token,
+            refresh_token: data.session.refresh_token,
+            expires_at: data.session.expires_at || 0,
+            user_id: data.session.user.id,
+          });
           
           // Store token for cross-domain access
           storeAuthToken({
@@ -93,20 +101,11 @@ export default function Header() {
     const token = getAuthToken();
     if (token) {
       console.log("[Header] Found cross-domain token, restoring session");
-      // Only set session if it's not expired
-      if (token.expires_at * 1000 > Date.now()) {
-        supabase.auth.setSession({
-          access_token: token.access_token,
-          refresh_token: token.refresh_token,
-        }).catch(error => {
-          console.error("[Header] Failed to restore session:", error);
-          // Clear invalid token
-          clearAuthToken();
-        });
-      } else {
-        console.log("[Header] Token expired, clearing");
-        clearAuthToken();
-      }
+      void restoreSessionFromAuthToken((tokens) => supabase.auth.setSession(tokens)).then(({ restored }) => {
+        if (!restored) {
+          console.error("[Header] Failed to restore session from cross-domain token");
+        }
+      });
     } else {
       console.log("[Header] No cross-domain token found");
     }
@@ -151,7 +150,14 @@ export default function Header() {
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       console.log("[Header] Auth state changed:", event, session?.user?.id);
       
-      if (event === 'SIGNED_IN' && session) {
+      if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session) {
+        saveRememberedProfile(session.user, null);
+        saveRememberedProfileAuthToken(session.user, {
+          access_token: session.access_token,
+          refresh_token: session.refresh_token,
+          expires_at: session.expires_at || 0,
+          user_id: session.user.id,
+        });
         // Store new token for cross-domain access
         storeAuthToken({
           access_token: session.access_token,
