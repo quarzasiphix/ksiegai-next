@@ -22,6 +22,7 @@ import {
   getHomeBusinessDashboardData,
   type HomeBusinessDashboardData,
 } from "../../lib/home/businessProfiles";
+import posthog from "posthog-js";
 
 type HeroContent = {
   bannerBadge: string;
@@ -267,6 +268,7 @@ export default function HomeHero({ content, onAnonymousPrimaryCtaClick }: HomeHe
       return;
     }
 
+    posthog.capture('hero_go_to_app_clicked', { path, has_business_profile: Boolean(businessProfileId) });
     storeAndRedirect(
       buildSessionToken(session),
       path,

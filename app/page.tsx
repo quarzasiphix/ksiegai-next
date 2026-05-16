@@ -7,6 +7,7 @@ import FAQSection from "./faq-section";
 import { useABTestSSG } from "../hooks/useABTestSSG";
 import { useState, useEffect } from "react";
 import HomeHero from "../components/home/HomeHero";
+import posthog from "posthog-js";
 
 // Metadata moved to layout.tsx or metadata.ts for client components
 
@@ -91,6 +92,7 @@ export default function Home() {
   }, [variant]);
 
   const handleCtaClick = () => {
+    posthog.capture('hero_cta_clicked', { variant_name: variant?.name, variant_id: variant?.id });
     // Track with A/B testing system
     trackEvent('click', 'hero_cta_clicked', { variant: variant?.name });
     

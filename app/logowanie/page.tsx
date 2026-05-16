@@ -28,6 +28,7 @@ import {
 } from "../../lib/auth/loginProfiles";
 import { Mail, Lock, Loader2, UserRoundCheck, X } from "lucide-react";
 import Link from "next/link";
+import posthog from "posthog-js";
 
 // Google Icon Component
 const GoogleIcon = ({ className }: { className?: string }) => (
@@ -201,6 +202,9 @@ export default function Login() {
 
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session) {
+        if (event === 'SIGNED_IN') {
+          posthog.identify(session.user.id, { email: session.user.email });
+        }
         const hadPendingAttempt = Boolean(getPendingLoginAttempt());
         const sessionProfile = await applyAuthenticatedSession(session);
         storeAuthToken({
@@ -246,6 +250,7 @@ export default function Login() {
       return false;
     }
 
+    posthog.capture('login_initiated', { method: 'magic_link' });
     setLoading(true);
     setAuthFlowOrigin("login");
     const pendingAttempt = createPendingLoginAttempt({
@@ -265,10 +270,12 @@ export default function Login() {
     if (error) {
       clearPendingLoginAttempt();
       setPendingLoginAttemptState(null);
+      posthog.capture('login_failed', { method: 'magic_link' });
       setError("Nie udało się wysłać linku. Spróbuj ponownie.");
       return false;
     }
 
+    posthog.capture('magic_link_sent', { flow: 'login' });
     setEmail(nextEmail);
     setMagicLinkSent(true);
     setResendCooldown(60);
@@ -284,6 +291,7 @@ export default function Login() {
       return;
     }
 
+    posthog.capture('login_initiated', { method: 'password' });
     setLoading(true);
     const pendingAttempt = createPendingLoginAttempt({
       email,
@@ -300,6 +308,7 @@ export default function Login() {
     if (error) {
       clearPendingLoginAttempt();
       setPendingLoginAttemptState(null);
+      posthog.capture('login_failed', { method: 'password' });
       setError("Nieprawidłowy e-mail lub hasło");
     }
   };
@@ -311,6 +320,7 @@ export default function Login() {
   };
 
   const handleGoogleSignIn = async () => {
+    posthog.capture('login_google_clicked');
     setError(null);
     setLoading(true);
     setAuthFlowOrigin("login");

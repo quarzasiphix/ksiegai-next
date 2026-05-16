@@ -6,6 +6,7 @@ import { storeAuthToken, redirectToApp } from "../../lib/auth/crossDomainAuth";
 import { sendWelcomeEmailIfNewUser, setAuthFlowOrigin } from "../../lib/auth/welcomeEmail";
 import { getSessionId, getVariantAssignments } from "../../lib/ab-testing-ssg";
 import { Mail, ChevronDown } from "lucide-react";
+import posthog from "posthog-js";
 
 // Google Icon Component
 const GoogleIcon = ({ className }: { className?: string }) => (
@@ -37,6 +38,7 @@ export default function Register() {
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session) {
+        posthog.identify(session.user.id, { email: session.user.email });
         // Track registration conversion for all active A/B tests
         await trackRegistrationConversion(session.user.id);
 
@@ -96,6 +98,7 @@ export default function Register() {
     if (error) {
       setError("Nie udało się wysłać linku. Spróbuj ponownie.");
     } else {
+      posthog.capture('register_magic_link_sent');
       setMagicLinkSent(true);
       setResendCooldown(60);
     }
@@ -179,6 +182,7 @@ export default function Register() {
   };
 
   const handleGoogleSignIn = async () => {
+    posthog.capture('register_google_clicked');
     setError(null);
     setLoading(true);
     setAuthFlowOrigin("register");
@@ -278,7 +282,7 @@ export default function Register() {
                 
                 {!showEmailForm ? (
                   <button
-                    onClick={() => setShowEmailForm(true)}
+                    onClick={() => { posthog.capture('register_email_form_opened'); setShowEmailForm(true); }}
                     className="w-full text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white py-2 flex items-center justify-center gap-2"
                   >
                     Użyj adresu e-mail

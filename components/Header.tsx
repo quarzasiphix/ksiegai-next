@@ -6,6 +6,7 @@ import { supabase } from "../lib/supabase";
 import { getAuthToken, redirectToApp, clearAuthToken, storeAuthToken, storeAndRedirect, checkAndRedirectToLocalhost, restoreSessionFromAuthToken } from "../lib/auth/crossDomainAuth";
 import { saveRememberedProfile, saveRememberedProfileAuthToken } from "../lib/auth/loginProfiles";
 import { User, Crown, LogOut, Sun, Moon, ReceiptText } from "lucide-react";
+import posthog from "posthog-js";
 
 export default function Header() {
   const [user, setUser] = useState<any>(null);
@@ -216,6 +217,7 @@ export default function Header() {
   };
 
   const handleGoToApp = async () => {
+    posthog.capture('header_go_to_app_clicked');
     // Get current session and store token before redirecting
     const { data: { session } } = await supabase.auth.getSession();
     if (session) {

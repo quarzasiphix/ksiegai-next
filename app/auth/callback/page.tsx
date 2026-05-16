@@ -12,6 +12,7 @@ import {
   saveRememberedProfileAuthToken,
   setPreferredLoginProfile,
 } from "../../../lib/auth/loginProfiles";
+import posthog from "posthog-js";
 
 export default function AuthCallback() {
   const [pendingLoginLabel, setPendingLoginLabel] = useState<string | null>(null);
@@ -26,6 +27,7 @@ export default function AuthCallback() {
 
       if (error) {
         console.error('Auth callback error:', error);
+        posthog.captureException(error);
         clearPendingLoginAttempt();
         window.location.href = '/rejestracja?error=auth_failed';
         return;
@@ -34,7 +36,9 @@ export default function AuthCallback() {
       const { session } = data;
 
       if (session) {
+        posthog.identify(session.user.id, { email: session.user.email });
         const authFlowOrigin = consumeAuthFlowOrigin();
+        posthog.capture('auth_callback_completed', { flow: authFlowOrigin ?? 'unknown' });
         const pendingAttempt = getPendingLoginAttempt();
         const rememberedProfile = saveRememberedProfile(session.user, pendingAttempt?.method ?? null);
         if (rememberedProfile) {
