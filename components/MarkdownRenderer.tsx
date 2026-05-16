@@ -10,11 +10,11 @@ function parseInline(text: string): React.ReactNode {
 
   while (remaining.length > 0) {
     // Bold: **text**
-    const boldMatch = remaining.match(/^(.*?)\*\*(.+?)\*\*(.*)/s);
+    const boldMatch = remaining.match(/^([\s\S]*?)\*\*([\s\S]+?)\*\*([\s\S]*)/);
     // Italic: *text* (not **)
-    const italicMatch = remaining.match(/^(.*?)(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)(.*)/s);
+    const italicMatch = remaining.match(/^([\s\S]*?)\*([^*\n][\s\S]*?)\*(?!\*)([\s\S]*)/);
     // Link: [text](url)
-    const linkMatch = remaining.match(/^(.*?)\[([^\]]+)\]\(([^)]+)\)(.*)/s);
+    const linkMatch = remaining.match(/^([\s\S]*?)\[([^\]]+)\]\(([^)]+)\)([\s\S]*)/);
 
     const boldIdx = boldMatch ? boldMatch[1].length : Infinity;
     const italicIdx = italicMatch ? italicMatch[1].length : Infinity;
@@ -42,7 +42,7 @@ function parseInline(text: string): React.ReactNode {
     } else if (minIdx === italicIdx && italicMatch) {
       if (italicMatch[1]) parts.push(italicMatch[1]);
       parts.push(<em key={key++}>{italicMatch[2]}</em>);
-      remaining = italicMatch[4];
+      remaining = italicMatch[3];
     } else {
       parts.push(remaining);
       break;
