@@ -1,6 +1,7 @@
 import { CheckCircle2, Crown, Zap, Shield, Building, Calculator, CreditCard, Star, ArrowRight, FileText, Users, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { PUBLIC_PRICING, formatPlnMonthly, formatPlnMonthlyShort } from "../../lib/pricing";
 
 export const metadata: Metadata = {
   title: "Premium - Pełna automatyzacja księgowości | KsięgaI",
@@ -302,13 +303,13 @@ export default function Premium() {
               Proste, przejrzyste ceny
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">
-              Wszystkie funkcje Premium dostępne od 19 zł/mies. dla JDG. Spółki z o.o. — 89 zł/mies.
+              Wszystkie funkcje Premium dostępne od {formatPlnMonthlyShort(PUBLIC_PRICING.jdg.monthlyPricePln)} dla JDG. Spółki z o.o. — {formatPlnMonthlyShort(PUBLIC_PRICING.spolkaStandard.monthlyPricePln)}.
             </p>
             <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-8 rounded-3xl text-white mb-6">
               <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                 <div className="text-left">
                   <p className="text-blue-100 text-sm mb-2">Najpopularniejszy plan</p>
-                  <h3 className="text-3xl font-bold mb-2">Spółka Standard — 89 zł/mies.</h3>
+                  <h3 className="text-3xl font-bold mb-2">{PUBLIC_PRICING.spolkaStandard.name} — {formatPlnMonthly(PUBLIC_PRICING.spolkaStandard.monthlyPricePln)}</h3>
                   <p className="text-blue-100">Pełna infrastruktura finansowa dla spółek z o.o.</p>
                 </div>
                 <Link href="/rejestracja">

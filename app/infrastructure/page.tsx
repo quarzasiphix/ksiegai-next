@@ -188,7 +188,7 @@ export default function InfrastructurePage() {
               <div>
                 <p className="text-red-600 dark:text-red-400 font-bold mb-2">❌ Bez KsięgaI</p>
                 <p className="text-sm text-gray-700 dark:text-gray-300">
-                  Księgowy walczy z chaosem, prosi o dokumenty, poprawia błędy
+                  Księgowy ręcznie zbiera dokumenty, dopytuje klientów i poprawia błędy
                 </p>
               </div>
               <div>
@@ -314,7 +314,7 @@ export default function InfrastructurePage() {
                 Potrzebują porządku, który przetrwa stres.
               </p>
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-4">
-                To jest Twoja przewaga. Nie konkurujesz z "cool software". Konkurujesz z chaosem.
+                To jest Twoja przewaga. Nie konkurujesz z "cool software". Konkurujesz z ręcznym, niespójnym procesem.
               </p>
             </div>
           </div>

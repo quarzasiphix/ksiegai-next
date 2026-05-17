@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { CheckCircle2, Crown, Zap, Shield, Building, Calculator, CreditCard, Star } from "lucide-react";
 import Link from "next/link";
+import { PUBLIC_PRICING, formatPln, formatPlnAnnual } from "../../lib/pricing";
 
 export const metadata: Metadata = {
   title: "Cennik KsięgaI | Nowoczesna księgowość JDG i spółek z o.o.",
   description:
-    "Transparentny cennik KsięgaI. Plan dla JDG od 19 zł, pakiet Spółka Standard z pełną automatyzacją (89 zł) oraz rozwiązania Enterprise. Wybierz model dopasowany do odpowiedzialności Twojej firmy.",
+    `Transparentny cennik KsięgaI. Plan dla JDG od ${formatPln(PUBLIC_PRICING.jdg.monthlyPricePln)}, pakiet Spółka Standard z pełną automatyzacją KSeF i płatnościami online Stripe (${formatPln(PUBLIC_PRICING.spolkaStandard.monthlyPricePln)}) oraz rozwiązania Enterprise.`,
   alternates: {
     canonical: "https://ksiegai.pl/cennik",
   },
@@ -21,30 +22,31 @@ export const metadata: Metadata = {
 
 const plans = [
   {
-    name: "JDG Start",
+    name: PUBLIC_PRICING.jdg.name,
     tagline: "Dla jednoosobowych działalności w trybie lean",
-    price: "19 zł",
+    price: formatPln(PUBLIC_PRICING.jdg.monthlyPricePln),
     cadence: "miesiąc",
     icon: Calculator,
     features: [
       "Faktury + ewidencja przychodów",
       "Import banku: CSV teraz, integracje bankowe w przygotowaniu",
-      "KSeF-ready: walidacje, archiwum i workflow wysyłki",
+      "Obsługa KSeF: walidacje, archiwum i workflow wysyłki",
       "Zestawienia VAT/PIT do eksportu (jeśli dotyczy)",
     ],
     cta: { label: "Rozpocznij 7-dniowy trial", href: "/rejestracja" },
     highlight: false,
   },
   {
-    name: "Spółka Standard",
+    name: PUBLIC_PRICING.spolkaStandard.name,
     tagline: "Pełna księgowość i governance dla spółek z o.o.",
-    price: "89 zł",
+    price: formatPln(PUBLIC_PRICING.spolkaStandard.monthlyPricePln),
     cadence: "miesiąc",
-    annual: "999 zł/rok – oszczędzasz 69 zł",
+    annual: `${formatPlnAnnual(PUBLIC_PRICING.spolkaStandard.annualPricePln)} – oszczędzasz ${formatPln(PUBLIC_PRICING.spolkaStandard.annualSavingsPln)}`,
     badge: "Najczęściej wybierany",
     icon: Shield,
     features: [
       "Wszystko z JDG + workflow zatwierdzania (wyjątki + audyt)",
+      "Płatności online przez Stripe i monitoring rozliczeń faktur",
       "JPK_V7M i CIT-8: przygotowanie + eksport + walidacje",
       "Repozytorium uchwał, majątku i amortyzacji",
       "Priorytetowe wsparcie (SLA do 4h w dni robocze)",
@@ -111,6 +113,10 @@ const faqs = [
     a: "Nie. Trial trwa 7 dni i obejmuje pełny zakres funkcji Spółka Standard. Po zakończeniu wybierasz plan albo eksportujesz swoje dane.",
   },
   {
+    q: "Czy KsięgaI obsługuje KSeF i płatności online?",
+    a: "Tak. KsięgaI wspiera obieg dokumentów pod KSeF, a płatności online dla faktur są obsługiwane przez Stripe.",
+  },
+  {
     q: "Jak wygląda wdrożenie Enterprise?",
     a: "Rozpoczynamy od warsztatów bezpieczeństwa i mapy procesów. Następnie wdrażamy system w Twojej infrastrukturze albo w dedykowanej chmurze KsięgaI.",
   },
@@ -126,7 +132,7 @@ const pricingSchema = {
     "@type": "Offer",
     url: "https://ksiegai.pl/cennik",
     priceCurrency: "PLN",
-    price: "89",
+    price: String(PUBLIC_PRICING.spolkaStandard.monthlyPricePln),
     priceValidUntil: "2026-12-31",
     availability: "https://schema.org/InStock",
   },
@@ -364,7 +370,7 @@ export default function Pricing() {
         <div className="mx-auto w-full max-w-4xl px-6 text-center">
           <h2 className="mb-6 text-4xl font-bold text-white md:text-5xl">Gotowy na księgowość bez stresu?</h2>
           <p className="mb-8 text-xl text-blue-100">
-            Dołącz do przedsiębiorców, którzy wybrali odpowiedzialność zamiast chaosu.
+            Dołącz do przedsiębiorców, którzy wybrali odpowiedzialność i uporządkowany proces.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link

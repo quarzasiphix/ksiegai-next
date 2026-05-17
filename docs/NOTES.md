@@ -1,6 +1,41 @@
 # Notes
 Created: legacy-existing (exact date unknown)
-Last modified: 2026-05-09 18:52 CEST
+Last modified: 2026-05-16 19:12 CEST
+
+## 2026-05-16 - Centralized public pricing values
+
+What changed:
+- Added `lib/pricing.ts` as the shared source for public JDG and Spółka Standard plan amounts.
+- Updated `/cennik`, `/premium`, and `/regulamin` to read pricing copy from the shared module instead of repeating hardcoded numbers.
+- Moved the `/cennik` plan cards and schema price onto the centralized values so public marketing copy and legal copy drift less easily.
+
+Verification evidence (2026-05-16):
+- `cd ksiegai-next && npx tsc --noEmit` -> passed
+
+Scope notes:
+- No database schema, RLS, or Supabase backend contract changes.
+- No change to the `ksiegai_auth_token` cross-domain handoff contract.
+
+## 2026-05-16 - Public poradnik article routes and simplified homepage hero
+
+What changed:
+- Added public article pages at `/poradnik/[slug]` with server metadata, structured data, checklist sidebar, official links, and related article cards.
+- Added public category pages at `/poradnik/kategoria/[slug]`.
+- Extended `app/sitemap.ts` to include `/poradnik`, public wiki categories, and public wiki article URLs.
+- Added fallback public wiki categories/articles in `lib/wiki-fallback.ts` for key SEO topics (`KSeF token`, `konto organizacji e-US`, `CRBR`, `e-Doręczenia`) so the poradnik works even when CMS rows are sparse.
+- Added visible breadcrumb trails plus breadcrumb schema on public wiki article/category pages.
+- Added visible FAQ sections on article pages when FAQ data exists.
+- Added public `llms.txt`.
+- Simplified the homepage hero by removing the client-side A/B hero/preload path and switching to one static message focused on KSeF + Stripe + checklist workflows.
+- Reduced hero clutter by removing the third equal-weight CTA and replacing it with three compact proof cards.
+- Added `Poradnik` to the footer and tightened SEO-facing copy on `/cennik` and `/poradnik` to mention KSeF and Stripe more explicitly.
+
+Verification evidence (2026-05-16):
+- `cd ksiegai-next && npx tsc --noEmit` -> passed
+
+Scope notes:
+- No database schema, RLS, or Supabase backend contract changes.
+- No change to the `ksiegai_auth_token` cross-domain handoff contract.
 
 ## 2026-05-09 - Token-based quick resume for saved `/logowanie` profiles
 

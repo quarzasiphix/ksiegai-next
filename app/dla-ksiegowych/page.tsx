@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     "KsięgaI eliminuje ręczną robotę, która blokuje skalowanie księgowych. Obsługuj więcej firm bez zwiększania liczby godzin. Pełna kontrola, audytowalność i wsparcie decyzji.",
   keywords: "oprogramowanie dla księgowych, biuro rachunkowe, automatyzacja księgowości, narzędzie dla księgowych, skalowanie biura rachunkowego",
   openGraph: {
-    title: "KsięgaI dla księgowych – skaluj bez chaosu",
+    title: "KsięgaI dla księgowych – skaluj biuro rachunkowe z kontrolą",
     description:
       "System eliminuje operacyjną robotę, księgowy podejmuje decyzje. Obsługuj więcej klientów z pełną kontrolą i audytowalnością.",
     url: "https://ksiegai.pl/dla-ksiegowych",
@@ -81,7 +81,7 @@ export default function DlaKsiegowych() {
             <p className="mb-2 text-sm font-semibold text-blue-600">Jak to działa w praktyce</p>
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white">System wykonuje pracę operacyjną. Księgowy podejmuje decyzje.</h2>
             <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">
-              Ta sama liczba godzin. Więcej klientów. Mniej chaosu.
+              Ta sama liczba godzin. Więcej klientów. Mniej ręcznej koordynacji.
             </p>
           </div>
           <div className="grid gap-6 md:grid-cols-3 mb-12">
@@ -284,7 +284,7 @@ export default function DlaKsiegowych() {
           <div className="grid gap-8 md:grid-cols-2">
             <div className="rounded-2xl border border-gray-200 bg-white p-8 dark:border-gray-800 dark:bg-gray-900">
               <div className="mb-2 text-xs font-bold text-blue-600 uppercase tracking-wide">Największa wartość</div>
-              <h3 className="mb-4 text-2xl font-semibold text-gray-900 dark:text-white">Więcej firm bez chaosu</h3>
+              <h3 className="mb-4 text-2xl font-semibold text-gray-900 dark:text-white">Więcej firm w jednym uporządkowanym procesie</h3>
               <ul className="space-y-3 text-gray-600 dark:text-gray-400">
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-500" />

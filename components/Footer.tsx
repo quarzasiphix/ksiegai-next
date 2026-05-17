@@ -50,6 +50,11 @@ export default function Footer() {
                   Dla spółek
                 </Link>
               </li>
+              <li>
+                <Link href="/poradnik" className="text-gray-400 hover:text-white transition-colors text-sm">
+                  Poradnik
+                </Link>
+              </li>
             </ul>
           </div>
 

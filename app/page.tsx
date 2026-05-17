@@ -4,97 +4,12 @@ import Link from "next/link";
 import Script from "next/script";
 import { ArrowRight, CheckCircle2, Shield, Zap, Building, Calculator, CreditCard, Crown, FileText, Users, TrendingUp, Receipt, Inbox, MessageSquare, ThumbsUp, Network, History, Lock } from "lucide-react";
 import FAQSection from "./faq-section";
-import { useABTestSSG } from "../hooks/useABTestSSG";
-import { useState, useEffect } from "react";
 import HomeHero from "../components/home/HomeHero";
 import posthog from "posthog-js";
 
-// Metadata moved to layout.tsx or metadata.ts for client components
-
-// Default content (fallback - Variant A)
-const DEFAULT_CONTENT = {
-  bannerText: "Przygotowanie do KSeF: uporządkowana ewidencja dokumentów, decyzji i rozliczeń w jednym systemie.",
-  bannerBadge: "Kontrola i bezpieczeństwo",
-  headline: "KSeF bez chaosu, błędów i stresu",
-  subheadline: "Faktury są uzgadniane i zatwierdzane w systemie — zanim trafią do KSeF. Z pełnym śladem decyzji.",
-  description: "KsięgaI działa między Twoim ERP a KSeF. Bez maili, bez ręcznego pilnowania, bez domysłów.",
-  tagline: "Bezpieczny KSeF z pełną kontrolą nad dokumentami",
-  cta: "Zobacz jak wygląda bezpieczny KSeF",
-  ctaSecondary: "Rozpocznij za darmo",
-};
-
-// Get variant immediately from cookies/localStorage (like language detection)
-function getVariantContent() {
-  if (typeof window === 'undefined') return DEFAULT_CONTENT;
-  
-  const testKey = 'home_page_headline_test';
-  const cookieName = `ab_${testKey}`;
-  
-  // Check cookie first
-  const cookies = document.cookie.split('; ');
-  for (const cookie of cookies) {
-    if (cookie.startsWith(cookieName + '=')) {
-      const variantId = cookie.split('=')[1];
-      
-      // Try to get from cached JSON
-      const cached = (window as any).__AB_TESTS_CACHE;
-      if (cached?.['/']?.variants) {
-        const variant = cached['/'].variants.find((v: any) => v.id === variantId);
-        if (variant?.changes) {
-          return {
-            bannerText: variant.changes.banner_text || DEFAULT_CONTENT.bannerText,
-            bannerBadge: variant.changes.banner_badge || DEFAULT_CONTENT.bannerBadge,
-            headline: variant.changes.headline || DEFAULT_CONTENT.headline,
-            subheadline: variant.changes.subheadline || DEFAULT_CONTENT.subheadline,
-            description: variant.changes.description || DEFAULT_CONTENT.description,
-            tagline: variant.changes.tagline || DEFAULT_CONTENT.tagline,
-            cta: variant.changes.cta || DEFAULT_CONTENT.cta,
-            ctaSecondary: variant.changes.cta_secondary || DEFAULT_CONTENT.ctaSecondary,
-          };
-        }
-      }
-      break;
-    }
-  }
-  
-  return DEFAULT_CONTENT;
-}
-
 export default function Home() {
-  // Get content immediately on mount (like language switcher)
-  const [content, setContent] = useState(() => {
-    // Check if inline script already preloaded content
-    if (typeof window !== 'undefined' && (window as any).__AB_HERO_CONTENT) {
-      return (window as any).__AB_HERO_CONTENT;
-    }
-    return getVariantContent();
-  });
-  
-  const { variant, isLoading, trackConversion, trackEvent } = useABTestSSG('/', {
-    trackTime: true,
-    trackScroll: true,
-  });
-
-  // Update content when variant loads from hook
-  useEffect(() => {
-    if (variant?.changes) {
-      setContent({
-        bannerText: variant.changes.banner_text || DEFAULT_CONTENT.bannerText,
-        bannerBadge: variant.changes.banner_badge || DEFAULT_CONTENT.bannerBadge,
-        headline: variant.changes.headline || DEFAULT_CONTENT.headline,
-        subheadline: variant.changes.subheadline || DEFAULT_CONTENT.subheadline,
-        description: variant.changes.description || DEFAULT_CONTENT.description,
-        tagline: variant.changes.tagline || DEFAULT_CONTENT.tagline,
-        cta: variant.changes.cta || DEFAULT_CONTENT.cta,
-        ctaSecondary: variant.changes.cta_secondary || DEFAULT_CONTENT.ctaSecondary,
-      });
-    }
-  }, [variant]);
-
   const handleCtaClick = () => {
-    posthog.capture('hero_cta_clicked', { variant_name: variant?.name, variant_id: variant?.id });
-    // Track with A/B testing system
-    trackEvent('click', 'hero_cta_clicked', { variant: variant?.name });
+    posthog.capture('hero_cta_clicked', { source: 'static_home_hero' });
     
     // Track with Google Tag Manager
     if (typeof window !== 'undefined' && (window as any).dataLayer) {
@@ -102,10 +17,8 @@ export default function Home() {
         event: 'cta_click',
         event_category: 'engagement',
         event_action: 'hero_register_button_click',
-        event_label: content.cta,
-        variant_name: variant?.name,
-        variant_id: variant?.id,
-        button_text: content.cta,
+        event_label: 'Załóż konto',
+        button_text: 'Załóż konto',
         page_location: window.location.href,
         page_path: window.location.pathname,
         timestamp: new Date().toISOString()
@@ -114,78 +27,12 @@ export default function Home() {
   };
   return (
     <>
-      {/* Preload variant before React renders (like i18n language detection) */}
-      <Script
-        id="ab-variant-preload"
-        strategy="beforeInteractive"
-        dangerouslySetInnerHTML={{
-          __html: `
-            (function() {
-              try {
-                // Check for existing variant assignment
-                var testKey = 'home_page_headline_test';
-                var cookieName = 'ab_' + testKey;
-                var cookies = document.cookie.split('; ');
-                var variantId = null;
-                
-                for (var i = 0; i < cookies.length; i++) {
-                  if (cookies[i].startsWith(cookieName + '=')) {
-                    variantId = cookies[i].split('=')[1];
-                    break;
-                  }
-                }
-                
-                // Check for debug override
-                var debugOverrides = localStorage.getItem('ab_debug_variant_overrides');
-                if (debugOverrides) {
-                  try {
-                    var overrides = JSON.parse(debugOverrides);
-                    if (overrides[testKey]) {
-                      variantId = overrides[testKey];
-                    }
-                  } catch (e) {}
-                }
-                
-                // If we have a variant, fetch and cache the content
-                if (variantId) {
-                  var xhr = new XMLHttpRequest();
-                  xhr.open('GET', '/ab-tests.json', false); // synchronous
-                  xhr.send();
-                  
-                  if (xhr.status === 200) {
-                    var tests = JSON.parse(xhr.responseText);
-                    window.__AB_TESTS_CACHE = tests;
-                    
-                    if (tests['/'] && tests['/'].variants) {
-                      var variant = tests['/'].variants.find(function(v) { return v.id === variantId; });
-                      if (variant && variant.changes) {
-                        window.__AB_HERO_CONTENT = {
-                          bannerText: variant.changes.banner_text || "Przygotowanie do KSeF: uporządkowana ewidencja dokumentów, decyzji i rozliczeń w jednym systemie.",
-                          bannerBadge: variant.changes.banner_badge || "Kontrola i bezpieczeństwo",
-                          headline: variant.changes.headline || "KSeF bez chaosu, błędów i stresu",
-                          subheadline: variant.changes.subheadline || "Faktury są uzgadniane i zatwierdzane w systemie — zanim trafią do KSeF. Z pełnym śladem decyzji.",
-                          description: variant.changes.description || "KsięgaI działa między Twoim ERP a KSeF. Bez maili, bez ręcznego pilnowania, bez domysłów.",
-                          tagline: variant.changes.tagline || "Bezpieczny KSeF z pełną kontrolą nad dokumentami",
-                          cta: variant.changes.cta || "Zobacz jak wygląda bezpieczny KSeF",
-                          ctaSecondary: variant.changes.cta_secondary || "Rozpocznij za darmo"
-                        };
-                      }
-                    }
-                  }
-                }
-              } catch (e) {
-                // Silent fail - will use defaults
-              }
-            })();
-          `,
-        }}
-      />
       <div className="min-h-screen bg-white dark:bg-gray-950">
       {/* KSeF Readiness Banner */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 border-b border-blue-500">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <p className="text-center text-sm sm:text-base text-white font-medium" suppressHydrationWarning>
-            {content.bannerText}
+          <p className="text-center text-sm sm:text-base text-white font-medium">
+            KSeF, płatności Stripe i checklisty firmy w jednym uporządkowanym systemie.
           </p>
         </div>
       </div>
@@ -207,14 +54,14 @@ export default function Home() {
               "name": "Tovernet Sp. z o.o.",
               "url": "https://tovernet.online"
             },
-            "description": "Centralny system ewidencji działalności firmy: dokumenty, uchwały, role i finanse w jednej spójnej strukturze.",
-            "featureList": "Rejestr dokumentów; Rejestr decyzji i uchwał; Kontrola finansów; Operacje i zasoby; KSeF-ready; Ślad audytowy",
+            "description": "System do faktur, KSeF, płatności online Stripe i checklist obowiązków firmy w jednej spójnej strukturze.",
+            "featureList": "Faktury; Płatności Stripe; Obsługa KSeF; Rejestr dokumentów; Checklista obowiązków firmy; Ślad audytowy",
             "inLanguage": "pl-PL"
           })
         }}
       />
 
-      <HomeHero content={content} onAnonymousPrimaryCtaClick={handleCtaClick} />
+      <HomeHero onAnonymousPrimaryCtaClick={handleCtaClick} />
       
       {/* ICP SEGMENTATION - Who needs this */}
       <section className="py-12 sm:py-16 bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800">
@@ -683,7 +530,7 @@ export default function Home() {
               Dla przedsiębiorców i księgowych, którzy chcą mieć pełną kontrolę
             </h2>
             <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 mb-4 px-2 max-w-3xl mx-auto">
-              KsięgaI nie ogranicza Cię, gdy firma rośnie. System skaluje się bez chaosu i ręcznej pracy.
+              KsięgaI nie ogranicza Cię, gdy firma rośnie. System skaluje się bez dokładania ręcznej pracy.
             </p>
             <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-6 px-2 italic">
               Masz 2+ firmy albo obsługujesz klientów? Tu zaczyna się realna przewaga.

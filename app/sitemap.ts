@@ -1,7 +1,12 @@
 import { MetadataRoute } from 'next'
+import { getAllWikiCategorySlugs, getAllWikiSlugs } from '@/lib/wiki';
  
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://ksiegai.pl'
+  const [wikiSlugs, wikiCategorySlugs] = await Promise.all([
+    getAllWikiSlugs(),
+    getAllWikiCategorySlugs(),
+  ]);
   
   return [
     {
@@ -82,5 +87,23 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly',
       priority: 0.5,
     },
+    {
+      url: `${baseUrl}/poradnik`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
+    ...wikiCategorySlugs.map((slug) => ({
+      url: `${baseUrl}/poradnik/kategoria/${slug}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.65,
+    })),
+    ...wikiSlugs.map(({ slug, updated_at }) => ({
+      url: `${baseUrl}/poradnik/${slug}`,
+      lastModified: new Date(updated_at),
+      changeFrequency: 'weekly' as const,
+      priority: 0.6,
+    })),
   ]
 }

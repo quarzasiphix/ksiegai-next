@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useABTestSSG } from "../../hooks/useABTestSSG";
 import Link from "next/link";
 import {
   ArrowRight,
   Building2,
   CheckCircle2,
   Clock3,
+  CreditCard,
   Inbox,
   Receipt,
   Shield,
@@ -24,18 +26,7 @@ import {
 } from "../../lib/home/businessProfiles";
 import posthog from "posthog-js";
 
-type HeroContent = {
-  bannerBadge: string;
-  headline: string;
-  subheadline: string;
-  description: string;
-  tagline: string;
-  cta: string;
-  ctaSecondary: string;
-};
-
 type HomeHeroProps = {
-  content: HeroContent;
   onAnonymousPrimaryCtaClick: () => void;
 };
 
@@ -63,74 +54,82 @@ const buildSessionToken = (session: NonNullable<SessionState>) => ({
   user_id: session.user.id,
 });
 
-const LoggedOutHero = ({
-  content,
-  onAnonymousPrimaryCtaClick,
-}: HomeHeroProps) => (
-  <section className="relative py-8 sm:py-12 md:py-20 bg-gray-950 border-b border-gray-800">
-    <div className="container mx-auto px-4 sm:px-6 md:px-4 py-6 sm:py-8 md:py-12">
-      <div className="mx-auto text-center max-w-5xl">
+const LoggedOutHero = ({ onAnonymousPrimaryCtaClick }: HomeHeroProps) => {
+  const { variant, trackConversion } = useABTestSSG('/', { trackTime: true });
+
+  const changes = variant?.changes as Record<string, string> | undefined;
+  const badge      = changes?.banner_badge   ?? 'KSeF + płatności Stripe online';
+  const headline   = changes?.headline       ?? 'Faktury, KSeF i płatności Stripe w jednym systemie';
+  const subheadline = changes?.subheadline   ?? 'Jedno miejsce do wystawiania dokumentów, przyjmowania płatności online i pilnowania obowiązków firmy.';
+  const ctaText    = changes?.cta            ?? 'Załóż konto';
+  const ctaSecondary = changes?.cta_secondary ?? 'Jak to działa';
+
+  const handleCtaClick = () => {
+    onAnonymousPrimaryCtaClick();
+    trackConversion('hero_cta_click');
+  };
+
+  return (
+  <section className="relative border-b border-gray-800 bg-gray-950 py-10 sm:py-14 md:py-20">
+    <div className="container mx-auto px-4 py-6 sm:px-6 sm:py-8 md:px-4 md:py-10">
+      <div className="mx-auto max-w-4xl text-center">
         <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-blue-900/40 border border-blue-500/30 mb-6 sm:mb-8 animate-fade-in">
-          <span className="text-blue-300 text-xs sm:text-sm font-semibold" suppressHydrationWarning>
-            {content.bannerBadge}
+          <span className="text-blue-300 text-xs sm:text-sm font-semibold">
+            {badge}
           </span>
         </div>
-        <h1
-          className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-white mb-4 sm:mb-6 leading-tight animate-fade-in px-2 max-w-4xl mx-auto"
-          suppressHydrationWarning
-        >
-          {content.headline}
+        <h1 className="mx-auto mb-4 max-w-3xl px-2 text-3xl font-semibold leading-tight tracking-tight text-white animate-fade-in sm:text-4xl md:mb-5 md:text-5xl lg:text-6xl">
+          {headline}
         </h1>
-        <p
-          className="text-lg sm:text-xl md:text-2xl text-gray-300 mb-4 font-medium leading-relaxed animate-fade-in px-2 max-w-3xl mx-auto"
-          suppressHydrationWarning
-        >
-          {content.subheadline}
-        </p>
-        <p
-          className="text-base sm:text-lg text-blue-300 mb-4 animate-fade-in px-2 max-w-2xl mx-auto font-medium"
-          suppressHydrationWarning
-        >
-          {content.description}
-        </p>
-        <p
-          className="text-sm text-gray-400 mb-8 animate-fade-in px-2 max-w-2xl mx-auto italic"
-          suppressHydrationWarning
-        >
-          {content.tagline}
+        <p className="mx-auto mb-8 max-w-2xl px-2 text-lg font-medium leading-relaxed text-gray-300 animate-fade-in sm:text-xl">
+          {subheadline}
         </p>
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-3 px-2 animate-fade-in">
           <Link
             href="/rejestracja"
-            onClick={onAnonymousPrimaryCtaClick}
+            onClick={handleCtaClick}
             className="inline-flex items-center justify-center gap-2 bg-blue-900 hover:bg-blue-800 text-white text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold shadow-xl hover:shadow-2xl transition-all whitespace-nowrap"
           >
-            <span suppressHydrationWarning>{content.cta}</span>
+            {ctaText}
             <ArrowRight className="h-5 w-5" />
           </Link>
           <Link
-            href="#mechanism"
+            href="/jak-to-dziala"
             className="inline-flex items-center justify-center gap-2 bg-transparent border border-gray-600 hover:border-gray-400 text-gray-300 text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold transition-all whitespace-nowrap"
           >
-            <span suppressHydrationWarning>{content.ctaSecondary}</span>
-          </Link>
-          <Link
-            href="/darmowy-generator-faktur"
-            className="inline-flex items-center justify-center gap-2 bg-white text-gray-950 hover:bg-gray-100 text-base sm:text-lg px-8 sm:px-12 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold transition-all whitespace-nowrap"
-          >
-            <Receipt className="h-5 w-5" />
-            <span>Darmowy generator faktur</span>
+            {ctaSecondary}
           </Link>
         </div>
-        <p className="text-xs sm:text-sm text-gray-400 font-medium text-center animate-fade-in px-2">
-          Zweryfikowana sieć firm • Natywne dostarczanie dokumentów • Uzgodnienie przed KSeF
-        </p>
+        <div className="mx-auto mt-6 grid max-w-3xl gap-3 px-2 text-left text-sm text-gray-300 md:grid-cols-3">
+          <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-4">
+            <div className="mb-2 flex items-center gap-2 font-semibold text-white">
+              <Receipt className="h-4 w-4 text-blue-400" />
+              Faktury i KSeF
+            </div>
+            <p>Wystawiasz dokumenty i prowadzisz pełny obieg gotowy do pracy z KSeF.</p>
+          </div>
+          <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-4">
+            <div className="mb-2 flex items-center gap-2 font-semibold text-white">
+              <Shield className="h-4 w-4 text-blue-400" />
+              Ślad decyzji
+            </div>
+            <p>Każda akceptacja, korekta i odpowiedzialność zostaje w jednym rejestrze.</p>
+          </div>
+          <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-4">
+            <div className="mb-2 flex items-center gap-2 font-semibold text-white">
+              <CreditCard className="h-4 w-4 text-blue-400" />
+              Płatności Stripe
+            </div>
+            <p>Przyjmujesz płatności online przez Stripe bez sklejania osobnych narzędzi.</p>
+          </div>
+        </div>
       </div>
     </div>
   </section>
-);
+  );
+};
 
-export default function HomeHero({ content, onAnonymousPrimaryCtaClick }: HomeHeroProps) {
+export default function HomeHero({ onAnonymousPrimaryCtaClick }: HomeHeroProps) {
   const [session, setSession] = useState<SessionState>(null);
   const [sessionReady, setSessionReady] = useState(false);
   const [dashboardData, setDashboardData] = useState<HomeBusinessDashboardData | null>(null);
@@ -294,7 +293,6 @@ export default function HomeHero({ content, onAnonymousPrimaryCtaClick }: HomeHe
   if (!session) {
     return (
       <LoggedOutHero
-        content={content}
         onAnonymousPrimaryCtaClick={onAnonymousPrimaryCtaClick}
       />
     );

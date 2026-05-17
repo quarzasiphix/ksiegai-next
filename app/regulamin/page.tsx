@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { LegalDocumentPage } from '@/components/LegalDocumentPage';
+import { PUBLIC_PRICING, formatPlnMonthly, formatPlnAnnual } from '../../lib/pricing';
 
 export const metadata: Metadata = {
   title: 'Regulamin świadczenia usług | KsięgaI',
@@ -26,8 +27,8 @@ function FallbackContent() {
           <li><strong>Konto</strong> – indywidualne konto Użytkownika w Platformie, umożliwiające korzystanie z Usług.</li>
           <li><strong>Usługi</strong> – funkcjonalności Platformy dostępne dla Użytkowników, w tym fakturowanie, księgowość, integracja z KSeF, generowanie raportów.</li>
           <li><strong>Subskrypcja</strong> – odpłatny dostęp do Usług Premium na określony okres czasu.</li>
-          <li><strong>Plan JDG</strong> – pakiet usług dla jednoosobowych działalności gospodarczych w cenie 19 zł/miesiąc.</li>
-          <li><strong>Plan Spółka Standard</strong> – pakiet usług dla spółek z o.o. w cenie 89 zł/miesiąc lub 999 zł/rok.</li>
+          <li><strong>Plan JDG</strong> – pakiet usług dla jednoosobowych działalności gospodarczych w cenie {formatPlnMonthly(PUBLIC_PRICING.jdg.monthlyPricePln)}.</li>
+          <li><strong>Plan Spółka Standard</strong> – pakiet usług dla spółek z o.o. w cenie {formatPlnMonthly(PUBLIC_PRICING.spolkaStandard.monthlyPricePln)} lub {formatPlnAnnual(PUBLIC_PRICING.spolkaStandard.annualPricePln)}.</li>
         </ol>
       </section>
 
@@ -76,8 +77,8 @@ function FallbackContent() {
           <li>Płatności za Subskrypcję są przetwarzane przez Stripe, Inc.</li>
           <li>Dostępne Plany:
             <ul className="list-disc pl-6 mt-2">
-              <li><strong>Plan JDG:</strong> 19 zł/miesiąc, rozliczany miesięcznie</li>
-              <li><strong>Plan Spółka Standard:</strong> 89 zł/miesiąc lub 999 zł/rok</li>
+              <li><strong>Plan JDG:</strong> {formatPlnMonthly(PUBLIC_PRICING.jdg.monthlyPricePln)}, rozliczany miesięcznie</li>
+              <li><strong>Plan Spółka Standard:</strong> {formatPlnMonthly(PUBLIC_PRICING.spolkaStandard.monthlyPricePln)} lub {formatPlnAnnual(PUBLIC_PRICING.spolkaStandard.annualPricePln)}</li>
               <li><strong>Plan Enterprise:</strong> wycena indywidualna</li>
             </ul>
           </li>
