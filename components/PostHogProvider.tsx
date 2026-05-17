@@ -22,7 +22,7 @@ function PageViewTracker() {
 
 export function PostHogProvider({ children }: { children: ReactNode }) {
   const apiKey = process.env.NEXT_PUBLIC_POSTHOG_KEY;
-  const apiHost = process.env.NEXT_PUBLIC_POSTHOG_HOST ?? 'https://eu.i.posthog.com';
+  const apiHost = process.env.NEXT_PUBLIC_POSTHOG_PROXY_PATH ?? '/ingest';
   const [shouldUsePosthog, setShouldUsePosthog] = useState(false);
 
   useEffect(() => {

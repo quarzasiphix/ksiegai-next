@@ -1,5 +1,13 @@
 {
   "name": "ksiegai-marketing",
+  "main": "worker/index.js",
   "compatibility_date": "2025-12-19",
-  "assets": { "directory": "./out" }
+  "assets": {
+    "directory": "./out",
+    "binding": "ASSETS",
+    "run_worker_first": [
+      "/ingest",
+      "/ingest/*"
+    ]
+  }
 }
