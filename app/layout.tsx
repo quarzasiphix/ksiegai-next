@@ -102,6 +102,7 @@ export default function RootLayout({
         <meta name="bingbot" content="index, follow" />
         <meta name="googlebot" content="index, follow" />
         <meta name="format-detection" content="telephone=no" />
+        <link rel="privacy-policy" href="https://ksiegai.pl/polityka-prywatnosci" />
       </head>
       <body className={inter.className}>
         <PostHogProvider>

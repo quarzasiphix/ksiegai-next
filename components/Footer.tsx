@@ -122,6 +122,12 @@ export default function Footer() {
               <a href="mailto:kontakt@ksiegai.pl" className="text-gray-400 hover:text-white transition-colors text-sm">
                 kontakt@ksiegai.pl
               </a>
+              <Link href="/polityka-prywatnosci" className="text-gray-400 hover:text-white transition-colors text-sm">
+                Polityka prywatności
+              </Link>
+              <Link href="/regulamin" className="text-gray-400 hover:text-white transition-colors text-sm">
+                Regulamin
+              </Link>
             </div>
           </div>
         </div>
