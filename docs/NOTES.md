@@ -1,6 +1,23 @@
 # Notes
 Created: legacy-existing (exact date unknown)
-Last modified: 2026-05-17 11:41 CEST
+Last modified: 2026-05-17 11:45 CEST
+
+## 2026-05-17 - Fixed poradnik static export crash for fallback categories
+
+What changed:
+- Updated [lib/wiki.ts](/mnt/c/k/ksiegai-next/lib/wiki.ts) so fallback wiki categories with non-UUID ids do not get passed into a UUID-only `category_id` database filter.
+- Added a small UUID guard and skipped the DB category query when the category comes from fallback content like `fallback-compliance`.
+
+Why:
+- public poradnik fallback categories use ids like `fallback-compliance`
+- export was crashing in `getWikiArticlesForCategory()` because Supabase/Postgres was receiving `.eq('category_id', 'fallback-compliance')`
+- Postgres correctly rejected that with `invalid input syntax for type uuid`
+
+Verification evidence (2026-05-17):
+- `cd ksiegai-next && npm run build` -> passed
+- this specifically clears the failing static export paths under:
+  - `/poradnik/[slug]`
+  - `/poradnik/kategoria/[slug]`
 
 ## 2026-05-17 - Disabled PostHog on local `ksiegai-next` hosts
 

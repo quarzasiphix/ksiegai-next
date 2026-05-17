@@ -33,6 +33,10 @@ export type WikiArticleListItem = Pick<
   'id' | 'slug' | 'title' | 'excerpt' | 'summary' | 'article_type' | 'sort_order' | 'published_at' | 'updated_at'
 >;
 
+function isUuid(value: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+}
+
 function dedupeCategories(categories: WikiCategory[]): WikiCategory[] {
   const map = new Map<string, WikiCategory>();
   for (const category of categories) {
@@ -162,22 +166,25 @@ export async function getWikiArticlesForCategory(categorySlug: string): Promise<
     return { category: null, articles: [] };
   }
 
-  const { data, error } = await supabaseServer
-    .from('wiki_articles')
-    .select(`
-      id, slug, title, excerpt, summary, purpose, body_markdown,
-      checklist, official_links, related_actions,
-      article_type, sort_order, published_at, updated_at,
-      category:wiki_categories(id, slug, name, description, sort_order)
-    `)
-    .eq('status', 'published')
-    .eq('category_id', category.id)
-    .contains('surfaces', ['marketing'])
-    .order('sort_order');
+  let dbArticles: WikiArticle[] = [];
 
-  if (error) throw error;
+  if (isUuid(category.id)) {
+    const { data, error } = await supabaseServer
+      .from('wiki_articles')
+      .select(`
+        id, slug, title, excerpt, summary, purpose, body_markdown,
+        checklist, official_links, related_actions,
+        article_type, sort_order, published_at, updated_at,
+        category:wiki_categories(id, slug, name, description, sort_order)
+      `)
+      .eq('status', 'published')
+      .eq('category_id', category.id)
+      .contains('surfaces', ['marketing'])
+      .order('sort_order');
 
-  const dbArticles = (data ?? []) as unknown as WikiArticle[];
+    if (error) throw error;
+    dbArticles = (data ?? []) as unknown as WikiArticle[];
+  }
 
   return {
     category,
