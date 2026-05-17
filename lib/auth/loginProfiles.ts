@@ -12,7 +12,7 @@ export type RememberedLoginProfile = {
 export type PendingLoginAttempt = {
   email?: string;
   displayName: string;
-  method: "password" | "magic_link" | "google";
+  method: "password" | "magic_link" | "google" | "apple";
   startedAt: string;
 };
 
