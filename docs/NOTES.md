@@ -1,6 +1,66 @@
 # Notes
 Created: legacy-existing (exact date unknown)
-Last modified: 2026-05-17 12:28 CEST
+Last modified: 2026-05-17 13:03 CEST
+
+## 2026-05-17 - Preserved marketing UTM attribution across auth handoff into app
+
+What changed:
+- Updated [lib/auth/crossDomainAuth.ts](/mnt/c/k/ksiegai-next/lib/auth/crossDomainAuth.ts) so redirects into `app.ksiegai.pl` now carry stored handoff attribution params.
+- The handoff now preserves:
+  - `utm_source`
+  - `utm_medium`
+  - `utm_campaign`
+  - `utm_term`
+  - `utm_content`
+- Added a default fallback of `utm_source=ksiegai_site` when no explicit source is present.
+- Updated [components/PostHogProvider.tsx](/mnt/c/k/ksiegai-next/components/PostHogProvider.tsx) to persist those attribution params from the current marketing-site URL so they survive OAuth and magic-link auth bounces before `redirectToApp(...)`.
+
+Why:
+- signup/login already called `posthog.identify(...)`, but the cross-domain redirect into the app was dropping marketing attribution
+- preserving UTM params is the simple safe version of cross-domain journey tracking before passing PostHog IDs directly
+
+Verification evidence (2026-05-17):
+- `cd ksiegai-next && npx tsc --noEmit` -> passed
+
+Scope notes:
+- No database schema, RLS, or Supabase backend contract changes.
+- No change to the `ksiegai_auth_token` cross-domain handoff contract.
+
+## 2026-05-17 - Localhost PostHog now tags internal marketing traffic and privacy policy mentions PostHog
+
+What changed:
+- Updated [components/PostHogProvider.tsx](/mnt/c/k/ksiegai-next/components/PostHogProvider.tsx) so localhost sessions are no longer skipped entirely.
+- Local marketing sessions now register:
+  - `app_surface: marketing`
+  - `is_internal_user: true`
+- Localhost uses the direct PostHog host, while deployed builds still use the first-party `/ingest` proxy path.
+- Updated [app/polityka-prywatnosci/page.tsx](/mnt/c/k/ksiegai-next/app/polityka-prywatnosci/page.tsx) to mention PostHog explicitly in provider/cookies/analytics disclosure.
+
+Why:
+- internal test traffic on localhost should be identifiable in PostHog instead of being dropped
+- privacy policy needed to disclose the analytics tooling more explicitly
+
+Verification evidence (2026-05-17):
+- `cd ksiegai-next && npx tsc --noEmit` -> passed
+
+Scope notes:
+- No database schema, RLS, or Supabase backend contract changes.
+- No change to the `ksiegai_auth_token` cross-domain handoff contract.
+
+## 2026-05-17 - Registered PostHog marketing defaults
+
+What changed:
+- Updated [components/PostHogProvider.tsx](/mnt/c/k/ksiegai-next/components/PostHogProvider.tsx) so `ksiegai-next` registers the default PostHog property `app_surface: marketing` right after initialization.
+
+Why:
+- marketing-site events should carry a stable surface marker so product and acquisition traffic are easier to separate in PostHog.
+
+Verification evidence (2026-05-17):
+- `cd ksiegai-next && npx tsc --noEmit` -> passed
+
+Scope notes:
+- No database schema, RLS, or Supabase backend contract changes.
+- No change to the `ksiegai_auth_token` cross-domain handoff contract.
 
 ## 2026-05-17 - Proxied PostHog through first-party Cloudflare Pages function path
 

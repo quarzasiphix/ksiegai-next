@@ -4,6 +4,8 @@
 const APP_DOMAIN = process.env.NEXT_PUBLIC_APP_DOMAIN || 'app.ksiegai.pl';
 const COOKIE_NAME = 'ksiegai_auth_token';
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
+const HANDOFF_ATTRIBUTION_KEY = 'ksiegai_handoff_attribution';
+const HANDOFF_UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'] as const;
 
 export interface AuthToken {
   access_token: string;
@@ -19,14 +21,79 @@ type SessionSetter = (session: {
 
 type RedirectParams = Record<string, string | number | boolean | null | undefined>;
 
-const buildAppPath = (path: string, params?: RedirectParams): string => {
-  if (!params) {
-    return path;
+type HandoffAttributionParams = Partial<Record<(typeof HANDOFF_UTM_KEYS)[number], string>>;
+
+const getDefaultHandoffAttribution = (): HandoffAttributionParams => ({
+  utm_source: 'ksiegai_site',
+});
+
+const readStoredHandoffAttribution = (): HandoffAttributionParams => {
+  if (typeof window === 'undefined') return {};
+
+  try {
+    const stored = window.sessionStorage.getItem(HANDOFF_ATTRIBUTION_KEY);
+    if (!stored) return {};
+    const parsed = JSON.parse(stored) as HandoffAttributionParams;
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch (error) {
+    console.warn('[crossDomainAuth] Failed to read stored handoff attribution:', error);
+    return {};
+  }
+};
+
+const writeStoredHandoffAttribution = (params: HandoffAttributionParams): void => {
+  if (typeof window === 'undefined') return;
+
+  try {
+    window.sessionStorage.setItem(HANDOFF_ATTRIBUTION_KEY, JSON.stringify(params));
+  } catch (error) {
+    console.warn('[crossDomainAuth] Failed to store handoff attribution:', error);
+  }
+};
+
+const extractHandoffAttribution = (search: string): HandoffAttributionParams => {
+  const urlParams = new URLSearchParams(search);
+  const nextParams: HandoffAttributionParams = {};
+
+  for (const key of HANDOFF_UTM_KEYS) {
+    const value = urlParams.get(key);
+    if (value) {
+      nextParams[key] = value;
+    }
   }
 
-  const searchParams = new URLSearchParams();
+  return nextParams;
+};
 
-  for (const [key, value] of Object.entries(params)) {
+const resolveHandoffAttribution = (): HandoffAttributionParams => {
+  if (typeof window === 'undefined') return getDefaultHandoffAttribution();
+
+  const fromUrl = extractHandoffAttribution(window.location.search);
+  const stored = readStoredHandoffAttribution();
+  const resolved = {
+    ...getDefaultHandoffAttribution(),
+    ...stored,
+    ...fromUrl,
+  };
+
+  return resolved;
+};
+
+export const persistHandoffAttribution = (): void => {
+  if (typeof window === 'undefined') return;
+  writeStoredHandoffAttribution(resolveHandoffAttribution());
+};
+
+const buildAppPath = (path: string, params?: RedirectParams): string => {
+  const searchParams = new URLSearchParams();
+  const handoffAttribution = resolveHandoffAttribution();
+
+  for (const [key, value] of Object.entries(handoffAttribution)) {
+    if (!value) continue;
+    searchParams.set(key, value);
+  }
+
+  for (const [key, value] of Object.entries(params || {})) {
     if (value == null) continue;
     searchParams.set(key, String(value));
   }
@@ -124,6 +191,7 @@ export const clearAuthToken = (): void => {
 export const redirectToApp = (path: string = '/dashboard', params?: RedirectParams): void => {
   if (typeof window === 'undefined') return;
 
+  persistHandoffAttribution();
   const resolvedPath = buildAppPath(path, params);
   const appUrl = window.location.hostname.includes('localhost')
     ? `http://localhost:8080${resolvedPath}` // Local dev - React app runs on port 8080

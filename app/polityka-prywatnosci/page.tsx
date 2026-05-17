@@ -111,6 +111,7 @@ function FallbackContent() {
             <li><strong>Supabase, Inc.</strong> (USA) - hosting bazy danych i uwierzytelnianie</li>
             <li><strong>Vercel, Inc.</strong> (USA) - hosting aplikacji</li>
             <li><strong>Stripe, Inc.</strong> (USA) - przetwarzanie płatności</li>
+            <li><strong>PostHog, Inc.</strong> (UE/USA) - analityka produktu i strony, statystyki użycia, pomiar działań w aplikacji i serwisie marketingowym</li>
           </ul>
 
           <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-6 mb-3">4.2. Organy publiczne</h3>
@@ -208,8 +209,8 @@ function FallbackContent() {
 
           <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-6 mb-3">8.2. Cookies analityczne (opcjonalne)</h3>
           <ul className="list-disc pl-6 space-y-2">
-            <li>Analiza ruchu na stronie</li>
-            <li>Statystyki korzystania z funkcji</li>
+            <li>Analiza ruchu na stronie i w aplikacji przez PostHog</li>
+            <li>Statystyki korzystania z funkcji i kluczowych działań produktowych (np. utworzenie faktury, dodanie firmy, połączenie KSeF)</li>
             <li>Testy A/B</li>
           </ul>
 
