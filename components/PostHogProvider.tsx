@@ -3,7 +3,7 @@
 import posthog from 'posthog-js';
 import { PostHogProvider as PHProvider, usePostHog } from 'posthog-js/react';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { useEffect, Suspense, ReactNode } from 'react';
+import { useEffect, Suspense, ReactNode, useState } from 'react';
 
 function PageViewTracker() {
   const pathname = usePathname();
@@ -23,18 +23,25 @@ function PageViewTracker() {
 export function PostHogProvider({ children }: { children: ReactNode }) {
   const apiKey = process.env.NEXT_PUBLIC_POSTHOG_KEY;
   const apiHost = process.env.NEXT_PUBLIC_POSTHOG_HOST ?? 'https://eu.i.posthog.com';
+  const [shouldUsePosthog, setShouldUsePosthog] = useState(false);
 
   useEffect(() => {
-    if (!apiKey) return;
+    const hostname = window.location.hostname;
+    const isLocalhost = /^(localhost|127(?:\.\d+){0,3}|0\.0\.0\.0|\[::1\])$/i.test(hostname);
+    setShouldUsePosthog(Boolean(apiKey) && !isLocalhost);
+  }, [apiKey]);
+
+  useEffect(() => {
+    if (!shouldUsePosthog || !apiKey) return;
     posthog.init(apiKey, {
       api_host: apiHost,
       capture_pageview: false,
       capture_pageleave: true,
       person_profiles: 'identified_only',
     });
-  }, [apiKey, apiHost]);
+  }, [apiKey, apiHost, shouldUsePosthog]);
 
-  if (!apiKey) return <>{children}</>;
+  if (!shouldUsePosthog) return <>{children}</>;
 
   return (
     <PHProvider client={posthog}>

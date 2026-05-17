@@ -1,6 +1,29 @@
 # Notes
 Created: legacy-existing (exact date unknown)
-Last modified: 2026-05-16 19:12 CEST
+Last modified: 2026-05-17 11:41 CEST
+
+## 2026-05-17 - Disabled PostHog on local `ksiegai-next` hosts
+
+What changed:
+- Updated [components/PostHogProvider.tsx](/mnt/c/k/ksiegai-next/components/PostHogProvider.tsx) so PostHog only initializes when the browser is not on a loopback host.
+- Added explicit local-host detection for:
+  - `localhost`
+  - `127.*`
+  - `0.0.0.0`
+  - `[::1]`
+- When running on those local hosts, the provider now returns children without booting PostHog.
+
+Why:
+- `ksiegai-next` was still initializing PostHog on local `127.0.0.1`, which caused external `config.js` requests during dev even though analytics should stay off locally.
+
+Verification evidence (2026-05-17):
+- Regex sanity check confirmed:
+  - `localhost` -> `true`
+  - `127.0.0.1` -> `true`
+  - `0.0.0.0` -> `true`
+  - `[::1]` -> `true`
+  - `example.com` -> `false`
+- `cd ksiegai-next && npx tsc --noEmit --pretty false` did not complete in this environment, so typecheck is still pending.
 
 ## 2026-05-16 - Centralized public pricing values
 
