@@ -1,21 +1,19 @@
 # Notes
 Created: legacy-existing (exact date unknown)
-Last modified: 2026-05-17 12:14 CEST
+Last modified: 2026-05-17 12:28 CEST
 
-## 2026-05-17 - Proxied PostHog through first-party Cloudflare worker path
+## 2026-05-17 - Proxied PostHog through first-party Cloudflare Pages function path
 
 What changed:
 - Updated [components/PostHogProvider.tsx](/mnt/c/k/ksiegai-next/components/PostHogProvider.tsx) so deployed builds use the first-party `/ingest` path for PostHog instead of calling `https://eu.i.posthog.com` directly from the browser.
-- Added [worker/index.js](/mnt/c/k/ksiegai-next/worker/index.js) as a small Cloudflare Worker proxy that forwards `/ingest` and `/ingest/*` to the PostHog EU host.
-- Updated [wrangler.jsonc](/mnt/c/k/ksiegai-next/wrangler.jsonc) to:
-  - attach the Worker entrypoint,
-  - expose the `ASSETS` binding,
-  - run Worker code first only for the `/ingest` routes.
+- Added [functions/ingest/[[path]].ts](/mnt/c/k/ksiegai-next/functions/ingest/[[path]].ts) as a Cloudflare Pages Function proxy that forwards `/ingest` and `/ingest/*` to the PostHog EU host.
+- Restored [wrangler.jsonc](/mnt/c/k/ksiegai-next/wrangler.jsonc) to the normal Pages-oriented shape instead of the separate-Worker setup.
 - The proxy strips `cookie`, `authorization`, `origin`, `referer`, and `host` headers before forwarding so first-party site credentials are not leaked upstream.
 
 Why:
 - production `ksiegai.pl` was still requesting PostHog assets and config from the third-party `eu.i.posthog.com` domain
 - that is commonly blocked by browser privacy tooling and ad blockers
+- this site is deployed through Cloudflare Pages, so the proxy must live in the Pages `functions/` surface instead of a separate Worker-only entrypoint
 - routing analytics through the app's own domain makes delivery more reliable on Cloudflare without changing the rest of the static export architecture
 
 Verification evidence (2026-05-17):

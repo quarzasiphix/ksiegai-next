@@ -1,19 +1,18 @@
+interface CloudflareContext {
+  request: Request;
+  params: {
+    path?: string[];
+  };
+}
+
 const POSTHOG_UPSTREAM = 'https://eu.i.posthog.com';
 
-export default {
-  async fetch(request, env) {
-    const url = new URL(request.url);
+export const onRequest = async (context: CloudflareContext): Promise<Response> => {
+  const { request, params } = context;
+  const url = new URL(request.url);
 
-    if (url.pathname === '/ingest' || url.pathname.startsWith('/ingest/')) {
-      return proxyPostHog(request, url);
-    }
-
-    return env.ASSETS.fetch(request);
-  },
-};
-
-async function proxyPostHog(request, url) {
-  const upstreamPath = url.pathname.replace(/^\/ingest(?=\/|$)/, '') || '/';
+  const pathSegments = Array.isArray(params.path) ? params.path : [];
+  const upstreamPath = pathSegments.length > 0 ? `/${pathSegments.join('/')}` : '/';
   const upstreamUrl = new URL(upstreamPath, POSTHOG_UPSTREAM);
   upstreamUrl.search = url.search;
 
@@ -40,4 +39,4 @@ async function proxyPostHog(request, url) {
     statusText: upstreamResponse.statusText,
     headers: responseHeaders,
   });
-}
+};
