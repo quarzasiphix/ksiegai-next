@@ -1,6 +1,29 @@
 # Notes
 Created: legacy-existing (exact date unknown)
-Last modified: 2026-05-17 13:03 CEST
+Last modified: 2026-05-18 17:01 CEST
+
+## 2026-05-18 - Rebuilt sitemap around the full public site surface
+
+What changed:
+- Updated [app/sitemap.ts](/mnt/c/k/ksiegai-next/app/sitemap.ts) to use one explicit static route map for the public marketing/legal/conversion pages.
+- Added `/rejestracja` to the sitemap.
+- Kept the full poradnik tree covered:
+  - `/poradnik`
+  - `/poradnik/kategoria/[slug]`
+  - `/poradnik/[slug]`
+- Left helper auth routes out of the sitemap so it stays focused on real public pages.
+
+Why:
+- the old sitemap was a partial hand-maintained list
+- the public content surface, especially poradnik, needed a clearer canonical map
+
+Verification evidence (2026-05-18):
+- `cd /mnt/c/k/ksiegai-next && npx tsc --noEmit` -> pass
+- `cd /mnt/c/k/ksiegai-next && npm run build` -> pass
+
+Scope notes:
+- No database schema, RLS, or Supabase backend contract changes.
+- No change to the `ksiegai_auth_token` cross-domain handoff contract.
 
 ## 2026-05-17 - Preserved marketing UTM attribution across auth handoff into app
 
