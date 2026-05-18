@@ -59,9 +59,9 @@ export default function KsefPage() {
                 <ArrowRight className="h-4 w-4" />
               </TrackedLink>
               <TrackedLink
-                href="/poradnik/ksef"
+                href="/poradnik/ksef-dla-jdg-jak-zaczac"
                 event="cta_clicked"
-                eventProps={{ page: "ksef", cta_id: "hero_secondary", text: "Poradnik KSeF", destination: "/poradnik/ksef" }}
+                eventProps={{ page: "ksef", cta_id: "hero_secondary", text: "Poradnik KSeF", destination: "/poradnik/ksef-dla-jdg-jak-zaczac" }}
                 className="inline-flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/15 text-white px-8 py-3.5 rounded-2xl font-semibold transition-all text-sm"
               >
                 Poradnik KSeF krok po kroku
@@ -281,17 +281,17 @@ export default function KsefPage() {
               {[
                 {
                   title: "Jak zdobyć token KSeF",
-                  href: "/poradnik/ksef-token",
+                  href: "/poradnik/jak-zdobyc-token-ksef-i-podlaczyc-firme",
                   desc: "Krok po kroku przez e-Urząd Skarbowy i aktywację tokenu.",
                 },
                 {
-                  title: "Poradnik KSeF — obowiązek, terminy, co przygotować",
-                  href: "/poradnik/ksef",
-                  desc: "Pełny przewodnik: kiedy KSeF wchodzi, kogo dotyczy i jak się przygotować.",
+                  title: "KSeF dla JDG — jak zacząć",
+                  href: "/poradnik/ksef-dla-jdg-jak-zaczac",
+                  desc: "Co przygotować, jak uzyskać token i jak połączyć firmę z KsięgaI.",
                 },
                 {
                   title: "Konto organizacji w e-Urzędzie Skarbowym",
-                  href: "/poradnik/e-urzad",
+                  href: "/poradnik/konto-organizacji-e-urzad-skarbowy",
                   desc: "Aktywacja konta dla NIP firmy i nadanie pełnomocnictw.",
                 },
               ].map(({ title, href, desc }) => (

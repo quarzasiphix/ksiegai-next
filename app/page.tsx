@@ -144,7 +144,7 @@ export default function Home() {
                       label: "Zakładam firmę",
                       desc: "Checklisty i pierwsze kroki",
                       icon: Zap,
-                      href: "/poradnik/zakladanie-firmy",
+                      href: "/poradnik/pierwsze-obowiazki-po-zalozeniu-spolki-zoo",
                       iconClass: "text-amber-600 dark:text-amber-400",
                       bgClass: "bg-amber-100 dark:bg-amber-900/30",
                     },
@@ -454,7 +454,7 @@ export default function Home() {
                       Jak działa KSeF w KsięgaI <ArrowRight className="h-4 w-4" />
                     </Link>
                     <Link
-                      href="/poradnik/ksef"
+                      href="/poradnik/ksef-dla-jdg-jak-zaczac"
                       className="inline-flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:underline text-sm"
                     >
                       Poradnik KSeF krok po kroku →
@@ -718,22 +718,22 @@ export default function Home() {
                 {[
                   {
                     title: "Jak zdobyć token KSeF",
-                    href: "/poradnik/ksef-token",
+                    href: "/poradnik/jak-zdobyc-token-ksef-i-podlaczyc-firme",
                     desc: "Krok po kroku przez e-Urząd Skarbowy i aktywację tokenu.",
                   },
                   {
                     title: "CRBR po rejestracji spółki",
-                    href: "/poradnik/crbr",
+                    href: "/poradnik/crbr-spolka-zoo-co-zglosic",
                     desc: "Zgłoszenie beneficjentów rzeczywistych — terminy i wymogi.",
                   },
                   {
                     title: "Konto w e-Urzędzie Skarbowym",
-                    href: "/poradnik/e-urzad",
+                    href: "/poradnik/konto-organizacji-e-urzad-skarbowy",
                     desc: "Aktywacja konta dla organizacji i nadanie pełnomocnictw.",
                   },
                   {
                     title: "Checklista nowej spółki z o.o.",
-                    href: "/poradnik/checklista-spolka-zoo",
+                    href: "/poradnik/pierwsze-obowiazki-po-zalozeniu-spolki-zoo",
                     desc: "Co zrobić po rejestracji, żeby firma działała poprawnie.",
                   },
                 ].map(({ title, href, desc }) => (

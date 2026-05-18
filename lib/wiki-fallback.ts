@@ -1098,6 +1098,489 @@ Przy sporadycznych transakcjach i stałych klientach, którzy zawsze płacą w t
     category: fallbackWikiCategories[5],
   },
 
+  // ─── Dedykowane strony dla krótkich, pamiętanych slug-ów ────────────────────
+
+  {
+    id: 'fallback-ksef-overview',
+    slug: 'ksef',
+    title: 'KSeF — co to jest, kogo dotyczy i od kiedy obowiązkowy',
+    excerpt: 'KSeF to Krajowy System e-Faktur. Faktury przestają być PDF-ami — stają się ustrukturyzowanymi dokumentami XML w państwowym systemie.',
+    summary: 'Ogólne wprowadzenie do KSeF: czym jest, jak zmienia fakturowanie, kogo dotyczy i jak się przygotować niezależnie od formy działalności.',
+    purpose: 'Wiele osób szuka "KSeF" i chce najpierw zrozumieć o co chodzi — zanim zdecyduje co zrobić. Ten artykuł odpowiada na to pytanie bez wcześniejszej wiedzy.',
+    body_markdown: `## Czym jest KSeF
+
+KSeF (Krajowy System e-Faktur) to platforma Ministerstwa Finansów, przez którą mają przepływać faktury w Polsce.
+
+W praktyce oznacza to, że faktura przestaje być plikiem PDF wysyłanym mailem. Staje się ustrukturyzowanym dokumentem XML w formacie FA(2), który trafia do systemu państwowego i tam jest archiwizowany.
+
+Klient zamiast odbierać PDF, pobiera fakturę z KSeF (albo odbiera ją przez własny system).
+
+## Kogo dotyczy KSeF
+
+KSeF dotyczy wszystkich podatników VAT i będzie stopniowo rozszerzany. Jeśli prowadzisz działalność i wystawiasz faktury — KSeF Cię dotyczy. Dotyczy zarówno JDG, jak i spółek z o.o.
+
+## Co się zmienia w praktyce
+
+Przed KSeF:
+- wystawiasz fakturę w dowolnym programie
+- wysyłasz PDF mailem
+- archiwizujesz u siebie
+
+Po KSeF:
+- wystawiasz fakturę przez system połączony z KSeF
+- faktura trafia do rejestru państwowego i dostaje numer KSeF
+- klient odbiera ją z KSeF
+- archiwum jest po stronie MF
+
+Twoja aplikacja (np. KsięgaI) obsługuje całą techniczną komunikację z KSeF automatycznie — po podłączeniu tokena.
+
+## Jak się przygotować
+
+Trzy kroki niezależnie od formy działalności:
+
+1. **Zdobądź token KSeF** — generujesz go w portalu KSeF po zalogowaniu profilem zaufanym.
+2. **Podłącz aplikację** — wklejasz token do KsięgaI i od tej chwili faktury idą przez KSeF automatycznie.
+3. **Poinformuj biuro rachunkowe** — biuro potrzebuje swojego dostępu (przez NIP biura, nie przez Twój token).
+
+## Co to jest "KSeF-ready"
+
+Jeżeli nie chcesz jeszcze wysyłać faktur do KSeF, możesz pracować w trybie KSeF-ready: faktury są tworzone w prawidłowym formacie, ale jeszcze nie wysyłane. Połączysz się z KSeF kiedy będziesz gotowy.`,
+    checklist: [
+      'Sprawdź czy masz profil zaufany lub e-dowód do zalogowania do portalu KSeF.',
+      'Zaloguj się do portalu KSeF i sprawdź czy widzisz swoją firmę.',
+      'Wygeneruj token KSeF i skopiuj go od razu.',
+      'Wklej token do ustawień firmy w KsięgaI.',
+      'Poinformuj biuro rachunkowe — potrzebuje dostępu przez NIP swojej firmy.',
+    ],
+    official_links: [
+      { label: 'Portal KSeF', href: 'https://ksef.podatki.gov.pl/', external: true },
+      { label: 'Informacje MF o KSeF', href: 'https://www.podatki.gov.pl/ksef/', external: true },
+    ],
+    related_actions: [
+      { label: 'Jak zdobyć token KSeF — instrukcja', href: '/poradnik/ksef-token' },
+      { label: 'Jak nadać biuru dostęp do KSeF', href: '/poradnik/jak-nadac-dostep-ksef-dla-ksiegowej' },
+      { label: 'KSeF dla JDG — szczegółowy przewodnik', href: '/poradnik/ksef-dla-jdg-jak-zaczac' },
+      { label: 'KSeF dla spółki z o.o.', href: '/poradnik/ksef-spolka-z-oo-kto-moze-nadac-dostep' },
+    ],
+    faq: [
+      {
+        question: 'Czy KSeF jest już obowiązkowy?',
+        answer: 'KSeF jest wdrażany etapowo. Sprawdź aktualne terminy na stronie podatki.gov.pl — daty obowiązkowości były kilkakrotnie zmieniane przez MF.',
+      },
+      {
+        question: 'Czy JDG musi używać KSeF?',
+        answer: 'Tak, KSeF dotyczy wszystkich podatników — zarówno JDG jak i spółek. Terminy i zakres obowiązkowości warto weryfikować na bieżąco z biurem rachunkowym.',
+      },
+      {
+        question: 'Co się stanie jeśli nie podłączę się do KSeF na czas?',
+        answer: 'Po wejściu w życie obowiązku faktury poza KSeF mogą być uznane za niewystawione. Zakres sankcji i wyjątki warto potwierdzić z doradcą podatkowym.',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 5,
+    published_at: '2026-05-18T00:00:00.000Z',
+    updated_at: '2026-05-18T00:00:00.000Z',
+    category: fallbackWikiCategories[0],
+  },
+
+  {
+    id: 'fallback-ksef-token-short',
+    slug: 'ksef-token',
+    title: 'Token KSeF — gdzie go wziąć i gdzie wkleić',
+    excerpt: 'Token KSeF to ciąg znaków, który generujesz w portalu KSeF i wklejasz do aplikacji. Widoczny tylko raz — skopiuj go od razu.',
+    summary: 'Krótka, konkretna instrukcja: gdzie wygenerować token KSeF i co z nim zrobić w KsięgaI.',
+    purpose: 'Wielu użytkowników trafia tu wprost z pytania "skąd wziąć token KSeF". Ten artykuł odpowiada dokładnie na to pytanie.',
+    body_markdown: `## Czym jest token KSeF
+
+Token KSeF to klucz dostępowy dla aplikacji — ciąg znaków, który mówi systemowi KSeF "ta aplikacja działa w imieniu tej firmy". Wklejasz go do KsięgaI raz i od tej chwili wysyłka faktur do KSeF działa automatycznie.
+
+Token to nie jest hasło do portalu KSeF. Portal masz dla siebie. Token jest dla aplikacji.
+
+## Gdzie wygenerować token
+
+1. Wejdź na portal KSeF i zaloguj się profilem zaufanym lub e-dowodem.
+2. Po zalogowaniu upewnij się, że jesteś w kontekście firmy (właściwy NIP).
+3. Otwórz sekcję **Tokeny** (lub Zarządzanie tokenami).
+4. Kliknij "Utwórz token" lub "Wygeneruj nowy token".
+5. Nadaj tokenowi nazwę (np. "KsięgaI") — ułatwi identyfikację jeśli masz kilka tokenów.
+6. System wyświetli kod tokena — **skopiuj go od razu**.
+
+## Ważne: token widzisz tylko raz
+
+Po opuszczeniu strony lub odświeżeniu kod tokena znika. Nie można go odtworzyć. Jeśli zamkniesz okno bez skopiowania — musisz wygenerować nowy token.
+
+Nie wklejaj go w notatniku ani nie wysyłaj mailem. Wklej bezpośrednio do KsięgaI.
+
+## Gdzie wkleić token w KsięgaI
+
+1. Otwórz ustawienia firmy w KsięgaI.
+2. Przejdź do sekcji KSeF lub Połączenia.
+3. Wklej token i zapisz.
+4. Sprawdź status — aplikacja potwierdzi poprawność połączenia.
+
+## Co jeśli token przestał działać
+
+Tokeny mogą wygasnąć lub zostać dezaktywowane. Jeśli KsięgaI zgłasza błąd połączenia z KSeF:
+1. Wejdź do portalu KSeF i sprawdź status tokena.
+2. Jeśli wygasł lub jest nieaktywny — wygeneruj nowy.
+3. Podmień stary token na nowy w ustawieniach KsięgaI.`,
+    checklist: [
+      'Zaloguj się do portalu KSeF profilem zaufanym lub e-dowodem.',
+      'Sprawdź że jesteś w kontekście właściwej firmy (NIP).',
+      'Otwórz sekcję Tokeny i utwórz nowy token.',
+      'Skopiuj kod tokena natychmiast — widoczny tylko raz.',
+      'Wklej token do ustawień KSeF w KsięgaI i zapisz.',
+      'Sprawdź status połączenia w aplikacji.',
+    ],
+    official_links: [
+      { label: 'Portal KSeF', href: 'https://ksef.podatki.gov.pl/', external: true },
+    ],
+    related_actions: [
+      { label: 'Pełna instrukcja połączenia z KSeF', href: '/poradnik/jak-zdobyc-token-ksef-i-podlaczyc-firme' },
+      { label: 'Jak nadać dostęp biuru rachunkowemu', href: '/poradnik/jak-nadac-dostep-ksef-dla-ksiegowej' },
+      { label: 'KSeF — czym jest i kogo dotyczy', href: '/poradnik/ksef' },
+    ],
+    faq: [
+      {
+        question: 'Co zrobić jeśli zamknąłem okno bez skopiowania tokena?',
+        answer: 'Musisz wygenerować nowy token. Starego nie można odtworzyć. Przejdź do sekcji tokenów w KSeF i utwórz kolejny.',
+      },
+      {
+        question: 'Czy mogę mieć kilka tokenów dla tej samej firmy?',
+        answer: 'Tak. Możesz mieć osobny token dla każdej aplikacji, która łączy się z KSeF w imieniu firmy. Warto je oznaczać nazwami.',
+      },
+      {
+        question: 'Czy token dla KsięgaI to to samo co dostęp biura rachunkowego?',
+        answer: 'Nie. Token używa aplikacja (KsięgaI). Biuro rachunkowe dostaje dostęp innym mechanizmem — przez NIP swojej firmy w ustawieniach KSeF.',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 12,
+    published_at: '2026-05-18T00:00:00.000Z',
+    updated_at: '2026-05-18T00:00:00.000Z',
+    category: fallbackWikiCategories[0],
+  },
+
+  {
+    id: 'fallback-crbr-short',
+    slug: 'crbr',
+    title: 'CRBR — zgłoszenie beneficjentów rzeczywistych po rejestracji spółki',
+    excerpt: 'CRBR to obowiązek z terminem. Po wpisie do KRS musisz zgłosić kto realnie kontroluje spółkę — i zrobić to szybko.',
+    summary: 'Krótki przewodnik po CRBR: co to jest, kto jest beneficjentem rzeczywistym, jak zgłosić i czego nie mylić.',
+    purpose: 'CRBR jest jednym z pierwszych obowiązków po rejestracji spółki i jednym z najczęściej pomijanych. Ten artykuł tłumaczy co zrobić i dlaczego to ważne.',
+    body_markdown: `## Co to jest CRBR
+
+CRBR (Centralny Rejestr Beneficjentów Rzeczywistych) to publiczny rejestr prowadzony przez Ministerstwo Finansów. Po zarejestrowaniu spółki z o.o. musisz do niego zgłosić, kto jest **beneficjentem rzeczywistym** — czyli kto faktycznie kontroluje firmę.
+
+To nie jest to samo co lista wspólników w umowie spółki. Beneficjent rzeczywisty to osoba fizyczna, która sprawuje kontrolę — bezpośrednio przez udziały (zwykle powyżej 25%) lub pośrednio przez inne podmioty.
+
+## Kiedy i jak zgłosić
+
+Zgłoszenia dokonujesz elektronicznie przez stronę podatki.gov.pl. Potrzebujesz profilu zaufanego lub e-dowodu. Termin liczy się od dnia wpisu do KRS — działaj szybko.
+
+Kroki:
+1. Wejdź na podatki.gov.pl → CRBR.
+2. Zaloguj się profilem zaufanym.
+3. Wybierz spółkę (po NIP lub KRS).
+4. Wprowadź dane beneficjentów rzeczywistych.
+5. Podpisz i wyślij zgłoszenie.
+6. Zachowaj potwierdzenie.
+
+## Kto jest beneficjentem rzeczywistym
+
+W prostej spółce z o.o. — wspólnicy posiadający ponad 25% udziałów. Jeżeli żaden wspólnik nie przekracza progu albo struktura jest bardziej złożona (holding, fundusz) — zasady ustalenia beneficjenta mogą być inne. W takich przypadkach warto potwierdzić z prawnikiem.
+
+## Czego nie mylić
+
+- Wpisanie wspólników do umowy spółki lub KRS nie zastępuje zgłoszenia do CRBR.
+- Zmiana wspólników lub struktury udziałów = obowiązek aktualizacji CRBR w terminie.
+- Informacje w CRBR są publiczne.
+
+## Co jeśli pominiesz ten krok
+
+Brak zgłoszenia w terminie może skutkować karą finansową. Regulacje są egzekwowane — nie traktuj tego jak formalność do "zrobienia kiedyś".`,
+    checklist: [
+      'Ustal kto jest beneficjentem rzeczywistym spółki (kto posiada powyżej 25% udziałów lub sprawuje kontrolę).',
+      'Przygotuj dane: imię, nazwisko, PESEL lub data urodzenia, obywatelstwo, kraj zamieszkania.',
+      'Wejdź na podatki.gov.pl i zaloguj się profilem zaufanym.',
+      'Wypełnij formularz CRBR i wyślij zgłoszenie.',
+      'Zachowaj potwierdzenie złożenia zgłoszenia.',
+      'Ustaw przypomnienie o aktualizacji przy każdej zmianie wspólników.',
+    ],
+    official_links: [
+      { label: 'CRBR — zgłoszenie na podatki.gov.pl', href: 'https://www.podatki.gov.pl/crbr/', external: true },
+    ],
+    related_actions: [
+      { label: 'Szczegółowy poradnik CRBR', href: '/poradnik/crbr-spolka-zoo-co-zglosic' },
+      { label: 'Pierwsze obowiązki po rejestracji spółki', href: '/poradnik/pierwsze-obowiazki-po-zalozeniu-spolki-zoo' },
+      { label: 'e-Doręczenia dla firmy', href: '/poradnik/e-doreczenia-dla-firmy' },
+    ],
+    faq: [
+      {
+        question: 'Czy CRBR dotyczy też JDG?',
+        answer: 'Nie. CRBR dotyczy spółek (z o.o., akcyjnych i innych podmiotów wymienionych w ustawie), nie jednoosobowych działalności gospodarczych.',
+      },
+      {
+        question: 'Co się stanie jeśli beneficjent zmieni się po zgłoszeniu?',
+        answer: 'Masz obowiązek aktualizacji CRBR w ustawowym terminie po zmianie. Nieaktualne dane w rejestrze mogą skutkować karą.',
+      },
+      {
+        question: 'Czy muszę zgłaszać prokurenta do CRBR?',
+        answer: 'Prokurent nie jest automatycznie beneficjentem rzeczywistym. Beneficjent rzeczywisty to osoba sprawująca faktyczną kontrolę przez udziały lub inne mechanizmy — zakres warto potwierdzić z prawnikiem.',
+      },
+    ],
+    article_type: 'checklist',
+    sort_order: 5,
+    published_at: '2026-05-18T00:00:00.000Z',
+    updated_at: '2026-05-18T00:00:00.000Z',
+    category: fallbackWikiCategories[2],
+  },
+
+  {
+    id: 'fallback-e-urzad-short',
+    slug: 'e-urzad',
+    title: 'e-Urząd Skarbowy dla firmy — pierwsze logowanie i konto organizacji',
+    excerpt: 'e-Urząd Skarbowy ma dwa tryby: konto prywatne i konto organizacji. Do działania w imieniu firmy potrzebujesz drugiego.',
+    summary: 'Przewodnik po e-Urzędzie Skarbowym dla przedsiębiorców: różnica między kontem prywatnym a kontem organizacji, jak uzyskać dostęp i dlaczego to ważne przed KSeF.',
+    purpose: 'Wielu właścicieli firm loguje się do e-US prywatnym kontem i nie rozumie czemu nie widzi danych firmy. Ten artykuł wyjaśnia dlaczego i co zrobić.',
+    body_markdown: `## Dwa tryby e-Urzędu Skarbowego
+
+e-Urząd Skarbowy (podatki.gov.pl) ma dwa odrębne konteksty:
+
+- **Konto prywatne** — Twoje osobiste rozliczenia, PIT, deklaracje jako osoby fizycznej.
+- **Konto organizacji** — dostęp do konta podatkowego firmy: NIP firmy, JPK, KSeF, deklaracje firmowe.
+
+Logując się profilem zaufanym wchodzisz domyślnie na konto prywatne. Żeby działać w imieniu firmy, musisz przełączyć się na konto organizacji — albo uzyskać do niego dostęp jeśli go jeszcze nie masz.
+
+## Kto może uzyskać konto organizacji
+
+Osoba, która jest wpisana w KRS jako uprawniona do reprezentacji spółki (prezes, członek zarządu) lub właściciel JDG (automatycznie powiązany z NIP firmy).
+
+Inne osoby (pracownicy, biuro rachunkowe) mogą uzyskać dostęp przez pełnomocnictwa nadawane przez osobę uprawnioną.
+
+## Jak przełączyć się na konto organizacji
+
+Po zalogowaniu do e-US:
+1. Poszukaj opcji "Przełącz na podmiot" lub "Działaj jako organizacja".
+2. Wybierz NIP firmy z listy dostępnych podmiotów.
+3. Jeśli firma nie pojawia się na liście — musisz wnioskować o dostęp.
+
+Jeśli dopiero rejestrujesz spółkę — konto organizacji zazwyczaj staje się dostępne po pojawieniu się NIP w rejestrach (może minąć kilka dni od rejestracji).
+
+## Dlaczego to ważne przed KSeF
+
+Wiele działań związanych z KSeF wykonuje się z poziomu e-US lub bezpośrednio w portalu KSeF — ale logując się jako przedstawiciel firmy, nie jako osoba prywatna. Brak konta organizacji to blokada na drodze do KSeF.
+
+## Jak nadać dostęp biuru rachunkowemu
+
+Z poziomu konta organizacji możesz zarządzać pełnomocnictwami. Biuro rachunkowe, które ma pełnomocnictwo (UPL-1), może działać w imieniu firmy w e-US. To osobny krok od dostępu do KSeF.`,
+    checklist: [
+      'Zaloguj się do e-Urzędu Skarbowego profilem zaufanym lub e-dowodem.',
+      'Sprawdź czy firma pojawia się na liście dostępnych podmiotów.',
+      'Przełącz się na konto organizacji (NIP firmy).',
+      'Jeśli brak dostępu — złóż wniosek o konto organizacji.',
+      'Sprawdź czy biuro rachunkowe ma aktualne pełnomocnictwo UPL-1.',
+    ],
+    official_links: [
+      { label: 'e-Urząd Skarbowy', href: 'https://www.podatki.gov.pl/e-urzad-skarbowy/', external: true },
+    ],
+    related_actions: [
+      { label: 'Jak uzyskać konto organizacji w e-US', href: '/poradnik/konto-organizacji-e-urzad-skarbowy' },
+      { label: 'KSeF — jak zacząć', href: '/poradnik/ksef' },
+      { label: 'Pierwsze obowiązki po rejestracji spółki', href: '/poradnik/pierwsze-obowiazki-po-zalozeniu-spolki-zoo' },
+    ],
+    faq: [
+      {
+        question: 'Czy konto prywatne w e-US wystarcza do obsługi firmy?',
+        answer: 'Nie. Do działań podatkowych w imieniu spółki potrzebujesz konta organizacji lub właściwego pełnomocnictwa. Konto prywatne daje dostęp tylko do Twoich osobistych rozliczeń.',
+      },
+      {
+        question: 'Dlaczego firma nie pojawia się na liście podmiotów?',
+        answer: 'Może minąć kilka dni od rejestracji zanim NIP firmy jest widoczny w systemach e-US. Jeśli minął tydzień i nadal jej nie ma — skontaktuj się z właściwym US.',
+      },
+      {
+        question: 'Czy JDG też potrzebuje konta organizacji?',
+        answer: 'JDG-owcy są identyfikowani przez swój NIP, który jest jednocześnie NIP firmy. W praktyce logując się profilem zaufanym masz dostęp zarówno do konta osobistego jak i firmowego w jednym miejscu.',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 15,
+    published_at: '2026-05-18T00:00:00.000Z',
+    updated_at: '2026-05-18T00:00:00.000Z',
+    category: fallbackWikiCategories[1],
+  },
+
+  {
+    id: 'fallback-checklista-spolka',
+    slug: 'checklista-spolka-zoo',
+    title: 'Checklista nowej spółki z o.o. — co zrobić w pierwszym miesiącu',
+    excerpt: 'Rejestracja spółki to początek, nie koniec formalności. Ta checklista prowadzi przez pierwsze 30 dni krok po kroku.',
+    summary: 'Praktyczna checklista dla właścicieli nowej spółki z o.o. — wszystko co trzeba zrobić w pierwszym miesiącu od wpisu do KRS.',
+    purpose: 'Właściciele nowych spółek często nie wiedzą co i w jakiej kolejności zrobić po wpisie do KRS. Ta checklista daje konkretną kolejność działań.',
+    body_markdown: `## Dzień 1–3: pilne i z terminem
+
+- **CRBR** — zgłoś beneficjentów rzeczywistych na podatki.gov.pl. Termin liczy się od dnia wpisu do KRS. Kara za brak zgłoszenia może być dotkliwa.
+- **Konto bankowe** — otwórz rachunek firmowy i wpłać kapitał zakładowy jeśli jeszcze nie zrobiono. Bez konta firmowego nie możesz prowadzić rozliczeń.
+
+## Tydzień 1: formalności cyfrowe
+
+- **e-Doręczenia** — aktywuj adres do e-Doręczeń. Spółki mają obowiązek. Ustal kto monitoruje skrzynkę.
+- **e-Urząd Skarbowy** — sprawdź czy masz dostęp do konta organizacji (konto firmy, nie prywatne).
+- **VAT** — zdecyduj czy rejestrujesz spółkę jako vatowca i złóż VAT-R jeśli tak. Warto potwierdzić z biurem rachunkowym.
+
+## Tydzień 2: operacje i dokumentacja
+
+- **Biuro rachunkowe lub księgowa** — ustal sposób przekazywania dokumentów, formaty, terminy miesięczne.
+- **Pierwsza faktura** — skonfiguruj aplikację do fakturowania (KsięgaI lub inne), wystaw fakturę próbną i sprawdź poprawność danych.
+- **ZUS wspólników** — ustal status ZUS z biurem rachunkowym. Jednoosobowy wspólnik zwykle ma obowiązek ZUS.
+
+## Tydzień 3–4: przygotowanie do KSeF
+
+- Ustal kto w spółce będzie zarządzał dostępem do KSeF (osoba z KRS).
+- Wygeneruj token KSeF i podłącz do aplikacji.
+- Nadaj dostęp biuru rachunkowemu przez NIP biura (osobny mechanizm od tokena).
+
+## Przez cały pierwszy miesiąc
+
+- Zbieraj **wszystkie** faktury kosztowe — najem, usługi, sprzęt. Brak faktury = brak kosztu.
+- Dokumentuj każdą umowę i decyzję — spółka prowadzi pełną księgowość.
+- Sprawdź terminy pierwszych deklaracji VAT i JPK z biurem rachunkowym.`,
+    checklist: [
+      'Dzień 1–3: Zgłoś CRBR na podatki.gov.pl.',
+      'Dzień 1–3: Otwórz firmowe konto bankowe.',
+      'Tydzień 1: Aktywuj e-Doręczenia i ustal kto monitoruje skrzynkę.',
+      'Tydzień 1: Uzyskaj dostęp do konta organizacji w e-Urzędzie Skarbowym.',
+      'Tydzień 1: Zdecyduj o VAT i złóż VAT-R jeśli potrzebne.',
+      'Tydzień 2: Ustal z biurem rachunkowym sposób przekazywania dokumentów.',
+      'Tydzień 2: Skonfiguruj aplikację do fakturowania.',
+      'Tydzień 2: Ustal status ZUS wspólników z biurem rachunkowym.',
+      'Tydzień 3–4: Wygeneruj token KSeF i połącz z aplikacją.',
+      'Tydzień 3–4: Nadaj biuru rachunkowemu dostęp do KSeF przez NIP biura.',
+    ],
+    official_links: [
+      { label: 'CRBR — zgłoszenie', href: 'https://www.podatki.gov.pl/crbr/', external: true },
+      { label: 'e-Doręczenia dla przedsiębiorcy', href: 'https://www.gov.pl/web/e-doreczenia/dla-przedsiebiorcy', external: true },
+      { label: 'Portal KSeF', href: 'https://ksef.podatki.gov.pl/', external: true },
+    ],
+    related_actions: [
+      { label: 'Szczegółowe obowiązki po rejestracji', href: '/poradnik/pierwsze-obowiazki-po-zalozeniu-spolki-zoo' },
+      { label: 'KSeF dla spółki z o.o.', href: '/poradnik/ksef-spolka-z-oo-kto-moze-nadac-dostep' },
+      { label: 'Pełna księgowość — o co chodzi', href: '/poradnik/pelna-ksiegowosc-spolka-zoo-o-co-chodzi' },
+    ],
+    faq: [
+      {
+        question: 'W jakiej kolejności zrobić CRBR i konto bankowe?',
+        answer: 'Jedno i drugie jak najszybciej po wpisie do KRS. CRBR ma ustawowy termin — zrób go w pierwszych dniach. Konto bankowe też przyda się od razu do płatności za formalności.',
+      },
+      {
+        question: 'Czy mogę wystawiać faktury bez podłączenia do KSeF?',
+        answer: 'Tak, na razie tak. W trybie KSeF-ready faktury są w prawidłowym formacie, ale nie trafiają jeszcze do KSeF. Połączysz się kiedy będziesz gotowy lub kiedy stanie się obowiązkowe.',
+      },
+    ],
+    article_type: 'checklist',
+    sort_order: 15,
+    published_at: '2026-05-18T00:00:00.000Z',
+    updated_at: '2026-05-18T00:00:00.000Z',
+    category: fallbackWikiCategories[3],
+  },
+
+  {
+    id: 'fallback-zakladanie-firmy',
+    slug: 'zakladanie-firmy',
+    title: 'Zakładanie firmy w Polsce — JDG czy spółka z o.o.?',
+    excerpt: 'Dwie najpopularniejsze formy działalności różnią się odpowiedzialnością, podatkami i formalnościami. Porównanie bez żargonu.',
+    summary: 'Praktyczne porównanie JDG i spółki z o.o. dla osób, które dopiero decydują jaką formę działalności wybrać.',
+    purpose: 'To jedno z pierwszych pytań każdej osoby zakładającej firmę. Ten artykuł daje konkretne porównanie — bez oceniania, bo obie formy mają swoje miejsce.',
+    body_markdown: `## Dwie drogi — dwa różne zobowiązania
+
+W Polsce najczęściej zakłada się albo JDG (jednoosobową działalność gospodarczą), albo spółkę z o.o. To nie jest tylko kwestia prestiżu nazwy — to fundamentalna różnica w odpowiedzialności, podatkach i formalnościach.
+
+## JDG — prostszy start, pełna odpowiedzialność
+
+**JDG (jednoosobowa działalność gospodarcza)** rejestrujesz przez CEIDG. Możesz zacząć działać następnego dnia. Nie potrzebujesz kapitału zakładowego.
+
+Plusy:
+- Rejestracja prosta i bezpłatna przez CEIDG
+- Możliwe uproszczone formy opodatkowania (ryczałt, liniowy)
+- Mniej formalności na co dzień
+- Łatwa likwidacja
+
+Minus: **odpowiadasz całym majątkiem osobistym** za zobowiązania firmy.
+
+Jeżeli firma ma dług — egzekucja może sięgnąć Twojego mieszkania, samochodu, konta prywatnego.
+
+## Spółka z o.o. — większa ochrona, więcej formalności
+
+**Spółka z o.o.** to odrębna osoba prawna. Rejestracja przez KRS (S24 lub notarialnie). Wymaga kapitału zakładowego (minimum 5 000 zł).
+
+Plusy:
+- Odpowiedzialność ograniczona do wartości udziałów (co do zasady)
+- Lepsza wiarygodność wobec większych kontrahentów
+- Możliwość podziału udziałów między wspólników
+
+Minus:
+- Pełna księgowość obowiązkowa (droższe biuro rachunkowe)
+- Więcej formalności po rejestracji (CRBR, e-Doręczenia, ZUS wspólnika)
+- Wypłata pieniędzy z firmy = dywidenda lub wynagrodzenie (nie "własne pieniądze")
+
+## Kiedy co wybrać
+
+**JDG jest zwykle lepsza gdy:**
+- dopiero testujesz pomysł
+- świadczysz usługi jako freelancer bez dużego ryzyka prawnego
+- obroty są relatywnie małe
+- działasz sam
+
+**Spółka z o.o. jest zwykle lepsza gdy:**
+- planujesz działalność z większym ryzykiem finansowym lub prawnym
+- chcesz mieć wspólników
+- kontrahenci wymagają faktury od spółki
+- myślisz o inwestorach lub sprzedaży firmy
+
+To nie jest reguła bez wyjątków — zakres zależy od Twojej sytuacji, rodzaju działalności i planów. Warto potwierdzić wybór z doradcą podatkowym lub prawnikiem.
+
+## Co po rejestracji — pierwsze kroki
+
+Niezależnie od formy — zaraz po rejestracji czeka Cię kilka kroków: konto bankowe, e-Doręczenia, decyzja o VAT, ZUS, konfiguracja fakturowania i przygotowanie do KSeF.`,
+    checklist: [
+      'Zdecyduj o formie działalności (JDG przez CEIDG lub spółka z o.o. przez KRS / S24).',
+      'Przy spółce: ustal kapitał zakładowy i dane wspólników.',
+      'Przy JDG: wybierz formę opodatkowania (zasady ogólne, liniowy, ryczałt).',
+      'Po rejestracji: otwórz konto bankowe firmowe.',
+      'Przy spółce: zgłoś CRBR w ustawowym terminie.',
+      'Przy spółce: aktywuj e-Doręczenia.',
+      'Ustal z biurem rachunkowym obsługę księgowości i pierwszą fakturę.',
+    ],
+    official_links: [
+      { label: 'CEIDG — rejestracja JDG', href: 'https://www.biznes.gov.pl/pl/firma/zakladanie-firmy/chce-zalozyc-jednoosobowa-dzialalnosc-gospodarcza', external: true },
+      { label: 'S24 — rejestracja spółki online', href: 'https://ekrs.ms.gov.pl/', external: true },
+    ],
+    related_actions: [
+      { label: 'Checklista nowej spółki z o.o.', href: '/poradnik/checklista-spolka-zoo' },
+      { label: 'Pierwsze obowiązki po rejestracji spółki', href: '/poradnik/pierwsze-obowiazki-po-zalozeniu-spolki-zoo' },
+      { label: 'KSeF — co to jest i od kiedy obowiązkowy', href: '/poradnik/ksef' },
+    ],
+    faq: [
+      {
+        question: 'Czy mogę przekształcić JDG w spółkę z o.o. później?',
+        answer: 'Tak, przekształcenie JDG w spółkę z o.o. jest możliwe. To złożony proces prawno-podatkowy — wymaga notariusza i zwykle doradcy podatkowego.',
+      },
+      {
+        question: 'Czy jako wspólnik spółki z o.o. płacę ZUS?',
+        answer: 'Jednoosobowy wspólnik spółki z o.o. co do zasady podlega ZUS. Przy dwóch lub więcej wspólnikach zasady są inne. Zakres warto potwierdzić z doradcą.',
+      },
+      {
+        question: 'Ile kosztuje założenie spółki z o.o.?',
+        answer: 'Rejestracja przez S24 (online) to koszt opłaty sądowej (250 zł). Przez notariusza — wyższy. Do tego dochodzi minimalny kapitał zakładowy 5 000 zł i koszty biura rachunkowego.',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 5,
+    published_at: '2026-05-18T00:00:00.000Z',
+    updated_at: '2026-05-18T00:00:00.000Z',
+    category: fallbackWikiCategories[3],
+  },
+
   // ─── TODO: kolejne artykuły do dodania ──────────────────────────────────────
   // Poniżej lista planowanych artykułów — do zaimplementowania w kolejności priorytetu.
   //
