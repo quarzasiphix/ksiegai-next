@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, CheckCircle2, Building, Calculator, FileText, Users, TrendingUp, Shield, Zap, Clock } from "lucide-react";
+import { TrackedLink } from "@/components/analytics/TrackedLink";
+import { PageAnalytics } from "@/components/analytics/PageAnalytics";
 
 export const metadata: Metadata = {
   title: "Jak to działa? | KsięgaI - Workflow księgowości dla JDG i spółek",
@@ -22,6 +24,7 @@ export const metadata: Metadata = {
 export default function JakToDziala() {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
+      <PageAnalytics page="jak-to-dziala" intent="education" />
       {/* Hero */}
       <section className="py-16 bg-gradient-to-br from-gray-900 via-gray-900 to-gray-950">
         <div className="container mx-auto px-6 md:px-4">
@@ -266,13 +269,15 @@ export default function JakToDziala() {
             </div>
 
             <div className="mt-12 text-center">
-              <Link
+              <TrackedLink
                 href="/rejestracja"
+                event="cta_clicked"
+                eventProps={{ page: "jak-to-dziala", persona: "jdg", cta_id: "jdg_workflow_cta", text: "Zacznij z JDG za darmo", destination: "/rejestracja" }}
                 className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-lg px-10 py-4 rounded-2xl font-semibold shadow-xl hover:shadow-2xl transition-all"
               >
                 Zacznij z JDG za darmo
                 <ArrowRight className="h-5 w-5" />
-              </Link>
+              </TrackedLink>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-4">
                 7-dniowy trial • Bez karty • Pełny dostęp
               </p>
@@ -435,13 +440,15 @@ export default function JakToDziala() {
             </div>
 
             <div className="mt-12 text-center">
-              <Link
+              <TrackedLink
                 href="/rejestracja"
+                event="cta_clicked"
+                eventProps={{ page: "jak-to-dziala", persona: "spolka", cta_id: "spolka_workflow_cta", text: "Zacznij ze spółką za darmo", destination: "/rejestracja" }}
                 className="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white text-lg px-10 py-4 rounded-2xl font-semibold shadow-xl hover:shadow-2xl transition-all"
               >
                 Zacznij ze spółką za darmo
                 <ArrowRight className="h-5 w-5" />
-              </Link>
+              </TrackedLink>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-4">
                 7-dniowy trial (Spółka Standard) • Bez karty • Pełny dostęp
               </p>
@@ -538,13 +545,15 @@ export default function JakToDziala() {
             <p className="text-xl text-blue-100 mb-8">
               Uruchom 7-dniowy trial i przetestuj workflow na swoich danych. Bez karty, bez zobowiązań.
             </p>
-            <Link
+            <TrackedLink
               href="/rejestracja"
+              event="cta_clicked"
+              eventProps={{ page: "jak-to-dziala", cta_id: "footer_cta", text: "Zacznij za darmo", destination: "/rejestracja" }}
               className="inline-flex items-center gap-2 bg-white text-blue-600 hover:bg-blue-50 text-lg px-10 py-4 rounded-2xl font-semibold shadow-xl hover:shadow-2xl transition-all"
             >
               Zacznij za darmo
               <ArrowRight className="h-5 w-5" />
-            </Link>
+            </TrackedLink>
             <p className="text-sm text-blue-100 mt-6">
               Pełny dostęp do wszystkich funkcji • Eksport danych w każdej chwili • Zero lock-in
             </p>

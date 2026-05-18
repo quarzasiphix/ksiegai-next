@@ -205,7 +205,37 @@ export async function getRelatedWikiArticles(
     return [];
   }
 
-  return articles.filter((article) => article.slug !== currentSlug).slice(0, limit);
+  const sameCategory = articles.filter((article) => article.slug !== currentSlug);
+  if (sameCategory.length >= limit) {
+    return sameCategory.slice(0, limit);
+  }
+
+  const grouped = await getWikiArticlesByCategory();
+  const fallback = grouped
+    .filter((group) => group.category.slug !== categorySlug)
+    .flatMap((group) =>
+      group.articles.map((article) => ({
+        id: article.id,
+        slug: article.slug,
+        title: article.title,
+        excerpt: article.excerpt,
+        summary: article.summary,
+        purpose: null,
+        body_markdown: null,
+        checklist: [],
+        official_links: [],
+        related_actions: [],
+        faq: [],
+        article_type: article.article_type,
+        sort_order: article.sort_order,
+        published_at: article.published_at,
+        updated_at: article.updated_at,
+        category: group.category,
+      }))
+    )
+    .filter((article) => article.slug !== currentSlug);
+
+  return dedupeArticles([...sameCategory, ...fallback]).slice(0, limit);
 }
 
 export async function getAllWikiCategorySlugs(): Promise<string[]> {

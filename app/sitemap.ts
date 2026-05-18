@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next'
-import { getAllWikiCategorySlugs, getAllWikiSlugs } from '@/lib/wiki';
+import { getWikiArticlesByCategory } from '@/lib/wiki';
 
 const baseUrl = 'https://ksiegai.pl';
 const staticLastModified = new Date('2026-05-18T00:00:00+02:00');
@@ -17,6 +17,12 @@ const staticRoutes: Array<{
   { path: '/darmowy-generator-faktur', changeFrequency: 'weekly', priority: 0.8 },
   { path: '/jak-to-dziala', changeFrequency: 'weekly', priority: 0.7 },
   { path: '/dla-ksiegowych', changeFrequency: 'weekly', priority: 0.7 },
+  { path: '/ksef', changeFrequency: 'weekly', priority: 0.75 },
+  { path: '/jdg', changeFrequency: 'weekly', priority: 0.75 },
+  { path: '/spolka-z-oo', changeFrequency: 'weekly', priority: 0.75 },
+  { path: '/faktury', changeFrequency: 'weekly', priority: 0.75 },
+  { path: '/platnosci-online', changeFrequency: 'weekly', priority: 0.7 },
+  { path: '/bezpieczenstwo-danych', changeFrequency: 'monthly', priority: 0.65 },
   { path: '/poradnik', changeFrequency: 'weekly', priority: 0.7 },
   { path: '/infrastructure', changeFrequency: 'monthly', priority: 0.6 },
   { path: '/governance', changeFrequency: 'monthly', priority: 0.6 },
@@ -27,10 +33,28 @@ const staticRoutes: Array<{
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [wikiSlugs, wikiCategorySlugs] = await Promise.all([
-    getAllWikiSlugs(),
-    getAllWikiCategorySlugs(),
-  ]);
+  const groupedArticles = await getWikiArticlesByCategory();
+  const wikiEntries = groupedArticles.flatMap(({ category, articles }) => {
+    const newestArticleTimestamp = Math.max(
+      ...articles.map((article) => new Date(article.updated_at || article.published_at || staticLastModified).getTime()),
+    );
+    const categoryLastModified = new Date(newestArticleTimestamp);
+
+    return [
+      {
+        url: `${baseUrl}/poradnik/kategoria/${category.slug}`,
+        lastModified: categoryLastModified,
+        changeFrequency: 'weekly' as const,
+        priority: 0.65,
+      },
+      ...articles.map((article) => ({
+        url: `${baseUrl}/poradnik/${article.slug}`,
+        lastModified: new Date(article.updated_at || article.published_at || staticLastModified),
+        changeFrequency: 'weekly' as const,
+        priority: 0.6,
+      })),
+    ];
+  });
 
   return [
     ...staticRoutes.map((route) => ({
@@ -39,17 +63,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: route.changeFrequency,
       priority: route.priority,
     })),
-    ...wikiCategorySlugs.map((slug) => ({
-      url: `${baseUrl}/poradnik/kategoria/${slug}`,
-      lastModified: staticLastModified,
-      changeFrequency: 'weekly' as const,
-      priority: 0.65,
-    })),
-    ...wikiSlugs.map(({ slug, updated_at }) => ({
-      url: `${baseUrl}/poradnik/${slug}`,
-      lastModified: new Date(updated_at),
-      changeFrequency: 'weekly' as const,
-      priority: 0.6,
-    })),
+    ...wikiEntries,
   ]
 }

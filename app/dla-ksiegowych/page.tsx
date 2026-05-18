@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { CheckCircle2, Shield, Users, TrendingUp, FileCheck, Clock, AlertCircle, Zap, Lock, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { TrackedLink } from "@/components/analytics/TrackedLink";
+import { PageAnalytics } from "@/components/analytics/PageAnalytics";
 
 export const metadata: Metadata = {
   title: "Dla księgowych | KsięgaI – narzędzie do skalowania biura rachunkowego",
@@ -23,6 +25,7 @@ export const metadata: Metadata = {
 export default function DlaKsiegowych() {
   return (
     <div className="relative overflow-hidden bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100">
+      <PageAnalytics page="dla-ksiegowych" persona="accountant" intent="signup" />
       <div className="pointer-events-none absolute inset-0 -z-10 opacity-60">
         <div className="absolute -top-24 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-blue-500/20 blur-3xl" />
         <div className="absolute bottom-0 right-0 h-96 w-96 translate-x-1/3 translate-y-1/3 rounded-full bg-green-500/10 blur-3xl" />
@@ -55,19 +58,23 @@ export default function DlaKsiegowych() {
                 KSeF = fala wdrożeń. Przygotuj klientów wcześniej, zanim przyjdą jednocześnie.
               </p>
               <div className="flex flex-wrap gap-4">
-                <Link
+                <TrackedLink
                   href="/rejestracja"
+                  event="cta_clicked"
+                  eventProps={{ page: "dla-ksiegowych", persona: "accountant", cta_id: "hero_primary", text: "Przetestuj z jednym klientem", destination: "/rejestracja" }}
                   className="inline-flex items-center justify-center rounded-2xl bg-green-500 px-8 py-4 text-base font-semibold text-gray-900 transition hover:bg-green-400"
                 >
                   Przetestuj z jednym klientem
                   <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-                <a
+                </TrackedLink>
+                <TrackedLink
                   href="mailto:kontakt@ksiegai.pl"
+                  event="cta_clicked"
+                  eventProps={{ page: "dla-ksiegowych", persona: "accountant", cta_id: "hero_contact", text: "Porozmawiaj o wdrożeniu", destination: "mailto" }}
                   className="inline-flex items-center justify-center rounded-2xl border border-white/30 px-8 py-4 text-base font-semibold text-white/90 transition hover:border-white hover:bg-white/10"
                 >
                   Porozmawiaj o wdrożeniu
-                </a>
+                </TrackedLink>
               </div>
             </div>
           </div>
@@ -260,13 +267,15 @@ export default function DlaKsiegowych() {
             <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
               Masz jednego klienta, na którym chcesz to sprawdzić?
             </h3>
-            <Link
+            <TrackedLink
               href="/rejestracja"
+              event="cta_clicked"
+              eventProps={{ page: "dla-ksiegowych", persona: "accountant", cta_id: "mid_cta", text: "Uruchom pilotaż (7 dni)", destination: "/rejestracja" }}
               className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-8 py-4 text-base font-semibold text-white transition hover:bg-blue-700"
             >
               Uruchom pilotaż (7 dni)
               <ArrowRight className="ml-2 h-5 w-5" />
-            </Link>
+            </TrackedLink>
             <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
               Bez karty • Eksport danych • Zero lock-in
             </p>
@@ -435,18 +444,22 @@ export default function DlaKsiegowych() {
             Możesz zrezygnować bez migracji, bez lock-in, z pełnym eksportem danych.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <Link
+            <TrackedLink
               href="/rejestracja"
+              event="cta_clicked"
+              eventProps={{ page: "dla-ksiegowych", persona: "accountant", cta_id: "footer_primary", text: "Rozpocznij 7-dniowy trial", destination: "/rejestracja" }}
               className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-8 py-4 text-lg font-semibold text-white transition hover:bg-blue-700"
             >
               Rozpocznij 7-dniowy trial
-            </Link>
-            <a
+            </TrackedLink>
+            <TrackedLink
               href="mailto:kontakt@ksiegai.pl"
+              event="cta_clicked"
+              eventProps={{ page: "dla-ksiegowych", persona: "accountant", cta_id: "footer_contact", text: "Porozmawiaj o wdrożeniu biura", destination: "mailto" }}
               className="inline-flex items-center justify-center rounded-2xl border border-gray-300 px-8 py-4 text-lg font-semibold text-gray-900 transition hover:bg-gray-50 dark:border-gray-700 dark:text-white dark:hover:bg-gray-900"
             >
               Porozmawiaj o wdrożeniu biura
-            </a>
+            </TrackedLink>
           </div>
           <p className="mt-6 text-sm text-gray-500 dark:text-gray-400">
             Bez zobowiązań • Pełny dostęp do wszystkich funkcji • Anuluj w dowolnym momencie

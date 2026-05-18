@@ -70,7 +70,10 @@ export function MarkdownRenderer({ content }: { content: string }) {
     // h2: ## Text
     if (line.startsWith('## ')) {
       elements.push(
-        <h2 key={keyCounter++} className="text-2xl font-bold text-gray-900 dark:text-white mb-4 mt-8">
+        <h2
+          key={keyCounter++}
+          className="mt-12 scroll-mt-28 border-t border-black/5 pt-8 text-2xl font-semibold tracking-tight text-slate-950 dark:border-white/10 dark:text-white md:text-[1.85rem]"
+        >
           {parseInline(line.slice(3))}
         </h2>
       );
@@ -81,7 +84,10 @@ export function MarkdownRenderer({ content }: { content: string }) {
     // h3: ### Text
     if (line.startsWith('### ')) {
       elements.push(
-        <h3 key={keyCounter++} className="text-xl font-bold text-gray-900 dark:text-white mt-6 mb-3">
+        <h3
+          key={keyCounter++}
+          className="mt-8 text-xl font-semibold tracking-tight text-slate-950 dark:text-white"
+        >
           {parseInline(line.slice(4))}
         </h3>
       );
@@ -92,7 +98,10 @@ export function MarkdownRenderer({ content }: { content: string }) {
     // Blockquote: > Text
     if (line.startsWith('> ')) {
       elements.push(
-        <div key={keyCounter++} className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl text-gray-700 dark:text-gray-300 mb-4">
+        <div
+          key={keyCounter++}
+          className="mb-6 rounded-2xl border border-sky-200/80 bg-sky-50/80 px-5 py-4 text-[15px] leading-7 text-slate-700 dark:border-sky-400/20 dark:bg-sky-400/10 dark:text-slate-200"
+        >
           {parseInline(line.slice(2))}
         </div>
       );
@@ -110,7 +119,10 @@ export function MarkdownRenderer({ content }: { content: string }) {
         i++;
       }
       elements.push(
-        <ul key={keyCounter++} className="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300 mb-4">
+        <ul
+          key={keyCounter++}
+          className="mb-6 list-disc space-y-3 pl-6 text-[16px] leading-8 text-slate-700 marker:text-sky-500 dark:text-slate-300"
+        >
           {items}
         </ul>
       );
@@ -128,7 +140,10 @@ export function MarkdownRenderer({ content }: { content: string }) {
         i++;
       }
       elements.push(
-        <ol key={keyCounter++} className="list-decimal pl-6 space-y-2 text-gray-700 dark:text-gray-300 mb-4">
+        <ol
+          key={keyCounter++}
+          className="mb-6 list-decimal space-y-3 pl-6 text-[16px] leading-8 text-slate-700 marker:font-semibold marker:text-sky-600 dark:text-slate-300 dark:marker:text-sky-300"
+        >
           {items}
         </ol>
       );
@@ -137,12 +152,15 @@ export function MarkdownRenderer({ content }: { content: string }) {
 
     // Regular paragraph
     elements.push(
-      <p key={keyCounter++} className="text-gray-700 dark:text-gray-300 mb-4">
+      <p
+        key={keyCounter++}
+        className="mb-5 text-[16px] leading-8 text-slate-700 dark:text-slate-300 md:text-[17px]"
+      >
         {parseInline(line)}
       </p>
     );
     i++;
   }
 
-  return <div>{elements}</div>;
+  return <div className="text-pretty">{elements}</div>;
 }

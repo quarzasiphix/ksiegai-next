@@ -1,12 +1,14 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, ArrowRight, BookOpen, CheckSquare, ChevronRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, ChevronRight, ExternalLink, Sparkles } from 'lucide-react';
+import { WikiArticleCard } from '@/components/wiki/WikiArticleCard';
 import {
   getAllWikiCategorySlugs,
   getWikiArticlesForCategory,
   getWikiCategoryBySlug,
 } from '@/lib/wiki';
+import { getQuickTopics, getWikiPresentationCategory } from '@/lib/wiki-presentation';
 
 type PageProps = {
   params: { slug: string };
@@ -42,6 +44,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function WikiCategoryPage({ params }: PageProps) {
   const { category, articles } = await getWikiArticlesForCategory(params.slug);
   if (!category) notFound();
+  const presentation = getWikiPresentationCategory(category.slug);
+  const featuredArticle = articles[0] ?? null;
+  const remainingArticles = articles.slice(1);
+  const quickTopics = getQuickTopics(articles);
 
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org',
@@ -65,50 +71,142 @@ export default async function WikiCategoryPage({ params }: PageProps) {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
-      <main className="min-h-screen bg-background">
-        <section className="border-b border-border/40 bg-gradient-to-b from-background to-muted/20 px-4 py-14">
-          <div className="mx-auto max-w-4xl">
-            <nav aria-label="Breadcrumb" className="mb-6 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+      <main className="min-h-screen bg-[linear-gradient(to_bottom,#f8fafc,white_18%,#f8fafc_100%)] dark:bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.12),transparent_34%),linear-gradient(to_bottom,#05070d,#09090b)]">
+        <section className="border-b border-black/5 px-4 py-14 dark:border-white/10 md:py-20">
+          <div className="mx-auto max-w-7xl">
+            <nav aria-label="Breadcrumb" className="mb-6 flex flex-wrap items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
               <Link href="/poradnik" className="transition-colors hover:text-foreground">Poradnik</Link>
               <ChevronRight className="h-4 w-4" />
               <span className="text-foreground">{category.name}</span>
             </nav>
-          <Link
-            href="/poradnik"
-            className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Wróć do poradnika
-          </Link>
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-border/60 bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
-            <BookOpen className="h-3.5 w-3.5" />
-            <span>{articles.length} artykułów</span>
-          </div>
-          <h1 className="text-4xl font-bold tracking-tight md:text-5xl">{category.name}</h1>
-          {category.description ? (
-            <p className="mt-4 max-w-2xl text-lg text-muted-foreground">{category.description}</p>
-          ) : null}
+
+            <div className="grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_320px] lg:items-end">
+              <div>
+                <Link
+                  href="/poradnik"
+                  className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Wróć do poradnika
+                </Link>
+                <div className="mt-6 inline-flex rounded-full border border-black/10 bg-white/80 px-4 py-2 text-sm font-medium text-slate-700 shadow-sm dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-200">
+                  {presentation.badge}
+                </div>
+                <h1 className="mt-5 text-4xl font-semibold tracking-tight text-slate-950 dark:text-white md:text-6xl">
+                  {category.name}
+                </h1>
+                {category.description ? (
+                  <p className="mt-4 max-w-3xl text-lg leading-8 text-slate-600 dark:text-slate-300">{category.description}</p>
+                ) : null}
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <span className="rounded-full bg-sky-500/10 px-3 py-1.5 text-sm font-medium text-sky-700 dark:text-sky-300">
+                    {articles.length} {articles.length === 1 ? 'aktywny poradnik' : 'aktywnych poradników'}
+                  </span>
+                  <span className="rounded-full border border-black/10 bg-black/[0.03] px-3 py-1.5 text-sm text-slate-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-300">
+                    Tematy: {quickTopics.length}
+                  </span>
+                </div>
+              </div>
+
+              <div className="rounded-[28px] border border-black/10 bg-white/85 p-6 shadow-[0_24px_80px_-52px_rgba(15,23,42,0.42)] dark:border-white/10 dark:bg-white/[0.04]">
+                <div className="flex items-center gap-2 text-sm font-medium text-slate-500 dark:text-slate-400">
+                  <Sparkles className="h-4 w-4 text-sky-600 dark:text-sky-300" />
+                  <span>Najczęstsze tematy</span>
+                </div>
+                <div className="mt-4 space-y-2">
+                  {quickTopics.map((topic) => (
+                    <div
+                      key={topic}
+                      className="rounded-2xl border border-black/5 bg-black/[0.02] px-3 py-3 text-sm text-slate-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-slate-200"
+                    >
+                      {topic}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
-        <section className="px-4 py-12">
-          <div className="mx-auto max-w-4xl space-y-4">
-            {articles.map((article) => (
-              <Link
-                key={article.slug}
-                href={`/poradnik/${article.slug}`}
-                className="group flex items-start gap-4 rounded-2xl border border-border/60 bg-card p-5 transition-colors hover:border-primary/30 hover:bg-muted/20"
-              >
-                <div className="mt-0.5 rounded-lg bg-primary/10 p-2">
-                  <CheckSquare className="h-4 w-4 text-primary" />
+        <section className="px-4 py-12 md:py-14">
+          <div className="mx-auto max-w-7xl space-y-10">
+            {featuredArticle ? (
+              <div className="grid gap-6 xl:grid-cols-[minmax(0,1.25fr)_360px]">
+                <WikiArticleCard article={featuredArticle} category={category} showCategory={false} variant="featured" />
+
+                <div className="rounded-[28px] border border-black/10 bg-white/85 p-6 shadow-[0_24px_80px_-54px_rgba(15,23,42,0.4)] dark:border-white/10 dark:bg-white/[0.04]">
+                  <div className="text-sm font-medium uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+                    Połącz to z produktem
+                  </div>
+                  <h2 className="mt-3 text-2xl font-semibold tracking-tight text-slate-950 dark:text-white">
+                    {presentation.ctaTitle}
+                  </h2>
+                  <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">
+                    {presentation.ctaDescription}
+                  </p>
+                  <div className="mt-6 space-y-3">
+                    <Link
+                      href={presentation.ctaHref}
+                      className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100"
+                    >
+                      {presentation.ctaLabel}
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                    <Link
+                      href="/cennik"
+                      className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-black/10 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-black/[0.03] dark:border-white/10 dark:text-slate-200 dark:hover:bg-white/[0.04]"
+                    >
+                      Zobacz cennik
+                      <ExternalLink className="h-4 w-4" />
+                    </Link>
+                  </div>
+
+                  <div className="mt-8 border-t border-black/5 pt-6 dark:border-white/10">
+                    <div className="text-sm font-medium text-slate-500 dark:text-slate-400">{presentation.roadmapTitle}</div>
+                    <div className="mt-4 space-y-2">
+                      {presentation.roadmapTopics.map((topic) => (
+                        <div
+                          key={topic}
+                          className="rounded-2xl border border-black/5 bg-black/[0.02] px-3 py-3 text-sm text-slate-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-slate-200"
+                        >
+                          {topic}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-lg font-semibold transition-colors group-hover:text-primary">{article.title}</p>
-                  <p className="mt-1 text-sm text-muted-foreground">{article.excerpt || article.summary}</p>
+              </div>
+            ) : null}
+
+            {remainingArticles.length ? (
+              <div>
+                <div className="mb-6 flex items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-2xl font-semibold tracking-tight text-slate-950 dark:text-white">
+                      Wszystkie poradniki w tej kategorii
+                    </h2>
+                    <p className="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">
+                      Każdy poradnik prowadzi od formalności lub problemu do konkretnego następnego kroku.
+                    </p>
+                  </div>
                 </div>
-                <ArrowRight className="mt-1 h-4 w-4 flex-shrink-0 text-muted-foreground transition-colors group-hover:text-primary" />
-              </Link>
-            ))}
+
+                <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+                  {remainingArticles.map((article) => (
+                    <WikiArticleCard key={article.slug} article={article} category={category} showCategory={false} />
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="rounded-[28px] border border-dashed border-black/10 bg-white/70 p-8 dark:border-white/10 dark:bg-white/[0.03]">
+                <h2 className="text-2xl font-semibold tracking-tight text-slate-950 dark:text-white">
+                  Ta sekcja dopiero się rozbudowuje
+                </h2>
+                <p className="mt-3 max-w-3xl text-base leading-8 text-slate-600 dark:text-slate-300">
+                  Mamy już główny poradnik dla tej kategorii. Kolejne tematy są przygotowane w roadmapie poniżej, żeby poradnik rósł razem z realnymi potrzebami firm i księgowych.
+                </p>
+              </div>
+            )}
           </div>
         </section>
       </main>

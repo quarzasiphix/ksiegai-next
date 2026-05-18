@@ -1,6 +1,45 @@
 # Notes
 Created: legacy-existing (exact date unknown)
-Last modified: 2026-05-18 17:01 CEST
+Last modified: 2026-05-18 20:55 CEST
+
+## 2026-05-18 - Reworked poradnik into a wider SaaS knowledge hub layout
+
+What changed:
+- Rebuilt [app/poradnik/page.tsx](/mnt/c/k/ksiegai-next/app/poradnik/page.tsx) into a full-width hub with:
+  - stronger hero
+  - article/category stats
+  - featured guides
+  - category sections with premium card grids
+- Reworked [app/poradnik/kategoria/[slug]/page.tsx](/mnt/c/k/ksiegai-next/app/poradnik/kategoria/[slug]/page.tsx) into a real category landing page with:
+  - wider hero
+  - featured article
+  - quick topics
+  - category CTA/roadmap panel
+- Rebuilt [app/poradnik/[slug]/page.tsx](/mnt/c/k/ksiegai-next/app/poradnik/[slug]/page.tsx) into a structured article layout with:
+  - richer hero
+  - wider article column
+  - sticky sidebar
+  - related actions
+  - stronger related-guide linking
+- Added shared wiki presentation helpers and reusable wiki article cards:
+  - [components/wiki/WikiArticleCard.tsx](/mnt/c/k/ksiegai-next/components/wiki/WikiArticleCard.tsx)
+  - [lib/wiki-presentation.ts](/mnt/c/k/ksiegai-next/lib/wiki-presentation.ts)
+- Improved [components/MarkdownRenderer.tsx](/mnt/c/k/ksiegai-next/components/MarkdownRenderer.tsx) typography and spacing for guide readability.
+- Expanded `getRelatedWikiArticles(...)` in [lib/wiki.ts](/mnt/c/k/ksiegai-next/lib/wiki.ts) so related links can fall back to adjacent categories when same-category content is too thin.
+- Tightened external official-link behavior to use `rel="noopener noreferrer"` on article pages.
+
+Why:
+- the previous poradnik pages were too narrow on desktop and read more like simple blog pages than a serious SaaS docs/SEO system
+- the new layout is built to scale as more KSeF/compliance/faktury guides are added without changing routes or the content model
+
+Verification evidence (2026-05-18):
+- `cd /mnt/c/k/ksiegai-next && npx tsc --noEmit` -> pass
+- `cd /mnt/c/k/ksiegai-next && npm run build` -> pass
+
+Scope notes:
+- No route or slug changes.
+- No database schema, RLS, or Supabase backend contract changes.
+- No change to the `ksiegai_auth_token` cross-domain handoff contract.
 
 ## 2026-05-18 - Rebuilt sitemap around the full public site surface
 
