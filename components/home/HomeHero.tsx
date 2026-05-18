@@ -55,7 +55,7 @@ const buildSessionToken = (session: NonNullable<SessionState>) => ({
 });
 
 const LoggedOutHero = ({ onAnonymousPrimaryCtaClick }: HomeHeroProps) => {
-  const { variant, trackConversion } = useABTestSSG('/', { trackTime: true });
+  const { variant, isLoading, trackConversion } = useABTestSSG('/', { trackTime: true });
 
   const changes = variant?.changes as Record<string, string> | undefined;
   const badge      = changes?.banner_badge   ?? 'KSeF + płatności Stripe online';
@@ -63,6 +63,16 @@ const LoggedOutHero = ({ onAnonymousPrimaryCtaClick }: HomeHeroProps) => {
   const subheadline = changes?.subheadline   ?? 'Jedno miejsce do wystawiania dokumentów, przyjmowania płatności online i pilnowania obowiązków firmy.';
   const ctaText    = changes?.cta            ?? 'Załóż konto';
   const ctaSecondary = changes?.cta_secondary ?? 'Jak to działa';
+
+  // Track which hero variant the user sees, once per mount
+  useEffect(() => {
+    if (isLoading) return;
+    const isControl = !variant || variant.id === 'control';
+    posthog.capture(isControl ? 'hero-a' : 'hero-b', {
+      variant_id: variant?.id ?? 'default',
+      variant_name: variant?.name ?? 'Default',
+    });
+  }, [isLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleCtaClick = () => {
     onAnonymousPrimaryCtaClick();

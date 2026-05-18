@@ -176,25 +176,40 @@ function selectVariantByWeight(variants: ABTestVariant[]): ABTestVariant {
 }
 
 /**
- * Load A/B tests from static JSON file
+ * Load A/B tests — Supabase (live, admin-managed) with static JSON fallback.
  */
 export async function loadABTests(): Promise<Record<string, ABTest>> {
+  // Try live tests from Supabase first (RLS: status = 'active' readable by anon)
+  try {
+    const { data, error } = await (supabase as any)
+      .from('ab_test_definitions')
+      .select('id, test_key, name, page_path, traffic_allocation, variants, primary_goal, secondary_goals')
+      .eq('status', 'active');
+
+    if (!error && data && (data as any[]).length > 0) {
+      const tests: Record<string, ABTest> = {};
+      for (const row of (data as any[])) {
+        tests[row.page_path] = row as ABTest;
+      }
+      if (typeof window !== 'undefined') {
+        (window as any).__AB_TESTS_CACHE = tests;
+      }
+      return tests;
+    }
+  } catch {
+    // fall through to static JSON
+  }
+
+  // Fallback: static /ab-tests.json (build-time override or empty)
   try {
     const response = await fetch('/ab-tests.json');
-    if (!response.ok) {
-      console.warn('No A/B tests configuration found');
-      return {};
-    }
+    if (!response.ok) return {};
     const tests = await response.json();
-    
-    // Cache in window for synchronous access
     if (typeof window !== 'undefined') {
       (window as any).__AB_TESTS_CACHE = tests;
     }
-    
     return tests;
-  } catch (error) {
-    console.error('Error loading A/B tests:', error);
+  } catch {
     return {};
   }
 }
