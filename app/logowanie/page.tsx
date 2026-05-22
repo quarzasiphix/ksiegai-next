@@ -718,6 +718,32 @@ export default function Login() {
                   </div>
                 </div>
 
+                {/* Method toggle */}
+                <div className="flex rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
+                  <button
+                    type="button"
+                    onClick={() => { setUseMagicLink(false); setError(null); }}
+                    className={`flex-1 py-2 text-sm font-medium transition-colors ${
+                      !useMagicLink
+                        ? "bg-blue-600 text-white"
+                        : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
+                    }`}
+                  >
+                    Hasło
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setUseMagicLink(true); setError(null); }}
+                    className={`flex-1 py-2 text-sm font-medium transition-colors ${
+                      useMagicLink
+                        ? "bg-blue-600 text-white"
+                        : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
+                    }`}
+                  >
+                    Link e-mail
+                  </button>
+                </div>
+
                 {!useMagicLink ? (
                   <form onSubmit={handlePasswordLogin} className="space-y-4">
                     {selectedSavedPasswordProfile ? (
@@ -739,16 +765,6 @@ export default function Login() {
                             className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                           >
                             Wybierz inne konto
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setUseMagicLink(true);
-                              setError(null);
-                            }}
-                            className="text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
-                          >
-                            Użyj linku logowania
                           </button>
                         </div>
                       </div>
@@ -811,13 +827,6 @@ export default function Login() {
                       {loading ? 'Logowanie...' : 'Zaloguj się'}
                     </button>
 
-                    <button
-                      type="button"
-                      onClick={() => setUseMagicLink(true)}
-                      className="w-full text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white py-2"
-                    >
-                      Nie pamiętasz hasła? Użyj linku logowania
-                    </button>
                   </form>
                 ) : (
                   <form onSubmit={handleMagicLink} className="space-y-4">
@@ -872,13 +881,6 @@ export default function Login() {
                       {loading ? 'Wysyłanie...' : 'Wyślij link logowania'}
                     </button>
 
-                    <button
-                      type="button"
-                      onClick={() => setUseMagicLink(false)}
-                      className="w-full text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white py-2"
-                    >
-                      Wróć do logowania hasłem
-                    </button>
                   </form>
                 )}
               </div>

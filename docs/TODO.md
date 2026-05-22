@@ -1,6 +1,4 @@
 # TODO (Multi-agent)
-Created: legacy-existing (exact date unknown)
-Last modified: 2026-05-09 18:52 CEST
 
 ## Ownership zones
 - Agent A: frontend/UI/UX and SEO content/pages
@@ -27,34 +25,6 @@ Last modified: 2026-05-09 18:52 CEST
   - Notes:
     - Follows T-304 implementation; environment-level action required.
 ## IN PROGRESS
-- [ ] T-323: Add token-based quick resume for saved `/logowanie` profiles
-  - Owner: Codex
-  - Started: 2026-05-09 18:52
-  - Branch: main (shared)
-  - Reviewer: self
-  - Status: pr_ready
-  - Notes:
-    - Scope freeze: `ksiegai-next` saved-account login UX only.
-    - Replaced password-manager dependence with per-profile Supabase session token persistence in browser storage keyed to remembered accounts.
-    - Clicking a saved profile now tries direct session restore first; only if that fails does the flow fall back to Google, magic-link, or password confirmation.
-    - No schema, RLS, or `ksiegai_auth_token` contract changes.
-  - Files touched (actual):
-    - `ksiegai-next/lib/auth/loginProfiles.ts`
-    - `ksiegai-next/lib/auth/crossDomainAuth.ts`
-    - `ksiegai-next/app/logowanie/page.tsx`
-    - `ksiegai-next/app/auth/callback/page.tsx`
-    - `ksiegai-next/components/Header.tsx`
-    - `ksiegai-next/docs/TODO.md`
-    - `ksiegai-next/docs/NOTES.md`
-  - DoD:
-    - [x] saved profiles can restore their own remembered session without retyping a password
-    - [x] invalid per-profile tokens fall back to the previous auth method instead of breaking login
-    - [x] refreshed sessions update the remembered per-profile token
-    - [x] `cd ksiegai-next && npx tsc --noEmit` passes
-  - Checks run:
-    - `cd ksiegai-next && npx tsc --noEmit` (pass)
-    - `cd ksiegai-next && npm run build` (pass)
-
 - [ ] T-322: Fix `/logowanie` hydration mismatch from remembered-profile bootstrap
   - Owner: Codex
   - Started: 2026-05-03 00:00
@@ -112,13 +82,10 @@ Last modified: 2026-05-09 18:52 CEST
     - Scope freeze: `ksiegai-next` login/session UX only.
     - Goal: stop showing the login form prematurely when a resumable session exists, add an explicit "continue to app" path for the active user, and make remembered accounts behave more like a saved-account chooser.
     - No schema, RLS, or `ksiegai_auth_token` contract changes.
-    - Follow-up: session restore now retries with the stored refresh token on hard refresh instead of clearing the handoff token when the access token is stale; login page also remembers the last selected profile and exposes browser password-manager autocomplete for password profiles.
   - Files touched (actual):
     - `ksiegai-next/lib/auth/loginProfiles.ts`
     - `ksiegai-next/app/logowanie/page.tsx`
     - `ksiegai-next/app/auth/callback/page.tsx`
-    - `ksiegai-next/lib/auth/crossDomainAuth.ts`
-    - `ksiegai-next/components/Header.tsx`
     - `ksiegai-next/docs/TODO.md`
     - `ksiegai-next/docs/NOTES.md`
     - `tovernet/docs/workspace/WORK_LOG.md`
@@ -136,8 +103,6 @@ Last modified: 2026-05-09 18:52 CEST
     - Kliknij zapisany profil Google i sprawdź, że wznawia logowanie OAuth bez ręcznego wpisywania e-maila.
     - Kliknij zapisany profil hasłowy i sprawdź, że e-mail jest zablokowany, a UI prosi tylko o hasło.
     - Wyczyść/zepsuj sesję i potwierdź, że po nieudanej próbie wznowienia użytkownik ląduje bezpiecznie na odpowiednim fallbacku zamiast na pustym spinnerze.
-    - Zaloguj się profilem hasłowym, odśwież stronę po wygaśnięciu access tokena i potwierdź, że sesja wraca z refresh tokena zamiast wylogowania.
-    - Wybierz zapisany profil hasłowy i sprawdź, że przeglądarka proponuje zapisane hasło bez aplikacyjnego przechowywania hasła w localStorage.
 
 - [ ] T-318: Auto-persist free invoice seller data and reuse seller NIP during signup onboarding
   - Owner: Codex
@@ -282,56 +247,6 @@ Last modified: 2026-05-09 18:52 CEST
     - Confirm audit doc reflects current runtime probe outputs.
 
 ## DONE
-- [x] T-327: Separate local dev and export build output
-  - Owner: Codex
-  - Reviewer: self
-  - Verified:
-    - `next.config.js` now routes `next dev` output to `.next-dev`
-    - production/export build output remains `.next`
-    - local runtime no longer needs to share stale export artifacts with dev mode
-  - Date: 2026-05-04
-- [x] T-326: Fix production-only install typecheck dependencies
-  - Owner: Codex
-  - Reviewer: self
-  - Verified:
-    - `typescript`, `@types/node`, `@types/react`, and `@types/react-dom` are now in `dependencies`
-    - `package-lock.json` root entry matches the production dependency split
-    - `cd ksiegai-next && npx tsc --noEmit` passed
-  - Date: 2026-05-04
-- [x] T-325: Remove `ksiegai-next` runtime path-alias dependency
-  - Owner: Codex
-  - Reviewer: self
-  - Verified:
-    - runtime `@/` imports were replaced with relative imports across `app/`, `components/`, `hooks/`, and `lib/`
-    - alias scan over executable code returned clean
-    - `cd ksiegai-next && npx tsc --noEmit` passed
-  - Date: 2026-05-04
-- [x] T-324: Fix `ksiegai-next` Cloudflare build blockers
-  - Owner: Codex
-  - Reviewer: self
-  - Verified:
-    - production CSS toolchain packages are now in `dependencies`, so `npm clean-install` / production installs keep `tailwindcss`
-    - `tsconfig.json` now has `baseUrl`, matching the existing `@/*` alias contract
-    - `app/sitemap.ts` no longer contains merge conflict markers
-    - `cd ksiegai-next && npx tsc --noEmit` passed after the sitemap fix
-    - `cd ksiegai-next && npm run build` moved past the original Tailwind + alias failures; remaining local failure is WSL-specific missing Linux SWC binary
-  - Date: 2026-05-04
-- [x] T-323: Create `ksiegai-next/.env.production` scaffold
-  - Owner: Codex
-  - Reviewer: self
-  - Verified:
-    - `ksiegai-next/.env.production` now matches the app's current production-facing public env contract
-    - `SUPABASE_SERVICE_ROLE_KEY` intentionally remains a replacement placeholder because no production secret is tracked in-repo
-  - Date: 2026-05-04
-- [x] T-309: Add public `/generator-faktur` page in ksiegai-next
-  - Owner: Codex
-  - Reviewer: self
-  - Verified:
-    - `cd ksiegai-next && ./node_modules/.bin/tsc --noEmit --pretty false` passed
-    - `cd ksiegai-next && npm run lint` blocked because `next lint` opened first-run ESLint setup prompt instead of running checks
-    - runtime smoke blocked in sandbox because `next dev` did not bind to `127.0.0.1:3000` during CLI verification attempt
-  - PR/Commit: pending
-  - Date: 2026-03-13
 - [x] T-322: Logged-in homepage hero with business profile panel + app handoff
   - Owner: Codex
   - Reviewer: self
@@ -448,6 +363,7 @@ Last modified: 2026-05-09 18:52 CEST
     - feature scope stayed static-export safe: client-only page, no backend persistence, sitemap entry added
   - PR/Commit: `d2f8dd1`
   - Date: 2026-03-11
+>>>>>>> 003750cfdd806cb7dff430bbdf1a9d26a423e5e3
 - [x] T-308: Fix `/auth/confirm` signup email links for static export
   - Owner: Codex
   - Reviewer: self

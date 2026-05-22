@@ -5,10 +5,9 @@ import { supabase } from "../../lib/supabase";
 import { storeAuthToken, redirectToApp } from "../../lib/auth/crossDomainAuth";
 import { sendWelcomeEmailIfNewUser, setAuthFlowOrigin } from "../../lib/auth/welcomeEmail";
 import { getSessionId, getVariantAssignments } from "../../lib/ab-testing-ssg";
-import { Mail, ChevronDown } from "lucide-react";
+import { Mail, Lock, ChevronDown, CheckCircle2 } from "lucide-react";
 import posthog from "posthog-js";
 
-// Google Icon Component
 const GoogleIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -18,68 +17,36 @@ const GoogleIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-// Apple Icon Component
 const AppleIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
     <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.46 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701z"/>
   </svg>
 );
 
+type EmailMethod = "password" | "magic_link";
+type ConfirmState = { method: EmailMethod; email: string };
+
 export default function Register() {
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [magicLinkSent, setMagicLinkSent] = useState(false);
+  const [confirmed, setConfirmed] = useState<ConfirmState | null>(null);
   const [showEmailForm, setShowEmailForm] = useState(false);
+  const [emailMethod, setEmailMethod] = useState<EmailMethod>("password");
   const [resendCooldown, setResendCooldown] = useState(0);
   const [sessionId] = useState(() => getSessionId());
   const [variantAssignments, setVariantAssignments] = useState<Record<string, string>>({});
   const [isApplePlatform, setIsApplePlatform] = useState(false);
 
-  // Load variant assignments from localStorage on mount
   useEffect(() => {
-    const assignments = getVariantAssignments();
-    setVariantAssignments(assignments);
+    setVariantAssignments(getVariantAssignments());
   }, []);
 
   useEffect(() => {
     setIsApplePlatform(/Mac|iPhone|iPad|iPod/i.test(navigator.userAgent));
   }, []);
 
-  // Handle auth state changes
-  useEffect(() => {
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session) {
-        posthog.identify(session.user.id, { email: session.user.email });
-        // Track registration conversion for all active A/B tests
-        await trackRegistrationConversion(session.user.id);
-
-        await sendWelcomeEmailIfNewUser({
-          userId: session.user.id,
-          email: session.user.email,
-          createdAt: session.user.created_at,
-          force: true,
-        });
-        
-        // Store token for cross-domain access
-        storeAuthToken({
-          access_token: session.access_token,
-          refresh_token: session.refresh_token,
-          expires_at: session.expires_at || 0,
-          user_id: session.user.id,
-        });
-
-        // Redirect to app subdomain root - let app routing handle onboarding
-        redirectToApp('/');
-      }
-    });
-
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
-  }, [variantAssignments, sessionId]);
-
-  // Resend cooldown timer
   useEffect(() => {
     if (resendCooldown > 0) {
       const timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
@@ -87,109 +54,136 @@ export default function Register() {
     }
   }, [resendCooldown]);
 
-  // Magic link registration
-  const handleMagicLink = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-
-    if (!email) {
-      setError("Podaj adres e-mail");
-      return;
-    }
-
-    setLoading(true);
-    setAuthFlowOrigin("register");
-    const { error } = await supabase.auth.signInWithOtp({
-      email: email,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
+  useEffect(() => {
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        posthog.identify(session.user.id, { email: session.user.email });
+        await trackRegistrationConversion(session.user.id);
+        await sendWelcomeEmailIfNewUser({
+          userId: session.user.id,
+          email: session.user.email,
+          createdAt: session.user.created_at,
+          force: true,
+        });
+        storeAuthToken({
+          access_token: session.access_token,
+          refresh_token: session.refresh_token,
+          expires_at: session.expires_at || 0,
+          user_id: session.user.id,
+        });
+        redirectToApp('/');
+      }
     });
-    setLoading(false);
+    return () => { authListener.subscription.unsubscribe(); };
+  }, [variantAssignments, sessionId]);
 
-    if (error) {
-      setError("Nie udało się wysłać linku. Spróbuj ponownie.");
-    } else {
-      posthog.capture('register_magic_link_sent');
-      setMagicLinkSent(true);
-      setResendCooldown(60);
-    }
-  };
-
-  // Resend magic link
-  const handleResend = async () => {
-    if (resendCooldown > 0) return;
-    
-    setError(null);
-    setLoading(true);
-    const { error } = await supabase.auth.signInWithOtp({
-      email: email,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-    setLoading(false);
-
-    if (error) {
-      setError("Nie udało się wysłać linku. Spróbuj ponownie.");
-    } else {
-      setResendCooldown(60);
-    }
-  };
-
-  // Track registration conversion for all active A/B tests
-  // Uses secure RPC function to prevent abuse
   const trackRegistrationConversion = async (userId: string) => {
     try {
       const conversionKey = `ab_registration_conversion_sent:${sessionId}:${userId}`;
-      if (typeof window !== "undefined" && localStorage.getItem(conversionKey) === "1") {
-        return;
-      }
+      if (typeof window !== "undefined" && localStorage.getItem(conversionKey) === "1") return;
 
-      // Determine registration method
-      const registrationMethod = email ? 'magic_link' : 'google_oauth';
-
-      // Preferred path: secure RPC function
       const { data, error } = await (supabase.rpc as any)('track_registration_conversion', {
         p_session_id: sessionId,
-        p_registration_method: registrationMethod,
+        p_registration_method: emailMethod,
       });
 
       if (error) {
-        // Fallback path: post signup event(s) through API endpoint for active assignments
-        const assignmentEntries = Object.entries(variantAssignments || {});
-        for (const [testId, variantId] of assignmentEntries) {
+        for (const [testId, variantId] of Object.entries(variantAssignments || {})) {
           await fetch('/api/ab-track', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              test_id: testId,
-              variant_id: variantId,
-              session_id: sessionId,
-              event_type: 'signup',
-              event_name: 'registration_completed',
-              event_metadata: {
-                registration_method: registrationMethod,
-                user_id: userId,
-              },
+              test_id: testId, variant_id: variantId, session_id: sessionId,
+              event_type: 'signup', event_name: 'registration_completed',
+              event_metadata: { registration_method: emailMethod, user_id: userId },
               page_path: '/rejestracja',
             }),
           });
         }
-        if (typeof window !== "undefined") {
-          localStorage.setItem(conversionKey, "1");
-        }
-        return;
       }
 
-      const result = data as any;
-      if (result?.success) {
-        if (typeof window !== "undefined") {
-          localStorage.setItem(conversionKey, "1");
-        }
-      }
+      if (typeof window !== "undefined") localStorage.setItem(conversionKey, "1");
     } catch (err) {
       console.error('Error tracking registration conversion:', err);
+    }
+  };
+
+  const handlePasswordRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    if (!email) { setError("Podaj adres e-mail"); return; }
+    if (!password || password.length < 6) { setError("Hasło musi mieć co najmniej 6 znaków"); return; }
+
+    setLoading(true);
+    setAuthFlowOrigin("register");
+
+    const { data, error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+    });
+
+    setLoading(false);
+
+    if (signUpError) {
+      const msg = signUpError.message?.toLowerCase() ?? "";
+      if (msg.includes("already registered") || msg.includes("already exists")) {
+        setError("Konto z tym adresem już istnieje. Zaloguj się hasłem.");
+      } else {
+        setError("Nie udało się założyć konta. Spróbuj ponownie.");
+      }
+      return;
+    }
+
+    posthog.capture('register_password_signup');
+
+    // If session returned immediately (email confirmation disabled) → onAuthStateChange handles redirect.
+    // Otherwise show the confirm screen with instructions to log in via password.
+    if (!data.session) {
+      setConfirmed({ method: "password", email });
+    }
+  };
+
+  const handleMagicLink = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    if (!email) { setError("Podaj adres e-mail"); return; }
+
+    setLoading(true);
+    setAuthFlowOrigin("register");
+
+    const { error: otpError } = await supabase.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+    });
+
+    setLoading(false);
+
+    if (otpError) {
+      setError("Nie udało się wysłać linku. Spróbuj ponownie.");
+      return;
+    }
+
+    posthog.capture('register_magic_link_sent');
+    setConfirmed({ method: "magic_link", email });
+    setResendCooldown(60);
+  };
+
+  const handleResendMagicLink = async () => {
+    if (resendCooldown > 0) return;
+    setError(null);
+    setLoading(true);
+    const { error: otpError } = await supabase.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+    });
+    setLoading(false);
+    if (otpError) {
+      setError("Nie udało się wysłać linku. Spróbuj ponownie.");
+    } else {
+      setResendCooldown(60);
     }
   };
 
@@ -201,13 +195,10 @@ export default function Register() {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        },
+        options: { redirectTo: `${window.location.origin}/auth/callback` },
       });
-      
       if (error) throw error;
-    } catch (err) {
+    } catch {
       setError("Nie udało się zalogować przez Google. Spróbuj ponownie.");
       setLoading(false);
     }
@@ -221,173 +212,282 @@ export default function Register() {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'apple',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        },
+        options: { redirectTo: `${window.location.origin}/auth/callback` },
       });
       if (error) throw error;
-    } catch (err) {
+    } catch {
       setError("Nie udało się zalogować przez Apple. Spróbuj ponownie.");
       setLoading(false);
     }
   };
 
-  const handleEmailVerified = () => {
-    redirectToApp('/');
-  };
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 flex items-center justify-center p-4">
-      <div className="w-full max-w-lg">
-        {magicLinkSent ? (
+  // ─── Confirmation screen ────────────────────────────────────────────────────
+  if (confirmed) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 flex items-center justify-center p-4">
+        <div className="w-full max-w-lg">
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 animate-fade-in">
             <div className="text-center mb-6">
               <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Mail className="h-8 w-8 text-green-600 dark:text-green-400" />
+                <CheckCircle2 className="h-8 w-8 text-green-600 dark:text-green-400" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                Sprawdź swoją skrzynkę
+                {confirmed.method === "password" ? "Konto założone!" : "Sprawdź skrzynkę"}
               </h2>
               <p className="text-gray-600 dark:text-gray-400">
-                Wysłaliśmy link logowania na adres:
+                {confirmed.method === "password"
+                  ? "Wysłaliśmy link potwierdzający na adres:"
+                  : "Wysłaliśmy link logowania na adres:"}
               </p>
               <p className="text-lg font-semibold text-gray-900 dark:text-white mt-2">
-                {email}
+                {confirmed.email}
               </p>
             </div>
 
             <div className="space-y-4">
-              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
-                <p className="text-sm text-blue-900 dark:text-blue-100">
-                  <strong>Kliknij link w e-mailu</strong>, a zostaniesz automatycznie zalogowany i przekierowany do aplikacji.
-                </p>
-              </div>
-
-              <button
-                onClick={handleEmailVerified}
-                className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-xl transition-colors"
-              >
-                Email zweryfikowany — kontynuuj
-              </button>
-
-              <div className="text-center pt-4">
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                  Nie otrzymałeś e-maila?
-                </p>
-                <button
-                  onClick={handleResend}
-                  disabled={resendCooldown > 0 || loading}
-                  className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {resendCooldown > 0 
-                    ? `Wyślij ponownie (${resendCooldown}s)` 
-                    : 'Wyślij link ponownie'}
-                </button>
-              </div>
+              {confirmed.method === "password" ? (
+                <>
+                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+                    <p className="text-sm text-blue-900 dark:text-blue-100">
+                      Potwierdź adres e-mail klikając link w wiadomości. Możesz się już teraz zalogować swoim hasłem.
+                    </p>
+                  </div>
+                  <a
+                    href="/logowanie"
+                    className="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors"
+                  >
+                    Zaloguj się hasłem
+                  </a>
+                </>
+              ) : (
+                <>
+                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+                    <p className="text-sm text-blue-900 dark:text-blue-100">
+                      <strong>Kliknij link w e-mailu</strong>, a zostaniesz automatycznie zalogowany i przekierowany do aplikacji.
+                    </p>
+                  </div>
+                  <div className="text-center pt-2">
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                      Nie otrzymałeś e-maila?
+                    </p>
+                    <button
+                      onClick={handleResendMagicLink}
+                      disabled={resendCooldown > 0 || loading}
+                      className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {resendCooldown > 0
+                        ? `Wyślij ponownie (${resendCooldown}s)`
+                        : 'Wyślij link ponownie'}
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
-        ) : (
-          <>
-            <div className="text-center mb-8 animate-fade-in">
-              <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
-                Jeszcze chwila — i księgowość masz z głowy.
-              </h1>
-              <p className="mt-2 text-xs text-gray-600 dark:text-gray-400">
-                🇵🇱 Dla polskich przedsiębiorców • zgodne z KSeF
-              </p>
-              <p className="mt-4 text-lg text-gray-600 dark:text-gray-400 max-w-xl mx-auto">
-                Załóż konto, a KsięgaI zajmie się resztą.
-              </p>
-            </div>
-            
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 animate-fade-in">
-              <div className="space-y-4">
-                <button
-                  onClick={handleGoogleSignIn}
-                  disabled={loading}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white text-lg px-10 py-4 h-auto shadow-xl hover:shadow-2xl transition-all rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
-                >
-                  <GoogleIcon className="h-5 w-5" />
-                  Kontynuuj przez Google
-                </button>
+        </div>
+      </div>
+    );
+  }
 
-                {isApplePlatform && (
-                  <button
-                    onClick={handleAppleSignIn}
-                    disabled={loading}
-                    className="w-full bg-black hover:bg-gray-900 dark:bg-white dark:hover:bg-gray-100 text-white dark:text-black text-lg px-10 py-4 h-auto shadow-xl hover:shadow-2xl transition-all rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
-                  >
-                    <AppleIcon className="h-5 w-5" />
-                    Kontynuuj przez Apple
-                  </button>
-                )}
+  // ─── Main registration form ─────────────────────────────────────────────────
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 flex items-center justify-center p-4">
+      <div className="w-full max-w-lg">
+        <div className="text-center mb-8 animate-fade-in">
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
+            Jeszcze chwila — i księgowość masz z głowy.
+          </h1>
+          <p className="mt-2 text-xs text-gray-600 dark:text-gray-400">
+            🇵🇱 Dla polskich przedsiębiorców • zgodne z KSeF
+          </p>
+          <p className="mt-4 text-lg text-gray-600 dark:text-gray-400 max-w-xl mx-auto">
+            Załóż konto, a KsięgaI zajmie się resztą.
+          </p>
+        </div>
 
-                {!showEmailForm ? (
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 animate-fade-in">
+          <div className="space-y-4">
+            <button
+              onClick={handleGoogleSignIn}
+              disabled={loading}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white text-lg px-10 py-4 h-auto shadow-xl hover:shadow-2xl transition-all rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+            >
+              <GoogleIcon className="h-5 w-5" />
+              Kontynuuj przez Google
+            </button>
+
+            {isApplePlatform && (
+              <button
+                onClick={handleAppleSignIn}
+                disabled={loading}
+                className="w-full bg-black hover:bg-gray-900 dark:bg-white dark:hover:bg-gray-100 text-white dark:text-black text-lg px-10 py-4 h-auto shadow-xl hover:shadow-2xl transition-all rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+              >
+                <AppleIcon className="h-5 w-5" />
+                Kontynuuj przez Apple
+              </button>
+            )}
+
+            {!showEmailForm ? (
+              <button
+                onClick={() => { posthog.capture('register_email_form_opened'); setShowEmailForm(true); }}
+                className="w-full text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white py-2 flex items-center justify-center gap-2"
+              >
+                Użyj adresu e-mail
+                <ChevronDown className="h-4 w-4" />
+              </button>
+            ) : (
+              <div className="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-4">
+                {/* Method toggle */}
+                <div className="flex rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
                   <button
-                    onClick={() => { posthog.capture('register_email_form_opened'); setShowEmailForm(true); }}
-                    className="w-full text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white py-2 flex items-center justify-center gap-2"
+                    type="button"
+                    onClick={() => { setEmailMethod("password"); setError(null); }}
+                    className={`flex-1 py-2 text-sm font-medium transition-colors ${
+                      emailMethod === "password"
+                        ? "bg-blue-600 text-white"
+                        : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
+                    }`}
                   >
-                    Użyj adresu e-mail
-                    <ChevronDown className="h-4 w-4" />
+                    Hasło
                   </button>
-                ) : (
-                  <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                    <form onSubmit={handleMagicLink} className="space-y-4">
-                      <div className="space-y-2">
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                          Adres e-mail
-                        </label>
-                        <div className="relative">
-                          <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                          <input
-                            id="email"
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                            placeholder="twoj@email.pl"
-                            className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                          />
-                        </div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          Wyślemy Ci bezpieczny link do logowania.
-                        </p>
+                  <button
+                    type="button"
+                    onClick={() => { setEmailMethod("magic_link"); setError(null); }}
+                    className={`flex-1 py-2 text-sm font-medium transition-colors ${
+                      emailMethod === "magic_link"
+                        ? "bg-blue-600 text-white"
+                        : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
+                    }`}
+                  >
+                    Link e-mail
+                  </button>
+                </div>
+
+                {emailMethod === "password" ? (
+                  <form onSubmit={handlePasswordRegister} className="space-y-4">
+                    <div className="space-y-2">
+                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Adres e-mail
+                      </label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                        <input
+                          id="email"
+                          name="email"
+                          type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                          autoComplete="email"
+                          autoCapitalize="none"
+                          autoCorrect="off"
+                          placeholder="twoj@email.pl"
+                          className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        />
                       </div>
-                      
-                      {error && (
-                        <div className="text-red-500 text-sm font-medium bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
-                          {error}
-                        </div>
-                      )}
-                      
-                      <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {loading ? 'Wysyłanie...' : 'Kontynuuj'}
-                      </button>
-                      
-                      <p className="text-xs text-center text-gray-500 dark:text-gray-400">
-                        Kontynuując, akceptujesz <a href="/regulamin" className="text-blue-600 hover:underline">Regulamin</a> i <a href="/polityka-prywatnosci" className="text-blue-600 hover:underline">Politykę prywatności</a>.
+                    </div>
+
+                    <div className="space-y-2">
+                      <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Hasło
+                      </label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                        <input
+                          id="password"
+                          name="password"
+                          type="password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          required
+                          autoComplete="new-password"
+                          placeholder="Minimum 6 znaków"
+                          className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        />
+                      </div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Przeglądarka zapamięta hasło i automatycznie wypełni je przy kolejnym logowaniu.
                       </p>
-                    </form>
-                  </div>
+                    </div>
+
+                    {error && (
+                      <div className="text-red-500 text-sm font-medium bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+                        {error}
+                      </div>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {loading ? 'Zakładanie konta...' : 'Załóż konto'}
+                    </button>
+
+                    <p className="text-xs text-center text-gray-500 dark:text-gray-400">
+                      Kontynuując, akceptujesz <a href="/regulamin" className="text-blue-600 hover:underline">Regulamin</a> i <a href="/polityka-prywatnosci" className="text-blue-600 hover:underline">Politykę prywatności</a>.
+                    </p>
+                  </form>
+                ) : (
+                  <form onSubmit={handleMagicLink} className="space-y-4">
+                    <div className="space-y-2">
+                      <label htmlFor="email-magic" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Adres e-mail
+                      </label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                        <input
+                          id="email-magic"
+                          name="email"
+                          type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                          autoComplete="email"
+                          autoCapitalize="none"
+                          autoCorrect="off"
+                          placeholder="twoj@email.pl"
+                          className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        />
+                      </div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Wyślemy jednorazowy link logowania — kliknięcie automatycznie zaloguje i zarejestruje.
+                      </p>
+                    </div>
+
+                    {error && (
+                      <div className="text-red-500 text-sm font-medium bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+                        {error}
+                      </div>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {loading ? 'Wysyłanie...' : 'Wyślij link logowania'}
+                    </button>
+
+                    <p className="text-xs text-center text-gray-500 dark:text-gray-400">
+                      Kontynuując, akceptujesz <a href="/regulamin" className="text-blue-600 hover:underline">Regulamin</a> i <a href="/polityka-prywatnosci" className="text-blue-600 hover:underline">Politykę prywatności</a>.
+                    </p>
+                  </form>
                 )}
               </div>
+            )}
+          </div>
 
-              <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <p className="text-sm text-center text-gray-600 dark:text-gray-400">
-                  Po rejestracji możesz od razu wystawić pierwszą fakturę.
-                </p>
-              </div>
-            </div>
-
-            <p className="text-center text-sm text-gray-600 dark:text-gray-400 mt-6">
-              Masz już konto? <a href="/logowanie" className="text-blue-600 hover:underline font-medium">Zaloguj się</a>
+          <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <p className="text-sm text-center text-gray-600 dark:text-gray-400">
+              Po rejestracji możesz od razu wystawić pierwszą fakturę.
             </p>
-          </>
-        )}
+          </div>
+        </div>
+
+        <p className="text-center text-sm text-gray-600 dark:text-gray-400 mt-6">
+          Masz już konto? <a href="/logowanie" className="text-blue-600 hover:underline font-medium">Zaloguj się</a>
+        </p>
       </div>
     </div>
   );
