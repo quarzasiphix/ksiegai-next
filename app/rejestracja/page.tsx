@@ -5,8 +5,32 @@ import { supabase } from "../../lib/supabase";
 import { storeAuthToken, redirectToApp } from "../../lib/auth/crossDomainAuth";
 import { sendWelcomeEmailIfNewUser, setAuthFlowOrigin } from "../../lib/auth/welcomeEmail";
 import { getSessionId, getVariantAssignments } from "../../lib/ab-testing-ssg";
-import { Mail, Lock, ChevronDown, CheckCircle2 } from "lucide-react";
+import { Mail, Lock, ExternalLink } from "lucide-react";
+
+const INBOX_PROVIDERS: Record<string, { name: string; url: string }> = {
+  "gmail.com":      { name: "Gmail",         url: "https://mail.google.com" },
+  "googlemail.com": { name: "Gmail",         url: "https://mail.google.com" },
+  "yahoo.com":      { name: "Yahoo Mail",    url: "https://mail.yahoo.com" },
+  "yahoo.pl":       { name: "Yahoo Mail",    url: "https://mail.yahoo.com" },
+  "outlook.com":    { name: "Outlook",       url: "https://outlook.live.com/mail" },
+  "hotmail.com":    { name: "Outlook",       url: "https://outlook.live.com/mail" },
+  "live.com":       { name: "Outlook",       url: "https://outlook.live.com/mail" },
+  "o2.pl":          { name: "O2 Poczta",     url: "https://poczta.o2.pl" },
+  "wp.pl":          { name: "WP Poczta",     url: "https://poczta.wp.pl" },
+  "onet.pl":        { name: "Onet Poczta",   url: "https://poczta.onet.pl" },
+  "interia.pl":     { name: "Interia",       url: "https://poczta.interia.pl" },
+  "proton.me":      { name: "Proton Mail",   url: "https://mail.proton.me" },
+  "protonmail.com": { name: "Proton Mail",   url: "https://mail.proton.me" },
+  "icloud.com":     { name: "iCloud Mail",   url: "https://www.icloud.com/mail" },
+  "me.com":         { name: "iCloud Mail",   url: "https://www.icloud.com/mail" },
+};
+
 import posthog from "posthog-js";
+
+function getInboxProvider(email: string) {
+  const domain = email.split("@")[1]?.toLowerCase();
+  return domain ? (INBOX_PROVIDERS[domain] ?? null) : null;
+}
 
 const GoogleIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -23,42 +47,32 @@ const AppleIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-type EmailMethod = "password" | "magic_link";
-type ConfirmState = { method: EmailMethod; email: string };
-
 export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [confirmed, setConfirmed] = useState<ConfirmState | null>(null);
-  const [showEmailForm, setShowEmailForm] = useState(false);
-  const [emailMethod, setEmailMethod] = useState<EmailMethod>("password");
+  const [confirmed, setConfirmed] = useState<string | null>(null);
+  const [useMagicLink, setUseMagicLink] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
   const [sessionId] = useState(() => getSessionId());
   const [variantAssignments, setVariantAssignments] = useState<Record<string, string>>({});
   const [isApplePlatform, setIsApplePlatform] = useState(false);
 
-  useEffect(() => {
-    setVariantAssignments(getVariantAssignments());
-  }, []);
+  useEffect(() => { setVariantAssignments(getVariantAssignments()); }, []);
+  useEffect(() => { setIsApplePlatform(/Mac|iPhone|iPad|iPod/i.test(navigator.userAgent)); }, []);
 
   useEffect(() => {
-    setIsApplePlatform(/Mac|iPhone|iPad|iPod/i.test(navigator.userAgent));
-  }, []);
-
-  useEffect(() => {
-    if (resendCooldown > 0) {
-      const timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
-      return () => clearTimeout(timer);
-    }
+    if (resendCooldown <= 0) return;
+    const t = setTimeout(() => setResendCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(t);
   }, [resendCooldown]);
 
   useEffect(() => {
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session) {
+    const { data: listener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "SIGNED_IN" && session) {
         posthog.identify(session.user.id, { email: session.user.email });
-        await trackRegistrationConversion(session.user.id);
+        await trackConversion(session.user.id);
         await sendWelcomeEmailIfNewUser({
           userId: session.user.id,
           email: session.user.email,
@@ -71,422 +85,336 @@ export default function Register() {
           expires_at: session.expires_at || 0,
           user_id: session.user.id,
         });
-        redirectToApp('/');
+        redirectToApp("/");
       }
     });
-    return () => { authListener.subscription.unsubscribe(); };
+    return () => listener.subscription.unsubscribe();
   }, [variantAssignments, sessionId]);
 
-  const trackRegistrationConversion = async (userId: string) => {
+  const trackConversion = async (userId: string) => {
     try {
-      const conversionKey = `ab_registration_conversion_sent:${sessionId}:${userId}`;
-      if (typeof window !== "undefined" && localStorage.getItem(conversionKey) === "1") return;
-
-      const { data, error } = await (supabase.rpc as any)('track_registration_conversion', {
+      const key = `ab_registration_conversion_sent:${sessionId}:${userId}`;
+      if (typeof window !== "undefined" && localStorage.getItem(key) === "1") return;
+      const method = useMagicLink ? "magic_link" : "password";
+      const { error } = await (supabase.rpc as any)("track_registration_conversion", {
         p_session_id: sessionId,
-        p_registration_method: emailMethod,
+        p_registration_method: method,
       });
-
       if (error) {
         for (const [testId, variantId] of Object.entries(variantAssignments || {})) {
-          await fetch('/api/ab-track', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+          await fetch("/api/ab-track", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               test_id: testId, variant_id: variantId, session_id: sessionId,
-              event_type: 'signup', event_name: 'registration_completed',
-              event_metadata: { registration_method: emailMethod, user_id: userId },
-              page_path: '/rejestracja',
+              event_type: "signup", event_name: "registration_completed",
+              event_metadata: { registration_method: method, user_id: userId },
+              page_path: "/rejestracja",
             }),
           });
         }
       }
-
-      if (typeof window !== "undefined") localStorage.setItem(conversionKey, "1");
+      if (typeof window !== "undefined") localStorage.setItem(key, "1");
     } catch (err) {
-      console.error('Error tracking registration conversion:', err);
+      console.error("Error tracking registration conversion:", err);
     }
   };
 
   const handlePasswordRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-
     if (!email) { setError("Podaj adres e-mail"); return; }
-    if (!password || password.length < 6) { setError("Hasło musi mieć co najmniej 6 znaków"); return; }
+    if (password.length < 6) { setError("Hasło musi mieć co najmniej 6 znaków"); return; }
 
     setLoading(true);
     setAuthFlowOrigin("register");
-
-    const { data, error: signUpError } = await supabase.auth.signUp({
+    const { data, error: err } = await supabase.auth.signUp({
       email,
       password,
       options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
     });
-
     setLoading(false);
 
-    if (signUpError) {
-      const msg = signUpError.message?.toLowerCase() ?? "";
-      if (msg.includes("already registered") || msg.includes("already exists")) {
-        setError("Konto z tym adresem już istnieje. Zaloguj się hasłem.");
-      } else {
-        setError("Nie udało się założyć konta. Spróbuj ponownie.");
-      }
+    if (err) {
+      const msg = err.message?.toLowerCase() ?? "";
+      setError(
+        msg.includes("already registered") || msg.includes("already exists")
+          ? "Konto z tym adresem już istnieje. Zaloguj się."
+          : "Nie udało się założyć konta. Spróbuj ponownie."
+      );
       return;
     }
 
-    posthog.capture('register_password_signup');
-
-    // If session returned immediately (email confirmation disabled) → onAuthStateChange handles redirect.
-    // Otherwise show the confirm screen with instructions to log in via password.
-    if (!data.session) {
-      setConfirmed({ method: "password", email });
-    }
+    posthog.capture("register_password_signup");
+    if (!data.session) setConfirmed(email);
+    // session present → onAuthStateChange fires and redirects
   };
 
   const handleMagicLink = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-
     if (!email) { setError("Podaj adres e-mail"); return; }
 
     setLoading(true);
     setAuthFlowOrigin("register");
-
-    const { error: otpError } = await supabase.auth.signInWithOtp({
+    const { error: err } = await supabase.auth.signInWithOtp({
       email,
       options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
     });
-
     setLoading(false);
 
-    if (otpError) {
-      setError("Nie udało się wysłać linku. Spróbuj ponownie.");
-      return;
-    }
+    if (err) { setError("Nie udało się wysłać linku. Spróbuj ponownie."); return; }
 
-    posthog.capture('register_magic_link_sent');
-    setConfirmed({ method: "magic_link", email });
+    posthog.capture("register_magic_link_sent");
+    setConfirmed(email);
     setResendCooldown(60);
   };
 
-  const handleResendMagicLink = async () => {
+  const handleResend = async () => {
     if (resendCooldown > 0) return;
-    setError(null);
     setLoading(true);
-    const { error: otpError } = await supabase.auth.signInWithOtp({
+    const { error: err } = await supabase.auth.signInWithOtp({
       email,
       options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
     });
     setLoading(false);
-    if (otpError) {
-      setError("Nie udało się wysłać linku. Spróbuj ponownie.");
-    } else {
-      setResendCooldown(60);
-    }
+    if (err) setError("Nie udało się wysłać linku. Spróbuj ponownie.");
+    else setResendCooldown(60);
   };
 
-  const handleGoogleSignIn = async () => {
-    posthog.capture('register_google_clicked');
+  const handleGoogle = async () => {
+    posthog.capture("register_google_clicked");
     setError(null);
     setLoading(true);
     setAuthFlowOrigin("register");
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: { redirectTo: `${window.location.origin}/auth/callback` },
-      });
-      if (error) throw error;
-    } catch {
-      setError("Nie udało się zalogować przez Google. Spróbuj ponownie.");
-      setLoading(false);
-    }
+    const { error: err } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
+    });
+    if (err) { setError("Nie udało się zalogować przez Google."); setLoading(false); }
   };
 
-  const handleAppleSignIn = async () => {
-    posthog.capture('register_apple_clicked');
+  const handleApple = async () => {
+    posthog.capture("register_apple_clicked");
     setError(null);
     setLoading(true);
     setAuthFlowOrigin("register");
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'apple',
-        options: { redirectTo: `${window.location.origin}/auth/callback` },
-      });
-      if (error) throw error;
-    } catch {
-      setError("Nie udało się zalogować przez Apple. Spróbuj ponownie.");
-      setLoading(false);
-    }
+    const { error: err } = await supabase.auth.signInWithOAuth({
+      provider: "apple",
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
+    });
+    if (err) { setError("Nie udało się zalogować przez Apple."); setLoading(false); }
   };
 
-  // ─── Confirmation screen ────────────────────────────────────────────────────
+  // ─── Confirmation screen ─────────────────────────────────────────────────────
   if (confirmed) {
+    const provider = getInboxProvider(confirmed);
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 flex items-center justify-center p-4">
-        <div className="w-full max-w-lg">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 animate-fade-in">
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle2 className="h-8 w-8 text-green-600 dark:text-green-400" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                {confirmed.method === "password" ? "Konto założone!" : "Sprawdź skrzynkę"}
-              </h2>
-              <p className="text-gray-600 dark:text-gray-400">
-                {confirmed.method === "password"
-                  ? "Wysłaliśmy link potwierdzający na adres:"
-                  : "Wysłaliśmy link logowania na adres:"}
-              </p>
-              <p className="text-lg font-semibold text-gray-900 dark:text-white mt-2">
-                {confirmed.email}
-              </p>
+        <div className="w-full max-w-md">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 text-center">
+            <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-5">
+              <Mail className="h-8 w-8 text-blue-600 dark:text-blue-400" />
             </div>
 
-            <div className="space-y-4">
-              {confirmed.method === "password" ? (
-                <>
-                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
-                    <p className="text-sm text-blue-900 dark:text-blue-100">
-                      Potwierdź adres e-mail klikając link w wiadomości. Możesz się już teraz zalogować swoim hasłem.
-                    </p>
-                  </div>
-                  <a
-                    href="/logowanie"
-                    className="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors"
-                  >
-                    Zaloguj się hasłem
-                  </a>
-                </>
-              ) : (
-                <>
-                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
-                    <p className="text-sm text-blue-900 dark:text-blue-100">
-                      <strong>Kliknij link w e-mailu</strong>, a zostaniesz automatycznie zalogowany i przekierowany do aplikacji.
-                    </p>
-                  </div>
-                  <div className="text-center pt-2">
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                      Nie otrzymałeś e-maila?
-                    </p>
-                    <button
-                      onClick={handleResendMagicLink}
-                      disabled={resendCooldown > 0 || loading}
-                      className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {resendCooldown > 0
-                        ? `Wyślij ponownie (${resendCooldown}s)`
-                        : 'Wyślij link ponownie'}
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              Sprawdź skrzynkę
+            </h2>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mb-1">
+              Wysłaliśmy link aktywacyjny na:
+            </p>
+            <p className="font-semibold text-gray-900 dark:text-white mb-2">{confirmed}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+              Kliknij link w e-mailu — zostaniesz zalogowany automatycznie.
+            </p>
+
+            {provider && (
+              <a
+                href={provider.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors mb-4"
+              >
+                <ExternalLink className="h-4 w-4" />
+                Otwórz {provider.name}
+              </a>
+            )}
+
+            <button
+              onClick={handleResend}
+              disabled={resendCooldown > 0 || loading}
+              className="text-blue-600 hover:text-blue-700 dark:text-blue-400 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {resendCooldown > 0 ? `Wyślij ponownie (${resendCooldown}s)` : "Nie dotarł? Wyślij ponownie"}
+            </button>
           </div>
         </div>
       </div>
     );
   }
 
-  // ─── Main registration form ─────────────────────────────────────────────────
+  // ─── Main form ───────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 flex items-center justify-center p-4">
-      <div className="w-full max-w-lg">
-        <div className="text-center mb-8 animate-fade-in">
-          <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
-            Jeszcze chwila — i księgowość masz z głowy.
+      <div className="w-full max-w-md">
+
+        {/* Header */}
+        <div className="text-center mb-7">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Zacznij za darmo
           </h1>
-          <p className="mt-2 text-xs text-gray-600 dark:text-gray-400">
-            🇵🇱 Dla polskich przedsiębiorców • zgodne z KSeF
-          </p>
-          <p className="mt-4 text-lg text-gray-600 dark:text-gray-400 max-w-xl mx-auto">
-            Załóż konto, a KsięgaI zajmie się resztą.
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+            Bez karty płatniczej &nbsp;·&nbsp; Faktury od razu &nbsp;·&nbsp; Zgodne z KSeF
           </p>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 animate-fade-in">
-          <div className="space-y-4">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-7 space-y-4">
+
+          {/* OAuth */}
+          <button
+            onClick={handleGoogle}
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <GoogleIcon className="h-5 w-5 shrink-0" />
+            Kontynuuj przez Google
+          </button>
+
+          {isApplePlatform && (
             <button
-              onClick={handleGoogleSignIn}
+              onClick={handleApple}
               disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white text-lg px-10 py-4 h-auto shadow-xl hover:shadow-2xl transition-all rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+              className="w-full flex items-center justify-center gap-3 bg-black hover:bg-gray-900 dark:bg-white dark:hover:bg-gray-100 text-white dark:text-black font-semibold py-3.5 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <GoogleIcon className="h-5 w-5" />
-              Kontynuuj przez Google
+              <AppleIcon className="h-5 w-5 shrink-0" />
+              Kontynuuj przez Apple
             </button>
+          )}
 
-            {isApplePlatform && (
-              <button
-                onClick={handleAppleSignIn}
-                disabled={loading}
-                className="w-full bg-black hover:bg-gray-900 dark:bg-white dark:hover:bg-gray-100 text-white dark:text-black text-lg px-10 py-4 h-auto shadow-xl hover:shadow-2xl transition-all rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
-              >
-                <AppleIcon className="h-5 w-5" />
-                Kontynuuj przez Apple
-              </button>
-            )}
+          {/* Divider */}
+          <div className="flex items-center gap-3">
+            <div className="flex-1 border-t border-gray-200 dark:border-gray-700" />
+            <span className="text-xs text-gray-400 dark:text-gray-500">lub e-mailem</span>
+            <div className="flex-1 border-t border-gray-200 dark:border-gray-700" />
+          </div>
 
-            {!showEmailForm ? (
-              <button
-                onClick={() => { posthog.capture('register_email_form_opened'); setShowEmailForm(true); }}
-                className="w-full text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white py-2 flex items-center justify-center gap-2"
-              >
-                Użyj adresu e-mail
-                <ChevronDown className="h-4 w-4" />
-              </button>
-            ) : (
-              <div className="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-4">
-                {/* Method toggle */}
-                <div className="flex rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
-                  <button
-                    type="button"
-                    onClick={() => { setEmailMethod("password"); setError(null); }}
-                    className={`flex-1 py-2 text-sm font-medium transition-colors ${
-                      emailMethod === "password"
-                        ? "bg-blue-600 text-white"
-                        : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
-                    }`}
-                  >
-                    Hasło
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setEmailMethod("magic_link"); setError(null); }}
-                    className={`flex-1 py-2 text-sm font-medium transition-colors ${
-                      emailMethod === "magic_link"
-                        ? "bg-blue-600 text-white"
-                        : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
-                    }`}
-                  >
-                    Link e-mail
-                  </button>
-                </div>
-
-                {emailMethod === "password" ? (
-                  <form onSubmit={handlePasswordRegister} className="space-y-4">
-                    <div className="space-y-2">
-                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Adres e-mail
-                      </label>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                        <input
-                          id="email"
-                          name="email"
-                          type="email"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          required
-                          autoComplete="email"
-                          autoCapitalize="none"
-                          autoCorrect="off"
-                          placeholder="twoj@email.pl"
-                          className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Hasło
-                      </label>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                        <input
-                          id="password"
-                          name="password"
-                          type="password"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          required
-                          autoComplete="new-password"
-                          placeholder="Minimum 6 znaków"
-                          className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        />
-                      </div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Przeglądarka zapamięta hasło i automatycznie wypełni je przy kolejnym logowaniu.
-                      </p>
-                    </div>
-
-                    {error && (
-                      <div className="text-red-500 text-sm font-medium bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
-                        {error}
-                      </div>
-                    )}
-
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {loading ? 'Zakładanie konta...' : 'Załóż konto'}
-                    </button>
-
-                    <p className="text-xs text-center text-gray-500 dark:text-gray-400">
-                      Kontynuując, akceptujesz <a href="/regulamin" className="text-blue-600 hover:underline">Regulamin</a> i <a href="/polityka-prywatnosci" className="text-blue-600 hover:underline">Politykę prywatności</a>.
-                    </p>
-                  </form>
-                ) : (
-                  <form onSubmit={handleMagicLink} className="space-y-4">
-                    <div className="space-y-2">
-                      <label htmlFor="email-magic" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Adres e-mail
-                      </label>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                        <input
-                          id="email-magic"
-                          name="email"
-                          type="email"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          required
-                          autoComplete="email"
-                          autoCapitalize="none"
-                          autoCorrect="off"
-                          placeholder="twoj@email.pl"
-                          className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        />
-                      </div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Wyślemy jednorazowy link logowania — kliknięcie automatycznie zaloguje i zarejestruje.
-                      </p>
-                    </div>
-
-                    {error && (
-                      <div className="text-red-500 text-sm font-medium bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
-                        {error}
-                      </div>
-                    )}
-
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {loading ? 'Wysyłanie...' : 'Wyślij link logowania'}
-                    </button>
-
-                    <p className="text-xs text-center text-gray-500 dark:text-gray-400">
-                      Kontynuując, akceptujesz <a href="/regulamin" className="text-blue-600 hover:underline">Regulamin</a> i <a href="/polityka-prywatnosci" className="text-blue-600 hover:underline">Politykę prywatności</a>.
-                    </p>
-                  </form>
-                )}
+          {/* Email form */}
+          {!useMagicLink ? (
+            <form onSubmit={handlePasswordRegister} className="space-y-3">
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  autoComplete="email"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  placeholder="twoj@email.pl"
+                  className="w-full pl-9 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                />
               </div>
-            )}
-          </div>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  autoComplete="new-password"
+                  placeholder="Hasło (min. 6 znaków)"
+                  className="w-full pl-9 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                />
+              </div>
 
-          <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-            <p className="text-sm text-center text-gray-600 dark:text-gray-400">
-              Po rejestracji możesz od razu wystawić pierwszą fakturę.
-            </p>
-          </div>
+              {error && (
+                <p className="text-red-500 text-sm bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
+                  {error}
+                </p>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? "Zakładanie konta…" : "Załóż konto"}
+              </button>
+
+              <p className="text-center text-xs text-gray-400 dark:text-gray-500">
+                Wolisz bez hasła?{" "}
+                <button
+                  type="button"
+                  onClick={() => { setUseMagicLink(true); setError(null); }}
+                  className="text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  Wyślij link na e-mail
+                </button>
+              </p>
+            </form>
+          ) : (
+            <form onSubmit={handleMagicLink} className="space-y-3">
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input
+                  id="email-magic"
+                  name="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  autoComplete="email"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  placeholder="twoj@email.pl"
+                  className="w-full pl-9 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                />
+              </div>
+
+              {error && (
+                <p className="text-red-500 text-sm bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
+                  {error}
+                </p>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? "Wysyłanie…" : "Wyślij link logowania"}
+              </button>
+
+              <p className="text-center text-xs text-gray-400 dark:text-gray-500">
+                <button
+                  type="button"
+                  onClick={() => { setUseMagicLink(false); setError(null); }}
+                  className="text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  Wróć do rejestracji hasłem
+                </button>
+              </p>
+            </form>
+          )}
+
+          <p className="text-center text-xs text-gray-400 dark:text-gray-500 pt-1">
+            Rejestrując się, akceptujesz{" "}
+            <a href="/regulamin" className="hover:underline">Regulamin</a>{" "}
+            i{" "}
+            <a href="/polityka-prywatnosci" className="hover:underline">Politykę prywatności</a>.
+          </p>
         </div>
 
-        <p className="text-center text-sm text-gray-600 dark:text-gray-400 mt-6">
-          Masz już konto? <a href="/logowanie" className="text-blue-600 hover:underline font-medium">Zaloguj się</a>
+        <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-5">
+          Masz już konto?{" "}
+          <a href="/logowanie" className="text-blue-600 hover:underline font-medium">
+            Zaloguj się
+          </a>
         </p>
       </div>
     </div>
