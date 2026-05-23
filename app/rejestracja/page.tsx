@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "../../lib/supabase";
 import { storeAuthToken, redirectToApp } from "../../lib/auth/crossDomainAuth";
 import { sendWelcomeEmailIfNewUser, setAuthFlowOrigin } from "../../lib/auth/welcomeEmail";
@@ -53,6 +53,7 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmed, setConfirmed] = useState<string | null>(null);
+  const awaitingEmailConfirm = useRef(false);
   const [useMagicLink, setUseMagicLink] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
   const [sessionId] = useState(() => getSessionId());
@@ -70,7 +71,7 @@ export default function Register() {
 
   useEffect(() => {
     const { data: listener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === "SIGNED_IN" && session) {
+      if (event === "SIGNED_IN" && session && !awaitingEmailConfirm.current) {
         posthog.identify(session.user.id, { email: session.user.email });
         await trackConversion(session.user.id);
         await sendWelcomeEmailIfNewUser({
@@ -128,7 +129,8 @@ export default function Register() {
 
     setLoading(true);
     setAuthFlowOrigin("register");
-    const { data, error: err } = await supabase.auth.signUp({
+    awaitingEmailConfirm.current = true;
+    const { error: err } = await supabase.auth.signUp({
       email,
       password,
       options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
@@ -136,6 +138,7 @@ export default function Register() {
     setLoading(false);
 
     if (err) {
+      awaitingEmailConfirm.current = false;
       const msg = err.message?.toLowerCase() ?? "";
       setError(
         msg.includes("already registered") || msg.includes("already exists")
@@ -146,8 +149,7 @@ export default function Register() {
     }
 
     posthog.capture("register_password_signup");
-    if (!data.session) setConfirmed(email);
-    // session present → onAuthStateChange fires and redirects
+    setConfirmed(email);
   };
 
   const handleMagicLink = async (e: React.FormEvent) => {
@@ -157,13 +159,18 @@ export default function Register() {
 
     setLoading(true);
     setAuthFlowOrigin("register");
+    awaitingEmailConfirm.current = true;
     const { error: err } = await supabase.auth.signInWithOtp({
       email,
       options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
     });
     setLoading(false);
 
-    if (err) { setError("Nie udało się wysłać linku. Spróbuj ponownie."); return; }
+    if (err) {
+      awaitingEmailConfirm.current = false;
+      setError("Nie udało się wysłać linku. Spróbuj ponownie.");
+      return;
+    }
 
     posthog.capture("register_magic_link_sent");
     setConfirmed(email);
