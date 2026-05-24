@@ -27,6 +27,11 @@ const INBOX_PROVIDERS: Record<string, { name: string; url: string }> = {
 
 import posthog from "posthog-js";
 
+async function sha256hex(text: string): Promise<string> {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
 function getInboxProvider(email: string) {
   const domain = email.split("@")[1]?.toLowerCase();
   return domain ? (INBOX_PROVIDERS[domain] ?? null) : null;
@@ -60,9 +65,28 @@ export default function Register() {
   const [sessionId] = useState(() => getSessionId());
   const [variantAssignments, setVariantAssignments] = useState<Record<string, string>>({});
   const [isApplePlatform, setIsApplePlatform] = useState(false);
+  const [inviteData, setInviteData] = useState<{
+    company_name: string;
+    recipient_email: string;
+    recipient_name: string | null;
+    is_valid: boolean;
+  } | null>(null);
 
   useEffect(() => { setVariantAssignments(getVariantAssignments()); }, []);
   useEffect(() => { setIsApplePlatform(/Mac|iPhone|iPad|iPod/i.test(navigator.userAgent)); }, []);
+
+  useEffect(() => {
+    const token = new URLSearchParams(window.location.search).get("invite");
+    if (!token) return;
+    localStorage.setItem("pending_invite_token", token);
+    sha256hex(token).then(async (hash) => {
+      const { data } = await (supabase.rpc as any)("lookup_admin_invite", { p_token_hash: hash });
+      if (data?.is_valid) {
+        setInviteData(data);
+        setEmail(data.recipient_email ?? "");
+      }
+    });
+  }, []);
 
   useEffect(() => {
     if (resendCooldown <= 0) return;
@@ -264,12 +288,31 @@ export default function Register() {
 
         {/* Header */}
         <div className="text-center mb-7">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Zacznij za darmo
-          </h1>
-          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            Bez karty płatniczej &nbsp;·&nbsp; Faktury od razu &nbsp;·&nbsp; Zgodne z KSeF
-          </p>
+          {inviteData ? (
+            <>
+              <div className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-full px-4 py-1.5 mb-4">
+                <span className="text-xs font-semibold text-blue-700 dark:text-blue-300 uppercase tracking-wide">Zaproszenie</span>
+              </div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                Witaj{inviteData.recipient_name ? `, ${inviteData.recipient_name.split(" ")[0]}` : ""}!
+              </h1>
+              <p className="mt-2 text-sm text-gray-600 dark:text-gray-300 font-medium">
+                {inviteData.company_name}
+              </p>
+              <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                Twoje konto zostanie automatycznie powiązane z tą firmą.
+              </p>
+            </>
+          ) : (
+            <>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                Zacznij za darmo
+              </h1>
+              <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                Bez karty płatniczej &nbsp;·&nbsp; Faktury od razu &nbsp;·&nbsp; Zgodne z KSeF
+              </p>
+            </>
+          )}
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-7 space-y-4">
@@ -312,13 +355,14 @@ export default function Register() {
                   name="email"
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => { if (!inviteData) setEmail(e.target.value); }}
                   required
                   autoComplete="email"
                   autoCapitalize="none"
                   autoCorrect="off"
+                  readOnly={!!inviteData}
                   placeholder="twoj@email.pl"
-                  className="w-full pl-9 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                  className={`w-full pl-9 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm ${inviteData ? "bg-gray-50 dark:bg-gray-700/50 border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 cursor-default" : "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"}`
                 />
               </div>
               <div className="relative">
@@ -370,13 +414,14 @@ export default function Register() {
                   name="email"
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => { if (!inviteData) setEmail(e.target.value); }}
                   required
                   autoComplete="email"
                   autoCapitalize="none"
                   autoCorrect="off"
+                  readOnly={!!inviteData}
                   placeholder="twoj@email.pl"
-                  className="w-full pl-9 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                  className={`w-full pl-9 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm ${inviteData ? "bg-gray-50 dark:bg-gray-700/50 border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 cursor-default" : "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"}`
                 />
               </div>
 
