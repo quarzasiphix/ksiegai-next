@@ -1,13 +1,13 @@
 # Notes
 Created: legacy-existing (exact date unknown)
-Last modified: 2026-05-24 20:31 CEST
+Last modified: 2026-05-24 20:43 CEST
 
 ## 2026-05-24 - Made invite onboarding export-safe for static builds
 
 What changed:
 - Extracted the invite onboarding UI and logic into [components/invites/InviteRegistrationPage.tsx](/mnt/c/k/ksiegai-next/components/invites/InviteRegistrationPage.tsx).
 - Added a static invite entry page at [app/zaproszenie/page.tsx](/mnt/c/k/ksiegai-next/app/zaproszenie/page.tsx) that reads the invite token from `?token=...`.
-- Replaced [app/zaproszenie/[token]/page.tsx](/mnt/c/k/ksiegai-next/app/zaproszenie/[token]/page.tsx) with an export-safe wrapper that provides `generateStaticParams()` and `dynamicParams = false`.
+- Removed the dynamic App Router page `app/zaproszenie/[token]/page.tsx` entirely so Next static export no longer tries to build an incompatible open-ended token route.
 
 Why:
 - `output: "export"` cannot build an open-ended dynamic route like `/zaproszenie/[token]` without static params.
