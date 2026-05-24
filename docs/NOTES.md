@@ -1,6 +1,28 @@
 # Notes
 Created: legacy-existing (exact date unknown)
-Last modified: 2026-05-18 20:55 CEST
+Last modified: 2026-05-24 20:22 CEST
+
+## 2026-05-24 - Corrected KSeF sp. z o.o. poradnik sequence around konto organizacji and ZAW-FA
+
+What changed:
+- Updated the fallback article for `/poradnik/ksef-spolka-z-oo-kto-moze-nadac-dostep` in [lib/wiki-fallback.ts](/mnt/c/k/ksiegai-next/lib/wiki-fallback.ts) to correct the first-access sequence for sp. z o.o.
+- Rewrote the guide so it now states clearly:
+  - first access starts in e-Urząd Skarbowy on `konto organizacji`
+  - then the representative files `ZAW-FA`
+  - only after that can anyone log into the KSeF portal in the company context
+  - token generation and granting access to staff/accounting office happen after first KSeF access, not before
+- Updated the article excerpt, summary, checklist, FAQ, and `updated_at` timestamp to match the corrected flow.
+
+Why:
+- the previous copy incorrectly implied that a KRS representative could start directly from the KSeF portal
+- for this article, that order was wrong and would mislead users about the prerequisite `konto organizacji` and `ZAW-FA` steps
+
+Verification evidence (2026-05-24):
+- Re-read the article source block in `lib/wiki-fallback.ts` and verified the order is now explicit: `konto organizacji` -> `ZAW-FA` -> first KSeF login -> token / further permissions.
+
+Scope notes:
+- Content-only change in fallback poradnik data.
+- No route, auth, schema, or `ksiegai_auth_token` contract changes.
 
 ## 2026-05-18 - Reworked poradnik into a wider SaaS knowledge hub layout
 

@@ -216,7 +216,12 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
-    const token = localStorage.getItem("pending_invite_token");
+    // Pick up invite token from URL (any page with ?invite=TOKEN) or localStorage
+    const urlToken = new URLSearchParams(window.location.search).get("invite");
+    if (urlToken) {
+      localStorage.setItem("pending_invite_token", urlToken);
+    }
+    const token = urlToken || localStorage.getItem("pending_invite_token");
     if (!token) return;
     setInviteToken(token);
     sha256hex(token).then(async (hash) => {

@@ -715,37 +715,60 @@ Jeżeli masz biuro rachunkowe lub księgową — oni potrzebują dostępu przez 
     id: 'fallback-ksef-spolka',
     slug: 'ksef-spolka-z-oo-kto-moze-nadac-dostep',
     title: 'KSeF dla spółki z o.o. — kto może nadać dostęp i jak to zrobić',
-    excerpt: 'W spółce z o.o. dostęp do KSeF nadaje osoba wpisana w KRS jako uprawniona do reprezentacji — zwykle prezes lub członek zarządu.',
-    summary: 'Przewodnik po KSeF dla spółki z o.o.: kto może nadać dostęp, jak wygląda ścieżka dla zarządu i jak oddelegować obsługę KSeF do biura rachunkowego.',
-    purpose: 'Spółki z o.o. mają inny punkt startowy niż JDG — uprawnienia w KSeF są powiązane z KRS. Ten poradnik wyjaśnia, kto zaczyna i jak przekazać dostęp dalej.',
-    body_markdown: `## Kto w spółce może zalogować się do KSeF jako pierwszy
+    excerpt: 'W spółce z o.o. samo bycie w KRS nie wystarcza do wejścia do KSeF. Najpierw potrzebne jest konto organizacji w e-US, potem ZAW-FA, a dopiero potem pierwsze logowanie do KSeF.',
+    summary: 'Przewodnik po KSeF dla spółki z o.o.: najpierw konto organizacji w e-Urzędzie Skarbowym, potem ZAW-FA, a dopiero później logowanie do KSeF, token i nadawanie dalszych dostępów.',
+    purpose: 'W spółce z o.o. punkt startowy do KSeF jest dwuetapowy. Sama reprezentacja w KRS nie daje jeszcze wejścia do portalu KSeF — najpierw trzeba działać przez konto organizacji i formalnie uzyskać uprawnienie.',
+    body_markdown: `## Najważniejsze: bez ZAW-FA nie zalogujesz spółki do KSeF
 
-W spółce z o.o. pierwszy dostęp do KSeF uzyskuje osoba, która jest wpisana w KRS jako uprawniona do reprezentacji firmy — zwykle prezes zarządu lub osoba jednoosobowo uprawniona do podpisywania.
+W spółce z o.o. pierwszy krok nie dzieje się w portalu KSeF. Najpierw osoba uprawniona do reprezentacji spółki musi uzyskać dostęp do **konta organizacji** w e-Urzędzie Skarbowym.
 
-Loguje się ona do portalu KSeF swoim kontem (profil zaufany lub e-dowód), ale działa już w imieniu spółki. System identyfikuje spółkę po NIP.
+Dopiero z poziomu konta organizacji można przejść do formalności, które dają pierwsze uprawnienie do działania w KSeF. W praktyce oznacza to złożenie **ZAW-FA** dla osoby, która ma zacząć obsługiwać KSeF w imieniu spółki.
 
-To ważne: pracownik, który nie jest w KRS, nie może sam "wejść" do KSeF spółki bez wcześniejszego nadania mu dostępu przez osobę uprawnioną.
+Bez tego etapu nikt nie wejdzie do KSeF w imieniu spółki — ani prezes, ani pracownik, ani biuro rachunkowe.
+
+## Kto zaczyna cały proces
+
+Proces startowy zwykle zaczyna osoba wpisana w KRS jako uprawniona do reprezentacji spółki — najczęściej prezes zarządu albo członek zarządu z prawem samodzielnej reprezentacji.
+
+Ta osoba:
+- loguje się do e-Urzędu Skarbowego swoim profilem zaufanym albo e-dowodem
+- aktywuje lub uzyskuje dostęp do **konta organizacji** dla NIP spółki
+- składa **ZAW-FA**, żeby nadać sobie pierwsze uprawnienie do KSeF
+
+Samo to, że ktoś jest w KRS, nie oznacza jeszcze automatycznego wejścia do portalu KSeF.
+
+## Właściwa kolejność kroków
+
+1. Osoba z KRS loguje się do e-Urzędu Skarbowego.
+2. Przełącza się na **konto organizacji** spółki.
+3. Z poziomu konta organizacji składa **ZAW-FA** dla siebie albo dla osoby, która ma rozpocząć pracę z KSeF.
+4. Dopiero po skutecznym ZAW-FA możliwe jest pierwsze logowanie do portalu KSeF w imieniu spółki.
+5. Po wejściu do KSeF można wygenerować token dla aplikacji (np. KsięgaI) i nadać dalsze uprawnienia innym osobom albo biuru rachunkowemu.
+
+To jest kluczowa różnica względem uproszczonych opisów w internecie: **KSeF nie jest pierwszym krokiem. Pierwszym krokiem jest konto organizacji i ZAW-FA.**
+
+## Co dzieje się po pierwszym wejściu do KSeF
+
+Dopiero gdy spółka ma już pierwszą osobę skutecznie wpuszczoną do KSeF, można:
+- wygenerować token KSeF do połączenia z aplikacją taką jak KsięgaI
+- nadać dostęp pracownikowi działu finansowego
+- nadać dostęp biuru rachunkowemu przez NIP biura
+
+Czyli: token i dalsze uprawnienia są **po** ZAW-FA, a nie przed nim.
 
 ## Jak nadać dostęp innym osobom w firmie
 
-Po pierwszym zalogowaniu osoba z KRS może nadać dostęp:
-- innym osobom fizycznym w firmie (np. pracownikowi działu finansowego) — przez PESEL lub NIP osoby
-- biuru rachunkowemu — przez NIP firmy biura
+Po uzyskaniu pierwszego dostępu do KSeF osoba uprawniona może nadać dostęp:
+- innym osobom fizycznym w firmie
+- pracownikom lub współpracownikom
+- biuru rachunkowemu przez NIP firmy biura
 
-Każdy typ dostępu ma osobny mechanizm w ustawieniach KSeF.
-
-## Krok po kroku — pierwsze połączenie spółki z KSeF
-
-1. Prezes (lub osoba z KRS) loguje się do portalu KSeF profilem zaufanym lub e-dowodem.
-2. System rozpoznaje powiązanie z NIP spółki przez dane w KRS.
-3. Prezes otwiera sekcję tokenów i tworzy token dla spółki (do użycia w aplikacjach jak KsięgaI).
-4. Prezes może nadać dostęp biuru rachunkowemu przez NIP biura.
-5. Token trafia do KsięgaI — wklejasz go w ustawieniach firmy w aplikacji.
+Każdy z tych dostępów jest wtórny wobec pierwszego kroku. Jeśli spółka nie przeszła jeszcze przez konto organizacji i ZAW-FA, nie ma z czego nadawać dalszych uprawnień.
 
 ## Co się dzieje, gdy zarząd się zmieni
 
 Zmiany w KRS wpływają na uprawnienia w KSeF. Jeżeli prezes odchodzi:
-- nowa osoba z KRS musi zalogować się i potwierdzić dostęp
+- nowa osoba z KRS musi najpierw mieć dostęp do konta organizacji i sprawdzić, czy trzeba ponownie uporządkować uprawnienia przez ZAW-FA
 - stare tokeny mogą wymagać odnowienia
 - warto cofnąć dostępy osób, które odchodzą
 
@@ -753,7 +776,9 @@ Jest to ważny punkt w procesie zmiany zarządu — warto potwierdzić z biurem 
 
 ## Jak oddelegować obsługę KSeF do biura rachunkowego
 
-Biuro dostaje dostęp przez swój NIP — nie potrzebuje Twojego tokena ani hasła. Po nadaniu dostępu biuro loguje się do własnego KSeF i widzi Twoją spółkę na liście podmiotów.
+Biuro dostaje dostęp przez swój NIP — nie potrzebuje Twojego tokena ani hasła. Ale ten etap pojawia się dopiero wtedy, gdy ktoś po stronie spółki przeszedł już ścieżkę: konto organizacji -> ZAW-FA -> pierwsze wejście do KSeF.
+
+Po nadaniu dostępu biuro loguje się do własnego KSeF i widzi Twoją spółkę na liście podmiotów.
 
 Zakres tego co biuro może robić (odczyt, wystawianie faktur, pełny dostęp) ustalasz w momencie nadawania uprawnień.
 
@@ -761,23 +786,26 @@ Zakres tego co biuro może robić (odczyt, wystawianie faktur, pełny dostęp) u
 
 | Cel | Mechanizm |
 |-----|-----------|
+| Pierwsze wejście spółki do KSeF | Konto organizacji w e-US + ZAW-FA |
 | Połączenie z KsięgaI (automatyczna wysyłka i synchronizacja) | Token KSeF |
 | Dostęp biura rachunkowego do obsługi KSeF | NIP firmy biura |
-| Dostęp pracownika do portalu KSeF | PESEL lub NIP pracownika |
+| Dostęp pracownika do portalu KSeF | Uprawnienie nadane po wejściu do KSeF |
 
-Warto mieć skonfigurowane wszystkie trzy, zależnie od struktury obsługi.
+Warto rozdzielać te pojęcia. **ZAW-FA otwiera drzwi do KSeF**, a token i dalsze dostępy są dopiero kolejnym etapem.
 
 ## Na co uważać w spółce
 
-- W spółce wieloosobowej (kilku prezesów, prokura łączna) sprawdź, kto konkretnie może w KRS działać jednoosobowo — to ma znaczenie przy logowaniu do KSeF.
+- W spółce wieloosobowej sprawdź, kto realnie może uruchomić konto organizacji i złożyć ZAW-FA w imieniu spółki.
+- Nie zakładaj, że wpis w KRS sam z siebie daje od razu dostęp do portalu KSeF.
 - Zmiana zarządu to dobry moment na przegląd wszystkich nadanych dostępów w KSeF.
 - Warto zachować dokumentację kto, kiedy i komu nadał dostęp — szczególnie przy audycie.`,
     checklist: [
       'Ustal, kto w spółce jest wpisany w KRS jako osoba uprawniona do reprezentacji.',
-      'Osoba z KRS loguje się do portalu KSeF profilem zaufanym lub e-dowodem.',
-      'Sprawdź, że system rozpoznaje spółkę po NIP.',
+      'Zaloguj tę osobę do e-Urzędu Skarbowego i przejdź na konto organizacji spółki.',
+      'Złóż ZAW-FA, żeby nadać pierwsze uprawnienie do KSeF.',
+      'Dopiero po skutecznym ZAW-FA zaloguj się do portalu KSeF.',
       'Wygeneruj token dla aplikacji (np. KsięgaI) i skopiuj go natychmiast.',
-      'Nadaj dostęp biuru rachunkowemu przez NIP firmy biura.',
+      'Nadaj dostęp biuru rachunkowemu lub pracownikom dopiero po wejściu do KSeF.',
       'Wklej token do ustawień KSeF w KsięgaI i sprawdź status połączenia.',
     ],
     official_links: [
@@ -792,21 +820,25 @@ Warto mieć skonfigurowane wszystkie trzy, zależnie od struktury obsługi.
     faq: [
       {
         question: 'Czy pracownik firmy może od razu wejść do KSeF spółki?',
-        answer: 'Nie. Najpierw osoba z KRS musi zalogować się do KSeF i nadać dostęp pracownikowi przez jego PESEL lub NIP. Bez tego pracownik nie ma dostępu do konta spółki.',
+        answer: 'Nie. Najpierw spółka musi przejść ścieżkę konto organizacji -> ZAW-FA -> pierwsze wejście do KSeF. Dopiero potem można nadać pracownikowi dalszy dostęp.',
       },
       {
-        question: 'Co jeśli w spółce jest dwóch prezesów z reprezentacją łączną?',
-        answer: 'W praktyce do zalogowania się do KSeF wystarczy jeden reprezentant z KRS. Sprawdź jednak zasady reprezentacji spółki — przy wątpliwościach warto potwierdzić z prawnikiem.',
+        question: 'Czy sama obecność w KRS wystarcza, żeby wejść do KSeF?',
+        answer: 'Nie. Wpis w KRS wskazuje, kto może zacząć proces po stronie spółki, ale przed pierwszym logowaniem do KSeF trzeba jeszcze mieć konto organizacji w e-US i złożyć ZAW-FA.',
+      },
+      {
+        question: 'Kiedy mogę wygenerować token do KsięgaI?',
+        answer: 'Dopiero po uzyskaniu pierwszego skutecznego dostępu do KSeF. Najpierw konto organizacji i ZAW-FA, potem logowanie do KSeF, a dopiero później token.',
       },
       {
         question: 'Co się dzieje z dostępami w KSeF gdy zmienia się zarząd?',
-        answer: 'KSeF powiązuje dostępy z KRS, ale zmiany nie są automatyczne. Nowy prezes powinien zalogować się i przejrzeć istniejące dostępy — stary zarząd może wciąż mieć aktywne uprawnienia.',
+        answer: 'Zmiana zarządu nie porządkuje wszystkiego automatycznie. Nowa osoba powinna przejąć konto organizacji, sprawdzić podstawę dostępu do KSeF i przejrzeć istniejące uprawnienia oraz tokeny.',
       },
     ],
     article_type: 'guide',
     sort_order: 40,
     published_at: '2026-05-18T00:00:00.000Z',
-    updated_at: '2026-05-18T00:00:00.000Z',
+    updated_at: '2026-05-24T00:00:00.000Z',
     category: fallbackWikiCategories[0],
   },
 
