@@ -1,6 +1,23 @@
 # Notes
 Created: legacy-existing (exact date unknown)
-Last modified: 2026-05-24 20:49 CEST
+Last modified: 2026-05-24 20:54 CEST
+
+## 2026-05-24 - Added CRBR slug alias to prevent poradnik 404
+
+What changed:
+- Added a fallback wiki article alias in [lib/wiki-fallback.ts](/mnt/c/k/ksiegai-next/lib/wiki-fallback.ts) for the slug `/poradnik/crbr-spolka-zoo-beneficjent-rzeczywisty`.
+- Kept the existing CRBR article slug `/poradnik/crbr-spolka-zoo-co-zglosic` intact and mapped the requested alternate slug to the same content.
+
+Why:
+- the requested URL was 404ing because the repo only had the CRBR article under a different fallback slug
+- this is a slug-compatibility fix, not a content absence fix
+
+Verification evidence (2026-05-24):
+- Re-read fallback wiki entries and confirmed both CRBR slugs now exist in the static article source, so `generateStaticParams()` can include the alias and the route can resolve.
+
+Scope notes:
+- Content routing alias only.
+- No schema, RLS, or `ksiegai_auth_token` contract changes.
 
 ## 2026-05-24 - Stopped shared search-param tracking from deopting whole pages
 

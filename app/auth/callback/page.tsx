@@ -117,8 +117,9 @@ export default function AuthCallback() {
               },
             });
 
-            // Clear the raw token from localStorage — it's been consumed
+            // Clear the raw token and cached company from localStorage — invite consumed
             localStorage.removeItem('pending_invite_token');
+            localStorage.removeItem('pending_invite_company');
 
             const dest = `/invite-welcome?bp=${business_profile_id}&cn=${encodeURIComponent(company_name)}`;
             if (redirectFrom === 'localhost' && localhostPort) {

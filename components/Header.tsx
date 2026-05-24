@@ -220,6 +220,8 @@ export default function Header() {
     const urlToken = new URLSearchParams(window.location.search).get("invite");
     if (urlToken) {
       localStorage.setItem("pending_invite_token", urlToken);
+      // New token arrived — clear stale cached company name
+      localStorage.removeItem("pending_invite_company");
       // Strip invite param so the user can't accidentally share their personal token
       const clean = new URL(window.location.href);
       clean.searchParams.delete("invite");
@@ -227,15 +229,27 @@ export default function Header() {
     }
     const token = urlToken || localStorage.getItem("pending_invite_token");
     if (!token) return;
+
+    // Show personalized header immediately — use cached company name if available
+    const cachedCompany = localStorage.getItem("pending_invite_company");
     setInviteToken(token);
+    if (cachedCompany) setInviteCompany(cachedCompany);
+
     sha256hex(token).then(async (hash) => {
-      const { data } = await (supabase.rpc as any)("lookup_admin_invite", { p_token_hash: hash });
+      const { data, error } = await (supabase.rpc as any)("lookup_admin_invite", { p_token_hash: hash });
+      if (error) {
+        // Network/RPC error — don't clear a potentially valid token, just skip
+        return;
+      }
       if (data?.is_valid && data?.company_name) {
+        localStorage.setItem("pending_invite_company", data.company_name);
         setInviteCompany(data.company_name);
       } else {
-        // Token expired or invalid — clean up
+        // Token explicitly invalid or expired — clean up
         localStorage.removeItem("pending_invite_token");
+        localStorage.removeItem("pending_invite_company");
         setInviteToken(null);
+        setInviteCompany(null);
       }
     });
   }, []);
@@ -339,20 +353,22 @@ export default function Header() {
                   Przejdź do aplikacji
                 </button>
               </div>
-            ) : inviteToken && inviteCompany ? (
+            ) : inviteToken ? (
               /* ── Invited (not yet registered) ── */
               <div className="flex items-center gap-2 sm:gap-3 flex-nowrap">
-                {/* Company pill */}
-                <div className="flex items-center gap-2 min-w-0 bg-gray-800/70 border border-gray-700 rounded-full pl-1 pr-3 py-1">
-                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-blue-600 flex items-center justify-center shrink-0">
-                    <span className="text-xs font-bold text-white leading-none">
-                      {inviteCompany.charAt(0).toUpperCase()}
+                {/* Company pill — shown immediately; name fills in once RPC returns or from cache */}
+                {inviteCompany && (
+                  <div className="flex items-center gap-2 min-w-0 bg-gray-800/70 border border-gray-700 rounded-full pl-1 pr-3 py-1">
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-blue-600 flex items-center justify-center shrink-0">
+                      <span className="text-xs font-bold text-white leading-none">
+                        {inviteCompany.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                    <span className="text-xs sm:text-sm font-medium text-white max-w-[80px] sm:max-w-[160px] truncate">
+                      {inviteCompany}
                     </span>
                   </div>
-                  <span className="text-xs sm:text-sm font-medium text-white max-w-[80px] sm:max-w-[160px] truncate">
-                    {inviteCompany}
-                  </span>
-                </div>
+                )}
                 <Link href={`/rejestracja?invite=${inviteToken}`}>
                   <button className="bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-5 py-2 rounded-lg font-semibold transition-colors text-sm sm:text-base whitespace-nowrap">
                     Przejdź do aplikacji

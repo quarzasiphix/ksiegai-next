@@ -378,6 +378,59 @@ Zachowaj potwierdzenie zgłoszenia w dokumentach firmy i uporządkuj w jednym mi
     category: fallbackWikiCategories[2],
   },
   {
+    id: 'fallback-crbr-alias-beneficjent-rzeczywisty',
+    slug: 'crbr-spolka-zoo-beneficjent-rzeczywisty',
+    title: 'CRBR po rejestracji spółki z o.o. - co zgłosić i kiedy',
+    excerpt: 'Po wpisie do KRS trzeba zgłosić beneficjentów rzeczywistych. To nie dzieje się samo od dodania wspólników w aplikacji.',
+    summary: 'Checklist do CRBR po rejestracji spółki z o.o.',
+    purpose: 'CRBR to jeden z podstawowych obowiązków compliance po rejestracji spółki i częsty punkt kontroli formalnej.',
+    body_markdown: `## Co to jest CRBR
+
+CRBR to rejestr beneficjentów rzeczywistych. Po wpisie do KRS spółka musi zgłosić wymagane dane elektronicznie.
+
+## Co trzeba przygotować
+
+- numer KRS
+- dane beneficjentów rzeczywistych
+- dane osób reprezentujących
+
+## Co często idzie źle
+
+- mylenie beneficjenta rzeczywistego z każdą osobą w zarządzie
+- brak zachowania potwierdzenia zgłoszenia
+- uznanie, że skoro dane wspólników są w systemie, to temat jest zamknięty
+
+## Co warto zrobić po zgłoszeniu
+
+Zachowaj potwierdzenie zgłoszenia w dokumentach firmy i uporządkuj w jednym miejscu dane wspólników oraz zarządu, żeby łatwo wrócić do nich przy kolejnych obowiązkach.`,
+    checklist: [
+      'Zbierz dane beneficjentów rzeczywistych i osób reprezentujących.',
+      'Wejdź do rejestru CRBR i złóż zgłoszenie elektronicznie.',
+      'Zachowaj potwierdzenie zgłoszenia w dokumentach firmy.',
+    ],
+    official_links: [
+      { label: 'CRBR na podatki.gov.pl', href: 'https://www.podatki.gov.pl/crbr/', external: true },
+    ],
+    related_actions: [
+      { label: 'Zobacz poradnik o e-Doręczeniach', href: '/poradnik/e-doreczenia-dla-firmy' },
+    ],
+    faq: [
+      {
+        question: 'Czy dodanie wspólników w aplikacji załatwia CRBR?',
+        answer: 'Nie. Aplikacja pomaga uporządkować dane, ale samo zgłoszenie do CRBR trzeba złożyć poza systemem.',
+      },
+      {
+        question: 'Kiedy zrobić CRBR?',
+        answer: 'Bezpośrednio po wpisie do KRS, w ustawowym terminie właściwym dla zgłoszenia beneficjentów rzeczywistych.',
+      },
+    ],
+    article_type: 'checklist',
+    sort_order: 11,
+    published_at: '2026-05-16T00:00:00.000Z',
+    updated_at: '2026-05-24T00:00:00.000Z',
+    category: fallbackWikiCategories[2],
+  },
+  {
     id: 'fallback-e-doreczenia',
     slug: 'e-doreczenia-dla-firmy',
     title: 'e-Doręczenia dla firmy - kiedy założyć i jak nie zgubić obowiązku',
