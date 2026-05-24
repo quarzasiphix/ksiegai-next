@@ -5,12 +5,19 @@ import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { getAuthToken, redirectToApp, clearAuthToken, storeAuthToken, storeAndRedirect, checkAndRedirectToLocalhost, restoreSessionFromAuthToken } from "../lib/auth/crossDomainAuth";
 import { saveRememberedProfile, saveRememberedProfileAuthToken } from "../lib/auth/loginProfiles";
-import { User, Crown, LogOut, Sun, Moon, ReceiptText } from "lucide-react";
+import { User, Crown, LogOut, Sun, Moon, ReceiptText, Building2 } from "lucide-react";
 import posthog from "posthog-js";
+
+async function sha256hex(text: string): Promise<string> {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
 
 export default function Header() {
   const [user, setUser] = useState<any>(null);
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+  const [inviteToken, setInviteToken] = useState<string | null>(null);
+  const [inviteCompany, setInviteCompany] = useState<string | null>(null);
 
   useEffect(() => {
     // Check for logout flag from app domain
@@ -208,6 +215,22 @@ export default function Header() {
     };
   }, []);
 
+  useEffect(() => {
+    const token = localStorage.getItem("pending_invite_token");
+    if (!token) return;
+    setInviteToken(token);
+    sha256hex(token).then(async (hash) => {
+      const { data } = await (supabase.rpc as any)("lookup_admin_invite", { p_token_hash: hash });
+      if (data?.is_valid && data?.company_name) {
+        setInviteCompany(data.company_name);
+      } else {
+        // Token expired or invalid — clean up
+        localStorage.removeItem("pending_invite_token");
+        setInviteToken(null);
+      }
+    });
+  }, []);
+
   const handleLogout = async () => {
     console.log("[Header] Logging out - clearing cross-domain token");
     clearAuthToken();
@@ -300,12 +323,32 @@ export default function Header() {
                     <span className="hidden lg:inline">Wyloguj</span>
                   </button>
                 </div>
-                <button 
+                <button
                   onClick={handleGoToApp}
                   className="bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-5 py-2 rounded-lg font-semibold transition-colors text-sm sm:text-base whitespace-nowrap"
                 >
                   Przejdź do aplikacji
                 </button>
+              </div>
+            ) : inviteToken && inviteCompany ? (
+              /* ── Invited (not yet registered) ── */
+              <div className="flex items-center gap-2 sm:gap-3 flex-nowrap">
+                {/* Company pill */}
+                <div className="flex items-center gap-2 min-w-0 bg-gray-800/70 border border-gray-700 rounded-full pl-1 pr-3 py-1">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-blue-600 flex items-center justify-center shrink-0">
+                    <span className="text-xs font-bold text-white leading-none">
+                      {inviteCompany.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  <span className="text-xs sm:text-sm font-medium text-white max-w-[80px] sm:max-w-[160px] truncate">
+                    {inviteCompany}
+                  </span>
+                </div>
+                <Link href={`/rejestracja?invite=${inviteToken}`}>
+                  <button className="bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-5 py-2 rounded-lg font-semibold transition-colors text-sm sm:text-base whitespace-nowrap">
+                    Przejdź do aplikacji
+                  </button>
+                </Link>
               </div>
             ) : (
               <div className="flex items-center gap-2 sm:gap-3 flex-nowrap">
