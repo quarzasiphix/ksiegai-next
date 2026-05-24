@@ -220,6 +220,10 @@ export default function Header() {
     const urlToken = new URLSearchParams(window.location.search).get("invite");
     if (urlToken) {
       localStorage.setItem("pending_invite_token", urlToken);
+      // Strip invite param so the user can't accidentally share their personal token
+      const clean = new URL(window.location.href);
+      clean.searchParams.delete("invite");
+      window.history.replaceState({}, "", clean.toString());
     }
     const token = urlToken || localStorage.getItem("pending_invite_token");
     if (!token) return;

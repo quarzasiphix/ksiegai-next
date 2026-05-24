@@ -11,8 +11,8 @@
         "name": "Control",
         "weight": 0.5,
         "changes": {
-          "heroTitle": "Faktura nie trafia do KSeF, dopóki strony jej nie uzgodnią",
-          "heroSubtitle": "KsięgaI to warstwa kontroli i odpowiedzialności między Twoim systemem ERP a KSeF — gdzie dokumenty są uzgadniane, zatwierdzane i weryfikowane przed ostatecznym wysłaniem.",
+          "heroTitle": "Wystawiaj faktury, obsługuj KSeF i przyjmuj płatności w jednym miejscu",
+          "heroSubtitle": "KsięgaI łączy dokumenty, akceptacje i płatności w jednym obiegu, więc firma działa szybciej i bez ręcznego sklejania kilku narzędzi.",
           "ctaText": "Dołącz do sieci zweryfikowanych firm"
         }
       },
@@ -21,8 +21,8 @@
         "name": "Variant A - Direct",
         "weight": 0.5,
         "changes": {
-          "heroTitle": "Uzgadniaj faktury przed wysłaniem do KSeF",
-          "heroSubtitle": "Negocjuj, weryfikuj i akceptuj dokumenty z pełnym śladem audytu — wszystko przed ostatecznym wysłaniem.",
+          "heroTitle": "Faktury, KSeF i płatności online bez chaosu między narzędziami",
+          "heroSubtitle": "Jeden system do wystawiania dokumentów, akceptacji, wysyłki do KSeF i odbierania płatności od klientów.",
           "ctaText": "Rozpocznij za darmo"
         }
       }

@@ -1,6 +1,66 @@
 # Notes
 Created: legacy-existing (exact date unknown)
-Last modified: 2026-05-24 20:22 CEST
+Last modified: 2026-05-24 20:31 CEST
+
+## 2026-05-24 - Made invite onboarding export-safe for static builds
+
+What changed:
+- Extracted the invite onboarding UI and logic into [components/invites/InviteRegistrationPage.tsx](/mnt/c/k/ksiegai-next/components/invites/InviteRegistrationPage.tsx).
+- Added a static invite entry page at [app/zaproszenie/page.tsx](/mnt/c/k/ksiegai-next/app/zaproszenie/page.tsx) that reads the invite token from `?token=...`.
+- Replaced [app/zaproszenie/[token]/page.tsx](/mnt/c/k/ksiegai-next/app/zaproszenie/[token]/page.tsx) with an export-safe wrapper that provides `generateStaticParams()` and `dynamicParams = false`.
+
+Why:
+- `output: "export"` cannot build an open-ended dynamic route like `/zaproszenie/[token]` without static params.
+- The old invite route shape blocked production builds.
+- A static `/zaproszenie?token=...` page keeps the flow compatible with this repo's export mode.
+
+Verification evidence (2026-05-24):
+- Re-read the route setup and confirmed the static `/zaproszenie` page now exists, while the dynamic token route no longer violates the export requirement.
+
+Scope notes:
+- Invite onboarding route handling only.
+- No schema, RLS, or `ksiegai_auth_token` contract changes.
+
+## 2026-05-24 - Stopped AB test tracking from throwing 406 on missing assignments
+
+What changed:
+- Updated [lib/ab-testing-ssg.ts](/mnt/c/k/ksiegai-next/lib/ab-testing-ssg.ts) so assignment lookups used by page-view, conversion, and custom-event tracking now use `maybeSingle()` instead of `single()`.
+- Updated [lib/ab-testing-supabase.ts](/mnt/c/k/ksiegai-next/lib/ab-testing-supabase.ts) the same way for zero-or-one assignment reads.
+- Added explicit early returns on real lookup errors while treating “no row yet” as a normal state.
+
+Why:
+- fresh or unassigned sessions were hitting PostgREST with a single-object expectation on `ab_test_assignments`
+- when no assignment row existed yet, Supabase returned `406` / `PGRST116` (`0 rows`), which is noisy and incorrect for this flow
+- assignment reads in this path are naturally zero-or-one, not exactly-one
+
+Verification evidence (2026-05-24):
+- Re-read all `ab_test_assignments` lookup paths touched in the two modules and confirmed the failing `select=id&test_id=...&session_id=...` reads no longer demand exactly one row.
+
+Scope notes:
+- Client tracking logic only.
+- No route, auth, schema, or `ksiegai_auth_token` contract changes.
+
+## 2026-05-24 - Replaced weak homepage hero copy on the main index
+
+What changed:
+- Updated the default homepage hero copy in [components/home/HomeHero.tsx](/mnt/c/k/ksiegai-next/components/home/HomeHero.tsx).
+- Replaced the old control/variant example strings in [public/ab-tests.example.json](/mnt/c/k/ksiegai-next/public/ab-tests.example.json) so the stale wording does not remain in sample AB payloads.
+- New hero direction is simpler and more product-shaped:
+  - one place for faktury, KSeF, and payments
+  - less abstract language
+  - no awkward "warstwa kontroli i odpowiedzialności" phrasing
+
+Why:
+- the previous homepage hero copy was too abstract and sounded unnatural
+- the core landing page message should explain the product fast, in plain language, without making users decode internal process language
+
+Verification evidence (2026-05-24):
+- Re-read the live default strings in `HomeHero.tsx` and confirmed the main homepage fallback now communicates one clear value proposition instead of the old awkward copy.
+- Re-read `public/ab-tests.example.json` and confirmed the sample hero copy matches the updated direction.
+
+Scope notes:
+- Copy-only marketing change.
+- No route, auth, schema, or `ksiegai_auth_token` contract changes.
 
 ## 2026-05-24 - Corrected KSeF sp. z o.o. poradnik sequence around konto organizacji and ZAW-FA
 

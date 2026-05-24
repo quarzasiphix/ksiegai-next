@@ -85,11 +85,41 @@ export default function AuthCallback() {
               redirectToApp('/onboard');
               return;
             }
-            const { business_profile_id, company_name } = claimData as {
+            const { business_profile_id, company_name, invite_id, campaign_source } = claimData as {
               business_profile_id: string;
               company_name: string;
+              invite_id: string;
+              campaign_source: string | null;
             };
-            posthog.capture('invite_claimed', { business_profile_id });
+
+            // Tag user in PostHog with invite properties (person-level, permanent)
+            posthog.identify(session.user.id, {
+              email: session.user.email,
+              invited: true,
+              invite_id,
+              invite_company_name: company_name,
+              invite_business_profile_id: business_profile_id,
+              ...(campaign_source ? { invite_campaign_source: campaign_source } : {}),
+            });
+            posthog.capture('invite_claimed', {
+              business_profile_id,
+              company_name,
+              invite_id,
+              campaign_source: campaign_source ?? null,
+            });
+
+            // Attach invite metadata to the auth user for future queries
+            void supabase.auth.updateUser({
+              data: {
+                invite_id,
+                invite_company_name: company_name,
+                invite_campaign_source: campaign_source ?? null,
+              },
+            });
+
+            // Clear the raw token from localStorage — it's been consumed
+            localStorage.removeItem('pending_invite_token');
+
             const dest = `/invite-welcome?bp=${business_profile_id}&cn=${encodeURIComponent(company_name)}`;
             if (redirectFrom === 'localhost' && localhostPort) {
               window.location.href = `http://localhost:${localhostPort}${dest}`;

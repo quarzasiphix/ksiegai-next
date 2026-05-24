@@ -79,6 +79,10 @@ export default function Register() {
     const token = new URLSearchParams(window.location.search).get("invite");
     if (!token) return;
     localStorage.setItem("pending_invite_token", token);
+    // Strip invite param so copying the URL doesn't share the personal token
+    const clean = new URL(window.location.href);
+    clean.searchParams.delete("invite");
+    window.history.replaceState({}, "", clean.toString());
     sha256hex(token).then(async (hash) => {
       const { data } = await (supabase.rpc as any)("lookup_admin_invite", { p_token_hash: hash });
       if (data?.is_valid) {
@@ -150,10 +154,12 @@ export default function Register() {
     setAuthFlowOrigin("register");
     awaitingEmailConfirm.current = true;
     regMethod.current = "password";
+    const pendingToken = localStorage.getItem("pending_invite_token");
+    const inviteParam = pendingToken ? `reg=invite&inv=${await sha256hex(pendingToken)}` : `reg=password`;
     const { error: err } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback?reg=password` },
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback?${inviteParam}` },
     });
     setLoading(false);
 
@@ -181,9 +187,11 @@ export default function Register() {
     setAuthFlowOrigin("register");
     awaitingEmailConfirm.current = true;
     regMethod.current = "magic_link";
+    const pendingToken = localStorage.getItem("pending_invite_token");
+    const inviteParam = pendingToken ? `reg=invite&inv=${await sha256hex(pendingToken)}` : `reg=magic_link`;
     const { error: err } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback?reg=magic_link` },
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback?${inviteParam}` },
     });
     setLoading(false);
 
@@ -210,14 +218,24 @@ export default function Register() {
     else setResendCooldown(60);
   };
 
+  const buildOAuthCallbackUrl = async (): Promise<string> => {
+    const pendingToken = localStorage.getItem("pending_invite_token");
+    if (pendingToken) {
+      const hash = await sha256hex(pendingToken);
+      return `${window.location.origin}/auth/callback?reg=invite&inv=${hash}`;
+    }
+    return `${window.location.origin}/auth/callback`;
+  };
+
   const handleGoogle = async () => {
     posthog.capture("register_google_clicked");
     setError(null);
     setLoading(true);
     setAuthFlowOrigin("register");
+    const redirectTo = await buildOAuthCallbackUrl();
     const { error: err } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: { redirectTo },
     });
     if (err) { setError("Nie udało się zalogować przez Google."); setLoading(false); }
   };
@@ -227,9 +245,10 @@ export default function Register() {
     setError(null);
     setLoading(true);
     setAuthFlowOrigin("register");
+    const redirectTo = await buildOAuthCallbackUrl();
     const { error: err } = await supabase.auth.signInWithOAuth({
       provider: "apple",
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: { redirectTo },
     });
     if (err) { setError("Nie udało się zalogować przez Apple."); setLoading(false); }
   };
