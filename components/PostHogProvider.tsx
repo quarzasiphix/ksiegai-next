@@ -6,10 +6,14 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import { useEffect, Suspense, ReactNode, useState } from 'react';
 import { persistHandoffAttribution } from '@/lib/auth/crossDomainAuth';
 
-function PageViewTracker() {
+function RouteEffectsTracker() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const ph = usePostHog();
+
+  useEffect(() => {
+    persistHandoffAttribution();
+  }, [pathname, searchParams]);
 
   useEffect(() => {
     if (pathname && ph) {
@@ -22,8 +26,6 @@ function PageViewTracker() {
 }
 
 export function PostHogProvider({ children }: { children: ReactNode }) {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
   const apiKey = process.env.NEXT_PUBLIC_POSTHOG_KEY;
   const proxyApiHost = process.env.NEXT_PUBLIC_POSTHOG_PROXY_PATH ?? '/ingest';
   const directApiHost = process.env.NEXT_PUBLIC_POSTHOG_HOST ?? 'https://eu.i.posthog.com';
@@ -36,10 +38,6 @@ export function PostHogProvider({ children }: { children: ReactNode }) {
     setIsLocalhost(isLocalhost);
     setShouldUsePosthog(Boolean(apiKey));
   }, [apiKey]);
-
-  useEffect(() => {
-    persistHandoffAttribution();
-  }, [pathname, searchParams]);
 
   useEffect(() => {
     if (!shouldUsePosthog || !apiKey) return;
@@ -60,7 +58,7 @@ export function PostHogProvider({ children }: { children: ReactNode }) {
   return (
     <PHProvider client={posthog}>
       <Suspense fallback={null}>
-        <PageViewTracker />
+        <RouteEffectsTracker />
       </Suspense>
       {children}
     </PHProvider>

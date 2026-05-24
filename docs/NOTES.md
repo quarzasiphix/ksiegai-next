@@ -1,6 +1,24 @@
 # Notes
 Created: legacy-existing (exact date unknown)
-Last modified: 2026-05-24 20:43 CEST
+Last modified: 2026-05-24 20:49 CEST
+
+## 2026-05-24 - Stopped shared search-param tracking from deopting whole pages
+
+What changed:
+- Updated [components/PostHogProvider.tsx](/mnt/c/k/ksiegai-next/components/PostHogProvider.tsx) so `useSearchParams()` is no longer called at the top level of the root layout provider.
+- Moved query-string dependent tracking and attribution persistence into a small `RouteEffectsTracker` child that stays behind the existing `Suspense` boundary.
+
+Why:
+- `PostHogProvider` sits in the root layout, so using `useSearchParams()` there was causing full-page client-side rendering deopts on routes like `/poradnik/[slug]` and `/ksef`.
+- The search-param logic only needs a tiny client island, not a whole-page deopt.
+
+Verification evidence (2026-05-24):
+- Re-read the provider and confirmed the root provider no longer imports route query state into the layout-level render path.
+- `useSearchParams()` now stays scoped to a Suspense-wrapped child component instead of the layout shell.
+
+Scope notes:
+- Tracking/layout rendering fix only.
+- No route, schema, RLS, or `ksiegai_auth_token` contract changes.
 
 ## 2026-05-24 - Made invite onboarding export-safe for static builds
 
