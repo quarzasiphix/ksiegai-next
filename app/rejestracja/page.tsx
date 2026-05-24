@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "../../lib/supabase";
 import { storeAuthToken, redirectToApp } from "../../lib/auth/crossDomainAuth";
-import { sendWelcomeEmailIfNewUser, setAuthFlowOrigin } from "../../lib/auth/welcomeEmail";
+import { setAuthFlowOrigin } from "../../lib/auth/welcomeEmail";
 import { getSessionId, getVariantAssignments } from "../../lib/ab-testing-ssg";
 import { Mail, Lock, ExternalLink } from "lucide-react";
 
@@ -54,6 +54,7 @@ export default function Register() {
   const [error, setError] = useState<string | null>(null);
   const [confirmed, setConfirmed] = useState<string | null>(null);
   const awaitingEmailConfirm = useRef(false);
+  const regMethod = useRef<"password" | "magic_link">("password");
   const [useMagicLink, setUseMagicLink] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
   const [sessionId] = useState(() => getSessionId());
@@ -74,12 +75,6 @@ export default function Register() {
       if (event === "SIGNED_IN" && session && !awaitingEmailConfirm.current) {
         posthog.identify(session.user.id, { email: session.user.email });
         await trackConversion(session.user.id);
-        await sendWelcomeEmailIfNewUser({
-          userId: session.user.id,
-          email: session.user.email,
-          createdAt: session.user.created_at,
-          force: true,
-        });
         storeAuthToken({
           access_token: session.access_token,
           refresh_token: session.refresh_token,
@@ -130,10 +125,11 @@ export default function Register() {
     setLoading(true);
     setAuthFlowOrigin("register");
     awaitingEmailConfirm.current = true;
+    regMethod.current = "password";
     const { error: err } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback?reg=password` },
     });
     setLoading(false);
 
@@ -160,9 +156,10 @@ export default function Register() {
     setLoading(true);
     setAuthFlowOrigin("register");
     awaitingEmailConfirm.current = true;
+    regMethod.current = "magic_link";
     const { error: err } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback?reg=magic_link` },
     });
     setLoading(false);
 
@@ -182,7 +179,7 @@ export default function Register() {
     setLoading(true);
     const { error: err } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback?reg=${regMethod.current}` },
     });
     setLoading(false);
     if (err) setError("Nie udało się wysłać linku. Spróbuj ponownie.");

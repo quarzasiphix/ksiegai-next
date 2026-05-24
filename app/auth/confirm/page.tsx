@@ -3,7 +3,6 @@
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { Suspense, useEffect, useState } from "react";
 import { redirectToApp, storeAuthToken } from "../../../lib/auth/crossDomainAuth";
-import { sendWelcomeEmailIfNewUser } from "../../../lib/auth/welcomeEmail";
 import { supabase } from "../../../lib/supabase";
 
 const SUPPORTED_EMAIL_OTP_TYPES = new Set<EmailOtpType>([
@@ -60,15 +59,6 @@ function ConfirmEmailInner() {
             setErrorMessage("Potwierdzenie zakończyło się bez aktywnej sesji. Zaloguj się ponownie.");
           }
           return;
-        }
-
-        if (type === "signup" || type === "invite") {
-          await sendWelcomeEmailIfNewUser({
-            userId: session.user.id,
-            email: session.user.email,
-            createdAt: session.user.created_at,
-            force: true,
-          });
         }
 
         storeAuthToken({

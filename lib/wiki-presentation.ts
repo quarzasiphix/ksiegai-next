@@ -86,6 +86,42 @@ const CATEGORY_PRESENTATION: Record<string, WikiPresentationCategory> = {
       'Pierwsze obowiązki spółki po wpisie do KRS',
     ],
   },
+  'finanse-spolki': {
+    badge: 'Finanse spółki',
+    shortLabel: 'Finanse',
+    accentClassName:
+      'from-green-500/20 via-emerald-500/10 to-transparent dark:from-green-400/20 dark:via-emerald-400/10 dark:to-transparent',
+    ctaTitle: 'Miej finanse spółki pod kontrolą w KsięgaI',
+    ctaDescription:
+      'Pożyczki wspólników, wypłaty zysku, faktury JDG — KsięgaI łączy przepływy pieniędzy z dokumentami tak, żeby było jasne, co skąd pochodzi i ile kosztuje podatkowo.',
+    ctaLabel: 'Załóż konto dla spółki',
+    ctaHref: '/rejestracja',
+    roadmapTitle: 'Tematy finansowe, które rozwijamy',
+    roadmapTopics: [
+      'Dopłaty do spółki z o.o. — jak to działa i kiedy warto',
+      'Ceny transferowe w małej spółce — kiedy musisz dokumentować',
+      'Jak rozliczyć zysk między wspólnikami przy różnych udziałach',
+      'Samochód w spółce — leasing, najem od wspólnika, zakup',
+    ],
+  },
+  'uchwaly-decyzje': {
+    badge: 'Uchwały i decyzje',
+    shortLabel: 'Uchwały',
+    accentClassName:
+      'from-amber-500/20 via-orange-500/10 to-transparent dark:from-amber-400/20 dark:via-orange-400/10 dark:to-transparent',
+    ctaTitle: 'Trzymaj uchwały i decyzje w porządku w KsięgaI',
+    ctaDescription:
+      'Moduł uchwał w KsięgaI pozwala rejestrować decyzje zarządu i wspólników, przypisywać im dokumenty i być gotowym na kontrolę w każdej chwili.',
+    ctaLabel: 'Załóż konto dla spółki',
+    ctaHref: '/rejestracja',
+    roadmapTitle: 'Tematy, które rozwijamy w tej sekcji',
+    roadmapTopics: [
+      'Protokół ze Zgromadzenia Wspólników — co musi zawierać',
+      'Pełnomocnik do umów z zarządem — jak powołać zgodnie z KSH art. 210',
+      'Uchwała o powołaniu i odwołaniu zarządu spółki z o.o.',
+      'Archiwum uchwał spółki — jak długo przechowywać',
+    ],
+  },
 };
 
 export function getWikiPresentationCategory(slug?: string | null): WikiPresentationCategory {

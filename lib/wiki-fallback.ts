@@ -73,6 +73,20 @@ export const fallbackWikiCategories: FallbackWikiCategory[] = [
     description: 'Jak wystawiać faktury, przyjmować płatności online i połączyć przepływ pieniędzy z dokumentami.',
     sort_order: 50,
   },
+  {
+    id: 'fallback-uchwaly-decyzje',
+    slug: 'uchwaly-decyzje',
+    name: 'Uchwały i decyzje',
+    description: 'Formalne uchwały wspólników i decyzje zarządu w sp. z o.o. — kiedy są wymagane, jak je dokumentować i dlaczego zaległości kosztują podczas kontroli.',
+    sort_order: 35,
+  },
+  {
+    id: 'fallback-finanse-spolki',
+    slug: 'finanse-spolki',
+    name: 'Finanse spółki',
+    description: 'Jak finansować spółkę z o.o. i jak legalnie wyprowadzać z niej zysk — pożyczka wspólnika, dopłaty, dywidenda, wynajem, wynagrodzenie zarządu i JDG B2B.',
+    sort_order: 45,
+  },
 ];
 
 export const fallbackWikiArticles: FallbackWikiArticle[] = [
@@ -200,6 +214,116 @@ Zrób to po uzyskaniu KRS i NIP, zanim zaczniesz formalności związane z KSeF, 
     updated_at: '2026-05-16T00:00:00.000Z',
     category: fallbackWikiCategories[1],
   },
+
+  // ─── Konto organizacji w e-US — spółka z o.o. ────────────────────────────────
+  {
+    id: 'fallback-konto-organizacji-spolka',
+    slug: 'konto-organizacji-e-urzad-skarbowy-spolka',
+    title: 'Konto organizacji w e-Urzędzie Skarbowym dla spółki z o.o. — krok po kroku',
+    excerpt: 'Bez konta organizacji zarząd działa w e-US jako osoba prywatna, nie w imieniu spółki. To blokuje dostęp do JPK, KSeF i pełnomocnictw podatkowych.',
+    summary: 'Przewodnik dla sp. z o.o.: jak prezes lub członek zarządu uzyskuje konto organizacji w e-US, jak nadać dostęp biuru rachunkowemu i co zrobić gdy spółka nie pojawia się na liście podmiotów.',
+    purpose: 'Właściciele spółek często logują się do e-US prywatnym profilem i nie rozumieją dlaczego nie widzą danych firmy. Ten artykuł prowadzi przez cały proces od pierwszego logowania do pełnego dostępu operacyjnego.',
+    body_markdown: `## Dlaczego konto prywatne nie wystarczy
+
+Zalogowanie do e-Urzędu Skarbowego profilem zaufanym daje dostęp do **Twojego** konta podatnika — czyli Twojego PIT, Twojej historii deklaracji jako osoby fizycznej. Spółka to osobny podmiot z własnym NIP. Żeby działać w jej imieniu — składać JPK, zarządzać pełnomocnictwami, nadawać dostęp do KSeF — potrzebujesz konta organizacji.
+
+## Kto może uzyskać konto organizacji dla sp. z o.o.
+
+Konto organizacji może uzyskać wyłącznie osoba wpisana w KRS jako uprawniona do reprezentacji spółki:
+
+- **Prezes zarządu** lub **członek zarządu** z prawem samodzielnej reprezentacji,
+- **Prokurent** — jeśli zakres prokury obejmuje reprezentację w sprawach podatkowych,
+- **Wspólnik** w spółkach osobowych (nie dotyczy sp. z o.o.).
+
+Pracownicy, księgowi i biura rachunkowe **nie mogą** samodzielnie uzyskać konta organizacji — mogą dostać do niego dostęp dopiero po jego założeniu przez osobę uprawnioną.
+
+## Jak krok po kroku uzyskać konto organizacji
+
+### 1. Zaloguj się do e-US
+
+Wejdź na [podatki.gov.pl](https://www.podatki.gov.pl/e-urzad-skarbowy/) i zaloguj się profilem zaufanym, e-dowodem lub podpisem kwalifikowanym.
+
+### 2. Znajdź opcję przełączenia na podmiot
+
+Po zalogowaniu w prawym górnym rogu (lub w menu) poszukaj opcji **„Przełącz podmiot"** lub **„Działaj jako"**. Powinna pojawić się lista podmiotów powiązanych z Twoim PESEL.
+
+### 3. Spółka nie pojawia się na liście?
+
+To częsty problem po świeżej rejestracji. Powody:
+
+- **Za wcześnie** — powiązanie KRS/NIP z PESEL reprezentanta jest synchronizowane z baz danych; może minąć od kilku do kilkunastu dni po rejestracji w KRS.
+- **Błąd w KRS** — jeśli Twój PESEL jest wpisany błędnie w KRS, system nie powiąże Cię ze spółką. Wymaga to sprostowania w KRS.
+- **Kilka NIP** — jeśli spółka zmieniała NIP (np. po przekształceniu), może być zarejestrowana pod starym numerem.
+
+Jeśli powiązanie nie pojawia się przez ponad 2 tygodnie od nadania NIP — zgłoś się do właściwego Urzędu Skarbowego z wypisem z KRS.
+
+### 4. Uaktywnij konto organizacji
+
+Po wybraniu spółki z listy system może poprosić o dodatkowe potwierdzenie tożsamości. Po przejściu aktywacji masz pełny dostęp do konta organizacji: historia deklaracji, JPK, KSeF, pełnomocnictwa.
+
+## Jak nadać dostęp biuru rachunkowemu
+
+Z poziomu konta organizacji możesz zarządzać **pełnomocnictwami podatkowymi**:
+
+- **UPL-1** — pełnomocnictwo do podpisywania deklaracji elektronicznych (np. JPK_V7, CIT-8). Biuro rachunkowe składa je samodzielnie lub robisz to Ty w ich imieniu.
+- **UPP-1** — pełnomocnictwo szczególne do konkretnych spraw.
+
+Po nadaniu UPL-1 biuro rachunkowe będzie widoczne jako pełnomocnik i może działać w imieniu spółki bez Twojej każdorazowej zgody.
+
+## Dostęp do KSeF przez e-US
+
+Zarządzanie tokenami KSeF i nadawanie uprawnień do wystawiania faktur w imieniu spółki odbywa się z poziomu portalu KSeF lub przez e-US. Konto organizacji w e-US jest krokiem poprzedzającym — bez niego nie możesz zarządzać uprawnieniami KSeF ani nadać biuru dostępu do faktur.
+
+## Zarząd wieloosobowy — kto zakłada, kto ma dostęp
+
+Każdy członek zarządu uprawniony do samodzielnej reprezentacji może mieć własne konto organizacji — nie potrzebują działać wspólnie. Jeśli zarząd wymaga reprezentacji łącznej (dwóch podpisów), do e-US i tak loguje się każda osoba z osobna, ale do składania deklaracji potrzebne może być pełnomocnictwo udzielone jednej z nich.`,
+    checklist: [
+      'Zaloguj się do e-US profilem zaufanym lub e-dowodem.',
+      'Kliknij „Przełącz podmiot" i sprawdź czy spółka jest na liście.',
+      'Jeśli nie ma spółki — poczekaj min. 2 tygodnie od rejestracji KRS/NIP.',
+      'Aktywuj konto organizacji dla spółki (NIP firmy).',
+      'Zweryfikuj dostęp do zakładki JPK i historii deklaracji spółki.',
+      'Złóż lub przyjmij UPL-1 dla biura rachunkowego.',
+      'Przejdź do portalu KSeF i skonfiguruj uprawnienia do fakturowania.',
+    ],
+    official_links: [
+      { label: 'e-Urząd Skarbowy', href: 'https://www.podatki.gov.pl/e-urzad-skarbowy/', external: true },
+      { label: 'Pełnomocnictwa podatkowe (UPL-1)', href: 'https://www.podatki.gov.pl/e-urzad-skarbowy/twoje-sprawy/pelnomocnictwa/', external: true },
+    ],
+    related_actions: [
+      { label: 'Konto organizacji — podstawy', href: '/poradnik/konto-organizacji-e-urzad-skarbowy' },
+      { label: 'Jak zdobyć token KSeF', href: '/poradnik/jak-zdobyc-token-ksef-i-podlaczyc-firme' },
+      { label: 'NIP-8 — kiedy i co zgłosić', href: '/poradnik/nip-8-spolka-zoo' },
+    ],
+    faq: [
+      {
+        question: 'Ile czasu czekać na pojawienie się spółki na liście podmiotów?',
+        answer: 'Zazwyczaj od kilku dni do 2 tygodni po nadaniu NIP. Jeśli po 2 tygodniach nadal nie widać — skontaktuj się z właściwym US z wypisem z KRS.',
+      },
+      {
+        question: 'Czy każdy członek zarządu musi zakładać konto organizacji osobno?',
+        answer: 'Tak, każda osoba loguje się własnym profilem zaufanym. Ale konto organizacji jest jedno — każdy uprawniony tylko je „włącza" dla siebie.',
+      },
+      {
+        question: 'Czy biuro rachunkowe może samodzielnie uzyskać konto organizacji?',
+        answer: 'Nie. Konto organizacji może uzyskać tylko osoba wpisana w KRS jako uprawniona do reprezentacji. Biuro dostaje dostęp przez UPL-1 nadany przez zarząd.',
+      },
+      {
+        question: 'Czy konto organizacji w e-US daje automatycznie dostęp do KSeF?',
+        answer: 'Nie automatycznie. KSeF to osobny system. Konto organizacji w e-US jest warunkiem wstępnym, ale dostęp do KSeF konfiguruje się oddzielnie w portalu KSeF lub przez e-US.',
+      },
+      {
+        question: 'Czy wspólnik bez roli w zarządzie może uzyskać konto organizacji?',
+        answer: 'Nie, jeśli nie jest wpisany w KRS jako uprawniony do reprezentacji. Bycie wspólnikiem (udziałowcem) nie daje automatycznie prawa do działania w imieniu spółki w e-US.',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 25,
+    published_at: '2026-05-24T00:00:00.000Z',
+    updated_at: '2026-05-24T00:00:00.000Z',
+    category: fallbackWikiCategories[1],
+  },
+
   {
     id: 'fallback-crbr',
     slug: 'crbr-spolka-zoo-co-zglosic',
@@ -300,6 +424,96 @@ Założyć skrzynkę i nie ustalić, kto ją sprawdza.
     sort_order: 20,
     published_at: '2026-05-16T00:00:00.000Z',
     updated_at: '2026-05-16T00:00:00.000Z',
+    category: fallbackWikiCategories[2],
+  },
+
+  // ─── e-Doręczenia dla spółki z o.o. ─────────────────────────────────────────
+  {
+    id: 'fallback-e-doreczenia-spolka',
+    slug: 'e-doreczenia-spolka',
+    title: 'e-Doręczenia dla spółki z o.o. — obowiązek, rejestracja i codzienna obsługa',
+    excerpt: 'Spółka z o.o. wpisana do KRS ma obowiązek posiadania adresu do e-Doręczeń. Bez niego urząd może nie dotrzeć z ważnym pismem — a termin i tak biegnie.',
+    summary: 'Kompletny przewodnik po e-Doręczeniach dla sp. z o.o.: kto rejestruje, jak to zrobić, kto pilnuje skrzynki i jakie są konsekwencje zaniedbania.',
+    purpose: 'Spółki z o.o. mają inne obowiązki niż JDG — konto e-Doręczeń zakłada zarząd lub pełnomocnik, a skrzynka musi być realnie obsługiwana przez wskazaną osobę.',
+    body_markdown: `## Obowiązek dla spółek z KRS
+
+Spółki wpisane do Krajowego Rejestru Sądowego (KRS) — w tym sp. z o.o. — są objęte obowiązkiem posiadania adresu do e-Doręczeń (ADE). Oznacza to, że oficjalna korespondencja z sądów, ZUS, US i innych urzędów może trafiać wyłącznie na ten adres. Jeśli go nie masz lub skrzynka jest niepilnowana, termin odpowiedzi biegnie od dnia pierwszego doręczenia próbnego.
+
+## Kto rejestruje adres w imieniu spółki
+
+Adres do e-Doręczeń rejestruje **osoba uprawniona do reprezentacji spółki** — czyli członek zarządu wpisany w KRS. Może to zrobić przez:
+
+- **e-Urząd Skarbowy** (podatki.gov.pl) — konto organizacji spółki,
+- **portal gov.pl** — wniosek o ADE dla podmiotu wpisanego do KRS.
+
+Pełnomocnik (np. radca prawny) może złożyć wniosek w imieniu spółki, jeśli posiada stosowne pełnomocnictwo i jest zarejestrowany jako pełnomocnik w systemie.
+
+## Trzy osoby, które musisz wyznaczyć
+
+1. **Administrator skrzynki** — zakłada konto i zarządza uprawnieniami.
+2. **Odbiorca korespondencji** — sprawdza skrzynkę regularnie i reaguje na pisma.
+3. **Zastępca** — pilnuje skrzynki gdy odbiorca jest niedostępny.
+
+Brak wyznaczonego odbiorcy to najczęstszy powód, dla którego pisma urzędowe są pomijane.
+
+## Powiązanie z NIP-8
+
+Po aktywacji adresu do e-Doręczeń warto sprawdzić, czy adres ADE jest aktualizowany w NIP-8 (zgłoszeniu uzupełniającym). Urząd skarbowy używa NIP-8 jako źródła danych kontaktowych — jeśli pole jest puste lub zawiera stary adres, korespondencja może trafiać dwiema ścieżkami.
+
+## Dostęp dla biura rachunkowego lub prawnika
+
+Jako administrator skrzynki możesz nadać dostęp zewnętrznym podmiotom (biuro rachunkowe, kancelaria). Dzięki temu mogą odbierać pisma w Twoim imieniu — ale formalnie to Twoja spółka jest adresatem i Twoja odpowiedzialność.
+
+## Co grozi za brak adresu lub niepilnowaną skrzynkę
+
+- Pismo doręczone na nieaktywny ADE uznaje się za skutecznie doręczone po upływie terminu.
+- Sąd może orzec nakaz bez Twojej odpowiedzi jeśli nie zareagujesz na czas.
+- Kontrola skarbowa wysłana e-Doręczeniami zaczyna biec od daty pierwszego awizowania.
+
+## Minimum na start
+
+Aktywuj skrzynkę, wyznacz konkretną osobę z numerem telefonu jako odbiorcę i ustaw powiadomienia e-mail/SMS o nowej korespondencji. To zajmuje 15 minut i chroni przed poważnymi konsekwencjami.`,
+    checklist: [
+      'Zaloguj się do e-US na konto organizacji (NIP spółki).',
+      'Złóż wniosek o adres do e-Doręczeń dla spółki.',
+      'Aktywuj skrzynkę e-Doręczeń po otrzymaniu potwierdzenia.',
+      'Wyznacz konkretną osobę odpowiedzialną za odbiór korespondencji.',
+      'Wyznacz zastępcę na czas nieobecności odbiorcy.',
+      'Włącz powiadomienia e-mail lub SMS o nowych wiadomościach.',
+      'Sprawdź czy adres ADE jest aktualny w NIP-8.',
+      'Opcjonalnie: nadaj dostęp biuru rachunkowemu lub kancelarii.',
+    ],
+    official_links: [
+      { label: 'e-Doręczenia dla przedsiębiorcy (gov.pl)', href: 'https://www.gov.pl/web/e-doreczenia/dla-przedsiebiorcy', external: true },
+      { label: 'e-Urząd Skarbowy — konto organizacji', href: 'https://www.podatki.gov.pl/e-urzad-skarbowy/', external: true },
+    ],
+    related_actions: [
+      { label: 'e-Doręczenia — ogólny przewodnik', href: '/poradnik/e-doreczenia-dla-firmy' },
+      { label: 'NIP-8 — kiedy i co zgłosić', href: '/poradnik/nip-8-spolka-zoo' },
+      { label: 'Pierwsze obowiązki po rejestracji spółki', href: '/poradnik/pierwsze-obowiazki-po-zalozeniu-spolki-zoo' },
+    ],
+    faq: [
+      {
+        question: 'Czy zarząd wieloosobowy musi zakładać skrzynkę razem?',
+        answer: 'Nie. Wystarczy, że jeden członek zarządu — uprawniony do samodzielnej reprezentacji — złoży wniosek i aktywuje skrzynkę. Potem może nadać dostęp pozostałym.',
+      },
+      {
+        question: 'Czy spółka może mieć kilka adresów ADE?',
+        answer: 'Nie. Każdy podmiot wpisany do KRS ma jeden adres do e-Doręczeń. Można natomiast mieć wielu użytkowników z dostępem do tej samej skrzynki.',
+      },
+      {
+        question: 'Co jeśli pismo trafiło na skrzynkę, której nikt nie sprawdzał?',
+        answer: 'Pismo uznaje się za doręczone po upływie 14 dni od pierwszego awizowania (analogia do awiza pocztowego). Nie można skutecznie twierdzić, że "nie doszło" jeśli skrzynka była aktywna.',
+      },
+      {
+        question: 'Czy biuro rachunkowe może założyć e-Doręczenia zamiast zarządu?',
+        answer: 'Tak, jeśli posiada pełnomocnictwo do reprezentowania spółki w tym zakresie i jest zarejestrowane jako pełnomocnik w systemie e-Doręczeń.',
+      },
+    ],
+    article_type: 'checklist',
+    sort_order: 25,
+    published_at: '2026-05-24T00:00:00.000Z',
+    updated_at: '2026-05-24T00:00:00.000Z',
     category: fallbackWikiCategories[2],
   },
 
@@ -1579,6 +1793,787 @@ Niezależnie od formy — zaraz po rejestracji czeka Cię kilka kroków: konto b
     published_at: '2026-05-18T00:00:00.000Z',
     updated_at: '2026-05-18T00:00:00.000Z',
     category: fallbackWikiCategories[3],
+  },
+
+  // ─── KATEGORIA: uchwaly-decyzje (fallbackWikiCategories[6]) ─────────────────
+
+  {
+    id: 'fallback-ksh-210-pelnomocnik',
+    slug: 'ksh-art-210-pelnomocnik-umowy-z-czlonkami-zarzadu',
+    title: 'KSH art. 210 — dlaczego spółka potrzebuje pełnomocnika do umów z członkami zarządu',
+    excerpt: 'Każda umowa między sp. z o.o. a członkiem zarządu wymaga pełnomocnika powołanego uchwałą wspólników — bez tego kontrakt może być nieważny.',
+    summary: 'Artykuł 210 KSH chroni spółkę przed konfliktem interesów. Wyjaśniamy, kiedy przepis działa, co grozi za jego pominięcie i jak prawidłowo powołać pełnomocnika.',
+    purpose: 'Właściciele spółek często nie wiedzą, że umowa o pracę lub kontrakt menedżerski podpisany bez pełnomocnika narusza KSH i może być podważony przez audytora lub w sądzie.',
+    body_markdown: `## Na czym polega zasada z art. 210 KSH
+
+W spółce z ograniczoną odpowiedzialnością zarząd reprezentuje spółkę na zewnątrz. Problem pojawia się, gdy spółka chce zawrzeć umowę z osobą, która jednocześnie jest członkiem tego zarządu — np. podpisać umowę o pracę, kontrakt menedżerski albo umowę pożyczki.
+
+Gdyby zarząd podpisywał taką umowę sam ze sobą, łatwo o konflikt interesów: człowiek stoi po obu stronach stołu negocjacyjnego. Art. 210 KSH eliminuje ten problem.
+
+> **Art. 210 § 1 KSH:** W umowie między spółką a członkiem zarządu oraz w sporze z nim spółkę reprezentuje rada nadzorcza lub pełnomocnik powołany uchwałą zgromadzenia wspólników.
+
+## Kiedy art. 210 KSH ma zastosowanie
+
+Przepis dotyczy **każdej czynności prawnej** między spółką a członkiem zarządu:
+
+- umowa o pracę lub kontrakt menedżerski z prezesem
+- umowa pożyczki między spółką a wspólnikiem będącym jednocześnie w zarządzie
+- umowa o świadczenie usług (np. doradztwo, najem)
+- ugoda pozasądowa albo spór z członkiem zarządu
+- aneksy do już zawartych umów
+
+Przepis **nie dotyczy** umów między spółką a wspólnikiem, który nie zasiada w zarządzie.
+
+## Co grozi za pominięcie art. 210 KSH
+
+Umowa podpisana z naruszeniem art. 210 KSH jest **bezwzględnie nieważna** — z mocy prawa, bez potrzeby wyroków sądowych. Praktyczne konsekwencje:
+
+- kontrakt menedżerski prezesa może zostać uznany za nieważny podczas audytu lub sporu
+- ZUS lub urząd skarbowy może zakwestionować podstawę do wypłat z tytułu umowy
+- przy transakcji M&A due diligence ujawni lukę, co obniży wycenę lub zablokuje deal
+- biegły rewident może zgłosić zastrzeżenie do sprawozdania finansowego
+
+## Jak prawidłowo powołać pełnomocnika
+
+Procedura jest prosta, ale musi być udokumentowana:
+
+1. Zwołaj Nadzwyczajne Zgromadzenie Wspólników (NZW) albo włącz punkt do porządku obrad najbliższego ZW.
+2. Podejmij **uchwałę o powołaniu pełnomocnika** — wskaż imię i nazwisko osoby oraz zakres pełnomocnictwa (konkretna umowa lub rodzaj czynności).
+3. Sporządź protokół z NZW z treścią uchwały.
+4. Podpisz umowę z członkiem zarządu — ze strony spółki podpisuje powołany pełnomocnik.
+5. Przechowaj uchwałę i protokół w archiwum spółki.
+
+> **Ważne:** pełnomocnikiem może być wspólnik, inna osoba z zarządu (niezaangażowana w tę konkretną umowę) albo zewnętrzna osoba zaufana. Nie ma wymogu, by był prawnikiem.
+
+## Spółka z radą nadzorczą
+
+Jeśli spółka ma radę nadzorczą, to ona — nie pełnomocnik — reprezentuje spółkę w umowach z zarządem. Uchwała wspólników do powołania pełnomocnika jest potrzebna tylko wtedy, gdy rada nadzorcza nie istnieje.
+
+## Czego nie wolno robić
+
+- Nie podpisuj umowy z członkiem zarządu „bo wszyscy wspólnicy się zgadzają" bez formalnej uchwały — ustna zgoda nie spełnia wymogu art. 210.
+- Nie pomijaj pełnomocnika przy aneksach do istniejących umów — każda zmiana umowy to nowa czynność prawna.
+- Nie zakładaj, że prezes-jedyny wspólnik może sam podpisać umowę ze sobą — art. 210 § 2 KSH wymaga formy aktu notarialnego.`,
+    checklist: [
+      'Sprawdź, czy planowana umowa jest zawierana z osobą będącą członkiem zarządu.',
+      'Zwołaj NZW lub dodaj punkt do porządku obrad najbliższego ZW.',
+      'Podejmij uchwałę o powołaniu pełnomocnika z imienia i nazwiska.',
+      'Sporządź i podpisz protokół z NZW z treścią uchwały.',
+      'Podpisz umowę — ze strony spółki podpisuje powołany pełnomocnik.',
+      'Przechowaj uchwałę i protokół w archiwum spółki.',
+    ],
+    official_links: [
+      { label: 'Art. 210 KSH — tekst ustawy (Sejm RP)', href: 'https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20000941037', external: true },
+    ],
+    related_actions: [
+      { label: 'Zarządzaj uchwałami w KsięgaI', href: '/rejestracja' },
+      { label: 'Zobacz cennik dla spółek', href: '/cennik' },
+    ],
+    faq: [
+      {
+        question: 'Czy prezes będący jedynym wspólnikiem też potrzebuje pełnomocnika?',
+        answer: 'Tak, ale zasada jest zmodyfikowana. Art. 210 § 2 KSH mówi, że gdy jeden wspólnik jest jednocześnie jedynym członkiem zarządu, czynność prawna między nim a spółką wymaga formy aktu notarialnego.',
+      },
+      {
+        question: 'Kto może być pełnomocnikiem z art. 210 KSH?',
+        answer: 'Dowolna osoba wskazana uchwałą wspólników — może to być inny wspólnik, osoba spoza spółki, a nawet drugi członek zarządu (o ile nie jest stroną tej konkretnej umowy). Nie musi być prawnikiem.',
+      },
+      {
+        question: 'Czy pełnomocnictwo z art. 210 KSH musi być notarialne?',
+        answer: 'Nie, o ile umowa z zarządem nie wymaga formy notarialnej. Uchwała wspólników z protokołem wystarczy.',
+      },
+      {
+        question: 'Co jeśli umowa z naruszeniem art. 210 już obowiązuje?',
+        answer: 'Należy jak najszybciej zwołać ZW, podjąć uchwałę o ratyfikacji i podpisać umowę ponownie z pełnomocnikiem. Warto skonsultować się z prawnikiem, czy nieważność można konwalidować.',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 10,
+    published_at: '2026-05-23T00:00:00.000Z',
+    updated_at: '2026-05-23T00:00:00.000Z',
+    category: fallbackWikiCategories[6],
+  },
+
+  // ─── KSH art. 210 — dlaczego spółka potrzebuje pełnomocnika (scenariusze) ─────
+  {
+    id: 'fallback-ksh-210-dlaczego',
+    slug: 'ksh-art-210-dlaczego-spolka-potrzebuje-pelnomocnika-do-umow-z-czlonkami-zarzadu',
+    title: 'KSH art. 210 — dlaczego spółka potrzebuje pełnomocnika do umów z członkami zarządu',
+    excerpt: 'Każda umowa między sp. z o.o. a jej prezesem bez pełnomocnika jest nieważna z mocy prawa. Sprawdź, kiedy to dotyczy Cię — i dlaczego ZUS, audytor i notariusz sprawdzą to pierwsi.',
+    summary: 'Wyjaśniamy, dlaczego art. 210 KSH istnieje, w jakich realnych sytuacjach właściciele spółek łamią go nieświadomie i jakie to ma konsekwencje — od nieważności umowy po problemy z due diligence przy sprzedaży firmy.',
+    purpose: 'Wielu założycieli spółek dowiaduje się o art. 210 KSH dopiero przy audycie, transakcji M&A albo kontroli ZUS. Ten artykuł pokazuje, kiedy przepis uderza i dlaczego warto zadbać o pełnomocnika na starcie.',
+    body_markdown: `## Problem, który przepis rozwiązuje
+
+Wyobraź sobie, że jesteś prezesem spółki i chcesz podpisać z tą spółką umowę o pracę. Stoisz po obu stronach stołu: jako zarząd reprezentujesz spółkę i jako pracownik podpisujesz umowę. Nikt po stronie spółki nie chroni jej interesów przed ewentualnymi nadużyciami.
+
+Art. 210 § 1 KSH rozwiązuje ten problem jednym zdaniem:
+
+> *W umowie między spółką a członkiem zarządu oraz w sporze z nim spółkę reprezentuje rada nadzorcza lub pełnomocnik powołany uchwałą zgromadzenia wspólników.*
+
+Bez tego mechanizmu zarząd mógłby dowolnie kształtować swoje własne wynagrodzenie, warunki pracy czy pożyczki od spółki bez żadnej zewnętrznej kontroli.
+
+## Pięć sytuacji, w których właściciele spółek to pomijają
+
+### 1. Umowa o pracę lub kontrakt menedżerski prezesa
+
+To najczęstszy przypadek. Spółka chce zatrudnić swojego prezesa. Prezes sam podpisuje umowę „w imieniu spółki" i jako pracownik. Umowa jest nieważna.
+
+Konsekwencja: ZUS może zakwestionować tytuł do ubezpieczenia. US może podważyć koszt wynagrodzenia. W razie sporu sąd pracy stwierdzi brak ważnej umowy.
+
+### 2. Pożyczka od wspólnika będącego w zarządzie
+
+Wspólnik-prezes chce pożyczyć spółce pieniądze (pożyczka wspólnika). Podpisuje umowę sam — jako pożyczkodawca i jako zarząd spółki. Klasyczne naruszenie art. 210.
+
+Konsekwencja: umowa pożyczki jest nieważna, co komplikuje rozliczenie PCC (deklaracja PCC-3) i odsetki.
+
+### 3. Wynajem prywatnego majątku spółce
+
+Prezes chce wynająć spółce samochód, biuro albo sprzęt. Umowa najmu musi być podpisana przez pełnomocnika ze strony spółki — nawet jeśli to oczywisty deal rynkowy.
+
+### 4. Umowa B2B: JDG wspólnika fakturuje spółkę
+
+Jeśli wspólnik prowadzi też JDG i fakturuje spółkę za usługi, a jednocześnie zasiada w zarządzie — umowa o świadczenie usług między JDG a spółką wymaga pełnomocnika po stronie spółki.
+
+### 5. Aneksy do już zawartych umów
+
+Wiele spółek ma „historyczne" umowy podpisane bez pełnomocnika. Każdy aneks to nowa czynność prawna — i znowu wymaga pełnomocnika. Ratowanie starych umów aneksami bez pełnomocnika nie naprawia problemu, tylko go pogłębia.
+
+## Gdzie to wychodzi na jaw
+
+**Audyt finansowy lub due diligence M&A** — biegły rewident lub prawnicy kupującego sprawdzają wszystkie umowy z osobami powiązanymi. Brak pełnomocnika = zastrzeżenie w audycie lub obniżka wyceny.
+
+**Kontrola ZUS** — ZUS bada ważność umowy o pracę jako tytułu do ubezpieczenia. Nieważna umowa = brak tytułu do ubezpieczenia i ryzyko zwrotu składek.
+
+**Spór sądowy z byłym prezesem** — były prezes pozywa spółkę o wynagrodzenie lub odprawę. Spółka próbuje powołać się na warunki umowy, ale umowa jest nieważna. Spór rozstrzyga się bez umowy — często na niekorzyść spółki.
+
+**Transakcja notarialna** — notariusz przy zbyciu udziałów lub innych czynnościach sprawdza dokumentację spółki i może odmówić poświadczenia jeśli widzi naruszenia.
+
+## Szczególny przypadek: jedyny wspólnik = jedyny członek zarządu
+
+Art. 210 § 2 KSH wprowadza dodatkowy obowiązek: gdy spółka ma jednego wspólnika, który jest jednocześnie jedynym członkiem zarządu, każda czynność prawna między nim a spółką **wymaga formy aktu notarialnego**.
+
+Dotyczy to klasycznej sytuacji: solo founder zakłada sp. z o.o., jest jedynym wspólnikiem i prezesem. Każda umowa między nim a tą spółką — pożyczka, wynajem, kontrakt — musi być zawarta u notariusza.
+
+Akt notarialny to nie formalność, którą można pominąć „bo to tylko my" — to warunek ważności czynności.
+
+## Jak temu zaradzić
+
+Procedura jest prosta. Wystarczy jedna uchwała wspólników:
+
+1. Zwołaj Zgromadzenie Wspólników (zwykłe lub nadzwyczajne).
+2. Podejmij **uchwałę o powołaniu pełnomocnika** — z imieniem, nazwiskiem i zakresem (konkretna umowa lub kategoria czynności).
+3. Sporządź protokół.
+4. Podpisz umowę — ze strony spółki podpisuje pełnomocnik.
+
+Szczegółowy opis procedury znajdziesz w artykule: [KSH art. 210 — procedura krok po kroku](/poradnik/ksh-art-210-pelnomocnik-umowy-z-czlonkami-zarzadu).`,
+    checklist: [
+      'Sprawdź wszystkie umowy spółki z członkami zarządu — czy były podpisane przez pełnomocnika?',
+      'Zidentyfikuj aneksy do tych umów — każdy też wymaga pełnomocnika.',
+      'Jeśli jesteś jedynym wspólnikiem i prezesem — sprawdź czy umowy ze sobą mają formę notarialną.',
+      'Dla nowych umów: zwołaj ZW i podejmij uchwałę o powołaniu pełnomocnika przed podpisaniem.',
+      'Przechowuj uchwały i protokoły w archiwum spółki.',
+    ],
+    official_links: [
+      { label: 'Art. 210 KSH — tekst ustawy (Sejm RP)', href: 'https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20000941037', external: true },
+    ],
+    related_actions: [
+      { label: 'Procedura powołania pełnomocnika z art. 210 KSH', href: '/poradnik/ksh-art-210-pelnomocnik-umowy-z-czlonkami-zarzadu' },
+      { label: 'Kiedy i jak powołać pełnomocnika w spółce', href: '/poradnik/pelnomocnik-spolka-zoo-kiedy-i-jak-powolac' },
+      { label: 'Zarządzaj uchwałami w KsięgaI', href: '/rejestracja' },
+    ],
+    faq: [
+      {
+        question: 'Czy art. 210 KSH dotyczy też umów z prokurą?',
+        answer: 'Nie bezpośrednio. Prokurent nie jest członkiem zarządu. Ale jeśli prokurent jest też wspólnikiem z realną kontrolą, warto skonsultować zakres przepisu z prawnikiem.',
+      },
+      {
+        question: 'Co jeśli mamy radę nadzorczą?',
+        answer: 'Wtedy to rada nadzorcza reprezentuje spółkę w umowach z zarządem — nie potrzebujesz osobnego pełnomocnika. Wystarczy uchwała rady i podpis jej przewodniczącego lub upoważnionego członka.',
+      },
+      {
+        question: 'Czy nieważną umowę można naprawić wstecznie?',
+        answer: 'Doktrynalnie nieważność bezwzględna nie podlega konwalidacji. W praktyce najlepiej podpisać nową, ważną umowę z datą bieżącą i uzgodnić rozliczenie za okres wcześniejszy. Skonsultuj się z radcą prawnym.',
+      },
+      {
+        question: 'Czy pełnomocnik musi być wspólnikiem?',
+        answer: 'Nie. Może to być dowolna osoba wskazana uchwałą — inny wspólnik, prawnik, zaufana osoba zewnętrzna. Ważne, żeby uchwała precyzowała zakres pełnomocnictwa.',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 11,
+    published_at: '2026-05-24T00:00:00.000Z',
+    updated_at: '2026-05-24T00:00:00.000Z',
+    category: fallbackWikiCategories[6],
+  },
+
+  {
+    id: 'fallback-pelnomocnik-spolka-zoo',
+    slug: 'pelnomocnik-spolka-zoo-kiedy-i-jak-powolac',
+    title: 'Pełnomocnik w sp. z o.o. — kiedy jest potrzebny i jak go powołać',
+    excerpt: 'Kiedy zarząd nie może sam reprezentować spółki, potrzebny jest pełnomocnik. Wyjaśniamy, kiedy to obowiązkowe i jak unikać typowych błędów.',
+    summary: 'Przewodnik po pełnomocnictwach w spółce z o.o.: różnice między pełnomocnikiem a prokurentem, kiedy wymagana jest uchwała wspólników, jak prawidłowo udokumentować powołanie.',
+    purpose: 'Brak pełnomocnika lub błędy w jego powołaniu to jeden z najczęstszych powodów nieważności umów w spółkach z o.o. Ten artykuł pokazuje, kiedy działać i co przygotować.',
+    body_markdown: `## Dwa różne rodzaje umocowania
+
+W spółce z o.o. najczęściej spotykamy dwa rodzaje umocowania do działania w imieniu spółki:
+
+**Prokura** — ustanawiana przez zarząd, wpisywana do KRS, uprawnia do wszelkich czynności sądowych i pozasądowych związanych z prowadzeniem przedsiębiorstwa. Prokurent działa samodzielnie, nie potrzebuje odrębnych upoważnień dla każdej umowy.
+
+**Pełnomocnictwo** — może być ogólne (do czynności zwykłego zarządu) lub szczególne (do konkretnej czynności). Udzielane przez zarząd albo — w szczególnych przypadkach — przez zgromadzenie wspólników. Nie wpisuje się do KRS.
+
+## Kiedy wymagana jest uchwała wspólników (a nie wystarczy decyzja zarządu)
+
+Są sytuacje, gdy to nie zarząd, ale zgromadzenie wspólników musi powołać pełnomocnika:
+
+- **Art. 210 KSH** — umowy i spory między spółką a członkiem zarządu (szczegółowo opisujemy w osobnym artykule)
+- **Art. 253 KSH** — gdy spółka wytacza powództwo w sporze ze wspólnikiem, który jest jednocześnie w zarządzie
+- **Umowa spółki może rozszerzyć listę** — niektóre umowy spółki wymagają zgody ZW dla czynności przekraczających zwykły zarząd
+
+## Pełnomocnictwo udzielone przez zarząd — kiedy to wystarczy
+
+W typowych sytuacjach zarząd może samodzielnie udzielić pełnomocnictwa:
+
+- pełnomocnictwo do podpisania konkretnej umowy z kontrahentem
+- upoważnienie pracownika do reprezentowania spółki w postępowaniu urzędowym
+- pełnomocnictwo procesowe do działania przed sądem
+
+W tych przypadkach wystarczy pisemna decyzja zarządu — nie jest potrzebna uchwała wspólników.
+
+## Jak prawidłowo powołać pełnomocnika z uchwały ZW
+
+1. Zwołaj Nadzwyczajne Zgromadzenie Wspólników lub dodaj punkt do porządku obrad ZZW.
+2. Podejmij uchwałę zawierającą: imię i nazwisko pełnomocnika, zakres umocowania (konkretna umowa lub kategoria czynności), okres obowiązywania (jeśli ma być ograniczony).
+3. Sporządź protokół z ZW z pełną treścią uchwały — musi być podpisany przez przewodniczącego i protokolanta.
+4. Przekaż pełnomocnikowi odpis uchwały — to jego podstawa do działania.
+5. Pełnomocnik podpisuje umowę w imieniu spółki, powołując się na uchwałę (np. „działając jako pełnomocnik spółki na podstawie Uchwały nr X ZW z dnia...").
+
+## Jak długo przechowywać dokumenty
+
+- Uchwała i protokół z ZW: przez cały okres istnienia spółki + 5 lat po jej rozwiązaniu
+- Kopia podpisanej umowy: standardowo 10 lat od jej wygaśnięcia
+- Podczas audytu lub due diligence audytorzy będą sprawdzać, czy pełnomocnictwo istniało w dniu podpisania umowy
+
+> **Praktyczna rada:** Numeruj uchwały (np. Uchwała nr 3/2026/ZW) i trzymaj je w jednym miejscu — chronologicznie. W razie kontroli skarbowej lub audytu bankowego zaoszczędzisz wiele godzin szukania.
+
+## Prokura a pełnomocnictwo — co wybrać
+
+Jeśli chcesz dać komuś stałe szerokie uprawnienia do działania w imieniu spółki, rozważ prokurę — jest trwalsza i nie wymaga odnowienia przy każdej umowie. Pełnomocnictwo jest lepsze do jednorazowych lub ograniczonych zadań, gdy nie chcesz wpisywać osoby do KRS.`,
+    checklist: [
+      'Ustal, czy sytuacja wymaga uchwały ZW (np. art. 210 KSH) czy wystarczy decyzja zarządu.',
+      'Przygotuj projekt uchwały z imieniem pełnomocnika i zakresem umocowania.',
+      'Zwołaj ZW lub NZW i podejmij uchwałę.',
+      'Sporządź protokół z ZW z treścią uchwały — podpisz przez przewodniczącego i protokolanta.',
+      'Przekaż pełnomocnikowi odpis uchwały jako podstawę działania.',
+      'Podpisz umowę z pełnomocnikiem powołującym się na uchwałę.',
+      'Archiwizuj uchwałę, protokół i umowę w jednym miejscu.',
+    ],
+    official_links: [
+      { label: 'Art. 210 KSH — tekst ustawy (Sejm RP)', href: 'https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20000941037', external: true },
+      { label: 'Prokura — art. 1091–1099 KC', href: 'https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU19640160093', external: true },
+    ],
+    related_actions: [
+      { label: 'Rejestruj uchwały w KsięgaI', href: '/rejestracja' },
+      { label: 'Przeczytaj o KSH art. 210', href: '/poradnik/uchwaly-decyzje/ksh-art-210-pelnomocnik-umowy-z-czlonkami-zarzadu' },
+    ],
+    faq: [
+      {
+        question: 'Czy pełnomocnictwo z uchwały ZW trzeba wpisać do KRS?',
+        answer: 'Nie. Pełnomocnictwo udzielone przez zgromadzenie wspólników nie podlega wpisowi do KRS. Do KRS wpisuje się tylko prokurę.',
+      },
+      {
+        question: 'Czy pełnomocnik może udzielić dalszego pełnomocnictwa?',
+        answer: 'Tylko jeśli uchwała wprost na to zezwala lub wynika to z okoliczności. W praktyce przy pełnomocnictwach do konkretnych umów lepiej unikać subdelegacji.',
+      },
+      {
+        question: 'Czy pełnomocnictwo wygasa, gdy zmienia się skład zarządu?',
+        answer: 'Zależy od podstawy. Pełnomocnictwo udzielone przez zarząd wygasa, gdy zarząd traci uprawnienie do jego udzielenia. Pełnomocnictwo z uchwały ZW nie wygasa automatycznie ze zmianą zarządu.',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 20,
+    published_at: '2026-05-23T00:00:00.000Z',
+    updated_at: '2026-05-23T00:00:00.000Z',
+    category: fallbackWikiCategories[6],
+  },
+
+  {
+    id: 'fallback-uchwaly-archiwum-kontrola',
+    slug: 'dokumentacja-uchwal-kontrola-audyt-spolka-zoo',
+    title: 'Dlaczego brak dokumentacji uchwał kosztuje spółkę podczas kontroli',
+    excerpt: 'Brakująca uchwała to nieważna umowa, zakwestionowany koszt lub problem przy audycie. Pokazujemy, gdzie spółki tracą i jak KsięgaI pomaga tego unikać.',
+    summary: 'Przewodnik po ryzykach związanych z brakiem dokumentacji uchwał i decyzji w sp. z o.o. — co sprawdzają audytorzy, jakie sankcje grożą spółce i jak moduł decyzji w KsięgaI rozwiązuje ten problem.',
+    purpose: 'Wielu właścicieli spółek traktuje uchwały jak formalność. Ten artykuł pokazuje konkretne scenariusze, w których brak uchwały lub jej złe udokumentowanie zamienia się w realne straty.',
+    body_markdown: `## Uchwały to nie formalność — to dowód
+
+W spółce z ograniczoną odpowiedzialnością każda ważna decyzja powinna mieć podstawę prawną: uchwałę wspólników albo decyzję zarządu utrwaloną w protokole. Nie chodzi o biurokrację — chodzi o to, że bez dokumentacji spółka nie może udowodnić, że działała zgodnie z prawem.
+
+Audytorzy, urzędy skarbowe i banki nie pytają „czy podjęliście tę decyzję?". Pytają „pokaż uchwałę". Jeśli jej nie ma, konsekwencje mogą być poważne.
+
+## Co sprawdzają audytorzy i urzędy skarbowe
+
+**Biegły rewident** przy badaniu sprawozdania rocznego:
+- weryfikuje, czy wynagrodzenia zarządu mają podstawę w uchwałach
+- sprawdza, czy umowy z podmiotami powiązanymi były zawarte z pełnomocnikiem (art. 210 KSH)
+- ocenia, czy zmiany kapitałowe (dopłaty, podwyższenie kapitału) mają komplet dokumentów
+
+**Urząd Skarbowy** podczas kontroli:
+- kwestionuje koszty uzyskania przychodu, gdy brak uchwały zatwierdzającej wydatek ponadstandardowy
+- może uznać wynagrodzenie zarządu za ukrytą dywidendę, jeśli nie ma uchwały ustalającej wysokość
+- sprawdza protokoły ZGW przy przeniesieniu środków między wspólnikami
+
+**Bank** przy udzielaniu kredytu lub factoringu:
+- żąda uchwały o zaciągnięciu zobowiązania, jeśli przekracza progi z umowy spółki
+- wymaga protokołu ZGW zatwierdzającego sprawozdanie, zanim rozpatrzy wniosek kredytowy
+
+**Inwestor lub nabywca** w procesie due diligence M&A:
+- przegląda komplet uchwał z ostatnich 3–5 lat
+- brak dokumentów lub luki w numeracji to sygnał ryzyka, który obniża wycenę
+
+## Najczęstsze błędy dokumentacyjne spółek
+
+- **Brak uchwały o wynagrodzeniu zarządu** — umowa o pracę podpisana bez uchwały ZW może nie stanowić ważnej podstawy do wypłat
+- **Brak pełnomocnika do umów z zarządem** — naruszenie art. 210 KSH, umowa nieważna z mocy prawa
+- **Uchwały podejmowane bez formalnego ZW** — niespełnione wymogi zwołania, brak kworum, brak protokołu
+- **Brak numeracji i archiwum** — przy audycie niemożliwe jest wykazanie ciągłości dokumentacji
+- **Uchwały w mailach** — podjęcie uchwały przez e-mail jest dopuszczalne tylko gdy umowa spółki to przewiduje i przy zachowaniu formy pisemnej z podpisami
+
+## Co traci spółka bez porządku w dokumentach
+
+> Brak uchwały przy wynagrodzeniu zarządu 120 000 zł/rok może oznaczać zakwestionowanie kosztów przez US — podatek CIT od nieuznanego kosztu to 19 000 zł rocznie.
+
+> Nieważna umowa z naruszeniem art. 210 KSH wykryta w due diligence M&A może obniżyć wycenę spółki lub zablokować transakcję na etapie SPA.
+
+> Brak protokołów ZW przy audycie bankowym opóźnia decyzję kredytową o tygodnie lub miesiące.
+
+## Jak KsięgaI organizuje uchwały i decyzje
+
+Moduł decyzji w KsięgaI działa na dwóch poziomach odpowiadających strukturze spółki:
+
+**Uchwały strategiczne — Zgromadzenie Wspólników**
+
+Rejestruj uchwały wspólników z numerem, datą, treścią i statusem. Każda uchwała może mieć przypisane dokumenty (skan protokołu, pełnomocnictwo) i powiązane umowy.
+
+---
+
+*Przykład widoku w aplikacji:*
+
+> **Uchwała nr 3/2026/ZW** · Zgromadzenie Wspólników · 12 marca 2026
+> Powołanie pełnomocnika do umów z zarządem (art. 210 KSH) — Jan Kowalski
+> Status: **Aktywna** · Powiązane umowy: 2 · Dokumenty: protokół ZW, skan uchwały
+
+> **Uchwała nr 2/2026/ZW** · Zgromadzenie Wspólników · 10 lutego 2026
+> Zatwierdzenie wynagrodzenia członka zarządu — 15 000 zł/mies.
+> Status: **Aktywna** · Powiązane umowy: 1 kontrakt menedżerski
+
+---
+
+**Decyzje operacyjne — Zarząd**
+
+Rejestruj decyzje zarządu z obszaru kosztów, umów, kadr i sprzedaży. Przypisuj odpowiedzialność i linkuj do faktur lub kontraktów.
+
+---
+
+*Przykład widoku w aplikacji:*
+
+> **Decyzja Zarządu nr 7/2026** · Obszar: Koszty i operacje · 5 maja 2026
+> Zakup oprogramowania księgowego — budżet do 24 000 zł netto
+> Odpowiedzialny: Piotr Nowak (CFO) · Powiązane faktury: 3
+
+> **Decyzja Zarządu nr 5/2026** · Obszar: Umowy i relacje · 20 kwietnia 2026
+> Podpisanie umowy ramowej z dostawcą logistyki — Logistyka Sp. z o.o.
+> Status: **Wykonana** · Dokument: umowa_logistyka_2026.pdf
+
+---
+
+Gdy przychodzi audyt, nie szukasz dokumentów w mailach — filtrujesz decyzje po roku, eksportujesz listę z powiązaniami i oddajesz audytorowi komplet w kilka minut.
+
+## Jak zacząć porządkować dokumentację
+
+1. Zrób przegląd ostatnich 2 lat — jakie decyzje podjęto, które mają protokoły, których brakuje.
+2. Uzupełnij zaległe uchwały (gdzie możliwe — data wsteczna z adnotacją o konwalidacji; w ważnych przypadkach skonsultuj prawnika).
+3. Wprowadź numerację: rok/numer/organ (np. 2026/001/ZW dla wspólników, 2026/007/ZG dla zarządu).
+4. Wybierz jedno miejsce na archiwum — papierowe + skan w aplikacji.
+5. Uzupełniaj na bieżąco — najlepiej w ciągu 7 dni od podjęcia decyzji.`,
+    checklist: [
+      'Zrób przegląd uchwał z ostatnich 2 lat — zidentyfikuj luki.',
+      'Wprowadź numerację uchwał i protokołów (rok/numer/organ).',
+      'Archiwizuj protokoły ZW i decyzje zarządu w jednym miejscu.',
+      'Sprawdź, czy umowy z członkami zarządu mają pełnomocnika (art. 210 KSH).',
+      'Skanuj podpisane uchwały i dołączaj do powiązanych umów.',
+      'Ustal zasadę: decyzja → protokół → archiwizacja w ciągu 7 dni.',
+    ],
+    official_links: [
+      { label: 'Art. 210 KSH — Sejm RP', href: 'https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20000941037', external: true },
+      { label: 'Art. 248 KSH — protokoły ze zgromadzeń', href: 'https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20000941037', external: true },
+    ],
+    related_actions: [
+      { label: 'Zarządzaj uchwałami w KsięgaI', href: '/rejestracja' },
+      { label: 'KSH art. 210 — dlaczego pełnomocnik jest kluczowy', href: '/poradnik/uchwaly-decyzje/ksh-art-210-pelnomocnik-umowy-z-czlonkami-zarzadu' },
+      { label: 'Pełnomocnik w sp. z o.o. — kiedy i jak', href: '/poradnik/uchwaly-decyzje/pelnomocnik-spolka-zoo-kiedy-i-jak-powolac' },
+    ],
+    faq: [
+      {
+        question: 'Jak długo przechowywać protokoły ze zgromadzeń wspólników?',
+        answer: 'Przez cały czas istnienia spółki, a po jej rozwiązaniu przez co najmniej 5 lat. Protokoły ZW są dokumentami korporacyjnymi i nie mają skróconego okresu przechowywania.',
+      },
+      {
+        question: 'Czy uchwały można podejmować przez e-mail?',
+        answer: 'Tak, jeśli umowa spółki to dopuszcza i wszyscy wspólnicy wyrażą zgodę na taki tryb. Wymagana jest forma pisemna (podpis pod treścią uchwały lub oddzielne oświadczenia). Rekomendowane jest potwierdzenie przez wszystkich wspólników.',
+      },
+      {
+        question: 'Co to jest "tryb obiegowy" podejmowania uchwał?',
+        answer: 'To sposób podejmowania uchwał bez formalnego zgromadzenia — każdy wspólnik podpisuje uchwałę indywidualnie. Dopuszczalny tylko jeśli umowa spółki to przewiduje i żaden wspólnik nie sprzeciwia się temu trybowi.',
+      },
+      {
+        question: 'Czy biegły rewident zawsze sprawdza uchwały?',
+        answer: 'Spółki z o.o. podlegają obowiązkowemu badaniu, gdy spełniają co najmniej dwa z trzech kryteriów: aktywa powyżej 2,5 mln EUR, przychody powyżej 5 mln EUR lub zatrudnienie powyżej 50 osób. Przy badaniu biegły zawsze weryfikuje dokumentację korporacyjną.',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 30,
+    published_at: '2026-05-23T00:00:00.000Z',
+    updated_at: '2026-05-23T00:00:00.000Z',
+    category: fallbackWikiCategories[6],
+  },
+
+  // ─── KATEGORIA: finanse-spolki (fallbackWikiCategories[7]) ──────────────────
+
+  {
+    id: 'fallback-finansowanie-spolki',
+    slug: 'finansowanie-spolki-pozyczka-wspolnika-doplaty-kapital',
+    title: 'Jak sfinansować spółkę z o.o. — pożyczka wspólnika, dopłaty i inne metody',
+    excerpt: 'Spółka potrzebuje gotówki? Najprostsza droga to pożyczka od wspólnika — bez PCC, bez notariusza, bez banku. Ale są szczegóły, które warto znać.',
+    summary: 'Przegląd metod finansowania sp. z o.o.: pożyczka wspólnika (warunki zwolnienia z PCC, KSH art. 210), dopłaty do spółki, podwyższenie kapitału, leasing i kredyt bankowy.',
+    purpose: 'Właściciele spółek często sięgają po własne oszczędności, by zasilić firmę — i robią to bez dokumentacji, co tworzy problemy podatkowe. Ten artykuł pokazuje, jak robić to prawidłowo.',
+    body_markdown: `## Spółka potrzebuje pieniędzy — skąd je wziąć
+
+Sp. z o.o. to odrębna osoba prawna. Nie możesz "dosypać" do niej gotówki tak jak do swojego portfela — każdy przepływ pieniędzy między właścicielem a spółką musi mieć formę prawną i być udokumentowany. Brak dokumentacji = ryzyko podatkowe.
+
+Najczęstsze metody dofinansowania spółki przez właścicieli:
+
+- **Pożyczka wspólnika** — najpopularniejsza, elastyczna, zwracana z odsetkami lub bez
+- **Dopłaty do spółki** — trwalsze wzmocnienie kapitałowe, nie są długiem
+- **Podwyższenie kapitału zakładowego** — formalne, wymaga KRS
+- **Kredyt bankowy lub leasing** — zewnętrzne finansowanie
+
+## Pożyczka od wspólnika — najprostsze wejście
+
+### Jak to działa
+
+Wspólnik pożycza spółce pieniądze na podstawie pisemnej umowy pożyczki (art. 720 KC). Spółka jest dłużnikiem, wspólnik wierzycielem. W przyszłości spółka oddaje pożyczkę — z odsetkami lub bez.
+
+Zalety:
+- nie wymaga zgody banku ani notariusza
+- wspólnik może pożyczyć w dowolnym momencie i na elastycznych warunkach
+- pożyczka jest pasywnością spółki, nie kosztem (chyba że są odsetki — te są kosztem uzyskania przychodu)
+- gdy spółka odda pieniądze, wspólnik nie płaci dodatkowego podatku
+
+### PCC — kiedy jest, kiedy go nie ma
+
+Pożyczka między osobami fizycznymi lub firmami co do zasady podlega podatkowi od czynności cywilnoprawnych (PCC) w wysokości **0,5%** od kwoty pożyczki.
+
+**Jednak pożyczka od wspólnika do spółki korzysta ze zwolnienia z PCC** pod warunkiem, że wspólnik posiada co najmniej **10% udziałów** w spółce (art. 9 pkt 10 lit. i) ustawy o PCC). W takim przypadku:
+
+- nie składasz deklaracji PCC-3
+- nie płacisz podatku od czynności
+- wystarczy pisemna umowa pożyczki
+
+Jeśli wspólnik posiada **mniej niż 10% udziałów**, pożyczka podlega PCC 0,5% — trzeba złożyć PCC-3 w ciągu 14 dni od zawarcia umowy i wpłacić podatek.
+
+> **Uwaga:** przepisy PCC dotyczące pożyczek wspólniczych były zmieniane — zawsze warto potwierdzić aktualny stan przepisów z doradcą podatkowym lub księgowym przed podpisaniem umowy.
+
+### Oprocentowanie — czy musi być
+
+Pożyczka może być nieoprocentowana. Jednak w relacji między podmiotami powiązanymi (a wspólnik i spółka są podmiotami powiązanymi) organy podatkowe mogą zakwestionować brak odsetek i uznać, że spółka powinna była płacić odsetki według stawki rynkowej.
+
+**Bezpieczniejsza praktyka:** ustal oprocentowanie na poziomie rynkowym (np. WIBOR + marża). Odsetki będą kosztem uzyskania przychodu spółki i przychodem wspólnika (podatek 19% PIT zryczałtowany lub skala — zależy od sposobu rozliczenia).
+
+Przy kwotach poniżej progów dokumentacyjnych dla cen transferowych ryzyko jest ograniczone — ale istnieje.
+
+### Umowa pożyczki — co powinna zawierać
+
+- strony umowy (wspólnik jako pożyczkodawca, spółka jako pożyczkobiorca)
+- kwota pożyczki
+- waluta
+- oprocentowanie (lub zapis, że pożyczka jest nieoprocentowana)
+- termin zwrotu (konkretna data lub "na żądanie")
+- sposób wypłaty (przelew na konto spółki)
+- podpisy obu stron
+
+> **Ważne:** jeśli pożyczkodawcą jest wspólnik będący jednocześnie **członkiem zarządu**, do podpisania umowy po stronie spółki potrzebny jest **pełnomocnik powołany uchwałą wspólników** (KSH art. 210). Zarząd nie może sam ze sobą zawierać umów. [Przeczytaj więcej o KSH art. 210 →](/poradnik/uchwaly-decyzje/ksh-art-210-pelnomocnik-umowy-z-czlonkami-zarzadu)
+
+## Dopłaty do spółki (art. 177–179 KSH)
+
+Dopłaty to inny mechanizm — wspólnik "dosypuje" pieniądze do spółki, ale nie są to długi. Spółka nie musi ich oddawać (chyba że wspólnicy tak postanowią).
+
+Jak działają:
+- wymagają zapisu w **umowie spółki** (musi być klauzula o możliwości uchwalania dopłat)
+- uchwalane przez **Zgromadzenie Wspólników**, proporcjonalnie do udziałów
+- zwiększają kapitał zapasowy spółki, a nie kapitał zakładowy
+- mogą być zwrócone wspólnikom uchwałą ZW, o ile nie są potrzebne do pokrycia straty
+
+Dopłaty **nie podlegają PCC** i są korzystniejsze niż pożyczka, gdy spółka nie ma jak oddać pieniędzy w krótkim terminie.
+
+## Podwyższenie kapitału zakładowego
+
+Bardziej formalne wzmocnienie finansowe — wspólnicy wnoszą wkłady, a kapitał zakładowy rośnie. Wymaga:
+
+1. uchwały ZW o podwyższeniu kapitału
+2. objęcia nowych udziałów
+3. zmiany umowy spółki (notariusz lub S24)
+4. wpisu zmiany do KRS
+
+Podwyższenie kapitału trwale zmienia strukturę spółki. Wycofanie tych środków jest bardziej skomplikowane niż spłata pożyczki.
+
+## Kredyt bankowy, leasing i inne zewnętrzne finansowanie
+
+Jeśli spółka ma historię finansową i zdolność kredytową, zewnętrzne finansowanie może być tańsze niż środki własne wspólników.
+
+**Kredyt obrotowy** — na bieżące potrzeby finansowe, krótkoterminowy.
+
+**Leasing** — finansowanie środków trwałych (maszyny, samochody, sprzęt) bez angażowania własnego kapitału.
+
+**Faktoring** — sprzedaż należności do firmy faktoringowej, żeby nie czekać na płatność od klientów.
+
+**Linia kredytowa** — elastyczne finansowanie bieżącej działalności z banku.
+
+## Którą metodę wybrać
+
+| Metoda | Koszt | Formalności | Zwrot środków |
+|---|---|---|---|
+| Pożyczka wspólnika | niski (brak PCC przy ≥10%) | umowa pisemna | tak, wg umowy |
+| Dopłaty | brak podatku | uchwała ZW | możliwy uchwałą |
+| Podwyższenie kapitału | brak podatku | notariusz + KRS | trudny |
+| Kredyt bankowy | odsetki bankowe | wniosek, zabezpieczenia | harmonogram |
+
+Pożyczka wspólnika jest najczęściej wybierana przez małe spółki z o.o. ze względu na szybkość i prostotę. Dopłaty sprawdzają się, gdy chcesz trwale wzmocnić kapitał bez tworzenia zobowiązania.`,
+    checklist: [
+      'Ustal, czy wspólnik posiada ≥10% udziałów — to warunkuje zwolnienie z PCC.',
+      'Sporządź pisemną umowę pożyczki z kwotą, terminem i oprocentowaniem.',
+      'Jeśli wspólnik jest jednocześnie w zarządzie — powołaj pełnomocnika uchwałą ZW (art. 210 KSH).',
+      'Przelej środki na konto spółki — zachowaj potwierdzenie przelewu.',
+      'Zaksięguj pożyczkę jako zobowiązanie spółki wobec wspólnika.',
+      'Ustal termin zwrotu i pilnuj go — nierozliczone pożyczki wzbudzają pytania podczas kontroli.',
+    ],
+    official_links: [
+      { label: 'Art. 9 pkt 10 ustawy o PCC — Sejm RP', href: 'https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20000861088', external: true },
+      { label: 'Art. 177 KSH — dopłaty do spółki', href: 'https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20000941037', external: true },
+    ],
+    related_actions: [
+      { label: 'Zarządzaj finansami spółki w KsięgaI', href: '/rejestracja' },
+      { label: 'KSH art. 210 — pełnomocnik do umów z zarządem', href: '/poradnik/uchwaly-decyzje/ksh-art-210-pelnomocnik-umowy-z-czlonkami-zarzadu' },
+      { label: 'Jak wyprowadzić zysk ze spółki', href: '/poradnik/finanse-spolki/jak-wyprowadzic-zysk-ze-spolki-zoo-dywidenda-wynajem-b2b' },
+    ],
+    faq: [
+      {
+        question: 'Czy pożyczka od wspólnika zawsze jest wolna od PCC?',
+        answer: 'Nie. Zwolnienie z PCC przysługuje, gdy wspólnik posiada co najmniej 10% udziałów w spółce. Przy mniejszym udziale obowiązuje PCC 0,5% i konieczność złożenia deklaracji PCC-3 w 14 dni.',
+      },
+      {
+        question: 'Czy nieoprocentowana pożyczka od wspólnika to problem podatkowy?',
+        answer: 'Potencjalnie tak — organy podatkowe mogą uznać, że spółka powinna była zapłacić odsetki rynkowe, a ich brak to nieodpłatne świadczenie. W praktyce ryzyko jest niższe przy małych kwotach i krótkim terminie, ale bezpieczniej ustalić symboliczne oprocentowanie.',
+      },
+      {
+        question: 'Czy mogę przelać pieniądze na konto spółki bez umowy?',
+        answer: 'Nie rekomendujemy. Przelew bez podstawy prawnej (umowy pożyczki lub uchwały o dopłatach) tworzy ryzyko zakwestionowania przez US lub biegłego rewidenta. Sporządzenie umowy zajmuje 15 minut i daje spółce jasną podstawę zobowiązania.',
+      },
+      {
+        question: 'Czym różni się pożyczka od dopłaty?',
+        answer: 'Pożyczka to dług spółki — musi być oddana w umówionym terminie. Dopłata to trwałe wzmocnienie kapitałowe — spółka nie jest zobowiązana do jej zwrotu, chyba że wspólnicy tak postanowią uchwałą.',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 10,
+    published_at: '2026-05-23T00:00:00.000Z',
+    updated_at: '2026-05-23T00:00:00.000Z',
+    category: fallbackWikiCategories[7],
+  },
+
+  {
+    id: 'fallback-wyprowadzanie-zysku-spolka',
+    slug: 'jak-wyprowadzic-zysk-ze-spolki-zoo-dywidenda-wynajem-b2b',
+    title: 'Jak wyprowadzić zysk ze spółki z o.o. — dywidenda, wynajem, wynagrodzenie i JDG B2B',
+    excerpt: 'Spółka zarabia, ale pieniądze leżą na koncie firmowym. Masz kilka legalnych metod, żeby do nich dotrzeć — każda ma inny koszt podatkowy i inne wymogi formalne.',
+    summary: 'Przegląd metod pobierania wynagrodzenia i zysku ze sp. z o.o.: dywidenda, zaliczka na dywidendę, wynajem prywatnych rzeczy spółce, kontrakt menedżerski, umowa o pracę i JDG B2B.',
+    purpose: 'Właściciele spółek często wypłacają pieniądze ad hoc — bez uchwał, bez dokumentacji, bez świadomości skutków podatkowych. Ten artykuł porządkuje dostępne metody i pokazuje ich realne koszty.',
+    body_markdown: `## Pieniądze w spółce to nie twoje pieniądze — jeszcze
+
+Sp. z o.o. to odrębna osoba prawna. Zysk spółki nie jest automatycznie zyskiem właściciela — żeby do niego dotrzeć, potrzebujesz jednej z kilku dostępnych legalnych metod. Każda z nich różni się podatkowo, składkami ZUS i wymogami formalnymi.
+
+Dobrzy właściciele spółek świadomie dobierają mix metod do swojej sytuacji — nie polegają na jednej ścieżce.
+
+## Dywidenda — klasyczna wypłata zysku
+
+### Jak to działa
+
+Dywidenda to udział w zysku netto spółki, wypłacany wspólnikom po zatwierdzeniu rocznego sprawozdania finansowego. To najprostsza i najczystsza forma — zysk spółki staje się zyskiem właściciela.
+
+**Procedura:**
+1. Spółka kończy rok z zyskiem netto.
+2. Zwołujesz Zwyczajne Zgromadzenie Wspólników (do 30 czerwca roku następnego).
+3. ZZW zatwierdza sprawozdanie finansowe i **podejmuje uchwałę o podziale zysku**.
+4. Dywidenda jest wypłacana w terminie wskazanym w uchwale.
+
+**Podatek:** 19% PIT zryczałtowany (podatek od zysków kapitałowych, tzw. "podatek Belki"). Spółka pobiera go jako płatnik i odprowadza do US — właściciel dostaje kwotę netto.
+
+**ZUS:** brak — dywidenda nie jest tytułem do ubezpieczeń społecznych.
+
+### Zaliczka na dywidendę — w trakcie roku
+
+Jeśli nie chcesz czekać do końca roku, zarząd może wypłacić **zaliczkę na dywidendę** — ale tylko gdy:
+- spółka wypracowała zysk co najmniej w pierwszym półroczu bieżącego roku
+- zatwierdzone sprawozdanie za poprzedni rok wykazywało zysk
+- zarząd podjął stosowną uchwałę (i umowa spółki to dopuszcza)
+
+Zaliczka podlega temu samemu podatkowi 19% i tak samo wyklucza ZUS.
+
+> **Uwaga:** zaliczka na dywidendę zostaje rozliczona z dywidendą roczną. Jeśli zysk roczny okaże się niższy niż wypłacone zaliczki, wspólnicy muszą nadwyżkę zwrócić spółce.
+
+## Wynajem prywatnych rzeczy spółce
+
+### Jak to działa
+
+Masz samochód, mieszkanie, lokal biurowy albo sprzęt? Możesz wynająć je swojej spółce. Spółka płaci Ci czynsz — i zalicza go w koszty uzyskania przychodu (obniża podatek spółki). Ty dostaniesz regularne wpływy niezależne od wyników spółki.
+
+**Co można wynajmować:**
+- samochód osobowy lub dostawczy
+- lokal biurowy lub mieszkanie (gdy służy działalności spółki)
+- sprzęt komputerowy, maszyny, narzędzia
+- prawa autorskie, licencje (tu mowa o sublicencji — inna konstrukcja)
+
+### Opodatkowanie wynajmu
+
+Przychody z wynajmu prywatnego (nie w ramach działalności gospodarczej) można opodatkować **ryczałtem od przychodów ewidencjonowanych**:
+- **8,5%** od przychodów do 100 000 zł rocznie
+- **12,5%** od nadwyżki powyżej 100 000 zł
+
+**ZUS: brak** — najem prywatny nie jest tytułem do ubezpieczeń.
+
+To jedna z najtańszych podatkowo metod wypłaty, jeśli masz coś, co spółka faktycznie może używać.
+
+### Na co uważać
+
+- Czynsz musi być **rynkowy** — transakcja z podmiotem powiązanym może być kwestionowana przez US, jeśli czynsz odbiega od stawek rynkowych
+- Przy umowie najmu z samym sobą jako zarządem: **art. 210 KSH** — spółka musi mieć pełnomocnika powołanego uchwałą ZW do podpisania umowy ([szczegóły tutaj](/poradnik/uchwaly-decyzje/ksh-art-210-pelnomocnik-umowy-z-czlonkami-zarzadu))
+- Samochód wynajmowany spółce: spółka może odliczyć 75% VAT i zaliczać czynsz w koszty (przy użytku mieszanym — szczegóły zależą od sposobu użytkowania)
+
+## Wynagrodzenie za zarządzanie spółką
+
+### Trzy możliwe formy
+
+**Wynagrodzenie z tytułu powołania** (art. 201–205 KSH): jeśli zarząd jest powołany uchwałą wspólników, ZW może też ustalić wynagrodzenie za pełnienie funkcji. Prosto formalnie, ale wymaga uchwały.
+
+**Kontrakt menedżerski**: umowa cywilnoprawna między spółką a osobą zarządzającą. Elastyczna forma — można ustalić dowolne wynagrodzenie i warunki. Wymaga pełnomocnika (art. 210 KSH), jeśli menedżer jest wspólnikiem.
+
+**Umowa o pracę**: zatrudnienie siebie jako prezesa na etacie. Pełna ochrona pracownicza, ale też pełny ZUS.
+
+### Podatek i ZUS przy wynagrodzeniu zarządu
+
+| Forma | PIT | ZUS |
+|---|---|---|
+| Uchwała ZW (bez umowy) | skala 12%/32% | może podlegać ZUS jako działalność* |
+| Kontrakt menedżerski | skala 12%/32% | tak — ZUS jak zlecenie |
+| Umowa o pracę | skala 12%/32% | tak — pełny ZUS pracowniczy |
+
+*Jednoosobowy wspólnik i jedyny zarząd spółki podlega ZUS — to skomplikowany obszar, warto omówić z doradcą.
+
+Wynagrodzenie zarządu to koszt spółki (obniża CIT o 19%), ale ZUS i PIT po stronie osoby zarządzającej są wyższe niż przy dywidendzie czy wynajmie.
+
+## JDG B2B — fakturowanie własnej spółki
+
+### Jak to działa
+
+Prowadzisz własną działalność gospodarczą (JDG) i jednocześnie jesteś wspólnikiem lub zarządem spółki? Możesz wystawiać faktury swojej spółce za usługi, które faktycznie dla niej wykonujesz.
+
+Spółka płaci za faktury (koszt uzyskania przychodu), Ty rozliczasz przychód w JDG — np. **podatkiem liniowym 19%** lub **ryczałtem** (stawka zależy od PKD).
+
+**Typowe usługi fakturowane spółce przez właściciela:**
+- doradztwo strategiczne, zarządzanie
+- usługi IT, programowanie
+- marketing, obsługa mediów społecznościowych
+- usługi administracyjne
+
+### Wymagania
+
+Żeby B2B było legalne i bezpieczne podatkowo:
+
+1. **Faktyczne świadczenie usług** — musisz realnie wykonywać pracę na rzecz spółki, nie tylko wystawiać fakturę
+2. **Rynkowa cena** — wynagrodzenie JDG musi odpowiadać stawkom rynkowym (podmioty powiązane)
+3. **Ceny transferowe** — jeśli transakcje przekroczą progi dokumentacyjne (2 mln PLN netto rocznie za usługi), trzeba sporządzić dokumentację cen transferowych
+4. **Oddzielność działalności** — JDG nie powinna być w sposób oczywisty "przykrywką" na wynagrodzenie pracownicze
+
+### Ryzyko "reklasyfikacji"
+
+Organy podatkowe mogą zakwestionować B2B jako stosunek pracy, jeśli:
+- JDG ma spółkę jako jedynego klienta
+- brak swobody w organizacji pracy, określone godziny pracy
+- narzędzia i sprzęt należą do spółki
+- faktury są stałe bez względu na wykonaną pracę
+
+Taka reklasyfikacja oznacza zaległości ZUS i PIT według skali za cały sporny okres — ze znacznymi odsetkami.
+
+### ZUS przy JDG
+
+- przez pierwsze 6 miesięcy: ulga na start (brak składek społecznych)
+- przez 2 lata: preferencyjny ZUS (niższe składki)
+- po 2 latach: pełny ZUS przedsiębiorcy
+
+Preferencyjny ZUS plus podatek liniowy 19% to jeden z powodów, dla których B2B przez JDG jest popularne wśród właścicieli spółek.
+
+## Jak zestawić metody — przykładowy mix
+
+Nie ma jednej optymalnej metody. Właściciele spółek często łączą kilka ścieżek:
+
+- **Wynajem samochodu lub lokalu** → tani podatkowo (ryczałt 8,5%), bieżące wpływy, bez ZUS
+- **Kontrakt menedżerski** → regularne wynagrodzenie za zarządzanie, koszt spółki
+- **Dywidenda roczna** → zysk po CIT do podziału, 19% podatek, bez ZUS
+- **JDG B2B** → jeśli masz realną działalność i świadczysz usługi
+
+> **Zawsze warto ustalić mix z doradcą podatkowym** — optymalny dobór zależy od formy opodatkowania JDG, struktury udziałowej i sytuacji ZUS właściciela.`,
+    checklist: [
+      'Ustal, które metody pasują do twojej sytuacji — ZUS, forma opodatkowania, udziały.',
+      'Dywidenda: upewnij się, że ZZW zatwierdza sprawozdanie i podejmuje uchwałę o podziale zysku.',
+      'Wynajem: sporządź pisemną umowę najmu z ceną rynkową; jeśli jesteś w zarządzie — potrzebujesz pełnomocnika (art. 210 KSH).',
+      'Wynagrodzenie zarządu: przygotuj uchwałę ZW lub kontrakt menedżerski z pełnomocnikiem.',
+      'JDG B2B: dokumentuj faktycznie wykonane usługi i pilnuj rynkowej ceny faktur.',
+      'Przy transakcjach z własną spółką powyżej 2 mln PLN/rok — sporządź dokumentację cen transferowych.',
+    ],
+    official_links: [
+      { label: 'Ustawa o PIT — dywidenda i zyski kapitałowe', href: 'https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU19910800350', external: true },
+      { label: 'Art. 193–198 KSH — podział zysku w sp. z o.o.', href: 'https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20000941037', external: true },
+    ],
+    related_actions: [
+      { label: 'Zarządzaj finansami spółki w KsięgaI', href: '/rejestracja' },
+      { label: 'Jak finansować spółkę — pożyczka wspólnika i dopłaty', href: '/poradnik/finanse-spolki/finansowanie-spolki-pozyczka-wspolnika-doplaty-kapital' },
+      { label: 'KSH art. 210 — pełnomocnik do umów z zarządem', href: '/poradnik/uchwaly-decyzje/ksh-art-210-pelnomocnik-umowy-z-czlonkami-zarzadu' },
+    ],
+    faq: [
+      {
+        question: 'Czy mogę pobierać dywidendę co miesiąc?',
+        answer: 'Dywidenda roczna — raz po zatwierdzeniu sprawozdania. W ciągu roku możesz wypłacać zaliczki na dywidendę, jeśli umowa spółki to dopuszcza i spółka wypracowała zysk. Zaliczki podlegają takiemu samemu podatkowi 19%.',
+      },
+      {
+        question: 'Czy wynajmowanie samochodu własnej spółce jest legalne?',
+        answer: 'Tak, pod warunkiem że czynsz jest rynkowy, umowa jest pisemna, a samochód faktycznie jest używany przez spółkę. Umowę ze strony spółki musi podpisać pełnomocnik (jeśli właściciel jest w zarządzie) — wymóg z art. 210 KSH.',
+      },
+      {
+        question: 'Jak bardzo opłacalne jest B2B przez JDG w porównaniu do dywidendy?',
+        answer: 'Zależy od skali. Przy podatku liniowym 19% JDG kontra 19% CIT spółki + 19% dywidendy efektywne opodatkowanie zysku przez dywidendę wynosi ok. 34%. B2B przez JDG (podatek liniowy 19% + ZUS) bywa korzystniejsze — ale wymaga realnej działalności i dokumentacji.',
+      },
+      {
+        question: 'Czy mogę wynagrodzić siebie za pełnienie funkcji zarządu bez umowy?',
+        answer: 'Tak — na podstawie uchwały ZW ustalającej wynagrodzenie zarządu. To najprostsza forma: nie ma umowy, jest uchwała. Wynagrodzenie podlega PIT według skali i może podlegać ZUS w zależności od struktury udziałowej.',
+      },
+      {
+        question: 'Co to są ceny transferowe i kiedy mnie dotyczą?',
+        answer: 'Obowiązek dokumentacji cen transferowych pojawia się, gdy suma transakcji między podmiotami powiązanymi (np. Ty i Twoja spółka) przekracza 2 mln PLN netto rocznie dla transakcji usługowych. Poniżej tego progu dokumentacja nie jest wymagana, ale ceny i tak muszą być rynkowe.',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 20,
+    published_at: '2026-05-23T00:00:00.000Z',
+    updated_at: '2026-05-23T00:00:00.000Z',
+    category: fallbackWikiCategories[7],
   },
 
   // ─── TODO: kolejne artykuły do dodania ──────────────────────────────────────
