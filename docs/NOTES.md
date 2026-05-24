@@ -1,6 +1,76 @@
 # Notes
 Created: legacy-existing (exact date unknown)
-Last modified: 2026-05-24 20:54 CEST
+Last modified: 2026-05-24 22:18 CEST
+
+## 2026-05-24 - Added invite funnel attribution and PostHog event coverage
+
+What changed:
+- Added invite-attribution helpers in [lib/posthog/inviteAttribution.ts](/mnt/c/k/ksiegai-next/lib/posthog/inviteAttribution.ts) to persist invite context locally and register it as PostHog super-properties.
+- Extended [app/rejestracja/page.tsx](/mnt/c/k/ksiegai-next/app/rejestracja/page.tsx), [app/logowanie/page.tsx](/mnt/c/k/ksiegai-next/app/logowanie/page.tsx), and [app/auth/callback/page.tsx](/mnt/c/k/ksiegai-next/app/auth/callback/page.tsx) so invited flows now capture:
+  - `invite_link_opened`
+  - `invite_registration_started`
+  - `invite_password_submitted`
+  - `invite_company_prefilled`
+  - `business_activated`
+- Extended auth user metadata writes during invite claim so the app receives invite attribution fields such as `invite_token_hash`, `invite_company_name`, `invite_recipient_email`, `invite_company_type`, and `invite_business_profile_id`.
+- Updated [components/wiki/WikiArticleCard.tsx](/mnt/c/k/ksiegai-next/components/wiki/WikiArticleCard.tsx) to capture `poradnik_card_clicked` directly from the shared poradnik card component.
+
+Why:
+- invite tracking was fragmented between the marketing site and the app, which made it hard to follow one invited person from first content touch through registration and handoff
+- the product app needs stable invite properties on the authenticated user record to continue attribution after the cross-domain redirect
+- `poradnik_card_clicked` should be emitted at the click source, not inferred only from later referrers
+
+Verification evidence (2026-05-24):
+- Re-read the touched auth paths and confirmed invite claims now write the same invite attribution fields into auth user metadata before redirecting to the app.
+- Re-read the shared wiki card component and confirmed poradnik card clicks now emit `poradnik_card_clicked` with article and destination metadata.
+
+Scope notes:
+- Tracking and auth metadata only.
+- No route, schema, RLS, or `ksiegai_auth_token` contract changes in this slice.
+
+## 2026-05-24 - Added optional premium trial to admin company invites
+
+What changed:
+- Added `premium_trial_days` to admin-created company invites in [supabase/migrations/20260524_admin_invites_premium_trial.sql](/mnt/c/k/ksiegai-next/supabase/migrations/20260524_admin_invites_premium_trial.sql).
+- Extended `upsert_admin_invite` so admin tools can store an optional trial duration on the invite.
+- Extended `claim_admin_invite` so claiming an invite can create the business profile with:
+  - `subscription_tier` derived from company type
+  - `subscription_status = 'trial'`
+  - `subscription_starts_at`
+  - `trial_ends_at`
+- Also aligned `claim_admin_invite` return payload with the app callback usage by returning `invite_id` and `campaign_source`.
+
+Why:
+- admin invite onboarding needed a way to pre-grant a time-bounded Premium trial during invite setup
+- the existing premium model already reads `subscription_tier`, `subscription_status`, and `trial_ends_at` from `business_profiles`, so the invite claim flow should write into that canonical surface instead of inventing a parallel trial system
+
+Verification evidence (2026-05-24):
+- Re-read the new migration and confirmed the invite field is persisted, validated, and consumed during claim.
+- Re-checked the premium access code in `ksef-ai` and confirmed business-level trial access is already derived from `trial_ends_at` and `subscription_tier`.
+
+Scope notes:
+- Admin invite schema and claim-flow change.
+- UI for editing/creating the field lives in `admin-ksiegai`; runtime premium consumption remains in `ksef-ai`.
+
+## 2026-05-24 - Fixed password signup email confirmation redirect
+
+What changed:
+- Updated [app/auth/confirm/page.tsx](/mnt/c/k/ksiegai-next/app/auth/confirm/page.tsx) so email confirmation for `type=signup` no longer redirects users to `/settings/password`.
+- `signup` confirmations now redirect to `/welcome?flow=signup`.
+- `invite` confirmations now redirect to `/welcome?flow=invite` instead of the password setup screen.
+
+Why:
+- password-based signup already sets the password before the user clicks the confirmation e-mail
+- sending confirmed signup users to the app password setup screen was incorrect and created a false "add password" step
+- the correct next step after successful signup confirmation is onboarding
+
+Verification evidence (2026-05-24):
+- Re-read the confirm flow and confirmed `type=signup` now resolves to the onboarding path instead of `/settings/password`.
+- Verified the password setup screen in `ksef-ai` is described as optional login setup, which matches removing it from the password-signup confirmation path.
+
+Scope notes:
+- Marketing-site auth confirmation redirect only.
+- No schema, RLS, or `ksiegai_auth_token` contract changes.
 
 ## 2026-05-24 - Added CRBR slug alias to prevent poradnik 404
 

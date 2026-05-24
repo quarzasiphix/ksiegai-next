@@ -1,5 +1,8 @@
+"use client";
+
 import Link from 'next/link';
 import { ArrowRight, Clock3 } from 'lucide-react';
+import posthog from 'posthog-js';
 import type { WikiArticle, WikiArticleListItem, WikiCategory } from '@/lib/wiki';
 import {
   formatWikiDate,
@@ -41,6 +44,17 @@ export function WikiArticleCard({
   return (
     <Link
       href={`/poradnik/${article.slug}`}
+      onClick={() => {
+        posthog.capture('poradnik_card_clicked', {
+          article_slug: article.slug,
+          article_title: article.title,
+          article_type: article.article_type,
+          category_slug: resolvedCategory?.slug ?? null,
+          category_name: resolvedCategory?.name ?? null,
+          card_variant: variant,
+          destination_page: `/poradnik/${article.slug}`,
+        });
+      }}
       className={joinClassNames('group relative flex h-full flex-col justify-between overflow-hidden', cardClassName, className)}
     >
       <div>

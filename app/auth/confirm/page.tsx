@@ -69,11 +69,15 @@ function ConfirmEmailInner() {
         });
 
         const targetPath =
-          type === "signup" || type === "invite"
-            ? "/settings/password"
-            : type === "recovery"
-              ? "/dashboard"
-              : "/";
+          type === "signup"
+            ? "/welcome?flow=signup"
+            : type === "invite"
+              ? "/welcome?flow=invite"
+              : type === "magiclink" || type === "email"
+                ? "/welcome?flow=magic_link"
+                : type === "recovery"
+                  ? "/dashboard"
+                  : "/";
 
         redirectToApp(targetPath);
       } catch (error) {

@@ -29,6 +29,16 @@ import {
 import { Mail, Lock, Loader2, UserRoundCheck, X } from "lucide-react";
 import Link from "next/link";
 import posthog from "posthog-js";
+import {
+  captureInviteEvent,
+  identifyInvitedUser,
+  registerInviteAttribution,
+} from "../../lib/posthog/inviteAttribution";
+
+async function sha256hex(text: string): Promise<string> {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
 
 // Google Icon Component
 const GoogleIcon = ({ className }: { className?: string }) => (
@@ -61,6 +71,9 @@ export default function Login() {
   const [activeSessionProfile, setActiveSessionProfile] = useState<RememberedLoginProfile | null>(null);
   const [selectedSavedPasswordProfile, setSelectedSavedPasswordProfile] = useState<RememberedLoginProfile | null>(null);
   const [isApplePlatform, setIsApplePlatform] = useState(false);
+  const [inviteCompany, setInviteCompany] = useState<string | null>(null);
+  const [inviteEmail, setInviteEmail] = useState<string | null>(null);
+  const [inviteCompanyType, setInviteCompanyType] = useState<string | null>(null);
 
   const refreshRememberedProfiles = () => {
     const profiles = loadRememberedProfiles();
@@ -189,6 +202,41 @@ export default function Login() {
   }, []);
 
   useEffect(() => {
+    const token = localStorage.getItem("pending_invite_token");
+    if (!token) return;
+    const cached = localStorage.getItem("pending_invite_company");
+    if (cached) {
+      setInviteCompany(cached);
+    }
+    sha256hex(token).then(async (hash) => {
+      const { data, error } = await (supabase.rpc as any)("lookup_admin_invite", { p_token_hash: hash });
+      if (!error && data?.is_valid) {
+        registerInviteAttribution({
+          invite_token_hash: hash,
+          invite_token_prefix: token.slice(0, 12),
+          invite_company_name: data.company_name ?? null,
+          invite_recipient_email: data.recipient_email ?? null,
+          invite_recipient_name: data.recipient_name ?? null,
+          invite_company_type: data.company_type ?? null,
+        });
+        setInviteCompany(data.company_name ?? null);
+        setInviteEmail(data.recipient_email ?? null);
+        setInviteCompanyType(data.company_type ?? null);
+        if (data.company_name) localStorage.setItem("pending_invite_company", data.company_name);
+        captureInviteEvent('invite_company_prefilled', {
+          page: '/logowanie',
+          company_name: data.company_name ?? null,
+          recipient_email: data.recipient_email ?? null,
+        });
+        // Pre-fill email only if the field is empty or still has the auto-detected profile email
+        if (data.recipient_email) {
+          setEmail((prev) => (prev === "" || prev === data.recipient_email) ? data.recipient_email : prev);
+        }
+      }
+    });
+  }, []);
+
+  useEffect(() => {
     let isMounted = true;
 
     refreshRememberedProfiles();
@@ -228,7 +276,45 @@ export default function Login() {
         if (sessionProfile && isMounted) {
           setActiveSessionProfile(sessionProfile);
         }
-        if (hadPendingAttempt) {
+        if (hadPendingAttempt && event === 'SIGNED_IN') {
+          // Check for a pending invite and claim it before redirecting
+          const pendingToken = localStorage.getItem('pending_invite_token');
+          if (pendingToken) {
+            const tokenHash = await sha256hex(pendingToken);
+            const { data: claimData, error: claimError } = await (supabase.rpc as any)('claim_admin_invite', {
+              p_token_hash: tokenHash,
+            });
+            if (!claimError && claimData) {
+              const { business_profile_id, company_name, invite_id, campaign_source } = claimData;
+              identifyInvitedUser(session.user.id, session.user.email, {
+                invited: true, invite_id, invite_company_name: company_name,
+                invite_business_profile_id: business_profile_id,
+                ...(campaign_source ? { invite_campaign_source: campaign_source } : {}),
+              });
+              posthog.capture('invite_claimed', { business_profile_id, company_name, invite_id, via: 'login' });
+              captureInviteEvent('business_activated', {
+                business_profile_id,
+                company_name,
+                invite_id,
+                via: 'login',
+              });
+              void supabase.auth.updateUser({
+                data: {
+                  invite_id,
+                  invite_company_name: company_name,
+                  invite_campaign_source: campaign_source ?? null,
+                  invite_token_hash: tokenHash,
+                  invite_recipient_email: inviteEmail ?? session.user.email ?? null,
+                  invite_company_type: inviteCompanyType,
+                  invite_business_profile_id: business_profile_id,
+                },
+              });
+              localStorage.removeItem('pending_invite_token');
+              localStorage.removeItem('pending_invite_company');
+              redirectToApp(`/invite-welcome?bp=${business_profile_id}&cn=${encodeURIComponent(company_name)}`);
+              return;
+            }
+          }
           redirectToApp('/dashboard');
         }
       } else if (event === 'SIGNED_OUT' && isMounted) {
@@ -347,13 +433,15 @@ export default function Login() {
     });
     setPendingAttempt(pendingAttempt);
     try {
+      const pendingToken = localStorage.getItem('pending_invite_token');
+      const inviteQuery = pendingToken ? `?reg=invite&inv=${await sha256hex(pendingToken)}` : '';
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${window.location.origin}/auth/callback${inviteQuery}`,
         },
       });
-      
+
       if (error) throw error;
     } catch (err) {
       clearPendingLoginAttempt();
@@ -379,10 +467,12 @@ export default function Login() {
     });
     setPendingAttempt(pendingAttempt);
     try {
+      const pendingToken = localStorage.getItem('pending_invite_token');
+      const inviteQuery = pendingToken ? `?reg=invite&inv=${await sha256hex(pendingToken)}` : '';
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'apple',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${window.location.origin}/auth/callback${inviteQuery}`,
         },
       });
       if (error) throw error;
@@ -543,14 +633,33 @@ export default function Login() {
         ) : (
           <>
             <div className="text-center mb-8 animate-fade-in">
-              <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
-                Witaj ponownie
-              </h1>
-              <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
-                {latestRememberedProfile
-                  ? `Ostatnio logował się ${latestRememberedProfile.displayName}.`
-                  : "Zaloguj się do swojego konta"}
-              </p>
+              {inviteCompany ? (
+                <>
+                  <div className="inline-flex items-center gap-3 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-2xl px-5 py-3 mb-4">
+                    <div className="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center shrink-0">
+                      <span className="text-sm font-bold text-white">{inviteCompany.charAt(0).toUpperCase()}</span>
+                    </div>
+                    <span className="text-sm font-semibold text-blue-900 dark:text-blue-100">{inviteCompany}</span>
+                  </div>
+                  <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
+                    Dołącz do firmy
+                  </h1>
+                  <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
+                    Zaloguj się, żeby zaakceptować zaproszenie.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
+                    Witaj ponownie
+                  </h1>
+                  <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
+                    {latestRememberedProfile
+                      ? `Ostatnio logował się ${latestRememberedProfile.displayName}.`
+                      : "Zaloguj się do swojego konta"}
+                  </p>
+                </>
+              )}
             </div>
             
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 animate-fade-in">

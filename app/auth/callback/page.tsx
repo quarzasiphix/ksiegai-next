@@ -13,6 +13,11 @@ import {
   setPreferredLoginProfile,
 } from "../../../lib/auth/loginProfiles";
 import posthog from "posthog-js";
+import {
+  captureInviteEvent,
+  identifyInvitedUser,
+  registerInviteAttribution,
+} from "../../../lib/posthog/inviteAttribution";
 
 export default function AuthCallback() {
   const [pendingLoginLabel, setPendingLoginLabel] = useState<string | null>(null);
@@ -67,6 +72,15 @@ export default function AuthCallback() {
 
         // ── Invite claim flow ─────────────────────────────────────────────────
         if (regParam === 'invite' && inviteHash) {
+          const { data: inviteLookup } = await (supabase.rpc as any)('lookup_admin_invite', { p_token_hash: inviteHash });
+          registerInviteAttribution({
+            invite_token_hash: inviteHash,
+            invite_token_prefix: inviteHash.slice(0, 12),
+            invite_company_name: inviteLookup?.company_name ?? null,
+            invite_recipient_email: inviteLookup?.recipient_email ?? session.user.email ?? null,
+            invite_recipient_name: inviteLookup?.recipient_name ?? null,
+            invite_company_type: inviteLookup?.company_type ?? null,
+          });
           posthog.capture('invite_email_confirmed', { invite_hash_prefix: inviteHash.slice(0, 8) });
           try {
             const { data: claimData, error: claimError } = await (supabase.rpc as any)('claim_admin_invite', {
@@ -93,8 +107,7 @@ export default function AuthCallback() {
             };
 
             // Tag user in PostHog with invite properties (person-level, permanent)
-            posthog.identify(session.user.id, {
-              email: session.user.email,
+            identifyInvitedUser(session.user.id, session.user.email, {
               invited: true,
               invite_id,
               invite_company_name: company_name,
@@ -107,6 +120,12 @@ export default function AuthCallback() {
               invite_id,
               campaign_source: campaign_source ?? null,
             });
+            captureInviteEvent('business_activated', {
+              business_profile_id,
+              company_name,
+              invite_id,
+              campaign_source: campaign_source ?? null,
+            });
 
             // Attach invite metadata to the auth user for future queries
             void supabase.auth.updateUser({
@@ -114,6 +133,10 @@ export default function AuthCallback() {
                 invite_id,
                 invite_company_name: company_name,
                 invite_campaign_source: campaign_source ?? null,
+                invite_token_hash: inviteHash,
+                invite_recipient_email: inviteLookup?.recipient_email ?? session.user.email ?? null,
+                invite_company_type: inviteLookup?.company_type ?? null,
+                invite_business_profile_id: business_profile_id,
               },
             });
 

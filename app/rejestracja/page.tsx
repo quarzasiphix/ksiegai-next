@@ -5,6 +5,11 @@ import { supabase } from "../../lib/supabase";
 import { storeAuthToken, redirectToApp } from "../../lib/auth/crossDomainAuth";
 import { setAuthFlowOrigin } from "../../lib/auth/welcomeEmail";
 import { getSessionId, getVariantAssignments } from "../../lib/ab-testing-ssg";
+import {
+  captureInviteEvent,
+  identifyInvitedUser,
+  registerInviteAttribution,
+} from "../../lib/posthog/inviteAttribution";
 import { Mail, Lock, ExternalLink } from "lucide-react";
 
 const INBOX_PROVIDERS: Record<string, { name: string; url: string }> = {
@@ -69,6 +74,7 @@ export default function Register() {
     company_name: string;
     recipient_email: string;
     recipient_name: string | null;
+    company_type: string | null;
     is_valid: boolean;
   } | null>(null);
 
@@ -86,8 +92,31 @@ export default function Register() {
     sha256hex(token).then(async (hash) => {
       const { data } = await (supabase.rpc as any)("lookup_admin_invite", { p_token_hash: hash });
       if (data?.is_valid) {
+        registerInviteAttribution({
+          invite_token_hash: hash,
+          invite_token_prefix: token.slice(0, 12),
+          invite_company_name: data.company_name ?? null,
+          invite_recipient_email: data.recipient_email ?? null,
+          invite_recipient_name: data.recipient_name ?? null,
+          invite_company_type: data.company_type ?? null,
+        });
         setInviteData(data);
         setEmail(data.recipient_email ?? "");
+        captureInviteEvent("invite_link_opened", {
+          page: "/rejestracja",
+          referrer: document.referrer || null,
+        });
+        if (document.referrer.includes("/poradnik/")) {
+          captureInviteEvent("poradnik_card_clicked", {
+            source_page: document.referrer,
+            destination_page: "/rejestracja",
+          });
+        }
+        captureInviteEvent("invite_company_prefilled", {
+          page: "/rejestracja",
+          company_name: data.company_name ?? null,
+          recipient_email: data.recipient_email ?? null,
+        });
       }
     });
   }, []);
@@ -152,14 +181,105 @@ export default function Register() {
 
     setLoading(true);
     setAuthFlowOrigin("register");
+    const pendingToken = localStorage.getItem("pending_invite_token");
+
+    // ── Invited user — auto-confirm, no verify screen ─────────────────────────
+    if (inviteData && pendingToken) {
+      const tokenHash = await sha256hex(pendingToken);
+      captureInviteEvent("invite_registration_started", {
+        method: "password",
+        page: "/rejestracja",
+      });
+      captureInviteEvent("invite_password_submitted", {
+        method: "password",
+        page: "/rejestracja",
+      });
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+      const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+      const res = await fetch(`${supabaseUrl}/functions/v1/register-invited-user`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "apikey": anonKey },
+        body: JSON.stringify({ email, password, token_hash: tokenHash }),
+      });
+      const result = await res.json();
+
+      if (!res.ok || result.error) {
+        const msg = (result.error ?? "").toLowerCase();
+        if (msg.includes("already") || msg.includes("exists")) {
+          // Account exists — send them to login with invite pre-loaded from localStorage
+          window.location.href = "/logowanie";
+          return;
+        }
+        setError(result.error ?? "Nie udało się założyć konta. Spróbuj ponownie.");
+        setLoading(false);
+        return;
+      }
+
+      // Set session on the Supabase client
+      await supabase.auth.setSession({
+        access_token: result.access_token,
+        refresh_token: result.refresh_token,
+      });
+
+      identifyInvitedUser(result.user_id, result.user_email);
+      posthog.capture("register_password_signup", { invite: true });
+      await trackConversion(result.user_id);
+
+      storeAuthToken({
+        access_token: result.access_token,
+        refresh_token: result.refresh_token,
+        expires_at: result.expires_at || 0,
+        user_id: result.user_id,
+      });
+
+      // Claim the invite now that we're authenticated
+      const { data: claimData, error: claimError } = await (supabase.rpc as any)("claim_admin_invite", {
+        p_token_hash: tokenHash,
+      });
+
+      if (!claimError && claimData) {
+        const { business_profile_id, company_name, invite_id, campaign_source } = claimData;
+        identifyInvitedUser(result.user_id, result.user_email, {
+          invited: true,
+          invite_id,
+          invite_company_name: company_name,
+          invite_business_profile_id: business_profile_id,
+          ...(campaign_source ? { invite_campaign_source: campaign_source } : {}),
+        });
+        posthog.capture("invite_claimed", { business_profile_id, company_name, invite_id });
+        captureInviteEvent("business_activated", {
+          business_profile_id,
+          company_name,
+          invite_id,
+        });
+        void supabase.auth.updateUser({
+          data: {
+            invite_id,
+            invite_company_name: company_name,
+            invite_campaign_source: campaign_source ?? null,
+            invite_token_hash: tokenHash,
+            invite_recipient_email: inviteData.recipient_email ?? result.user_email ?? null,
+            invite_company_type: inviteData.company_type ?? null,
+            invite_business_profile_id: business_profile_id,
+          },
+        });
+        localStorage.removeItem("pending_invite_token");
+        localStorage.removeItem("pending_invite_company");
+        redirectToApp(`/invite-welcome?bp=${business_profile_id}&cn=${encodeURIComponent(company_name)}`);
+      } else {
+        redirectToApp("/onboard");
+      }
+      return;
+    }
+
+    // ── Regular (non-invited) registration — email verification required ──────
     awaitingEmailConfirm.current = true;
     regMethod.current = "password";
-    const pendingToken = localStorage.getItem("pending_invite_token");
-    const inviteParam = pendingToken ? `reg=invite&inv=${await sha256hex(pendingToken)}` : `reg=password`;
     const { error: err } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback?${inviteParam}` },
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback?reg=password` },
     });
     setLoading(false);
 
@@ -189,6 +309,12 @@ export default function Register() {
     regMethod.current = "magic_link";
     const pendingToken = localStorage.getItem("pending_invite_token");
     const inviteParam = pendingToken ? `reg=invite&inv=${await sha256hex(pendingToken)}` : `reg=magic_link`;
+    if (pendingToken) {
+      captureInviteEvent("invite_registration_started", {
+        method: "magic_link",
+        page: "/rejestracja",
+      });
+    }
     const { error: err } = await supabase.auth.signInWithOtp({
       email,
       options: { emailRedirectTo: `${window.location.origin}/auth/callback?${inviteParam}` },
@@ -478,12 +604,26 @@ export default function Register() {
           </p>
         </div>
 
-        <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-5">
-          Masz już konto?{" "}
-          <a href="/logowanie" className="text-blue-600 hover:underline font-medium">
-            Zaloguj się
-          </a>
-        </p>
+        {inviteData ? (
+          <div className="mt-5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40 p-4 text-center">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Masz już konto w KsięgaI?
+            </p>
+            <a
+              href="/logowanie"
+              className="mt-2 inline-block w-full rounded-xl border border-blue-300 dark:border-blue-700 py-2.5 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+            >
+              Zaloguj się i dołącz do {inviteData.company_name}
+            </a>
+          </div>
+        ) : (
+          <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-5">
+            Masz już konto?{" "}
+            <a href="/logowanie" className="text-blue-600 hover:underline font-medium">
+              Zaloguj się
+            </a>
+          </p>
+        )}
       </div>
     </div>
   );
