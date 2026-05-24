@@ -14,7 +14,7 @@ export default function Footer() {
               Księgowość, która nie kradnie Twojego czasu.
             </p>
             <p className="mt-2 text-gray-500 text-xs">
-              Produkt <a href="https://tovernet.com" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors">Tovernet Sp. z o.o.</a>
+              Produkt <a href="https://tovernet.online" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors">Tovernet Sp. z o.o.</a>
             </p>
             <p className="mt-2 text-gray-500 text-xs">
               🇵🇱 Zgodne z KSeF i polskimi przepisami
@@ -116,7 +116,7 @@ export default function Footer() {
           </div>
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-gray-500 text-sm">
-              © {new Date().getFullYear()} KsięgaI by <a href="https://tovernet.com" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors">Tovernet Sp. z o.o.</a> Wszystkie prawa zastrzeżone.
+              © {new Date().getFullYear()} KsięgaI by <a href="https://tovernet.online" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors">Tovernet Sp. z o.o.</a> Wszystkie prawa zastrzeżone.
             </p>
             <div className="flex items-center gap-6">
               <a href="mailto:kontakt@ksiegai.pl" className="text-gray-400 hover:text-white transition-colors text-sm">
