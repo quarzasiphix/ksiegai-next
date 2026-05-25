@@ -64,6 +64,7 @@ export default function Register() {
   const [error, setError] = useState<string | null>(null);
   const [confirmed, setConfirmed] = useState<string | null>(null);
   const awaitingEmailConfirm = useRef(false);
+  const suppressSignedInRedirect = useRef(false);
   const regMethod = useRef<"password" | "magic_link">("password");
   const [useMagicLink, setUseMagicLink] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
@@ -140,9 +141,13 @@ export default function Register() {
 
   useEffect(() => {
     const { data: listener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (suppressSignedInRedirect.current) {
+        return;
+      }
+
       if (event === "SIGNED_IN" && session && !awaitingEmailConfirm.current) {
         posthog.identify(session.user.id, { email: session.user.email });
-        await trackConversion(session.user.id);
+        void trackConversion(session.user.id);
         storeAuthToken({
           access_token: session.access_token,
           refresh_token: session.refresh_token,
@@ -196,92 +201,98 @@ export default function Register() {
 
     // ── Invited user — auto-confirm, no verify screen ─────────────────────────
     if (inviteData && pendingToken) {
-      const tokenHash = await sha256hex(pendingToken);
-      captureInviteEvent("invite_registration_started", {
-        method: "password",
-        page: "/rejestracja",
-      });
-      captureInviteEvent("invite_password_submitted", {
-        method: "password",
-        page: "/rejestracja",
-      });
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-      const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+      try {
+        const tokenHash = await sha256hex(pendingToken);
+        captureInviteEvent("invite_registration_started", {
+          method: "password",
+          page: "/rejestracja",
+        });
+        captureInviteEvent("invite_password_submitted", {
+          method: "password",
+          page: "/rejestracja",
+        });
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+        const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-      const res = await fetch(`${supabaseUrl}/functions/v1/register-invited-user`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "apikey": anonKey },
-        body: JSON.stringify({ email, password, token_hash: tokenHash }),
-      });
-      const result = await res.json();
+        const res = await fetch(`${supabaseUrl}/functions/v1/register-invited-user`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "apikey": anonKey },
+          body: JSON.stringify({ email, password, token_hash: tokenHash }),
+        });
+        const result = await res.json();
 
-      if (!res.ok || result.error) {
-        const msg = (result.error ?? "").toLowerCase();
-        if (msg.includes("already") || msg.includes("exists")) {
-          // Account exists — send them to login with invite pre-loaded from localStorage
-          window.location.href = "/logowanie";
+        if (!res.ok || result.error) {
+          const msg = (result.error ?? "").toLowerCase();
+          if (msg.includes("already") || msg.includes("exists")) {
+            window.location.href = "/logowanie";
+            return;
+          }
+          setError(result.error ?? "Nie udało się założyć konta. Spróbuj ponownie.");
+          setLoading(false);
           return;
         }
-        setError(result.error ?? "Nie udało się założyć konta. Spróbuj ponownie.");
+
+        suppressSignedInRedirect.current = true;
+        await supabase.auth.setSession({
+          access_token: result.access_token,
+          refresh_token: result.refresh_token,
+        });
+
+        identifyInvitedUser(result.user_id, result.user_email);
+        posthog.capture("register_password_signup", { invite: true });
+        await trackConversion(result.user_id);
+
+        storeAuthToken({
+          access_token: result.access_token,
+          refresh_token: result.refresh_token,
+          expires_at: result.expires_at || 0,
+          user_id: result.user_id,
+        });
+
+        const { data: claimData, error: claimError } = await (supabase.rpc as any)("claim_admin_invite", {
+          p_token_hash: tokenHash,
+        });
+
+        if (!claimError && claimData) {
+          const { business_profile_id, company_name, invite_id, campaign_source } = claimData;
+          identifyInvitedUser(result.user_id, result.user_email, {
+            invited: true,
+            invite_id,
+            invite_company_name: company_name,
+            invite_business_profile_id: business_profile_id,
+            ...(campaign_source ? { invite_campaign_source: campaign_source } : {}),
+          });
+          posthog.capture("invite_claimed", { business_profile_id, company_name, invite_id });
+          captureInviteEvent("business_activated", {
+            business_profile_id,
+            company_name,
+            invite_id,
+          });
+          void supabase.auth.updateUser({
+            data: {
+              invite_id,
+              invite_company_name: company_name,
+              invite_campaign_source: campaign_source ?? null,
+              invite_token_hash: tokenHash,
+              invite_recipient_email: inviteData.recipient_email ?? result.user_email ?? null,
+              invite_company_type: inviteData.company_type ?? null,
+              invite_business_profile_id: business_profile_id,
+            },
+          });
+          localStorage.removeItem("pending_invite_token");
+          localStorage.removeItem("pending_invite_company");
+          redirectToApp(`/invite-welcome?bp=${business_profile_id}&cn=${encodeURIComponent(company_name)}`);
+        } else {
+          redirectToApp("/onboard");
+        }
+        return;
+      } catch (err) {
+        console.error("[Register] invited password registration failed:", err);
+        suppressSignedInRedirect.current = false;
+        setError("Nie udało się dokończyć rejestracji. Spróbuj ponownie.");
         setLoading(false);
         return;
       }
-
-      // Set session on the Supabase client
-      await supabase.auth.setSession({
-        access_token: result.access_token,
-        refresh_token: result.refresh_token,
-      });
-
-      identifyInvitedUser(result.user_id, result.user_email);
-      posthog.capture("register_password_signup", { invite: true });
-      await trackConversion(result.user_id);
-
-      storeAuthToken({
-        access_token: result.access_token,
-        refresh_token: result.refresh_token,
-        expires_at: result.expires_at || 0,
-        user_id: result.user_id,
-      });
-
-      // Claim the invite now that we're authenticated
-      const { data: claimData, error: claimError } = await (supabase.rpc as any)("claim_admin_invite", {
-        p_token_hash: tokenHash,
-      });
-
-      if (!claimError && claimData) {
-        const { business_profile_id, company_name, invite_id, campaign_source } = claimData;
-        identifyInvitedUser(result.user_id, result.user_email, {
-          invited: true,
-          invite_id,
-          invite_company_name: company_name,
-          invite_business_profile_id: business_profile_id,
-          ...(campaign_source ? { invite_campaign_source: campaign_source } : {}),
-        });
-        posthog.capture("invite_claimed", { business_profile_id, company_name, invite_id });
-        captureInviteEvent("business_activated", {
-          business_profile_id,
-          company_name,
-          invite_id,
-        });
-        void supabase.auth.updateUser({
-          data: {
-            invite_id,
-            invite_company_name: company_name,
-            invite_campaign_source: campaign_source ?? null,
-            invite_token_hash: tokenHash,
-            invite_recipient_email: inviteData.recipient_email ?? result.user_email ?? null,
-            invite_company_type: inviteData.company_type ?? null,
-            invite_business_profile_id: business_profile_id,
-          },
-        });
-        localStorage.removeItem("pending_invite_token");
-        localStorage.removeItem("pending_invite_company");
-        redirectToApp(`/invite-welcome?bp=${business_profile_id}&cn=${encodeURIComponent(company_name)}`);
-      } else {
-        redirectToApp("/onboard");
-      }
-      return;
     }
 
     // ── Regular (non-invited) registration — email verification required ──────
