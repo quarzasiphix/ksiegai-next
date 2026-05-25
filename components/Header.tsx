@@ -223,7 +223,6 @@ export default function Header() {
       localStorage.setItem("pending_invite_token", urlToken);
       // New token arrived — clear stale cached company name
       localStorage.removeItem("pending_invite_company");
-      // Strip invite param so the user can't accidentally share their personal token
       const clean = new URL(window.location.href);
       clean.searchParams.delete("invite");
       window.history.replaceState({}, "", clean.toString());

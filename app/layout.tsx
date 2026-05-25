@@ -7,6 +7,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { PostHogProvider } from "@/components/PostHogProvider";
 import { InviteTokenCapture } from "@/components/InviteTokenCapture";
+import { InviteWelcomeOverlay } from "@/components/InviteWelcomeOverlay";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -110,6 +111,7 @@ export default function RootLayout({
         <PostHogProvider>
           <Suspense fallback={null}>
             <InviteTokenCapture />
+            <InviteWelcomeOverlay />
           </Suspense>
           {gtmId && (
             <Script

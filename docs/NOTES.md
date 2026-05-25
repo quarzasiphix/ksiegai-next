@@ -1,6 +1,61 @@
 # Notes
 Created: legacy-existing (exact date unknown)
-Last modified: 2026-05-25 13:46 CEST
+Last modified: 2026-05-25 17:55 CEST
+
+## 2026-05-25 - Invite overlay now shows once per opened invite link and hides for claimed invites
+
+What changed:
+- Updated [components/InviteTokenCapture.tsx](/mnt/c/k/ksiegai-next/components/InviteTokenCapture.tsx) so opening a link with `?invite=...` now:
+  - stores the invite token locally
+  - immediately removes `invite` from the URL
+  - sets a one-time `sessionStorage` trigger for the welcome overlay only when `lookup_admin_invite(...)` says the invite is still valid
+- Updated [components/InviteWelcomeOverlay.tsx](/mnt/c/k/ksiegai-next/components/InviteWelcomeOverlay.tsx) so the overlay no longer depends on the live URL param and no longer uses persistent local dismissals; it opens once from the session trigger and then clears that trigger immediately.
+- Restored URL cleanup in [app/rejestracja/page.tsx](/mnt/c/k/ksiegai-next/app/rejestracja/page.tsx), [app/logowanie/page.tsx](/mnt/c/k/ksiegai-next/app/logowanie/page.tsx), and [components/Header.tsx](/mnt/c/k/ksiegai-next/components/Header.tsx).
+
+Why:
+- the popup should appear only once when a user opens an invite link
+- the raw invite token should not stay visible in the browser URL
+- already claimed invites should not keep reopening the marketing welcome overlay
+
+Verification evidence (2026-05-25):
+- Re-read the capture/overlay flow and confirmed `history.replaceState()` removes `invite` again.
+- Confirmed the overlay now keys off a one-time session trigger instead of the current URL.
+- Confirmed `InviteTokenCapture` skips setting the overlay trigger when `lookup_admin_invite(...)` is not valid, which covers claimed invites.
+
+## 2026-05-25 - Invite screens now keep `?invite=` in the URL
+
+What changed:
+- Updated [app/rejestracja/page.tsx](/mnt/c/k/ksiegai-next/app/rejestracja/page.tsx), [app/logowanie/page.tsx](/mnt/c/k/ksiegai-next/app/logowanie/page.tsx), and [components/Header.tsx](/mnt/c/k/ksiegai-next/components/Header.tsx) so the invite token is no longer stripped from the URL on first load.
+- The invite flow still caches `pending_invite_token` in localStorage, but the URL itself now remains a live source of truth for showing invite-personalized UI.
+
+Why:
+- invite entry screens should show the personalized invite state every time the user opens a link containing `?invite=...`, not only on the first load before the param gets removed
+
+Verification evidence (2026-05-25):
+- Re-read all three invite-entry effects and confirmed they still persist the token locally but no longer call `history.replaceState()` to remove `invite` from the URL.
+
+## 2026-05-25 - Added first-visit invite welcome overlay on marketing pages
+
+What changed:
+- Added [components/InviteWelcomeOverlay.tsx](/mnt/c/k/ksiegai-next/components/InviteWelcomeOverlay.tsx) and mounted it from [app/layout.tsx](/mnt/c/k/ksiegai-next/app/layout.tsx).
+- The overlay opens only when the current URL includes `?invite=...`, skips auth routes, reads cached invite attribution when available, and falls back to generic invited-user copy when cached details are incomplete.
+- Closing the overlay or clicking `Continue to blog` stores a local dismissal keyed to the cached invite identity so the same invite does not keep reopening the modal.
+- Updated [components/InviteTokenCapture.tsx](/mnt/c/k/ksiegai-next/components/InviteTokenCapture.tsx) to also persist `pending_invite_token`, keeping content-page invite entries compatible with the existing registration/login flow.
+- Added PostHog event coverage for:
+  - `invite_welcome_overlay_viewed`
+  - `invite_welcome_overlay_dismissed`
+
+Why:
+- invite visitors needed a stronger email-to-site handoff that feels deliberate and personalized instead of dropping straight into normal public browsing
+- the marketing site already had invite capture, but content-page entries could lose compatibility with the registration flow because the global capture key and auth-flow key were different
+
+Verification evidence (2026-05-25):
+- Re-read the mounted layout flow and confirmed the overlay is gated behind `?invite=` and local dismissal.
+- Re-read the overlay fallback logic and confirmed it renders safely with recipient/company details, company-only details, or no cached details at all.
+
+Scope notes:
+- Marketing invite UX only.
+- No schema, RLS, or `ksiegai_auth_token` handoff changes.
 
 ## 2026-05-25 - Added missing fallback article for `/poradnik/nip-8-spolka-zoo`
 

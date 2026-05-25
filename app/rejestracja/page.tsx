@@ -94,7 +94,6 @@ export default function Register() {
     if (!token) return;
     localStorage.setItem("pending_invite_token", token);
     if (urlToken) {
-      // Strip invite param so copying the URL doesn't share the personal token
       const clean = new URL(window.location.href);
       clean.searchParams.delete("invite");
       window.history.replaceState({}, "", clean.toString());

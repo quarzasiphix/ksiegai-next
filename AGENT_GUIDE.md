@@ -1,6 +1,6 @@
 # ksiegai-next Agent Guide
 Created: legacy-existing (exact date unknown)
-Last modified: 2026-05-25 12:08 CEST
+Last modified: 2026-05-25 16:45 CEST
 
 > Source of truth for work in `ksiegai-next/`, aligned to the current implementation.
 
@@ -20,6 +20,7 @@ Last modified: 2026-05-25 12:08 CEST
 3. Do not move AB-test runtime to direct DB calls from browser; keep static file / API flow.
 4. Use env vars/secrets for sensitive keys; do not hardcode credentials.
 5. `ksiegai-next` shares the canonical Supabase backend owned in `ksef-ai/supabase/`; shared schema/RPC/RLS migrations belong there, not here.
+6. `ksiegai-next/supabase/migrations/` is retired as a shared-backend migration location; keep it empty except for a marker README unless this app gets a separate backend.
 
 ## 3. Real Route Surface
 
@@ -75,6 +76,7 @@ When changing auth flow:
 2. verify localhost and production redirect behavior
 3. verify callback path behavior for OAuth/magic-link
 4. if the change needs shared Supabase schema/RPC/RLS work, add the migration under `ksef-ai/supabase/migrations/`, not `ksiegai-next/supabase/`
+5. if you find migration SQL inside `ksiegai-next/supabase/migrations/` for the shared backend, move it to `ksef-ai/supabase/migrations/`
 
 When changing AB testing:
 1. keep prebuild output contract (`public/ab-tests.json`)
