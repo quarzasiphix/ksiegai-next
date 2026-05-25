@@ -129,37 +129,37 @@ export function InviteWelcomeOverlay() {
   if (!isOpen || !content) return null;
 
   return (
-    <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/72 px-4 py-8 backdrop-blur-[2px]">
+    <div className="fixed inset-0 z-[90] flex items-start justify-center overflow-y-auto bg-slate-950/72 px-3 py-4 backdrop-blur-[2px] sm:items-center sm:px-4 sm:py-8">
       <div
         aria-labelledby="invite-welcome-title"
         aria-modal="true"
         role="dialog"
-        className="relative w-full max-w-3xl overflow-hidden rounded-[28px] border border-slate-800 bg-slate-950 shadow-[0_30px_90px_rgba(2,6,23,0.55)]"
+        className="relative my-auto w-full max-w-3xl overflow-hidden rounded-[24px] border border-slate-800 bg-slate-950 shadow-[0_30px_90px_rgba(2,6,23,0.55)] sm:rounded-[28px]"
       >
         <button
           type="button"
           onClick={() => dismiss("close")}
           aria-label="Zamknij powitanie"
-          className="absolute right-5 top-5 inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-700 bg-slate-900/80 text-slate-400 transition hover:border-slate-600 hover:text-slate-100"
+          className="absolute right-4 top-4 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-700 bg-slate-900/90 text-slate-400 transition hover:border-slate-600 hover:text-slate-100 sm:right-5 sm:top-5 sm:h-11 sm:w-11"
         >
           <X className="h-5 w-5" />
         </button>
 
-        <div className="border-b border-slate-800 bg-slate-900/70 px-7 py-5 sm:px-10">
-          <div className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-900 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-slate-300">
+        <div className="border-b border-slate-800 bg-slate-900/70 px-5 py-5 pr-14 sm:px-10 sm:pr-20">
+          <div className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-900 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300 sm:text-xs sm:tracking-[0.22em]">
             Zaproszenie aktywne
           </div>
           <h2
             id="invite-welcome-title"
-            className="mt-5 max-w-2xl text-3xl font-semibold tracking-tight text-slate-50 sm:text-4xl"
+            className="mt-4 max-w-2xl text-2xl font-semibold tracking-tight text-slate-50 sm:mt-5 sm:text-4xl"
           >
             {content.title}
           </h2>
-          <p className="mt-4 max-w-2xl text-base leading-7 text-slate-300 sm:text-lg">
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300 sm:mt-4 sm:text-lg sm:leading-7">
             {content.subtitle}
           </p>
           {(content.recipientLabel || content.companyLabel) && (
-            <div className="mt-5 flex flex-wrap gap-3 text-sm text-slate-300">
+            <div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-300 sm:mt-5 sm:gap-3 sm:text-sm">
               {content.recipientLabel && (
                 <span className="rounded-full border border-slate-700 bg-slate-900 px-3 py-1.5">
                   Osoba zaproszona: <strong className="font-semibold text-slate-50">{content.recipientLabel}</strong>
@@ -174,13 +174,13 @@ export function InviteWelcomeOverlay() {
           )}
         </div>
 
-        <div className="px-7 py-7 sm:px-10 sm:py-9">
+        <div className="px-5 py-5 sm:px-10 sm:py-9">
           <p className="max-w-2xl text-sm leading-6 text-slate-300 sm:text-base">
             W aplikacji możesz od razu prowadzić codzienny obieg firmy bez przełączania się między
             narzędziami.
           </p>
 
-          <div className="mt-6 grid gap-3 sm:grid-cols-2">
+          <div className="mt-5 grid gap-3 sm:mt-6 sm:grid-cols-2">
             <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
               <div className="flex items-center gap-3 text-sm font-semibold text-slate-50">
                 <Receipt className="h-5 w-5 text-slate-300" />
@@ -219,15 +219,15 @@ export function InviteWelcomeOverlay() {
             </div>
           </div>
 
-          <div className="mt-8 flex flex-col gap-3 border-t border-slate-800 pt-6 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-3 text-sm text-slate-400">
-              <Building2 className="h-4 w-4 text-slate-500" />
+          <div className="mt-6 flex flex-col gap-4 border-t border-slate-800 pt-5 sm:mt-8 sm:flex-row sm:items-center sm:justify-between sm:pt-6">
+            <div className="flex items-start gap-3 text-sm leading-6 text-slate-400 sm:items-center">
+              <Building2 className="mt-0.5 h-4 w-4 shrink-0 text-slate-500 sm:mt-0" />
               Zaproszenie pozostaje zapisane lokalnie, więc możesz wrócić do konfiguracji później.
             </div>
             <button
               type="button"
               onClick={() => dismiss("cta")}
-              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-100 px-6 py-3 text-sm font-semibold text-slate-950 transition hover:bg-slate-200"
+              className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-slate-100 px-6 py-3 text-sm font-semibold text-slate-950 transition hover:bg-slate-200 sm:min-h-0 sm:w-auto"
             >
               Przejdź do bloga
               <ArrowRight className="h-4 w-4" />
