@@ -1,4 +1,6 @@
 # ksiegai-next Agent Guide
+Created: legacy-existing (exact date unknown)
+Last modified: 2026-05-25 12:08 CEST
 
 > Source of truth for work in `ksiegai-next/`, aligned to the current implementation.
 
@@ -17,6 +19,7 @@
 2. Cross-domain auth token contract with app must remain compatible.
 3. Do not move AB-test runtime to direct DB calls from browser; keep static file / API flow.
 4. Use env vars/secrets for sensitive keys; do not hardcode credentials.
+5. `ksiegai-next` shares the canonical Supabase backend owned in `ksef-ai/supabase/`; shared schema/RPC/RLS migrations belong there, not here.
 
 ## 3. Real Route Surface
 
@@ -71,6 +74,7 @@ When changing auth flow:
 1. preserve token schema compatibility with `ksef-ai`
 2. verify localhost and production redirect behavior
 3. verify callback path behavior for OAuth/magic-link
+4. if the change needs shared Supabase schema/RPC/RLS work, add the migration under `ksef-ai/supabase/migrations/`, not `ksiegai-next/supabase/`
 
 When changing AB testing:
 1. keep prebuild output contract (`public/ab-tests.json`)
