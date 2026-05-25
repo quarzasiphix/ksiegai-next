@@ -1,6 +1,19 @@
 # Notes
 Created: legacy-existing (exact date unknown)
-Last modified: 2026-05-25 12:08 CEST
+Last modified: 2026-05-25 13:46 CEST
+
+## 2026-05-25 - Added missing fallback article for `/poradnik/nip-8-spolka-zoo`
+
+What changed:
+- Added a fallback wiki article entry for slug `nip-8-spolka-zoo` in [lib/wiki-fallback.ts](/mnt/c/k/ksiegai-next/lib/wiki-fallback.ts).
+- The slug was already referenced from related-actions links, but no article existed under that exact path, which caused a 404.
+
+Why:
+- `/poradnik/nip-8-spolka-zoo` was linked internally and expected to resolve.
+- The page failed because the fallback article list had references to the slug but no actual article block.
+
+Verification evidence (2026-05-25):
+- Re-checked the fallback wiki source and confirmed the exact slug now exists as a standalone article entry.
 
 ## 2026-05-25 - Redirect invited first-login straight into onboarding routes
 
