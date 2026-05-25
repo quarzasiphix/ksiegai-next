@@ -202,8 +202,15 @@ export default function Login() {
   }, []);
 
   useEffect(() => {
-    const token = localStorage.getItem("pending_invite_token");
+    const urlToken = new URLSearchParams(window.location.search).get("invite");
+    const token = urlToken || localStorage.getItem("pending_invite_token");
     if (!token) return;
+    if (urlToken) {
+      localStorage.setItem("pending_invite_token", urlToken);
+      const clean = new URL(window.location.href);
+      clean.searchParams.delete("invite");
+      window.history.replaceState({}, "", clean.toString());
+    }
     const cached = localStorage.getItem("pending_invite_company");
     if (cached) {
       setInviteCompany(cached);

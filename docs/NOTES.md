@@ -1,6 +1,49 @@
 # Notes
 Created: legacy-existing (exact date unknown)
-Last modified: 2026-05-24 22:34 CEST
+Last modified: 2026-05-25 11:40 CEST
+
+## 2026-05-25 - Linked claimed invite metadata onto business profiles
+
+What changed:
+- Added [supabase/migrations/20260525093825_link_invite_to_business_profile.sql](/mnt/c/k/ksiegai-next/supabase/migrations/20260525093825_link_invite_to_business_profile.sql).
+- New `business_profiles` columns:
+  - `source_invite_id`
+  - `source_invite_token_hash`
+- Backfilled those columns from already-claimed rows in `admin_company_invites`.
+- Replaced `claim_admin_invite(...)` so every future invite claim writes the invite id and token hash onto the created business profile row.
+
+Why:
+- the invite row already knew which business profile it created, but the business profile itself had no reverse link back to the invite
+- that made later invite-aware onboarding, analytics joins, and support/debugging depend too much on transient local storage or auth metadata
+
+Verification evidence (2026-05-25):
+- Re-read the migration and confirmed it both backfills existing claimed invites and writes the linkage during new claims.
+- Confirmed the stored value is the invite token hash, not the raw token.
+
+Scope notes:
+- Shared schema / claim-flow change.
+- No change to the `ksiegai_auth_token` handoff contract.
+
+## 2026-05-25 - Fixed saved invite token routing for registration vs login
+
+What changed:
+- Added [supabase/migrations/20260525093235_add_invite_recipient_account_flag.sql](/mnt/c/k/ksiegai-next/supabase/migrations/20260525093235_add_invite_recipient_account_flag.sql) to extend `lookup_admin_invite(...)` with `recipient_has_account`.
+- Updated [app/rejestracja/page.tsx](/mnt/c/k/ksiegai-next/app/rejestracja/page.tsx) so invite personalization now works when the token is already saved in `localStorage`, not only when `?invite=` is present in the URL.
+- Invited users whose recipient e-mail already has an account are now redirected from `/rejestracja` to `/logowanie` automatically after invite lookup.
+- Updated [app/logowanie/page.tsx](/mnt/c/k/ksiegai-next/app/logowanie/page.tsx) to also accept and persist `?invite=` directly, then prefill the invited e-mail from invite lookup.
+- Updated [components/Header.tsx](/mnt/c/k/ksiegai-next/components/Header.tsx) so the invite CTA goes to `/logowanie?invite=...` for existing invited accounts and `/rejestracja?invite=...` otherwise.
+
+Why:
+- the saved invite flow was inconsistent: the header could show the invite company, but `/rejestracja` only personalized when the token was still in the URL
+- existing invited users should not be pushed through registration again; they should land on login with the invited e-mail already filled in
+
+Verification evidence (2026-05-25):
+- Re-read the invite lookup path in header, registration, and login and confirmed all three now read the same saved invite token source.
+- Re-read the new migration and confirmed `lookup_admin_invite(...)` now returns `recipient_has_account` by checking `auth.users` for the invited e-mail.
+
+Scope notes:
+- Invite routing and personalization only.
+- No change to the `ksiegai_auth_token` handoff contract.
 
 ## 2026-05-24 - Hardened go-to-app handoff for not-yet-verified users
 

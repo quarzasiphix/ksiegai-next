@@ -75,6 +75,7 @@ export default function Register() {
     recipient_email: string;
     recipient_name: string | null;
     company_type: string | null;
+    recipient_has_account?: boolean;
     is_valid: boolean;
   } | null>(null);
 
@@ -82,13 +83,16 @@ export default function Register() {
   useEffect(() => { setIsApplePlatform(/Mac|iPhone|iPad|iPod/i.test(navigator.userAgent)); }, []);
 
   useEffect(() => {
-    const token = new URLSearchParams(window.location.search).get("invite");
+    const urlToken = new URLSearchParams(window.location.search).get("invite");
+    const token = urlToken || localStorage.getItem("pending_invite_token");
     if (!token) return;
     localStorage.setItem("pending_invite_token", token);
-    // Strip invite param so copying the URL doesn't share the personal token
-    const clean = new URL(window.location.href);
-    clean.searchParams.delete("invite");
-    window.history.replaceState({}, "", clean.toString());
+    if (urlToken) {
+      // Strip invite param so copying the URL doesn't share the personal token
+      const clean = new URL(window.location.href);
+      clean.searchParams.delete("invite");
+      window.history.replaceState({}, "", clean.toString());
+    }
     sha256hex(token).then(async (hash) => {
       const { data } = await (supabase.rpc as any)("lookup_admin_invite", { p_token_hash: hash });
       if (data?.is_valid) {
@@ -102,6 +106,13 @@ export default function Register() {
         });
         setInviteData(data);
         setEmail(data.recipient_email ?? "");
+        if (data.company_name) {
+          localStorage.setItem("pending_invite_company", data.company_name);
+        }
+        if (data.recipient_has_account) {
+          window.location.href = `/logowanie?invite=${encodeURIComponent(token)}`;
+          return;
+        }
         captureInviteEvent("invite_link_opened", {
           page: "/rejestracja",
           referrer: document.referrer || null,

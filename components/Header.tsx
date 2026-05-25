@@ -18,6 +18,7 @@ export default function Header() {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [inviteToken, setInviteToken] = useState<string | null>(null);
   const [inviteCompany, setInviteCompany] = useState<string | null>(null);
+  const [inviteHasAccount, setInviteHasAccount] = useState(false);
 
   useEffect(() => {
     // Check for logout flag from app domain
@@ -244,12 +245,14 @@ export default function Header() {
       if (data?.is_valid && data?.company_name) {
         localStorage.setItem("pending_invite_company", data.company_name);
         setInviteCompany(data.company_name);
+        setInviteHasAccount(Boolean(data.recipient_has_account));
       } else {
         // Token explicitly invalid or expired — clean up
         localStorage.removeItem("pending_invite_token");
         localStorage.removeItem("pending_invite_company");
         setInviteToken(null);
         setInviteCompany(null);
+        setInviteHasAccount(false);
       }
     });
   }, []);
@@ -390,7 +393,7 @@ export default function Header() {
                     </span>
                   </div>
                 )}
-                <Link href={`/rejestracja?invite=${inviteToken}`}>
+                <Link href={`/${inviteHasAccount ? "logowanie" : "rejestracja"}?invite=${inviteToken}`}>
                   <button className="bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-5 py-2 rounded-lg font-semibold transition-colors text-sm sm:text-base whitespace-nowrap">
                     Przejdź do aplikacji
                   </button>
