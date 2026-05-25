@@ -134,40 +134,40 @@ export function InviteWelcomeOverlay() {
         aria-labelledby="invite-welcome-title"
         aria-modal="true"
         role="dialog"
-        className="relative w-full max-w-3xl overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_30px_90px_rgba(15,23,42,0.28)]"
+        className="relative w-full max-w-3xl overflow-hidden rounded-[28px] border border-slate-800 bg-slate-950 shadow-[0_30px_90px_rgba(2,6,23,0.55)]"
       >
         <button
           type="button"
           onClick={() => dismiss("close")}
           aria-label="Zamknij powitanie"
-          className="absolute right-5 top-5 inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:border-slate-300 hover:text-slate-900"
+          className="absolute right-5 top-5 inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-700 bg-slate-900/80 text-slate-400 transition hover:border-slate-600 hover:text-slate-100"
         >
           <X className="h-5 w-5" />
         </button>
 
-        <div className="border-b border-slate-200 bg-slate-50 px-7 py-5 sm:px-10">
-          <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
+        <div className="border-b border-slate-800 bg-slate-900/70 px-7 py-5 sm:px-10">
+          <div className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-900 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-slate-300">
             Zaproszenie aktywne
           </div>
           <h2
             id="invite-welcome-title"
-            className="mt-5 max-w-2xl text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl"
+            className="mt-5 max-w-2xl text-3xl font-semibold tracking-tight text-slate-50 sm:text-4xl"
           >
             {content.title}
           </h2>
-          <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">
+          <p className="mt-4 max-w-2xl text-base leading-7 text-slate-300 sm:text-lg">
             {content.subtitle}
           </p>
           {(content.recipientLabel || content.companyLabel) && (
-            <div className="mt-5 flex flex-wrap gap-3 text-sm text-slate-600">
+            <div className="mt-5 flex flex-wrap gap-3 text-sm text-slate-300">
               {content.recipientLabel && (
-                <span className="rounded-full bg-white px-3 py-1.5 ring-1 ring-slate-200">
-                  Osoba zaproszona: <strong className="font-semibold text-slate-900">{content.recipientLabel}</strong>
+                <span className="rounded-full border border-slate-700 bg-slate-900 px-3 py-1.5">
+                  Osoba zaproszona: <strong className="font-semibold text-slate-50">{content.recipientLabel}</strong>
                 </span>
               )}
               {content.companyLabel && (
-                <span className="rounded-full bg-white px-3 py-1.5 ring-1 ring-slate-200">
-                  Firma: <strong className="font-semibold text-slate-900">{content.companyLabel}</strong>
+                <span className="rounded-full border border-slate-700 bg-slate-900 px-3 py-1.5">
+                  Firma: <strong className="font-semibold text-slate-50">{content.companyLabel}</strong>
                 </span>
               )}
             </div>
@@ -175,61 +175,61 @@ export function InviteWelcomeOverlay() {
         </div>
 
         <div className="px-7 py-7 sm:px-10 sm:py-9">
-          <p className="max-w-2xl text-sm leading-6 text-slate-600 sm:text-base">
+          <p className="max-w-2xl text-sm leading-6 text-slate-300 sm:text-base">
             W aplikacji możesz od razu prowadzić codzienny obieg firmy bez przełączania się między
             narzędziami.
           </p>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <div className="flex items-center gap-3 text-sm font-semibold text-slate-900">
-                <Receipt className="h-5 w-5 text-slate-700" />
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
+              <div className="flex items-center gap-3 text-sm font-semibold text-slate-50">
+                <Receipt className="h-5 w-5 text-slate-300" />
                 Zarządzać fakturami
               </div>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
+              <p className="mt-2 text-sm leading-6 text-slate-400">
                 Wystawiać dokumenty i utrzymywać porządek w sprzedaży oraz rozliczeniach.
               </p>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <div className="flex items-center gap-3 text-sm font-semibold text-slate-900">
-                <Shield className="h-5 w-5 text-slate-700" />
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
+              <div className="flex items-center gap-3 text-sm font-semibold text-slate-50">
+                <Shield className="h-5 w-5 text-slate-300" />
                 Przygotować firmę do KSeF
               </div>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
+              <p className="mt-2 text-sm leading-6 text-slate-400">
                 Uporządkować procesy i wejść w obowiązki KSeF na gotowym fundamencie.
               </p>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <div className="flex items-center gap-3 text-sm font-semibold text-slate-900">
-                <CreditCard className="h-5 w-5 text-slate-700" />
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
+              <div className="flex items-center gap-3 text-sm font-semibold text-slate-50">
+                <CreditCard className="h-5 w-5 text-slate-300" />
                 Połączyć płatności
               </div>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
+              <p className="mt-2 text-sm leading-6 text-slate-400">
                 Spiąć sprzedaż z płatnościami online i skrócić drogę od faktury do wpływu.
               </p>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <div className="flex items-center gap-3 text-sm font-semibold text-slate-900">
-                <Workflow className="h-5 w-5 text-slate-700" />
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
+              <div className="flex items-center gap-3 text-sm font-semibold text-slate-50">
+                <Workflow className="h-5 w-5 text-slate-300" />
                 Organizować workflow księgowy
               </div>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
+              <p className="mt-2 text-sm leading-6 text-slate-400">
                 Trzymać dokumenty, akceptacje i obowiązki operacyjne w jednym miejscu.
               </p>
             </div>
           </div>
 
-          <div className="mt-8 flex flex-col gap-3 border-t border-slate-200 pt-6 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-3 text-sm text-slate-500">
-              <Building2 className="h-4 w-4" />
+          <div className="mt-8 flex flex-col gap-3 border-t border-slate-800 pt-6 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3 text-sm text-slate-400">
+              <Building2 className="h-4 w-4 text-slate-500" />
               Zaproszenie pozostaje zapisane lokalnie, więc możesz wrócić do konfiguracji później.
             </div>
             <button
               type="button"
               onClick={() => dismiss("cta")}
-              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-950 px-6 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-100 px-6 py-3 text-sm font-semibold text-slate-950 transition hover:bg-slate-200"
             >
-              Continue to blog
+              Przejdź do bloga
               <ArrowRight className="h-4 w-4" />
             </button>
           </div>
