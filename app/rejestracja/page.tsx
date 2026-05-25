@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "../../lib/supabase";
 import { storeAuthToken, redirectToApp } from "../../lib/auth/crossDomainAuth";
+import { getInviteOnboardingPath } from "../../lib/auth/inviteOnboarding";
 import { setAuthFlowOrigin } from "../../lib/auth/welcomeEmail";
 import { getSessionId, getVariantAssignments } from "../../lib/ab-testing-ssg";
 import {
@@ -10,7 +11,7 @@ import {
   identifyInvitedUser,
   registerInviteAttribution,
 } from "../../lib/posthog/inviteAttribution";
-import { Mail, Lock, ExternalLink } from "lucide-react";
+import { Mail, Lock, ExternalLink, UserRoundCheck } from "lucide-react";
 
 const INBOX_PROVIDERS: Record<string, { name: string; url: string }> = {
   "gmail.com":      { name: "Gmail",         url: "https://mail.google.com" },
@@ -79,6 +80,10 @@ export default function Register() {
     recipient_has_account?: boolean;
     is_valid: boolean;
   } | null>(null);
+  const [activeSession, setActiveSession] = useState<{
+    email: string | null;
+    displayName: string;
+  } | null>(null);
 
   useEffect(() => { setVariantAssignments(getVariantAssignments()); }, []);
   useEffect(() => { setIsApplePlatform(/Mac|iPhone|iPad|iPod/i.test(navigator.userAgent)); }, []);
@@ -145,6 +150,19 @@ export default function Register() {
         return;
       }
 
+      if (session) {
+        setActiveSession({
+          email: session.user.email ?? null,
+          displayName:
+            session.user.user_metadata?.full_name ||
+            session.user.user_metadata?.name ||
+            session.user.email?.split("@")[0] ||
+            "użytkownika",
+        });
+      } else if (event === "SIGNED_OUT") {
+        setActiveSession(null);
+      }
+
       if (event === "SIGNED_IN" && session && !awaitingEmailConfirm.current) {
         posthog.identify(session.user.id, { email: session.user.email });
         void trackConversion(session.user.id);
@@ -159,6 +177,21 @@ export default function Register() {
     });
     return () => listener.subscription.unsubscribe();
   }, [variantAssignments, sessionId]);
+
+  useEffect(() => {
+    void (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      setActiveSession({
+        email: session.user.email ?? null,
+        displayName:
+          session.user.user_metadata?.full_name ||
+          session.user.user_metadata?.name ||
+          session.user.email?.split("@")[0] ||
+          "użytkownika",
+      });
+    })();
+  }, []);
 
   const trackConversion = async (userId: string) => {
     try {
@@ -281,7 +314,11 @@ export default function Register() {
           });
           localStorage.removeItem("pending_invite_token");
           localStorage.removeItem("pending_invite_company");
-          redirectToApp(`/invite-welcome?bp=${business_profile_id}&cn=${encodeURIComponent(company_name)}`);
+          redirectToApp(getInviteOnboardingPath(inviteData.company_type), {
+            invite: "1",
+            bp: business_profile_id,
+            cn: company_name,
+          });
         } else {
           redirectToApp("/onboard");
         }
@@ -452,6 +489,57 @@ export default function Register() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
+        {activeSession ? (
+          <div className="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 shadow-sm dark:border-emerald-900/60 dark:bg-emerald-950/30">
+            <div className="flex items-start gap-3">
+              <div className="mt-0.5 rounded-full bg-emerald-100 p-2 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-200">
+                <UserRoundCheck className="h-4 w-4" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-emerald-900 dark:text-emerald-100">
+                  Jesteś już zalogowany jako {activeSession.displayName}
+                </p>
+                {activeSession.email ? (
+                  <p className="mt-1 text-xs text-emerald-700 dark:text-emerald-300">
+                    {activeSession.email}
+                  </p>
+                ) : null}
+                <p className="mt-2 text-xs text-emerald-800 dark:text-emerald-200">
+                  Rejestrujesz nowe konto? Jeśli nie, przejdź od razu do aplikacji.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const { data: { session } } = await supabase.auth.getSession();
+                      if (!session) {
+                        setActiveSession(null);
+                        return;
+                      }
+                      storeAuthToken({
+                        access_token: session.access_token,
+                        refresh_token: session.refresh_token,
+                        expires_at: session.expires_at || 0,
+                        user_id: session.user.id,
+                      });
+                      redirectToApp("/");
+                    }}
+                    className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
+                  >
+                    Przejdź do aplikacji
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveSession(null)}
+                    className="rounded-lg border border-emerald-300 px-4 py-2 text-sm font-medium text-emerald-800 transition hover:bg-emerald-100 dark:border-emerald-800 dark:text-emerald-200 dark:hover:bg-emerald-900/40"
+                  >
+                    Rejestruję nowe konto
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : null}
 
         {/* Header */}
         <div className="text-center mb-7">

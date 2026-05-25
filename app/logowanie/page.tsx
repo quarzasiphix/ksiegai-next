@@ -8,6 +8,7 @@ import {
   storeAuthToken,
   storeAndRedirect,
 } from "../../lib/auth/crossDomainAuth";
+import { getInviteOnboardingPath } from "../../lib/auth/inviteOnboarding";
 import { setAuthFlowOrigin } from "../../lib/auth/welcomeEmail";
 import {
   clearPendingLoginAttempt,
@@ -318,7 +319,11 @@ export default function Login() {
               });
               localStorage.removeItem('pending_invite_token');
               localStorage.removeItem('pending_invite_company');
-              redirectToApp(`/invite-welcome?bp=${business_profile_id}&cn=${encodeURIComponent(company_name)}`);
+              redirectToApp(getInviteOnboardingPath(inviteCompanyType), {
+                invite: "1",
+                bp: business_profile_id,
+                cn: company_name,
+              });
               return;
             }
           }

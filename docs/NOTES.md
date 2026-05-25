@@ -1,6 +1,24 @@
 # Notes
 Created: legacy-existing (exact date unknown)
-Last modified: 2026-05-25 11:40 CEST
+Last modified: 2026-05-25 12:08 CEST
+
+## 2026-05-25 - Redirect invited first-login straight into onboarding routes
+
+What changed:
+- Added [lib/auth/inviteOnboarding.ts](/mnt/c/k/ksiegai-next/lib/auth/inviteOnboarding.ts) to map invite company types to app onboarding routes.
+- Updated invite-claim redirects in [app/rejestracja/page.tsx](/mnt/c/k/ksiegai-next/app/rejestracja/page.tsx), [app/logowanie/page.tsx](/mnt/c/k/ksiegai-next/app/logowanie/page.tsx), and [app/auth/callback/page.tsx](/mnt/c/k/ksiegai-next/app/auth/callback/page.tsx).
+- Claimed invites now go to `/onboard/jdg` or `/onboard/spolka` instead of `/invite-welcome`.
+
+Why:
+- invited users should enter the app through the onboarding route that matches the invited business type
+- the app can then show the invite-linked business context immediately instead of a generic dashboard or company-creation entry
+
+Verification evidence (2026-05-25):
+- Re-read the three invite claim redirect paths and confirmed all now use the same onboarding-path mapper.
+
+Scope notes:
+- Invite redirect behavior only.
+- No change to the `ksiegai_auth_token` handoff contract.
 
 ## 2026-05-25 - Linked claimed invite metadata onto business profiles
 

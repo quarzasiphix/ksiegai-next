@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../../lib/supabase";
 import { storeAuthToken, redirectToApp } from "../../../lib/auth/crossDomainAuth";
+import { getInviteOnboardingPath } from "../../../lib/auth/inviteOnboarding";
 import { consumeAuthFlowOrigin, sendWelcomeEmailIfNewUser } from "../../../lib/auth/welcomeEmail";
 import {
   clearPendingLoginAttempt,
@@ -144,11 +145,15 @@ export default function AuthCallback() {
             localStorage.removeItem('pending_invite_token');
             localStorage.removeItem('pending_invite_company');
 
-            const dest = `/invite-welcome?bp=${business_profile_id}&cn=${encodeURIComponent(company_name)}`;
+            const dest = getInviteOnboardingPath(inviteLookup?.company_type ?? null);
             if (redirectFrom === 'localhost' && localhostPort) {
-              window.location.href = `http://localhost:${localhostPort}${dest}`;
+              window.location.href = `http://localhost:${localhostPort}${dest}?invite=1&bp=${business_profile_id}&cn=${encodeURIComponent(company_name)}`;
             } else {
-              redirectToApp(dest);
+              redirectToApp(dest, {
+                invite: "1",
+                bp: business_profile_id,
+                cn: company_name,
+              });
             }
             return;
           } catch (err) {
