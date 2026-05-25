@@ -134,7 +134,7 @@ export function InviteWelcomeOverlay() {
         aria-labelledby="invite-welcome-title"
         aria-modal="true"
         role="dialog"
-        className="relative my-auto w-full max-w-3xl overflow-hidden rounded-[24px] border border-slate-800 bg-slate-950 shadow-[0_30px_90px_rgba(2,6,23,0.55)] sm:rounded-[28px]"
+        className="relative my-auto flex max-h-[calc(100dvh-2rem)] w-full max-w-3xl flex-col overflow-hidden rounded-[24px] border border-slate-800 bg-slate-950 shadow-[0_30px_90px_rgba(2,6,23,0.55)] sm:max-h-[min(860px,calc(100dvh-4rem))] sm:rounded-[28px]"
       >
         <button
           type="button"
@@ -145,7 +145,7 @@ export function InviteWelcomeOverlay() {
           <X className="h-5 w-5" />
         </button>
 
-        <div className="border-b border-slate-800 bg-slate-900/70 px-5 py-5 pr-14 sm:px-10 sm:pr-20">
+        <div className="shrink-0 border-b border-slate-800 bg-slate-900/70 px-5 py-5 pr-14 sm:px-10 sm:pr-20">
           <div className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-900 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300 sm:text-xs sm:tracking-[0.22em]">
             Zaproszenie aktywne
           </div>
@@ -174,7 +174,7 @@ export function InviteWelcomeOverlay() {
           )}
         </div>
 
-        <div className="px-5 py-5 sm:px-10 sm:py-9">
+        <div className="flex-1 overflow-y-auto px-5 py-5 sm:px-10 sm:py-9">
           <p className="max-w-2xl text-sm leading-6 text-slate-300 sm:text-base">
             W aplikacji możesz od razu prowadzić codzienny obieg firmy bez przełączania się między
             narzędziami.
@@ -219,7 +219,10 @@ export function InviteWelcomeOverlay() {
             </div>
           </div>
 
-          <div className="mt-6 flex flex-col gap-4 border-t border-slate-800 pt-5 sm:mt-8 sm:flex-row sm:items-center sm:justify-between sm:pt-6">
+        </div>
+
+        <div className="shrink-0 border-t border-slate-800 bg-slate-950/95 px-5 py-4 backdrop-blur sm:px-10 sm:py-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-start gap-3 text-sm leading-6 text-slate-400 sm:items-center">
               <Building2 className="mt-0.5 h-4 w-4 shrink-0 text-slate-500 sm:mt-0" />
               Zaproszenie pozostaje zapisane lokalnie, więc możesz wrócić do konfiguracji później.
