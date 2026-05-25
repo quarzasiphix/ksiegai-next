@@ -1,6 +1,26 @@
 # Notes
 Created: legacy-existing (exact date unknown)
-Last modified: 2026-05-24 22:18 CEST
+Last modified: 2026-05-24 22:34 CEST
+
+## 2026-05-24 - Hardened go-to-app handoff for not-yet-verified users
+
+What changed:
+- Updated [components/Header.tsx](/mnt/c/k/ksiegai-next/components/Header.tsx) so `Przejdź do aplikacji` no longer depends only on a live in-memory Supabase session on the marketing site.
+- The CTA now falls back to:
+  - the stored cross-domain token when present
+  - a session restore attempt from the cross-domain token before redirecting
+- This keeps the handoff path working for accounts that exist but do not yet have a stable local session on the marketing domain.
+
+Why:
+- some not-yet-verified users could click the header CTA and reach a broken handoff path where the marketing site user state existed, but `supabase.auth.getSession()` was not enough to complete a clean redirect into the app
+- the CTA should prefer an already-issued cross-domain token when available instead of acting like the user is unauthenticated
+
+Verification evidence (2026-05-24):
+- Re-read the CTA handler and confirmed it now tries current session, then stored cross-domain token, then a restore attempt, before falling back to a plain redirect.
+
+Scope notes:
+- Header auth handoff only.
+- No route, schema, RLS, or `ksiegai_auth_token` contract changes.
 
 ## 2026-05-24 - Added invite funnel attribution and PostHog event coverage
 

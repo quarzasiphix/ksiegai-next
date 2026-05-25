@@ -274,10 +274,31 @@ export default function Header() {
         expires_at: session.expires_at || 0,
         user_id: session.user.id,
       });
-    } else {
-      // Fallback to regular redirect
-      redirectToApp('/dashboard');
+      return;
     }
+
+    const existingCrossDomainToken = getAuthToken();
+    if (existingCrossDomainToken) {
+      storeAndRedirect(existingCrossDomainToken, '/dashboard');
+      return;
+    }
+
+    const { restored } = await restoreSessionFromAuthToken((tokens) => supabase.auth.setSession(tokens));
+    if (restored) {
+      const { data: { session: restoredSession } } = await supabase.auth.getSession();
+      if (restoredSession) {
+        storeAndRedirect({
+          access_token: restoredSession.access_token,
+          refresh_token: restoredSession.refresh_token,
+          expires_at: restoredSession.expires_at || 0,
+          user_id: restoredSession.user.id,
+        });
+        return;
+      }
+    }
+
+    // Last-resort redirect. App bootstrap will decide whether it can restore auth.
+    redirectToApp('/dashboard');
   };
 
   const toggleTheme = () => {
