@@ -1,6 +1,10 @@
 import { supabaseServer } from './supabase-server';
 import { fallbackWikiArticles, fallbackWikiCategories, type FallbackWikiFaqItem } from './wiki-fallback';
 
+const wikiSlugAliases = {
+  'nip-8-po-rejestracji-spolki-zoo': 'nip-8-spolka-zoo',
+} as const;
+
 export type WikiCategory = {
   id: string;
   slug: string;
@@ -35,6 +39,10 @@ export type WikiArticleListItem = Pick<
 
 function isUuid(value: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+}
+
+function getCanonicalWikiSlug(slug: string): string {
+  return slug in wikiSlugAliases ? wikiSlugAliases[slug as keyof typeof wikiSlugAliases] : slug;
 }
 
 function dedupeCategories(categories: WikiCategory[]): WikiCategory[] {
@@ -140,6 +148,7 @@ export async function getWikiArticlesByCategory(): Promise<
 }
 
 export async function getWikiArticle(slug: string): Promise<WikiArticle | null> {
+  const canonicalSlug = getCanonicalWikiSlug(slug);
   const { data, error } = await supabaseServer
     .from('wiki_articles')
     .select(`
@@ -148,13 +157,13 @@ export async function getWikiArticle(slug: string): Promise<WikiArticle | null> 
       article_type, sort_order, published_at, updated_at,
       category:wiki_categories(id, slug, name, description, sort_order)
     `)
-    .eq('slug', slug)
+    .eq('slug', canonicalSlug)
     .eq('status', 'published')
     .contains('surfaces', ['marketing'])
     .single();
 
   if (!error && data) return data as unknown as WikiArticle;
-  return fallbackWikiArticles.find((article) => article.slug === slug) || null;
+  return fallbackWikiArticles.find((article) => article.slug === canonicalSlug) || null;
 }
 
 export async function getWikiArticlesForCategory(categorySlug: string): Promise<{
@@ -261,5 +270,15 @@ export async function getAllWikiSlugs(): Promise<{ slug: string; updated_at: str
       updated_at: article.updated_at,
       sort_order: article.sort_order,
     })),
+    ...Object.entries(wikiSlugAliases).map(([slug, canonicalSlug]) => {
+      const dbArticle = (data ?? []).find((item) => item.slug === canonicalSlug);
+      const fallbackArticle = fallbackWikiArticles.find((article) => article.slug === canonicalSlug);
+
+      return {
+        slug,
+        updated_at: dbArticle?.updated_at ?? fallbackArticle?.updated_at ?? '2026-05-25T00:00:00.000Z',
+        sort_order: fallbackArticle?.sort_order ?? 0,
+      };
+    }),
   ]).map(({ slug, updated_at }) => ({ slug, updated_at }));
 }

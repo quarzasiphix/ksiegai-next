@@ -1,6 +1,6 @@
 # TODO (Multi-agent)
 Created: legacy-existing (exact date unknown)
-Last modified: 2026-05-25 17:34 CEST
+Last modified: 2026-05-31 20:13 CEST
 
 ## Ownership zones
 - Agent A: frontend/UI/UX and SEO content/pages
@@ -276,6 +276,15 @@ Last modified: 2026-05-25 17:34 CEST
     - Confirm audit doc reflects current runtime probe outputs.
 
 ## DONE
+- [x] T-324: Fix NIP-8 poradnik email link alias
+  - Owner: Codex
+  - Reviewer: self
+  - Verified:
+    - `getAllWikiSlugs()` includes `nip-8-po-rejestracji-spolki-zoo`
+    - `getWikiArticle('nip-8-po-rejestracji-spolki-zoo')` resolves the existing NIP-8 fallback article
+    - `rg` confirmed the alias is wired into static slug generation and article lookup
+    - `cd ksiegai-next && npx tsc --noEmit --pretty false` is blocked by pre-existing errors in `app/auth/login/page.tsx` and `node_modules2/*`
+  - Date: 2026-05-31
 - [x] T-322: Logged-in homepage hero with business profile panel + app handoff
   - Owner: Codex
   - Reviewer: self

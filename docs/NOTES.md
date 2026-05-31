@@ -1,6 +1,19 @@
 # Notes
 Created: legacy-existing (exact date unknown)
-Last modified: 2026-05-25 17:55 CEST
+Last modified: 2026-05-31 20:13 CEST
+
+## 2026-05-31 - Added NIP-8 poradnik alias used by invite emails
+
+What changed:
+- Added a wiki slug alias in [lib/wiki.ts](/p/k/ksiegai-next/lib/wiki.ts) so `/poradnik/nip-8-po-rejestracji-spolki-zoo/` resolves to the existing NIP-8 article at `nip-8-spolka-zoo`.
+- Included the alias in generated static poradnik params, so the static export can emit the email-linked page.
+
+Why:
+- The invite email links to `/poradnik/nip-8-po-rejestracji-spolki-zoo/?invite=...`, but `ksiegai-next` only generated `/poradnik/nip-8-spolka-zoo/`.
+
+Verification evidence (2026-05-31):
+- Confirmed `getAllWikiSlugs()` now returns `nip-8-po-rejestracji-spolki-zoo`.
+- Confirmed `getWikiArticle('nip-8-po-rejestracji-spolki-zoo')` resolves the existing NIP-8 article instead of returning null.
 
 ## 2026-05-25 - Invite overlay now shows once per opened invite link and hides for claimed invites
 
