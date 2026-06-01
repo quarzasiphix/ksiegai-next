@@ -1,6 +1,6 @@
 # TODO (Multi-agent)
 Created: legacy-existing (exact date unknown)
-Last modified: 2026-05-31 20:13 CEST
+Last modified: 2026-06-01 12:35 CEST
 
 ## Ownership zones
 - Agent A: frontend/UI/UX and SEO content/pages
@@ -27,6 +27,28 @@ Last modified: 2026-05-31 20:13 CEST
   - Notes:
     - Follows T-304 implementation; environment-level action required.
 ## IN PROGRESS
+- [ ] T-324: Hydrate `/rejestracja` invite context from stored invite token
+  - Owner: Codex
+  - Started: 2026-06-01 12:35 CEST
+  - Branch: main (shared)
+  - Reviewer: self
+  - Status: pr_ready
+  - Notes:
+    - Registration now reads the shared invite token contract from `pending_invite_token`, `ksiegai_invite_token`, and the `ksiegai_invite_token` cookie.
+    - Password, magic-link, and OAuth invite paths use the same token resolver.
+    - Valid invite lookup hydrates the prepared company context even when the user reaches `/rejestracja` without `?invite=`.
+  - Files touched (actual):
+    - `ksiegai-next/app/rejestracja/page.tsx`
+    - `ksiegai-next/docs/TODO.md`
+  - DoD:
+    - [x] `/rejestracja` can show invite info from stored token without direct invite-link navigation
+    - [x] invite token is cleared from canonical and legacy storage after successful claim
+    - [x] touched registration page type-checks
+  - Checks run:
+    - `cd ksiegai-next && npx tsc --noEmit --skipLibCheck --jsx preserve --moduleResolution node --target es2020 --module esnext --lib dom,dom.iterable,esnext --allowSyntheticDefaultImports --esModuleInterop app/rejestracja/page.tsx` (pass)
+    - `cd ksiegai-next && npm run build` (blocked: missing `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` for prebuild)
+    - `cd ksiegai-next && npm run lint` (blocked: Next ESLint setup prompt)
+
 - [ ] T-323: Add first-visit invite welcome overlay on marketing pages
   - Owner: Codex
   - Started: 2026-05-25 17:34 CEST

@@ -11,7 +11,8 @@ import {
   identifyInvitedUser,
   registerInviteAttribution,
 } from "../../lib/posthog/inviteAttribution";
-import { Mail, Lock, ExternalLink, UserRoundCheck } from "lucide-react";
+import { Mail, Lock, ExternalLink, UserRoundCheck, CheckCircle2, Building2, MapPin, Users } from "lucide-react";
+import { type FullInviteData } from "../../components/invites/InviteActivationOverlay";
 
 const INBOX_PROVIDERS: Record<string, { name: string; url: string }> = {
   "gmail.com":      { name: "Gmail",         url: "https://mail.google.com" },
@@ -33,14 +34,89 @@ const INBOX_PROVIDERS: Record<string, { name: string; url: string }> = {
 
 import posthog from "posthog-js";
 
+const COMPANY_TYPE_LABELS: Record<string, string> = {
+  sp_zoo: "Sp. z o.o.",
+  sa: "Spółka akcyjna",
+  jdg: "Jednoosobowa dz. gosp.",
+  sp_jawna: "Spółka jawna",
+  sp_komandytowa: "Spółka komandytowa",
+  dzialalnosc: "Działalność gospodarcza",
+};
+
+const INVITE_STATUS_ROWS = [
+  "Dane firmy przygotowane",
+  "Checklista po KRS dostępna",
+  "Konfiguracja KSeF do aktywacji",
+  "Fakturowanie do uruchomienia",
+];
+const INVITE_COOKIE_NAME = "ksiegai_invite_token";
+const INVITE_STORAGE_KEY = "ksiegai_invite_token";
+const LEGACY_INVITE_STORAGE_KEY = "pending_invite_token";
+const INVITE_MAX_AGE = 90 * 24 * 60 * 60;
+
 async function sha256hex(text: string): Promise<string> {
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
   return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
+function parsePersonList(raw: unknown): { name: string; role?: string; share?: string }[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.filter(
+    (x): x is { name: string; role?: string; share?: string } =>
+      typeof x === "object" && x !== null && typeof (x as any).name === "string",
+  );
+}
+
+function formatCapital(n: number): string {
+  return new Intl.NumberFormat("pl-PL", { style: "currency", currency: "PLN", maximumFractionDigits: 0 }).format(n);
+}
+
 function getInboxProvider(email: string) {
   const domain = email.split("@")[1]?.toLowerCase();
   return domain ? (INBOX_PROVIDERS[domain] ?? null) : null;
+}
+
+function getStoredInviteToken() {
+  if (typeof window === "undefined") return null;
+
+  const legacyToken = localStorage.getItem(LEGACY_INVITE_STORAGE_KEY);
+  if (legacyToken) return legacyToken;
+
+  const canonicalToken = localStorage.getItem(INVITE_STORAGE_KEY);
+  if (canonicalToken) return canonicalToken;
+
+  const cookiePrefix = `${INVITE_COOKIE_NAME}=`;
+  const cookieToken = document.cookie
+    .split("; ")
+    .find((row) => row.startsWith(cookiePrefix))
+    ?.slice(cookiePrefix.length);
+
+  return cookieToken ? decodeURIComponent(cookieToken) : null;
+}
+
+function persistInviteToken(token: string) {
+  localStorage.setItem(LEGACY_INVITE_STORAGE_KEY, token);
+  localStorage.setItem(INVITE_STORAGE_KEY, token);
+  document.cookie = [
+    `${INVITE_COOKIE_NAME}=${encodeURIComponent(token)}`,
+    "path=/",
+    "domain=.ksiegai.pl",
+    `max-age=${INVITE_MAX_AGE}`,
+    "SameSite=Lax",
+  ].join("; ");
+}
+
+function clearInviteToken() {
+  localStorage.removeItem(LEGACY_INVITE_STORAGE_KEY);
+  localStorage.removeItem(INVITE_STORAGE_KEY);
+  localStorage.removeItem("pending_invite_company");
+  document.cookie = [
+    `${INVITE_COOKIE_NAME}=`,
+    "path=/",
+    "domain=.ksiegai.pl",
+    "max-age=0",
+    "SameSite=Lax",
+  ].join("; ");
 }
 
 const GoogleIcon = ({ className }: { className?: string }) => (
@@ -61,6 +137,8 @@ const AppleIcon = ({ className }: { className?: string }) => (
 export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
+  const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmed, setConfirmed] = useState<string | null>(null);
@@ -72,14 +150,9 @@ export default function Register() {
   const [sessionId] = useState(() => getSessionId());
   const [variantAssignments, setVariantAssignments] = useState<Record<string, string>>({});
   const [isApplePlatform, setIsApplePlatform] = useState(false);
-  const [inviteData, setInviteData] = useState<{
-    company_name: string;
-    recipient_email: string;
-    recipient_name: string | null;
-    company_type: string | null;
-    recipient_has_account?: boolean;
-    is_valid: boolean;
-  } | null>(null);
+  const [inviteData, setInviteData] = useState<FullInviteData | null>(null);
+  const [inviteStep, setInviteStep] = useState<"loading" | "form" | "none">("none");
+  const tokenHashRef = useRef<string>("");
   const [activeSession, setActiveSession] = useState<{
     email: string | null;
     displayName: string;
@@ -90,15 +163,18 @@ export default function Register() {
 
   useEffect(() => {
     const urlToken = new URLSearchParams(window.location.search).get("invite");
-    const token = urlToken || localStorage.getItem("pending_invite_token");
+    const token = urlToken || getStoredInviteToken();
     if (!token) return;
-    localStorage.setItem("pending_invite_token", token);
+
+    setInviteStep("loading");
+    persistInviteToken(token);
     if (urlToken) {
       const clean = new URL(window.location.href);
       clean.searchParams.delete("invite");
       window.history.replaceState({}, "", clean.toString());
     }
     sha256hex(token).then(async (hash) => {
+      tokenHashRef.current = hash;
       const { data } = await (supabase.rpc as any)("lookup_admin_invite", { p_token_hash: hash });
       if (data?.is_valid) {
         registerInviteAttribution({
@@ -118,6 +194,10 @@ export default function Register() {
           window.location.href = `/logowanie?invite=${encodeURIComponent(token)}`;
           return;
         }
+        captureInviteEvent("invite_registration_page_viewed", {
+          page: "/rejestracja",
+          company_name: data.company_name ?? null,
+        });
         captureInviteEvent("invite_link_opened", {
           page: "/rejestracja",
           referrer: document.referrer || null,
@@ -133,6 +213,10 @@ export default function Register() {
           company_name: data.company_name ?? null,
           recipient_email: data.recipient_email ?? null,
         });
+        setInviteStep("form");
+      } else {
+        clearInviteToken();
+        setInviteStep("none");
       }
     });
   }, []);
@@ -221,15 +305,26 @@ export default function Register() {
     }
   };
 
-  const handlePasswordRegister = async (e: React.FormEvent) => {
+const handlePasswordRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     if (!email) { setError("Podaj adres e-mail"); return; }
     if (password.length < 6) { setError("Hasło musi mieć co najmniej 6 znaków"); return; }
 
+    if (!showConfirm) {
+      setShowConfirm(true);
+      return;
+    }
+    if (password !== passwordConfirm) {
+      setPasswordConfirm("");
+      setShowConfirm(false);
+      setError("Hasła się nie zgadzają. Wpisz hasło ponownie.");
+      return;
+    }
+
     setLoading(true);
     setAuthFlowOrigin("register");
-    const pendingToken = localStorage.getItem("pending_invite_token");
+    const pendingToken = getStoredInviteToken();
 
     // ── Invited user — auto-confirm, no verify screen ─────────────────────────
     if (inviteData && pendingToken) {
@@ -237,6 +332,9 @@ export default function Register() {
         const tokenHash = await sha256hex(pendingToken);
         captureInviteEvent("invite_registration_started", {
           method: "password",
+          page: "/rejestracja",
+        });
+        captureInviteEvent("invite_registration_method_selected_password", {
           page: "/rejestracja",
         });
         captureInviteEvent("invite_password_submitted", {
@@ -311,8 +409,24 @@ export default function Register() {
               invite_business_profile_id: business_profile_id,
             },
           });
-          localStorage.removeItem("pending_invite_token");
-          localStorage.removeItem("pending_invite_company");
+          clearInviteToken();
+          captureInviteEvent("invite_registration_completed", {
+            method: "password",
+            business_profile_id,
+            company_name,
+            invite_id,
+          });
+          captureInviteEvent("invite_onboarding_started", {
+            business_profile_id,
+            company_name,
+            invite_id,
+          });
+          if (typeof window !== "undefined" && "PasswordCredential" in window) {
+            try {
+              const cred = new (window as any).PasswordCredential({ id: email, password });
+              await navigator.credentials.store(cred);
+            } catch { /* browser may decline silently */ }
+          }
           redirectToApp(getInviteOnboardingPath(inviteData.company_type), {
             invite: "1",
             bp: business_profile_id,
@@ -365,7 +479,7 @@ export default function Register() {
     setAuthFlowOrigin("register");
     awaitingEmailConfirm.current = true;
     regMethod.current = "magic_link";
-    const pendingToken = localStorage.getItem("pending_invite_token");
+    const pendingToken = getStoredInviteToken();
     const inviteParam = pendingToken ? `reg=invite&inv=${await sha256hex(pendingToken)}` : `reg=magic_link`;
     if (pendingToken) {
       captureInviteEvent("invite_registration_started", {
@@ -403,7 +517,7 @@ export default function Register() {
   };
 
   const buildOAuthCallbackUrl = async (): Promise<string> => {
-    const pendingToken = localStorage.getItem("pending_invite_token");
+    const pendingToken = getStoredInviteToken();
     if (pendingToken) {
       const hash = await sha256hex(pendingToken);
       return `${window.location.origin}/auth/callback?reg=invite&inv=${hash}`;
@@ -413,6 +527,9 @@ export default function Register() {
 
   const handleGoogle = async () => {
     posthog.capture("register_google_clicked");
+    if (inviteData) {
+      captureInviteEvent("invite_registration_method_selected_google", { page: "/rejestracja" });
+    }
     setError(null);
     setLoading(true);
     setAuthFlowOrigin("register");
@@ -436,6 +553,40 @@ export default function Register() {
     });
     if (err) { setError("Nie udało się zalogować przez Apple."); setLoading(false); }
   };
+
+  // ─── Invite loading skeleton ─────────────────────────────────────────────────
+  if (inviteStep === "loading") {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+        <div className="w-full max-w-lg animate-pulse space-y-4">
+          <div className="h-7 w-52 rounded-full bg-slate-800" />
+          <div className="rounded-[20px] border border-slate-800 bg-slate-900 overflow-hidden">
+            <div className="px-6 pt-6 pb-5 border-b border-slate-800 space-y-3">
+              <div className="h-6 w-3/4 rounded bg-slate-800" />
+              <div className="h-4 w-full rounded bg-slate-800/60" />
+              <div className="flex gap-2 mt-3">
+                <div className="h-6 w-24 rounded-full bg-slate-800" />
+                <div className="h-6 w-20 rounded-full bg-slate-800" />
+                <div className="h-6 w-28 rounded-full bg-slate-800" />
+              </div>
+            </div>
+            <div className="px-6 py-4 border-b border-slate-800 space-y-2.5">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="h-4 w-56 rounded bg-slate-800/60" />
+              ))}
+            </div>
+            <div className="px-6 py-4 border-b border-slate-800 bg-slate-950/30">
+              <div className="h-3 w-24 rounded bg-slate-800 mb-2" />
+              <div className="h-4 w-48 rounded bg-slate-800" />
+            </div>
+            <div className="px-6 py-5">
+              <div className="h-12 w-full rounded-xl bg-slate-800" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // ─── Confirmation screen ─────────────────────────────────────────────────────
   if (confirmed) {
@@ -485,254 +636,393 @@ export default function Register() {
   }
 
   // ─── Main form ───────────────────────────────────────────────────────────────
+
+  const activeSessionBanner = activeSession ? (
+    <div className="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 shadow-sm dark:border-emerald-900/60 dark:bg-emerald-950/30">
+      <div className="flex items-start gap-3">
+        <div className="mt-0.5 rounded-full bg-emerald-100 p-2 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-200">
+          <UserRoundCheck className="h-4 w-4" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold text-emerald-900 dark:text-emerald-100">
+            Jesteś już zalogowany jako {activeSession.displayName}
+          </p>
+          {activeSession.email ? (
+            <p className="mt-1 text-xs text-emerald-700 dark:text-emerald-300">{activeSession.email}</p>
+          ) : null}
+          <p className="mt-2 text-xs text-emerald-800 dark:text-emerald-200">
+            Rejestrujesz nowe konto? Jeśli nie, przejdź od razu do aplikacji.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={async () => {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (!session) { setActiveSession(null); return; }
+                storeAuthToken({
+                  access_token: session.access_token,
+                  refresh_token: session.refresh_token,
+                  expires_at: session.expires_at || 0,
+                  user_id: session.user.id,
+                });
+                redirectToApp("/");
+              }}
+              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
+            >
+              Przejdź do aplikacji
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveSession(null)}
+              className="rounded-lg border border-emerald-300 px-4 py-2 text-sm font-medium text-emerald-800 transition hover:bg-emerald-100 dark:border-emerald-800 dark:text-emerald-200 dark:hover:bg-emerald-900/40"
+            >
+              Rejestruję nowe konto
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  ) : null;
+
+  const authCardContent = (
+    <>
+      {/* OAuth */}
+      <button
+        onClick={handleGoogle}
+        disabled={loading}
+        className="w-full flex items-center justify-center gap-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        <GoogleIcon className="h-5 w-5 shrink-0" />
+        {inviteData ? "Kontynuuj z Google" : "Kontynuuj przez Google"}
+      </button>
+
+      {isApplePlatform && (
+        <button
+          onClick={handleApple}
+          disabled={loading}
+          className="w-full flex items-center justify-center gap-3 bg-black hover:bg-gray-900 dark:bg-white dark:hover:bg-gray-100 text-white dark:text-black font-semibold py-3.5 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <AppleIcon className="h-5 w-5 shrink-0" />
+          Kontynuuj przez Apple
+        </button>
+      )}
+
+      {/* Divider */}
+      <div className="flex items-center gap-3">
+        <div className="flex-1 border-t border-gray-200 dark:border-gray-700" />
+        <span className="text-xs text-gray-400 dark:text-gray-500">lub e-mailem</span>
+        <div className="flex-1 border-t border-gray-200 dark:border-gray-700" />
+      </div>
+
+      {/* Email form */}
+      {!useMagicLink ? (
+        <form onSubmit={handlePasswordRegister} className="space-y-3">
+          <div className="relative">
+            {inviteData ? (
+              <CheckCircle2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-500" />
+            ) : (
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            )}
+            <input
+              id="email"
+              name="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoComplete="username"
+              autoCapitalize="none"
+              autoCorrect="off"
+              placeholder="twoj@email.pl"
+              className={`w-full pl-9 pr-4 py-3 border rounded-xl focus:ring-2 focus:border-transparent text-sm ${inviteData ? "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-700 text-gray-900 dark:text-white focus:ring-emerald-400" : "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500"}`}
+            />
+          </div>
+          {inviteData && (
+            <p className="text-xs text-gray-500 dark:text-gray-400 -mb-1">
+              Ustaw hasło, aby odblokować dostęp do profilu spółki.
+            </p>
+          )}
+          <div className="relative">
+            <Lock className={`absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 ${inviteData ? "text-blue-400" : "text-gray-400"}`} />
+            <input
+              id="password"
+              name="password"
+              type="password"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                if (showConfirm) { setShowConfirm(false); setPasswordConfirm(""); }
+              }}
+              onBlur={() => { if (password.length >= 6) setShowConfirm(true); }}
+              required
+              autoComplete="new-password"
+              placeholder="Hasło (min. 6 znaków)"
+              autoFocus={!!inviteData}
+              className={`w-full pl-9 pr-4 py-3 rounded-xl focus:outline-none focus:border-transparent text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${inviteData ? "border-2 border-blue-400 dark:border-blue-500 focus:ring-2 focus:ring-blue-400" : "border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500"}`}
+            />
+          </div>
+          {showConfirm && (
+            <div className="relative">
+              <Lock className={`absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 ${inviteData ? "text-blue-400" : "text-gray-400"}`} />
+              <input
+                id="password-confirm"
+                name="password-confirm"
+                type="password"
+                value={passwordConfirm}
+                onChange={(e) => setPasswordConfirm(e.target.value)}
+                required
+                autoComplete="new-password"
+                autoFocus
+                placeholder="Powtórz hasło"
+                className={`w-full pl-9 pr-4 py-3 rounded-xl focus:outline-none focus:border-transparent text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${inviteData ? "border-2 border-blue-400 dark:border-blue-500 focus:ring-2 focus:ring-blue-400" : "border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500"}`}
+              />
+            </div>
+          )}
+
+          {error && (
+            <p className="text-red-500 text-sm bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
+              {error}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? "Zakładanie konta…" : inviteData ? "Aktywuj dostęp" : "Załóż konto"}
+          </button>
+
+          <p className="text-center text-xs text-gray-400 dark:text-gray-500">
+            Wolisz bez hasła?{" "}
+            <button
+              type="button"
+              onClick={() => { setUseMagicLink(true); setError(null); }}
+              className="text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              Wyślij link na e-mail
+            </button>
+          </p>
+        </form>
+      ) : (
+        <form onSubmit={handleMagicLink} className="space-y-3">
+          <div className="relative">
+            {inviteData ? (
+              <CheckCircle2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-500" />
+            ) : (
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            )}
+            <input
+              id="email-magic"
+              name="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoComplete="username"
+              autoCapitalize="none"
+              autoCorrect="off"
+              placeholder="twoj@email.pl"
+              className={`w-full pl-9 pr-4 py-3 border rounded-xl focus:ring-2 focus:border-transparent text-sm ${inviteData ? "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-700 text-gray-900 dark:text-white focus:ring-emerald-400" : "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500"}`}
+            />
+          </div>
+
+          {error && (
+            <p className="text-red-500 text-sm bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
+              {error}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? "Wysyłanie…" : "Wyślij link logowania"}
+          </button>
+
+          <p className="text-center text-xs text-gray-400 dark:text-gray-500">
+            <button
+              type="button"
+              onClick={() => { setUseMagicLink(false); setError(null); }}
+              className="text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              Wróć do rejestracji hasłem
+            </button>
+          </p>
+        </form>
+      )}
+
+      <p className="text-center text-xs text-gray-400 dark:text-gray-500 pt-1">
+        Rejestrując się, akceptujesz{" "}
+        <a href="/regulamin" className="hover:underline">Regulamin</a>{" "}
+        i{" "}
+        <a href="/polityka-prywatnosci" className="hover:underline">Politykę prywatności</a>.
+      </p>
+    </>
+  );
+
+  // ─── Two-column invite layout (desktop) / stacked (mobile) ──────────────────
+  if (inviteData) {
+    const companyTypeLabel = inviteData.company_type
+      ? (COMPANY_TYPE_LABELS[inviteData.company_type] ?? inviteData.company_type)
+      : null;
+
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 flex items-start justify-center p-4 py-6 lg:py-8">
+        <div className="w-full max-w-5xl">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-6 lg:gap-8 items-start lg:items-start">
+
+            {/* ── Left: Company sidebar ── */}
+            <div className="rounded-2xl border border-slate-800 bg-slate-900 shadow-xl overflow-hidden">
+              {/* Title section */}
+              <div className="px-6 pt-6 pb-5 border-b border-slate-800">
+                <span className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-800/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                  <Building2 className="h-3 w-3" />
+                  Profil spółki przygotowany
+                </span>
+                <h2 className="mt-4 text-xl font-bold text-white leading-snug">
+                  Profil <span className="text-blue-400">{inviteData.company_name}</span> jest przygotowany.
+                </h2>
+                <p className="mt-2 text-sm text-slate-400 leading-6">
+                  Odblokuj dostęp do konfiguracji KSeF, danych spółki, checklisty po KRS i obsługi faktur.
+                </p>
+                {/* Company identity chips */}
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {companyTypeLabel && (
+                    <span className="rounded-full border border-slate-700/80 bg-slate-950/50 px-3 py-1 text-xs text-slate-300">
+                      {companyTypeLabel}
+                    </span>
+                  )}
+                  {inviteData.krs && (
+                    <span className="rounded-full border border-slate-700/80 bg-slate-950/50 px-3 py-1 text-xs text-slate-300">
+                      KRS {inviteData.krs}
+                    </span>
+                  )}
+                  {inviteData.nip && (
+                    <span className="rounded-full border border-slate-700/80 bg-slate-950/50 px-3 py-1 text-xs text-slate-300">
+                      NIP {inviteData.nip}
+                    </span>
+                  )}
+                  {inviteData.regon && (
+                    <span className="rounded-full border border-slate-700/80 bg-slate-950/50 px-3 py-1 text-xs text-slate-300">
+                      REGON {inviteData.regon}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Checklist rows + illustration */}
+              <div className="px-6 py-2 border-b border-slate-800 flex items-center gap-4">
+                <div className="flex-1 space-y-2.5">
+                  {INVITE_STATUS_ROWS.map((row) => (
+                    <div key={row} className="flex items-center gap-3">
+                      <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
+                      <span className="text-sm text-slate-300">{row}</span>
+                    </div>
+                  ))}
+                </div>
+                <img
+                  src="/email-assets/register-ksef.png"
+                  alt="KSeF i faktury"
+                  className="w-64 shrink-0 select-none opacity-90"
+                  draggable={false}
+                />
+              </div>
+
+              {/* Address */}
+              {(() => {
+                const addressLine = [inviteData.address, [inviteData.postal_code, inviteData.city].filter(Boolean).join(" ")].filter(Boolean).join(", ");
+                if (!addressLine) return null;
+                return (
+                  <div className="px-6 py-4 border-b border-slate-800">
+                    <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-slate-500 mb-1">
+                      <MapPin className="h-3 w-3" /> Adres
+                    </p>
+                    <p className="text-sm text-slate-300">{addressLine}</p>
+                  </div>
+                );
+              })()}
+
+              {/* Zarząd · Wspólnicy · Kapitał — inline row */}
+              {(() => {
+                const board = parsePersonList(inviteData.board_members);
+                const shareholders = parsePersonList(inviteData.shareholders);
+                const capital = inviteData.share_capital;
+                const cells = [
+                  board.length ? { label: "Zarząd", value: board.map((m) => m.name).join(", ") } : null,
+                  shareholders.length ? { label: "Wspólnicy", value: shareholders.map((s) => s.name).join(", ") } : null,
+                  capital !== null && capital !== undefined ? { label: "Kapitał", value: formatCapital(capital) } : null,
+                ].filter(Boolean) as { label: string; value: string }[];
+                if (!cells.length) return null;
+                return (
+                  <div className="border-b border-slate-800">
+                    <div className="grid px-6 py-4" style={{ gridTemplateColumns: `repeat(${cells.length}, 1fr)` }}>
+                      {cells.map((cell, i) => (
+                        <div key={cell.label} className={i > 0 ? "pl-4 border-l border-slate-800" : ""}>
+                          <p className="text-[10px] uppercase tracking-widest text-slate-500 mb-1">{cell.label}</p>
+                          <p className="text-xs text-slate-300 leading-snug">{cell.value}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Invited email */}
+              <div className="px-6 py-4 bg-slate-950/30">
+                <p className="text-[10px] uppercase tracking-widest text-slate-500 mb-1">Zaproszenie dla</p>
+                <p className="text-sm font-medium text-white">{inviteData.recipient_email}</p>
+              </div>
+            </div>
+
+            {/* ── Right: Auth card ── */}
+            <div className="min-w-0">
+              {activeSessionBanner}
+              <div className="text-center mb-4">
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Odblokuj dostęp</h1>
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                  Aktywuj profil {inviteData.company_name}
+                </p>
+              </div>
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-7 space-y-4">
+                {authCardContent}
+              </div>
+              <div className="mt-5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40 p-4 text-center">
+                <p className="text-sm text-gray-600 dark:text-gray-400">Masz już konto w KsięgaI?</p>
+                <a
+                  href="/logowanie"
+                  className="mt-2 inline-block w-full rounded-xl border border-blue-300 dark:border-blue-700 py-2.5 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                >
+                  Zaloguj się i dołącz do {inviteData.company_name}
+                </a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── Regular (no invite) single-column layout ─────────────────────────────
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {activeSession ? (
-          <div className="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 shadow-sm dark:border-emerald-900/60 dark:bg-emerald-950/30">
-            <div className="flex items-start gap-3">
-              <div className="mt-0.5 rounded-full bg-emerald-100 p-2 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-200">
-                <UserRoundCheck className="h-4 w-4" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-emerald-900 dark:text-emerald-100">
-                  Jesteś już zalogowany jako {activeSession.displayName}
-                </p>
-                {activeSession.email ? (
-                  <p className="mt-1 text-xs text-emerald-700 dark:text-emerald-300">
-                    {activeSession.email}
-                  </p>
-                ) : null}
-                <p className="mt-2 text-xs text-emerald-800 dark:text-emerald-200">
-                  Rejestrujesz nowe konto? Jeśli nie, przejdź od razu do aplikacji.
-                </p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      const { data: { session } } = await supabase.auth.getSession();
-                      if (!session) {
-                        setActiveSession(null);
-                        return;
-                      }
-                      storeAuthToken({
-                        access_token: session.access_token,
-                        refresh_token: session.refresh_token,
-                        expires_at: session.expires_at || 0,
-                        user_id: session.user.id,
-                      });
-                      redirectToApp("/");
-                    }}
-                    className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
-                  >
-                    Przejdź do aplikacji
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setActiveSession(null)}
-                    className="rounded-lg border border-emerald-300 px-4 py-2 text-sm font-medium text-emerald-800 transition hover:bg-emerald-100 dark:border-emerald-800 dark:text-emerald-200 dark:hover:bg-emerald-900/40"
-                  >
-                    Rejestruję nowe konto
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : null}
-
-        {/* Header */}
+        {activeSessionBanner}
         <div className="text-center mb-7">
-          {inviteData ? (
-            <>
-              <div className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-full px-4 py-1.5 mb-4">
-                <span className="text-xs font-semibold text-blue-700 dark:text-blue-300 uppercase tracking-wide">Zaproszenie</span>
-              </div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                Witaj{inviteData.recipient_name ? `, ${inviteData.recipient_name.split(" ")[0]}` : ""}!
-              </h1>
-              <p className="mt-2 text-sm text-gray-600 dark:text-gray-300 font-medium">
-                {inviteData.company_name}
-              </p>
-              <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
-                Twoje konto zostanie automatycznie powiązane z tą firmą.
-              </p>
-            </>
-          ) : (
-            <>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                Zacznij za darmo
-              </h1>
-              <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                Bez karty płatniczej &nbsp;·&nbsp; Faktury od razu &nbsp;·&nbsp; Zgodne z KSeF
-              </p>
-            </>
-          )}
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Zacznij za darmo</h1>
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+            Bez karty płatniczej &nbsp;·&nbsp; Faktury od razu &nbsp;·&nbsp; Zgodne z KSeF
+          </p>
         </div>
-
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-7 space-y-4">
-
-          {/* OAuth */}
-          <button
-            onClick={handleGoogle}
-            disabled={loading}
-            className="w-full flex items-center justify-center gap-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <GoogleIcon className="h-5 w-5 shrink-0" />
-            Kontynuuj przez Google
-          </button>
-
-          {isApplePlatform && (
-            <button
-              onClick={handleApple}
-              disabled={loading}
-              className="w-full flex items-center justify-center gap-3 bg-black hover:bg-gray-900 dark:bg-white dark:hover:bg-gray-100 text-white dark:text-black font-semibold py-3.5 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <AppleIcon className="h-5 w-5 shrink-0" />
-              Kontynuuj przez Apple
-            </button>
-          )}
-
-          {/* Divider */}
-          <div className="flex items-center gap-3">
-            <div className="flex-1 border-t border-gray-200 dark:border-gray-700" />
-            <span className="text-xs text-gray-400 dark:text-gray-500">lub e-mailem</span>
-            <div className="flex-1 border-t border-gray-200 dark:border-gray-700" />
-          </div>
-
-          {/* Email form */}
-          {!useMagicLink ? (
-            <form onSubmit={handlePasswordRegister} className="space-y-3">
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => { if (!inviteData) setEmail(e.target.value); }}
-                  required
-                  autoComplete="email"
-                  autoCapitalize="none"
-                  autoCorrect="off"
-                  readOnly={!!inviteData}
-                  placeholder="twoj@email.pl"
-                  className={`w-full pl-9 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm ${inviteData ? "bg-gray-50 dark:bg-gray-700/50 border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 cursor-default" : "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"}`}
-                />
-              </div>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  autoComplete="new-password"
-                  placeholder="Hasło (min. 6 znaków)"
-                  className="w-full pl-9 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
-                />
-              </div>
-
-              {error && (
-                <p className="text-red-500 text-sm bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
-                  {error}
-                </p>
-              )}
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? "Zakładanie konta…" : "Załóż konto"}
-              </button>
-
-              <p className="text-center text-xs text-gray-400 dark:text-gray-500">
-                Wolisz bez hasła?{" "}
-                <button
-                  type="button"
-                  onClick={() => { setUseMagicLink(true); setError(null); }}
-                  className="text-blue-600 dark:text-blue-400 hover:underline"
-                >
-                  Wyślij link na e-mail
-                </button>
-              </p>
-            </form>
-          ) : (
-            <form onSubmit={handleMagicLink} className="space-y-3">
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <input
-                  id="email-magic"
-                  name="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => { if (!inviteData) setEmail(e.target.value); }}
-                  required
-                  autoComplete="email"
-                  autoCapitalize="none"
-                  autoCorrect="off"
-                  readOnly={!!inviteData}
-                  placeholder="twoj@email.pl"
-                  className={`w-full pl-9 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm ${inviteData ? "bg-gray-50 dark:bg-gray-700/50 border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 cursor-default" : "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"}`}
-                />
-              </div>
-
-              {error && (
-                <p className="text-red-500 text-sm bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
-                  {error}
-                </p>
-              )}
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? "Wysyłanie…" : "Wyślij link logowania"}
-              </button>
-
-              <p className="text-center text-xs text-gray-400 dark:text-gray-500">
-                <button
-                  type="button"
-                  onClick={() => { setUseMagicLink(false); setError(null); }}
-                  className="text-blue-600 dark:text-blue-400 hover:underline"
-                >
-                  Wróć do rejestracji hasłem
-                </button>
-              </p>
-            </form>
-          )}
-
-          <p className="text-center text-xs text-gray-400 dark:text-gray-500 pt-1">
-            Rejestrując się, akceptujesz{" "}
-            <a href="/regulamin" className="hover:underline">Regulamin</a>{" "}
-            i{" "}
-            <a href="/polityka-prywatnosci" className="hover:underline">Politykę prywatności</a>.
-          </p>
+          {authCardContent}
         </div>
-
-        {inviteData ? (
-          <div className="mt-5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40 p-4 text-center">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Masz już konto w KsięgaI?
-            </p>
-            <a
-              href="/logowanie"
-              className="mt-2 inline-block w-full rounded-xl border border-blue-300 dark:border-blue-700 py-2.5 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
-            >
-              Zaloguj się i dołącz do {inviteData.company_name}
-            </a>
-          </div>
-        ) : (
-          <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-5">
-            Masz już konto?{" "}
-            <a href="/logowanie" className="text-blue-600 hover:underline font-medium">
-              Zaloguj się
-            </a>
-          </p>
-        )}
+        <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-5">
+          Masz już konto?{" "}
+          <a href="/logowanie" className="text-blue-600 hover:underline font-medium">Zaloguj się</a>
+        </p>
       </div>
     </div>
   );

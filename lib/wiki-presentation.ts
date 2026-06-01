@@ -36,10 +36,10 @@ const CATEGORY_PRESENTATION: Record<string, WikiPresentationCategory> = {
     shortLabel: 'KSeF',
     accentClassName:
       'from-sky-500/25 via-blue-500/15 to-transparent dark:from-sky-400/25 dark:via-blue-400/15 dark:to-transparent',
-    ctaTitle: 'Połącz KSeF w KsięgaI',
+    ctaTitle: 'Brakuje konfiguracji KSeF',
     ctaDescription:
-      'Token, weryfikacja firmy i dalsza praca z fakturami powinny być spięte w jednym miejscu, bez skakania między notatkami.',
-    ctaLabel: 'Załóż konto i podłącz firmę',
+      'Dostęp nie został nadany, księgowość nie ma uprawnień, faktury nie mają zamkniętego procesu — spółka nie jest gotowa operacyjnie do KSeF.',
+    ctaLabel: 'Przejdź do konfiguracji KSeF',
     ctaHref: '/rejestracja',
     roadmapTitle: 'Tematy, które rozwijamy w sekcji KSeF',
     roadmapTopics: [
@@ -102,6 +102,25 @@ const CATEGORY_PRESENTATION: Record<string, WikiPresentationCategory> = {
       'Ceny transferowe w małej spółce — kiedy musisz dokumentować',
       'Jak rozliczyć zysk między wspólnikami przy różnych udziałach',
       'Samochód w spółce — leasing, najem od wspólnika, zakup',
+    ],
+  },
+  'struktury-spolek-i-podatki': {
+    badge: 'Struktury i podatki',
+    shortLabel: 'Struktury',
+    accentClassName:
+      'from-indigo-500/20 via-purple-500/10 to-transparent dark:from-indigo-400/20 dark:via-purple-400/10 dark:to-transparent',
+    ctaTitle: 'Zapanuj nad finansami i dokumentami spółki w KsięgaI',
+    ctaDescription:
+      'Pełna księgowość, uchwały, faktury i KSeF w jednym miejscu — bez chaosu między umowami, wyciągami i rozliczeniami zarządu.',
+    ctaLabel: 'Załóż konto dla spółki',
+    ctaHref: '/rejestracja',
+    roadmapTitle: 'Tematy, które rozwijamy w tej sekcji',
+    roadmapTopics: [
+      'JDG czy spółka z o.o. — co wybrać i kiedy',
+      'Jakie podatki płaci spółka z o.o.',
+      'Jak legalnie wypłacać pieniądze ze spółki',
+      'Holding i kilka spółek — kiedy to ma sens',
+      'Jak przygotować spółkę do pełnej księgowości',
     ],
   },
   'uchwaly-decyzje': {

@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { getAuthToken, redirectToApp, clearAuthToken, storeAuthToken, storeAndRedirect, checkAndRedirectToLocalhost, restoreSessionFromAuthToken } from "../lib/auth/crossDomainAuth";
 import { saveRememberedProfile, saveRememberedProfileAuthToken } from "../lib/auth/loginProfiles";
-import { User, Crown, LogOut, Sun, Moon, ReceiptText, Building2 } from "lucide-react";
+import { User, Crown, LogOut, Sun, Moon, ReceiptText, Building2, ArrowRight } from "lucide-react";
 import posthog from "posthog-js";
 
 async function sha256hex(text: string): Promise<string> {
@@ -387,14 +387,15 @@ export default function Header() {
                         {inviteCompany.charAt(0).toUpperCase()}
                       </span>
                     </div>
-                    <span className="text-xs sm:text-sm font-medium text-white max-w-[80px] sm:max-w-[160px] truncate">
+                    <span className="text-xs sm:text-sm font-medium text-white max-w-[130px] sm:max-w-[200px] truncate">
                       {inviteCompany}
                     </span>
                   </div>
                 )}
                 <Link href={`/${inviteHasAccount ? "logowanie" : "rejestracja"}?invite=${inviteToken}`}>
-                  <button className="bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-5 py-2 rounded-lg font-semibold transition-colors text-sm sm:text-base whitespace-nowrap">
-                    Przejdź do aplikacji
+                  <button className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1.5 rounded-lg font-medium transition-colors text-sm whitespace-nowrap">
+                    Przejdź
+                    <ArrowRight className="h-3.5 w-3.5" />
                   </button>
                 </Link>
               </div>

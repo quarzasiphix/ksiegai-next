@@ -1,6 +1,6 @@
 # ksiegai-next Agent Guide
 Created: legacy-existing (exact date unknown)
-Last modified: 2026-05-25 16:45 CEST
+Last modified: 2026-05-26 11:33 CEST
 
 > Source of truth for work in `ksiegai-next/`, aligned to the current implementation.
 
@@ -88,3 +88,10 @@ When changing AB testing:
 - Some auth pages are duplicated by path style (`/logowanie` and `/auth/login`); avoid removing paths without checking external links.
 - Static export constraints apply to routing/features.
 - Some workspace docs still reference old route names and older AB table names.
+
+## 9. graphify
+
+- Prefer local graph first: `cd /p/k/ksiegai-next && graphify query "<question>"`
+- Use `graphify explain "<symbol>"` and `graphify path "<A>" "<B>"` when symbol names are known.
+- After code changes in this app, update this app graph first: `graphify update /p/k/ksiegai-next`
+- Use root `/p/k/graphify-out/graph.json` only for cross-app questions.

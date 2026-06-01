@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, ArrowRight, CheckCircle2, ChevronRight, ExternalLink, ListChecks } from 'lucide-react';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
+import { KsefInviteCTA } from '@/components/wiki/KsefInviteCTA';
 import { WikiArticleCard } from '@/components/wiki/WikiArticleCard';
 import { getAllWikiSlugs, getRelatedWikiArticles, getWikiArticle } from '@/lib/wiki';
 import { formatWikiDate, getWikiPresentationCategory } from '@/lib/wiki-presentation';
@@ -202,12 +203,20 @@ export default async function WikiArticlePage({ params }: PageProps) {
                 </div>
               ) : null}
 
+              {article.category.slug === 'ksef' && (
+                <KsefInviteCTA variant="inline" position="mid" articleSlug={article.slug} />
+              )}
+
               {article.body_markdown ? (
                 <MarkdownRenderer content={article.body_markdown} />
               ) : (
                 <p className="text-muted-foreground">
                   Treść artykułu jest w trakcie przygotowania. Skorzystaj z checklisty i oficjalnych linków po prawej, żeby wykonać najważniejsze kroki już teraz.
                 </p>
+              )}
+
+              {article.category.slug === 'ksef' && (
+                <KsefInviteCTA variant="inline" position="end" articleSlug={article.slug} />
               )}
 
               {article.related_actions.length ? (
@@ -303,27 +312,31 @@ export default async function WikiArticlePage({ params }: PageProps) {
                 </section>
               ) : null}
 
-              <section className="rounded-[28px] border border-black/10 bg-black/[0.03] p-6 dark:border-white/10 dark:bg-white/[0.03]">
-                <h2 className="text-lg font-semibold text-slate-950 dark:text-white">{presentation.ctaTitle}</h2>
-                <p className="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">
-                  {presentation.ctaDescription}
-                </p>
-                <div className="mt-4 space-y-3">
-                  <Link
-                    href={presentation.ctaHref}
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100"
-                  >
-                    {presentation.ctaLabel}
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                  <Link
-                    href="/cennik"
-                    className="inline-flex w-full items-center justify-center rounded-2xl border border-black/10 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-black/[0.03] dark:border-white/10 dark:text-slate-200 dark:hover:bg-white/[0.04]"
-                  >
-                    Zobacz cennik
-                  </Link>
-                </div>
-              </section>
+              {article.category.slug === 'ksef' ? (
+                <KsefInviteCTA variant="sidebar" articleSlug={article.slug} />
+              ) : (
+                <section className="rounded-[28px] border border-black/10 bg-black/[0.03] p-6 dark:border-white/10 dark:bg-white/[0.03]">
+                  <h2 className="text-lg font-semibold text-slate-950 dark:text-white">{presentation.ctaTitle}</h2>
+                  <p className="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">
+                    {presentation.ctaDescription}
+                  </p>
+                  <div className="mt-4 space-y-3">
+                    <Link
+                      href={presentation.ctaHref}
+                      className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-100"
+                    >
+                      {presentation.ctaLabel}
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                    <Link
+                      href="/cennik"
+                      className="inline-flex w-full items-center justify-center rounded-2xl border border-black/10 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-black/[0.03] dark:border-white/10 dark:text-slate-200 dark:hover:bg-white/[0.04]"
+                    >
+                      Zobacz cennik
+                    </Link>
+                  </div>
+                </section>
+              )}
             </aside>
           </div>
         </section>

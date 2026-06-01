@@ -193,11 +193,19 @@ export const redirectToApp = (path: string = '/dashboard', params?: RedirectPara
 
   persistHandoffAttribution();
   const resolvedPath = buildAppPath(path, params);
-  const appUrl = window.location.hostname.includes('localhost')
-    ? `http://localhost:8080${resolvedPath}` // Local dev - React app runs on port 8080
-    : `https://${APP_DOMAIN}${resolvedPath}`; // Production
 
-  window.location.href = appUrl;
+  if (window.location.hostname.includes('localhost')) {
+    // On localhost, cross-port cookies are unreliable — embed the auth token in
+    // the URL so ksef-ai can bootstrap the session without cookie dependency.
+    const token = getAuthToken();
+    const tokenParam = token ? `_xat=${encodeURIComponent(JSON.stringify(token))}` : '';
+    const sep = resolvedPath.includes('?') ? '&' : '?';
+    const appUrl = `http://localhost:8080${resolvedPath}${tokenParam ? sep + tokenParam : ''}`;
+    window.location.href = appUrl;
+    return;
+  }
+
+  window.location.href = `https://${APP_DOMAIN}${resolvedPath}`;
 };
 
 /**
