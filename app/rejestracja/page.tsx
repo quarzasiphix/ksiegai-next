@@ -11,8 +11,9 @@ import {
   identifyInvitedUser,
   registerInviteAttribution,
 } from "../../lib/posthog/inviteAttribution";
-import { Mail, Lock, ExternalLink, UserRoundCheck, CheckCircle2, Building2, MapPin, Users } from "lucide-react";
-import { type FullInviteData } from "../../components/invites/InviteActivationOverlay";
+import { Mail, Lock, ExternalLink, UserRoundCheck, CheckCircle2 } from "lucide-react";
+import InviteActivationOverlay, { type FullInviteData } from "../../components/invites/InviteActivationOverlay";
+import { InviteCompanyCard } from "../../components/invites/InviteCompanyCard";
 
 const INBOX_PROVIDERS: Record<string, { name: string; url: string }> = {
   "gmail.com":      { name: "Gmail",         url: "https://mail.google.com" },
@@ -34,21 +35,6 @@ const INBOX_PROVIDERS: Record<string, { name: string; url: string }> = {
 
 import posthog from "posthog-js";
 
-const COMPANY_TYPE_LABELS: Record<string, string> = {
-  sp_zoo: "Sp. z o.o.",
-  sa: "Spółka akcyjna",
-  jdg: "Jednoosobowa dz. gosp.",
-  sp_jawna: "Spółka jawna",
-  sp_komandytowa: "Spółka komandytowa",
-  dzialalnosc: "Działalność gospodarcza",
-};
-
-const INVITE_STATUS_ROWS = [
-  "Dane firmy przygotowane",
-  "Checklista po KRS dostępna",
-  "Konfiguracja KSeF do aktywacji",
-  "Fakturowanie do uruchomienia",
-];
 const INVITE_COOKIE_NAME = "ksiegai_invite_token";
 const INVITE_STORAGE_KEY = "ksiegai_invite_token";
 const LEGACY_INVITE_STORAGE_KEY = "pending_invite_token";
@@ -57,18 +43,6 @@ const INVITE_MAX_AGE = 90 * 24 * 60 * 60;
 async function sha256hex(text: string): Promise<string> {
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
   return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
-}
-
-function parsePersonList(raw: unknown): { name: string; role?: string; share?: string }[] {
-  if (!Array.isArray(raw)) return [];
-  return raw.filter(
-    (x): x is { name: string; role?: string; share?: string } =>
-      typeof x === "object" && x !== null && typeof (x as any).name === "string",
-  );
-}
-
-function formatCapital(n: number): string {
-  return new Intl.NumberFormat("pl-PL", { style: "currency", currency: "PLN", maximumFractionDigits: 0 }).format(n);
 }
 
 function getInboxProvider(email: string) {
@@ -152,6 +126,7 @@ export default function Register() {
   const [isApplePlatform, setIsApplePlatform] = useState(false);
   const [inviteData, setInviteData] = useState<FullInviteData | null>(null);
   const [inviteStep, setInviteStep] = useState<"loading" | "form" | "none">("none");
+  const [showMobileOverlay, setShowMobileOverlay] = useState(false);
   const tokenHashRef = useRef<string>("");
   const [activeSession, setActiveSession] = useState<{
     email: string | null;
@@ -214,6 +189,7 @@ export default function Register() {
           recipient_email: data.recipient_email ?? null,
         });
         setInviteStep("form");
+        setShowMobileOverlay(true);
       } else {
         clearInviteToken();
         setInviteStep("none");
@@ -862,118 +838,16 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
     </>
   );
 
-  // ─── Two-column invite layout (desktop) / stacked (mobile) ──────────────────
+  // ─── Two-column invite layout (desktop) / form + overlay (mobile) ───────────
   if (inviteData) {
-    const companyTypeLabel = inviteData.company_type
-      ? (COMPANY_TYPE_LABELS[inviteData.company_type] ?? inviteData.company_type)
-      : null;
-
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 flex items-start justify-center p-4 py-6 lg:py-8">
         <div className="w-full max-w-5xl">
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-6 lg:gap-8 items-start lg:items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-6 lg:gap-8 items-start">
 
-            {/* ── Left: Company sidebar ── */}
-            <div className="rounded-2xl border border-slate-800 bg-slate-900 shadow-xl overflow-hidden">
-              {/* Title section */}
-              <div className="px-6 pt-6 pb-5 border-b border-slate-800">
-                <span className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-800/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                  <Building2 className="h-3 w-3" />
-                  Profil spółki przygotowany
-                </span>
-                <h2 className="mt-4 text-xl font-bold text-white leading-snug">
-                  Profil <span className="text-blue-400">{inviteData.company_name}</span> jest przygotowany.
-                </h2>
-                <p className="mt-2 text-sm text-slate-400 leading-6">
-                  Odblokuj dostęp do konfiguracji KSeF, danych spółki, checklisty po KRS i obsługi faktur.
-                </p>
-                {/* Company identity chips */}
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {companyTypeLabel && (
-                    <span className="rounded-full border border-slate-700/80 bg-slate-950/50 px-3 py-1 text-xs text-slate-300">
-                      {companyTypeLabel}
-                    </span>
-                  )}
-                  {inviteData.krs && (
-                    <span className="rounded-full border border-slate-700/80 bg-slate-950/50 px-3 py-1 text-xs text-slate-300">
-                      KRS {inviteData.krs}
-                    </span>
-                  )}
-                  {inviteData.nip && (
-                    <span className="rounded-full border border-slate-700/80 bg-slate-950/50 px-3 py-1 text-xs text-slate-300">
-                      NIP {inviteData.nip}
-                    </span>
-                  )}
-                  {inviteData.regon && (
-                    <span className="rounded-full border border-slate-700/80 bg-slate-950/50 px-3 py-1 text-xs text-slate-300">
-                      REGON {inviteData.regon}
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {/* Checklist rows + illustration */}
-              <div className="px-6 py-2 border-b border-slate-800 flex items-center gap-4">
-                <div className="flex-1 space-y-2.5">
-                  {INVITE_STATUS_ROWS.map((row) => (
-                    <div key={row} className="flex items-center gap-3">
-                      <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
-                      <span className="text-sm text-slate-300">{row}</span>
-                    </div>
-                  ))}
-                </div>
-                <img
-                  src="/email-assets/register-ksef.png"
-                  alt="KSeF i faktury"
-                  className="w-64 shrink-0 select-none opacity-90"
-                  draggable={false}
-                />
-              </div>
-
-              {/* Address */}
-              {(() => {
-                const addressLine = [inviteData.address, [inviteData.postal_code, inviteData.city].filter(Boolean).join(" ")].filter(Boolean).join(", ");
-                if (!addressLine) return null;
-                return (
-                  <div className="px-6 py-4 border-b border-slate-800">
-                    <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-slate-500 mb-1">
-                      <MapPin className="h-3 w-3" /> Adres
-                    </p>
-                    <p className="text-sm text-slate-300">{addressLine}</p>
-                  </div>
-                );
-              })()}
-
-              {/* Zarząd · Wspólnicy · Kapitał — inline row */}
-              {(() => {
-                const board = parsePersonList(inviteData.board_members);
-                const shareholders = parsePersonList(inviteData.shareholders);
-                const capital = inviteData.share_capital;
-                const cells = [
-                  board.length ? { label: "Zarząd", value: board.map((m) => m.name).join(", ") } : null,
-                  shareholders.length ? { label: "Wspólnicy", value: shareholders.map((s) => s.name).join(", ") } : null,
-                  capital !== null && capital !== undefined ? { label: "Kapitał", value: formatCapital(capital) } : null,
-                ].filter(Boolean) as { label: string; value: string }[];
-                if (!cells.length) return null;
-                return (
-                  <div className="border-b border-slate-800">
-                    <div className="grid px-6 py-4" style={{ gridTemplateColumns: `repeat(${cells.length}, 1fr)` }}>
-                      {cells.map((cell, i) => (
-                        <div key={cell.label} className={i > 0 ? "pl-4 border-l border-slate-800" : ""}>
-                          <p className="text-[10px] uppercase tracking-widest text-slate-500 mb-1">{cell.label}</p>
-                          <p className="text-xs text-slate-300 leading-snug">{cell.value}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })()}
-
-              {/* Invited email */}
-              <div className="px-6 py-4 bg-slate-950/30">
-                <p className="text-[10px] uppercase tracking-widest text-slate-500 mb-1">Zaproszenie dla</p>
-                <p className="text-sm font-medium text-white">{inviteData.recipient_email}</p>
-              </div>
+            {/* ── Left: Company sidebar (desktop only) ── */}
+            <div className="hidden lg:block">
+              <InviteCompanyCard invite={inviteData} />
             </div>
 
             {/* ── Right: Auth card ── */}
@@ -1001,6 +875,14 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
 
           </div>
         </div>
+
+        {/* Mobile overlay — same card shown on desktop left, as a bottom sheet */}
+        {showMobileOverlay && (
+          <InviteActivationOverlay
+            invite={inviteData}
+            onContinue={() => setShowMobileOverlay(false)}
+          />
+        )}
       </div>
     );
   }
