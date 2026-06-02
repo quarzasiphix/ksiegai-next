@@ -11,7 +11,7 @@ import {
   identifyInvitedUser,
   registerInviteAttribution,
 } from "../../lib/posthog/inviteAttribution";
-import { Mail, Lock, ExternalLink, UserRoundCheck, CheckCircle2 } from "lucide-react";
+import { Mail, Lock, ExternalLink, UserRoundCheck } from "lucide-react";
 import InviteActivationOverlay, { type FullInviteData } from "../../components/invites/InviteActivationOverlay";
 import { InviteCompanyCard } from "../../components/invites/InviteCompanyCard";
 
@@ -660,6 +660,158 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
     </div>
   ) : null;
 
+  // ─── Auth card for invited users ────────────────────────────────────────────
+  const inviteAuthCardContent = inviteData ? (
+    <>
+      {/* Google */}
+      <button
+        onClick={handleGoogle}
+        disabled={loading}
+        className="w-full flex items-center justify-center gap-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        <GoogleIcon className="h-5 w-5 shrink-0" />
+        Kontynuuj z Google
+      </button>
+
+      {isApplePlatform && (
+        <button
+          onClick={handleApple}
+          disabled={loading}
+          className="w-full flex items-center justify-center gap-3 bg-black hover:bg-gray-900 dark:bg-white dark:hover:bg-gray-100 text-white dark:text-black font-semibold py-3.5 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <AppleIcon className="h-5 w-5 shrink-0" />
+          Kontynuuj przez Apple
+        </button>
+      )}
+
+      <div className="flex items-center gap-3">
+        <div className="flex-1 border-t border-gray-200 dark:border-gray-700" />
+        <span className="text-xs text-gray-400 dark:text-gray-500">
+          {useMagicLink ? "lub wyślij link na ten adres" : "lub ustaw hasło"}
+        </span>
+        <div className="flex-1 border-t border-gray-200 dark:border-gray-700" />
+      </div>
+
+      {/* Locked invite email — read-only display, not an input */}
+      <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/60 px-4 py-3 flex items-center gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-0.5">
+            E-mail zaproszenia
+          </p>
+          <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+            {inviteData.recipient_email}
+          </p>
+        </div>
+        <Lock className="h-4 w-4 text-gray-300 dark:text-gray-600 shrink-0" />
+      </div>
+
+      {!useMagicLink ? (
+        <form onSubmit={handlePasswordRegister} className="space-y-3">
+          <div className="space-y-1.5">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Ustaw hasło, żeby odblokować dostęp i skonfigurować KSeF.
+            </p>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-400" />
+              <input
+                id="password"
+                name="password"
+                type="password"
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (showConfirm) { setShowConfirm(false); setPasswordConfirm(""); }
+                }}
+                onBlur={() => { if (password.length >= 6) setShowConfirm(true); }}
+                required
+                autoComplete="new-password"
+                placeholder="Hasło"
+                autoFocus
+                className="w-full pl-9 pr-4 py-3.5 rounded-xl border-2 border-blue-400 dark:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-0 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder:text-gray-400"
+              />
+            </div>
+          </div>
+
+          {showConfirm && (
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-400" />
+              <input
+                id="password-confirm"
+                name="password-confirm"
+                type="password"
+                value={passwordConfirm}
+                onChange={(e) => setPasswordConfirm(e.target.value)}
+                required
+                autoComplete="new-password"
+                autoFocus
+                placeholder="Powtórz hasło"
+                className="w-full pl-9 pr-4 py-3.5 rounded-xl border-2 border-blue-400 dark:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-0 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder:text-gray-400"
+              />
+            </div>
+          )}
+
+          {error && (
+            <p className="text-red-500 text-sm bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
+              {error}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? "Aktywowanie…" : "Odblokuj dostęp"}
+          </button>
+
+          <p className="text-center text-xs text-gray-400 dark:text-gray-500">
+            <button
+              type="button"
+              onClick={() => { setUseMagicLink(true); setError(null); }}
+              className="text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              Wyślij link zamiast hasła
+            </button>
+          </p>
+        </form>
+      ) : (
+        <form onSubmit={handleMagicLink} className="space-y-3">
+          {error && (
+            <p className="text-red-500 text-sm bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
+              {error}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? "Wysyłanie…" : "Wyślij link logowania"}
+          </button>
+
+          <p className="text-center text-xs text-gray-400 dark:text-gray-500">
+            <button
+              type="button"
+              onClick={() => { setUseMagicLink(false); setError(null); }}
+              className="text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              Wróć do rejestracji hasłem
+            </button>
+          </p>
+        </form>
+      )}
+
+      <p className="text-center text-xs text-gray-400 dark:text-gray-500 pt-1">
+        Rejestrując się, akceptujesz{" "}
+        <a href="/regulamin" className="hover:underline">Regulamin</a>{" "}
+        i{" "}
+        <a href="/polityka-prywatnosci" className="hover:underline">Politykę prywatności</a>.
+      </p>
+    </>
+  ) : null;
+
+  // ─── Auth card for regular (non-invited) users ───────────────────────────────
   const authCardContent = (
     <>
       {/* OAuth */}
@@ -669,7 +821,7 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
         className="w-full flex items-center justify-center gap-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <GoogleIcon className="h-5 w-5 shrink-0" />
-        {inviteData ? "Kontynuuj z Google" : "Kontynuuj przez Google"}
+        Kontynuuj przez Google
       </button>
 
       {isApplePlatform && (
@@ -694,11 +846,7 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
       {!useMagicLink ? (
         <form onSubmit={handlePasswordRegister} className="space-y-3">
           <div className="relative">
-            {inviteData ? (
-              <CheckCircle2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-500" />
-            ) : (
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            )}
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
               id="email"
               name="email"
@@ -710,16 +858,11 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
               autoCapitalize="none"
               autoCorrect="off"
               placeholder="twoj@email.pl"
-              className={`w-full pl-9 pr-4 py-3 border rounded-xl focus:ring-2 focus:border-transparent text-sm ${inviteData ? "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-700 text-gray-900 dark:text-white focus:ring-emerald-400" : "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500"}`}
+              className="w-full pl-9 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             />
           </div>
-          {inviteData && (
-            <p className="text-xs text-gray-500 dark:text-gray-400 -mb-1">
-              Ustaw hasło, aby odblokować dostęp do profilu spółki.
-            </p>
-          )}
           <div className="relative">
-            <Lock className={`absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 ${inviteData ? "text-blue-400" : "text-gray-400"}`} />
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
               id="password"
               name="password"
@@ -733,13 +876,12 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
               required
               autoComplete="new-password"
               placeholder="Hasło (min. 6 znaków)"
-              autoFocus={!!inviteData}
-              className={`w-full pl-9 pr-4 py-3 rounded-xl focus:outline-none focus:border-transparent text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${inviteData ? "border-2 border-blue-400 dark:border-blue-500 focus:ring-2 focus:ring-blue-400" : "border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500"}`}
+              className="w-full pl-9 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             />
           </div>
           {showConfirm && (
             <div className="relative">
-              <Lock className={`absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 ${inviteData ? "text-blue-400" : "text-gray-400"}`} />
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <input
                 id="password-confirm"
                 name="password-confirm"
@@ -750,7 +892,7 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
                 autoComplete="new-password"
                 autoFocus
                 placeholder="Powtórz hasło"
-                className={`w-full pl-9 pr-4 py-3 rounded-xl focus:outline-none focus:border-transparent text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${inviteData ? "border-2 border-blue-400 dark:border-blue-500 focus:ring-2 focus:ring-blue-400" : "border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500"}`}
+                className="w-full pl-9 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               />
             </div>
           )}
@@ -766,7 +908,7 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
             disabled={loading}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? "Zakładanie konta…" : inviteData ? "Aktywuj dostęp" : "Załóż konto"}
+            {loading ? "Zakładanie konta…" : "Załóż konto"}
           </button>
 
           <p className="text-center text-xs text-gray-400 dark:text-gray-500">
@@ -783,11 +925,7 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
       ) : (
         <form onSubmit={handleMagicLink} className="space-y-3">
           <div className="relative">
-            {inviteData ? (
-              <CheckCircle2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-emerald-500" />
-            ) : (
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            )}
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
               id="email-magic"
               name="email"
@@ -799,7 +937,7 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
               autoCapitalize="none"
               autoCorrect="off"
               placeholder="twoj@email.pl"
-              className={`w-full pl-9 pr-4 py-3 border rounded-xl focus:ring-2 focus:border-transparent text-sm ${inviteData ? "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-700 text-gray-900 dark:text-white focus:ring-emerald-400" : "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500"}`}
+              className="w-full pl-9 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             />
           </div>
 
@@ -856,11 +994,11 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
               <div className="text-center mb-4">
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Odblokuj dostęp</h1>
                 <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                  Aktywuj profil {inviteData.company_name}
+                  Aktywuj profil {inviteData.company_name} i przejdź do konfiguracji KSeF.
                 </p>
               </div>
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-7 space-y-4">
-                {authCardContent}
+                {inviteAuthCardContent}
               </div>
               <div className="mt-5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40 p-4 text-center">
                 <p className="text-sm text-gray-600 dark:text-gray-400">Masz już konto w KsięgaI?</p>
@@ -868,7 +1006,7 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
                   href="/logowanie"
                   className="mt-2 inline-block w-full rounded-xl border border-blue-300 dark:border-blue-700 py-2.5 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
                 >
-                  Zaloguj się i dołącz do {inviteData.company_name}
+                  Zaloguj się i połącz z zaproszeniem
                 </a>
               </div>
             </div>
