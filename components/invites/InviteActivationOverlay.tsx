@@ -55,10 +55,22 @@ export default function InviteActivationOverlay({ invite, onContinue }: Props) {
 
         {/* CTA */}
         <div className="bg-slate-900 border-t border-slate-800 px-5 py-4">
+          <style>{`
+            @keyframes invite-btn-shimmer {
+              0%   { background-position: 0% 50%; }
+              50%  { background-position: 100% 50%; }
+              100% { background-position: 0% 50%; }
+            }
+            .invite-cta-btn {
+              background: linear-gradient(270deg, #1d4ed8, #3b82f6, #2563eb, #60a5fa, #2563eb);
+              background-size: 300% 300%;
+              animation: invite-btn-shimmer 3s ease infinite;
+            }
+          `}</style>
           <button
             type="button"
             onClick={onContinue}
-            className="w-full flex items-center justify-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold py-4 text-sm transition-colors"
+            className="invite-cta-btn w-full flex items-center justify-center gap-2 rounded-xl text-white font-semibold py-4 text-sm"
           >
             Dalej — odblokuj dostęp
             <ArrowRight className="h-4 w-4" />
