@@ -707,28 +707,55 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
 
       {!useMagicLink ? (
         <form onSubmit={handlePasswordRegister} className="space-y-3">
+          {/* Hidden email field so browsers associate the password with the right account */}
+          <input
+            type="email"
+            name="email"
+            autoComplete="username"
+            value={email}
+            readOnly
+            tabIndex={-1}
+            aria-hidden="true"
+            style={{ position: "absolute", width: 0, height: 0, opacity: 0, pointerEvents: "none" }}
+          />
           <div className="space-y-1.5">
             <p className="text-xs text-gray-500 dark:text-gray-400">
               Ustaw hasło, żeby odblokować dostęp i skonfigurować KSeF.
             </p>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-400" />
-              <input
-                id="password"
-                name="password"
-                type="password"
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  if (showConfirm) { setShowConfirm(false); setPasswordConfirm(""); }
-                }}
-                onBlur={() => { if (password.length >= 6) setShowConfirm(true); }}
-                required
-                autoComplete="new-password"
-                placeholder="Hasło"
-                autoFocus
-                className="w-full pl-9 pr-4 py-3.5 rounded-xl border-2 border-blue-400 dark:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-0 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder:text-gray-400"
-              />
+            <style>{`
+              @keyframes pw-border-shimmer {
+                0%   { background-position: 0% 50%; }
+                50%  { background-position: 100% 50%; }
+                100% { background-position: 0% 50%; }
+              }
+              .pw-gradient-border {
+                background: linear-gradient(270deg, #1d4ed8, #3b82f6, #60a5fa, #3b82f6, #1d4ed8);
+                background-size: 300% 300%;
+                animation: pw-border-shimmer 3s ease infinite;
+                padding: 2px;
+                border-radius: 13px;
+              }
+            `}</style>
+            <div className="pw-gradient-border">
+              <div className="relative rounded-[11px] overflow-hidden bg-white dark:bg-gray-700">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-400 z-10" />
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (showConfirm) { setShowConfirm(false); setPasswordConfirm(""); }
+                  }}
+                  onBlur={() => { if (password.length >= 6) setShowConfirm(true); }}
+                  required
+                  autoComplete="new-password"
+                  placeholder="Hasło"
+                  autoFocus
+                  className="w-full pl-9 pr-4 py-3.5 border-0 focus:outline-none focus:ring-0 text-sm bg-transparent text-gray-900 dark:text-white placeholder:text-gray-400"
+                />
+              </div>
             </div>
           </div>
 
