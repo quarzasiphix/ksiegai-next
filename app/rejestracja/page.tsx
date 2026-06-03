@@ -368,6 +368,11 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
             invite_business_profile_id: business_profile_id,
             ...(campaign_source ? { invite_campaign_source: campaign_source } : {}),
           });
+          // Store the registration session so admin can link to it from the invite page
+          const registrationSessionId = (posthog as any)?.get_session_id?.();
+          if (registrationSessionId) {
+            void (supabase.rpc as any)("update_posthog_session", { p_session_id: registrationSessionId }).catch(() => {});
+          }
           posthog.capture("invite_claimed", { business_profile_id, company_name, invite_id });
           captureInviteEvent("business_activated", {
             business_profile_id,
