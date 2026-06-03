@@ -1982,6 +1982,165 @@ Niezależnie od formy — zaraz po rejestracji czeka Cię kilka kroków: konto b
     category: fallbackWikiCategories[3],
   },
 
+  {
+    id: 'fallback-rejestracja-spolki-s24',
+    slug: 'rejestracja-spolki-zoo-ekrs-s24',
+    title: 'Jak zarejestrować spółkę z o.o. przez eKRS S24 — krok po kroku',
+    excerpt: 'S24 to najszybszy i najtańszy sposób rejestracji sp. z o.o. — bez notariusza, przez internet. Kluczowy warunek: każda osoba podpisująca umowę spółki musi mieć własny podpis kwalifikowany lub profil zaufany.',
+    summary: 'Przewodnik po rejestracji spółki z o.o. w systemie eKRS S24 — co przygotować, jak działają podpisy elektroniczne i co zrobić zaraz po wpisie do KRS.',
+    purpose: 'S24 rejestruje spółkę zwykle w 1 dzień roboczy za 250 zł. Ale jedna nieprzygotowana osoba bez profilu zaufanego może zablokować cały proces. Ten poradnik wyjaśnia jak to działa, zanim zaczniesz.',
+    body_markdown: `## Czym jest eKRS S24
+
+S24 to system elektronicznej rejestracji spółki z o.o. przez internet, prowadzony przez Ministerstwo Sprawiedliwości. Nie potrzebujesz notariusza — cały proces odbywa się online, a umowa spółki opiera się na ustandaryzowanym wzorcu.
+
+**Główne różnice wobec rejestracji notarialnej:**
+
+| | S24 (online) | Notariusz |
+|---|---|---|
+| Koszt opłaty sądowej | 250 zł | 600 zł |
+| Czas rozpatrzenia | ~1 dzień roboczy | kilka dni roboczych |
+| Umowa spółki | standardowy wzorzec | dowolna treść |
+| Wymaga profilu zaufanego / podpisu | tak — każda osoba | tak — u notariusza |
+
+S24 jest odpowiedni, gdy struktura spółki jest prosta i nie potrzebujesz niestandardowych zapisów w umowie.
+
+## Kto musi mieć podpis kwalifikowany lub profil zaufany
+
+To najważniejsza rzecz do sprawdzenia przed dniem złożenia wniosku. **Każda osoba, która podpisuje umowę spółki w S24, musi mieć własny środek identyfikacji elektronicznej.** Nie można podpisać za kogoś innego.
+
+Umowę spółki podpisują **wszyscy wspólnicy**. Jeżeli członkowie zarządu są jednocześnie wspólnikami — co jest typową sytuacją przy zakładaniu nowej spółki — podpisują jako wspólnicy.
+
+Dostępne środki podpisu w S24:
+
+- **Profil zaufany (ePUAP)** — bezpłatny, zakłada się przez mObywatel lub bankowość internetową. Wystarczający dla obywateli polskich z numerem PESEL. Najwygodniejsza opcja.
+- **Podpis kwalifikowany (KPE)** — płatny (~100–250 zł/rok, wydawany przez certyfikowane centra). Wymagany dla cudzoziemców bez PESEL-u lub gdy profil zaufany jest niedostępny.
+- **Podpis osobisty (e-Dowód)** — wymaga dowodu z chipem i zainstalowanej aplikacji. Rzadziej używany w praktyce.
+
+**Praktyczna konsekwencja:** jeśli rejestrujesz spółkę razem z kilkoma wspólnikami, każda z tych osób musi mieć aktywny profil zaufany lub podpis kwalifikowany *przed* dniem składania wniosku. Jeden nieprzygotowany wspólnik blokuje cały proces — wniosek nie zostanie złożony, dopóki wszyscy nie podpiszą.
+
+## Co przygotować przed złożeniem wniosku
+
+Zbierz poniższe dane dla każdej osoby i dla samej spółki:
+
+**Dane wspólników i zarządu:**
+- imię i nazwisko
+- numer PESEL
+- adres zamieszkania
+- aktywny środek podpisu (profil zaufany / podpis kwalifikowany)
+
+**Dane spółki:**
+- proponowana nazwa spółki (z dopiskiem "spółka z ograniczoną odpowiedzialnością" lub "sp. z o.o.")
+- adres siedziby
+- przedmiot działalności (kody PKD — minimum jeden przewodni kod)
+- wysokość kapitału zakładowego (minimum **5 000 zł**)
+- podział udziałów między wspólnikami (każdy udział minimum 50 zł)
+- skład zarządu i sposób reprezentacji (jednoosobowo lub łącznie)
+
+## Krok po kroku — rejestracja w S24
+
+1. Wejdź na portal **ekrs.ms.gov.pl** i zaloguj się przez profil zaufany lub podpis kwalifikowany.
+2. Wybierz ścieżkę rejestracji spółki z o.o. przez wzorzec umowy.
+3. Wypełnij formularz: nazwa spółki, siedziba, PKD, kapitał, wspólnicy, zarząd.
+4. Przejrzyj wygenerowany wzorzec umowy spółki — to standardowy dokument, którego treści nie możesz edytować.
+5. Wyślij zaproszenie do podpisania do każdego ze wspólników — portal generuje link dla każdej osoby.
+6. **Każda osoba loguje się do portalu osobno** i składa swój podpis swoim profilem zaufanym lub podpisem kwalifikowanym. Podpisy są zbierane sekwencyjnie — nie muszą odbywać się jednocześnie, ale wszyscy muszą podpisać przed złożeniem wniosku.
+7. Po zebraniu wszystkich podpisów, wnioskodawca (zazwyczaj jedna z osób zakładających spółkę) składa wniosek i opłaca **250 zł** opłaty sądowej.
+8. Wniosek trafia do sądu rejestrowego. Przy braku błędów formalnych wpis do KRS następuje zwykle w **1 dzień roboczy**.
+
+## Czego wzorzec S24 nie pozwala zmienić
+
+Rejestracja przez S24 wiąże się z jednym istotnym ograniczeniem — umowa spółki jest gotowym wzorcem. Nie możesz wprowadzić:
+
+- niestandardowych praw i obowiązków wspólników
+- uprzywilejowania udziałów (np. dodatkowych głosów lub preferencyjnej dywidendy)
+- ograniczeń zbywalności udziałów wykraczających poza standardowe
+- własnych zasad umorzenia udziałów
+- szczegółowych zasad podejmowania uchwał innych niż przewiduje kodeks
+
+Jeśli potrzebujesz któregokolwiek z powyższych, musisz zarejestrować spółkę **notarialnie**.
+
+## Co dostajesz po wpisie do KRS
+
+Po skutecznej rejestracji spółka automatycznie otrzymuje:
+
+- **numer KRS** — widoczny od razu
+- **NIP** — nadawany automatycznie przez US, pojawia się w KRS po kilku dniach
+- **REGON** — nadawany automatycznie przez GUS, pojawia się w KRS po kilku dniach
+
+Aktualny stan wpisu sprawdzisz w wyszukiwarce KRS na **ekrs.ms.gov.pl** lub przez **rejestr.io**.
+
+## Co zrobić zaraz po wpisie
+
+Wpis do KRS to dopiero początek. Zaraz po rejestracji masz do wykonania kilka obowiązkowych i pilnych kroków — sprawdź checklistę po prawej stronie. Najważniejsze z terminami:
+
+- **14 dni od wpisu** — zgłoszenie beneficjentów rzeczywistych do **CRBR** (sankcja: do 1 mln zł)
+- **jak najszybciej** — **konto bankowe dla spółki** (potrzebne do wpłaty kapitału i płatności)
+- **jak najszybciej** — **NIP-8** (zgłoszenie uzupełniające: rachunek bankowy, PKD, dane kontaktowe)
+- **do 3 miesięcy** — **e-Doręczenia** (skrzynka do korespondencji urzędowej)
+- **przed pierwszą transakcją** — **rejestracja VAT**, jeśli chcesz być vatowcem od razu
+`,
+    checklist: [
+      'Sprawdź, czy WSZYSCY wspólnicy i zarząd mają aktywny profil zaufany lub podpis kwalifikowany.',
+      'Przygotuj dane osobowe wszystkich wspólników i zarządu (imię, nazwisko, PESEL, adres).',
+      'Ustal podział udziałów i wysokość kapitału zakładowego (min. 5 000 zł, min. 50 zł na udział).',
+      'Wybierz kody PKD (przedmiot działalności) — co najmniej jeden przewodni.',
+      'Ustal adres siedziby spółki.',
+      'Zaloguj się do portalu ekrs.ms.gov.pl i utwórz wniosek rejestracyjny.',
+      'Zaproś wszystkich wspólników do podpisania — każda osoba podpisuje osobno swoim profilem zaufanym lub podpisem kwalifikowanym.',
+      'Opłać wniosek (250 zł) i złóż po zebraniu wszystkich podpisów.',
+      'Sprawdź wpis w KRS — NIP i REGON pojawią się po kilku dniach.',
+      'W ciągu 14 dni od wpisu: zgłoś beneficjentów rzeczywistych do CRBR.',
+      'Jak najszybciej: otwórz konto bankowe dla spółki.',
+      'Złóż NIP-8 (zgłoszenie uzupełniające z rachunkiem bankowym i danymi kontaktowymi).',
+      'Aktywuj skrzynkę e-Doręczeń dla spółki.',
+      'Zdecyduj o rejestracji VAT przed pierwszą transakcją (jeśli planujesz być vatowcem).',
+      'Rozważ połączenie spółki z KSeF, gdy stanie się obowiązkowy lub gdy chcesz działać przed terminem.',
+    ],
+    official_links: [
+      { href: 'https://ekrs.ms.gov.pl/', label: 'Portal eKRS — rejestracja przez S24', external: true },
+      { href: 'https://www.gov.pl/web/gov/zaloz-spolke-z-ograniczona-odpowiedzialnoscia-przez-internet', label: 'Gov.pl — rejestracja sp. z o.o. online', external: true },
+      { href: 'https://www.podatki.gov.pl/crbr/', label: 'CRBR — zgłoszenie beneficjentów', external: true },
+      { href: 'https://www.biznes.gov.pl/pl/portal/ou66', label: 'Biznes.gov.pl — NIP-8', external: true },
+      { href: 'https://ekrs.ms.gov.pl/rdf/pd/search_df', label: 'Wyszukiwarka KRS', external: true },
+    ],
+    related_actions: [
+      { label: 'Zgłoszenie do CRBR po rejestracji', href: '/poradnik/crbr-spolka-zoo-co-zglosic' },
+      { label: 'NIP-8 po rejestracji spółki', href: '/poradnik/nip-8-spolka-zoo' },
+      { label: 'Pierwsze kroki po rejestracji spółki', href: '/poradnik/pierwsze-kroki-po-rejestracji-spolki-zoo' },
+    ],
+    faq: [
+      {
+        question: 'Czy profil zaufany wystarczy do podpisania umowy spółki w S24?',
+        answer: 'Tak — profil zaufany jest akceptowaną formą podpisu w S24 dla osób fizycznych z numerem PESEL. Jest bezpłatny i można go założyć przez mObywatel lub bankowość internetową.',
+      },
+      {
+        question: 'Co jeśli jeden ze wspólników nie ma profilu zaufanego?',
+        answer: 'Wniosek nie może zostać złożony, dopóki wszyscy wspólnicy nie złożą podpisu. Wspólnik bez profilu zaufanego musi go założyć lub uzyskać podpis kwalifikowany przed złożeniem wniosku. Alternatywą jest rejestracja notarialna.',
+      },
+      {
+        question: 'Czy wspólnicy muszą podpisywać umowę jednocześnie?',
+        answer: 'Nie — każda osoba loguje się do portalu eKRS osobno i podpisuje w swoim czasie. Wniosek zostaje złożony dopiero po zebraniu wszystkich podpisów.',
+      },
+      {
+        question: 'Ile trwa rejestracja przez S24?',
+        answer: 'Przy braku błędów formalnych sąd rejestrowy rozpatruje wniosek S24 zazwyczaj w 1 dzień roboczy. NIP i REGON są nadawane automatycznie i pojawiają się w KRS po kilku dniach.',
+      },
+      {
+        question: 'Czy przez S24 mogę zmienić cokolwiek w umowie spółki?',
+        answer: 'Nie. Wzorzec umowy S24 jest ustandaryzowany i nie podlega edycji. Jeśli potrzebujesz niestandardowych zapisów (np. uprzywilejowanie udziałów, szczególne zasady zbywalności), musisz zarejestrować spółkę notarialnie.',
+      },
+      {
+        question: 'Ile wynosi minimalny kapitał zakładowy sp. z o.o.?',
+        answer: '5 000 zł. Każdy udział musi wynosić minimum 50 zł. Kapitał można wnieść gotówką po rejestracji — na otwarty rachunek bankowy spółki.',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 10,
+    published_at: '2026-06-03T00:00:00.000Z',
+    updated_at: '2026-06-03T00:00:00.000Z',
+    category: fallbackWikiCategories[3],
+  },
+
   // ─── KATEGORIA: uchwaly-decyzje (fallbackWikiCategories[6]) ─────────────────
 
   {
