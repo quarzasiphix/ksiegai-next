@@ -94,6 +94,13 @@ export const fallbackWikiCategories: FallbackWikiCategory[] = [
     description: 'Praktyczne wyjaśnienia struktur prawnych i podatkowych: JDG, spółka z o.o., holdingi, fundusz rodzinny, spółki osobowe i podstawy międzynarodowego planowania podatkowego.',
     sort_order: 55,
   },
+  {
+    id: 'fallback-deklaracje',
+    slug: 'deklaracje',
+    name: 'Deklaracje',
+    description: 'Praktyczny przewodnik po deklaracjach i formularzach podatkowych dla JDG i spółki z o.o. — JPK, VAT, ZUS, PIT, CIT i inne. Co to jest, kogo dotyczy i kiedy trzeba złożyć.',
+    sort_order: 60,
+  },
 ];
 
 export const fallbackWikiArticles: FallbackWikiArticle[] = [
@@ -3862,6 +3869,1285 @@ KSH nie określa wprost sposobu archiwizacji, ale przepisy o rachunkowości wyma
     published_at: '2026-05-26T00:00:00.000Z',
     updated_at: '2026-05-26T00:00:00.000Z',
     category: fallbackWikiCategories[8],
+  },
+
+  // ─── Deklaracje: CEIDG-1 ─────────────────────────────────────────────────────
+  {
+    id: 'fallback-ceidg-1',
+    slug: 'ceidg-1-jdg',
+    title: 'CEIDG-1 — co to jest i kiedy JDG składa wniosek',
+    excerpt: 'CEIDG-1 to podstawowy formularz JDG: rejestrujesz firmę, zmieniasz dane, zawieszasz lub zamykasz działalność. Bez niego nie ma wpisu do CEIDG.',
+    summary: 'Przewodnik po formularzu CEIDG-1 dla JDG: kiedy go składasz, co można zmienić, ile masz czasu na aktualizację i jak to zrobić elektronicznie.',
+    purpose: 'Właściciele JDG często nie wiedzą, że zmiana adresu, rachunku bankowego czy kodu PKD wymaga aktualizacji CEIDG-1. Ten poradnik wyjaśnia kiedy i jak.',
+    body_markdown: `## Co to jest CEIDG-1?
+
+CEIDG-1 to formularz zgłoszenia do Centralnej Ewidencji i Informacji o Działalności Gospodarczej. Wypełniasz go kiedy:
+
+- **rejestrujesz JDG** — to Twój pierwszy kontakt z CEIDG
+- **zmieniasz dane firmy** — adres, nazwę, kody PKD, formę opodatkowania, rachunek bankowy
+- **zawieszasz działalność** — na okres od 30 dni do 24 miesięcy
+- **wznawiasz działalność** po zawieszeniu
+- **zamykasz JDG** — wykreślenie z CEIDG
+
+Jeden formularz, pięć zastosowań.
+
+## Kogo dotyczy?
+
+Wyłącznie osoby fizyczne prowadzące jednoosobową działalność gospodarczą (JDG). Spółka z o.o. nie korzysta z CEIDG — spółka rejestruje się i zgłasza zmiany przez KRS i formularz NIP-8.
+
+## Kiedy jest potrzebna?
+
+- **Rejestracja:** możesz to zrobić w dniu startu lub z datą wsteczną do 7 dni — wpis do CEIDG jest bezpłatny i natychmiastowy.
+- **Zmiana danych:** masz **7 dni roboczych** od zaistnienia zmiany. Niedotrzymanie terminu jest niezgodne z prawem.
+- **Zawieszenie / wznowienie / zamknięcie:** składasz wniosek we wskazanym dniu.
+
+## Kto zwykle to składa?
+
+Właściciel JDG samodzielnie, przez:
+- **biznes.gov.pl** (online, przez profil zaufany lub e-dowód) — najwygodniejsza ścieżka
+- Urząd Gminy lub Miasta — jeśli wolisz papierowo lub nie masz profilu zaufanego
+
+Biuro rachunkowe może pomóc przygotować formularz, ale samo złożenie wymaga Twojego logowania lub podpisu.
+
+## JDG vs spółka z o.o.
+
+| | JDG | Spółka z o.o. |
+|---|---|---|
+| Formularz rejestracji | CEIDG-1 (CEIDG) | KRS / formularz S24 |
+| Termin na aktualizację danych | 7 dni roboczych | 7 dni od zdarzenia |
+| Kto składa zmiany | Właściciel osobiście | Zarząd przez KRS |
+| Koszt rejestracji | Bezpłatny | Bezpłatny (S24) lub notarialny |
+
+Spółka z o.o. nie składa CEIDG-1 — zmienia dane przez KRS i formularz NIP-8.
+
+## Najczęstsze błędy
+
+- **Brak aktualizacji po zmianie adresu lub rachunku bankowego** — masz 7 dni roboczych. Stare dane w CEIDG mogą blokować zwroty podatkowe lub prowadzić do problemów z korespondencją urzędową.
+- **Zapomnienie o zmianie formy opodatkowania** — jeśli chcesz w nowym roku rozliczać się ryczałtem lub podatkiem liniowym, musisz zmienić to w CEIDG do 20 dnia miesiąca po uzyskaniu pierwszego dochodu, albo złożyć oświadczenie do końca roku.
+- **Niezamknięcie JDG po zaprzestaniu działalności** — jeśli zapomniałeś wykreślić firmę z CEIDG, formalnie nadal istnieje.
+
+## Jak KsięgaI może pomóc
+
+CEIDG-1 to formularz zewnętrzny — KsięgaI nie składa go za Ciebie do CEIDG. Ale aplikacja może pomóc:
+- **Pilnować dokumentacji firmy** tak, żebyś wiedział kiedy coś wymaga aktualizacji
+- **Wskazać powiązane kroki** — np. jeśli zmieniasz formę opodatkowania, warto zaktualizować też ustawienia konta i kategoryzację przychodów
+- Gdy Twoje biuro rachunkowe korzysta z KsięgaI — ma aktualny obraz dokumentów firmy i może szybko reagować na zmiany
+
+> **Informacja ogólna:** Ten artykuł ma charakter edukacyjny i nie stanowi porady podatkowej. Terminy i zasady mogą się różnić w zależności od Twojej sytuacji — przed ważnymi zmianami skonsultuj się z biurem rachunkowym.`,
+    checklist: [
+      'Sprawdź, czy wszystkie dane w CEIDG są aktualne (adres, PKD, forma opodatkowania, rachunek bankowy).',
+      'Po każdej zmianie danych — złóż aktualizację CEIDG-1 w ciągu 7 dni roboczych.',
+      'Przed zmianą formy opodatkowania — sprawdź termin złożenia oświadczenia (zwykle do 20. dnia miesiąca lub do końca roku).',
+      'Po zawieszeniu działalności pamiętaj o wznowieniu lub formalnym zamknięciu.',
+    ],
+    official_links: [
+      { label: 'Rejestracja i zmiana danych JDG — biznes.gov.pl', href: 'https://www.biznes.gov.pl/pl/portal/001', external: true },
+      { label: 'CEIDG — Centralny Rejestr', href: 'https://www.biznes.gov.pl/pl/firma/zakladanie-firmy/chce-zarejestrowac-dzialalnosc-jednoosobowa-firme/proc_482-rejestracja-dzialalnosci-gospodarczej-w-ceidg', external: true },
+    ],
+    related_actions: [
+      { label: 'Pierwsze obowiązki po rejestracji spółki', href: '/poradnik/pierwsze-obowiazki-po-zalozeniu-spolki-zoo' },
+      { label: 'VAT-R — rejestracja VAT', href: '/poradnik/vat-r-rejestracja-vatowca' },
+      { label: 'ZUS DRA — deklaracja ZUS', href: '/poradnik/zus-dra-deklaracja-zus' },
+    ],
+    faq: [
+      {
+        question: 'Czy CEIDG-1 trzeba składać co roku?',
+        answer: 'Nie. CEIDG-1 składasz tylko przy rejestracji i kiedy coś się zmienia (dane, forma opodatkowania, adres, zawieszenie, zamknięcie). Nie ma obowiązku corocznego potwierdzania.',
+      },
+      {
+        question: 'Ile czasu mam na zgłoszenie zmiany adresu w CEIDG?',
+        answer: '7 dni roboczych od dnia, w którym zmiana nastąpiła. Warto zrobić to od razu — opóźnienie może powodować problemy z korespondencją urzędową i zwrotami podatkowymi.',
+      },
+      {
+        question: 'Czy biuro rachunkowe może złożyć CEIDG-1 za mnie?',
+        answer: 'Biuro może pomóc przygotować formularz, ale samo złożenie online wymaga Twojego logowania profilem zaufanym lub e-dowodem. Papierowo możesz udzielić pełnomocnictwa.',
+      },
+      {
+        question: 'Czy spółka z o.o. rejestruje się przez CEIDG-1?',
+        answer: 'Nie. Spółka z o.o. rejestruje się w Krajowym Rejestrze Sądowym (KRS) przez formularz S24 lub notarialnie. CEIDG-1 dotyczy wyłącznie JDG.',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 10,
+    published_at: '2026-06-06T00:00:00.000Z',
+    updated_at: '2026-06-06T00:00:00.000Z',
+    category: fallbackWikiCategories[9],
+  },
+
+  // ─── Deklaracje: JPK_V7 ───────────────────────────────────────────────────────
+  {
+    id: 'fallback-jpk-v7',
+    slug: 'jpk-v7-deklaracja-vat',
+    title: 'JPK_V7 — co to jest i kto musi składać co miesiąc',
+    excerpt: 'JPK_V7 to obowiązkowy miesięczny plik vatowca. Łączy rejestr VAT z deklaracją w jednym pliku XML — zastąpił stare VAT-7 i JPK_VAT.',
+    summary: 'Przewodnik po JPK_V7: czym jest, kto i kiedy składa, co zawiera plik oraz jak KsięgaI automatyzuje ten obowiązek.',
+    purpose: 'Vatowcy często słyszą "JPK" i "VAT-7" naprzemiennie, nie wiedząc, że to teraz jedna wspólna deklaracja. Ten poradnik wyjaśnia co i kiedy składasz.',
+    body_markdown: `## Co to jest JPK_V7?
+
+JPK_V7 (Jednolity Plik Kontrolny dla podatku VAT) to obowiązkowy plik XML, który każdy czynny podatnik VAT składa co miesiąc lub co kwartał do Urzędu Skarbowego.
+
+Zastąpił stare formularze:
+- VAT-7 i VAT-7K (dawna deklaracja VAT)
+- JPK_VAT (dawny rejestr VAT w formacie JPK)
+
+Teraz są one **połączone w jeden plik**: JPK_V7 zawiera i rejestr faktur, i część deklaracyjną. Dwa obowiązki w jednym kroku.
+
+Istnieją dwa warianty:
+- **JPK_V7M** — dla podatników rozliczających VAT **miesięcznie**
+- **JPK_V7K** — dla podatników rozliczających VAT **kwartalnie** (pierwsze dwa miesiące kwartału mają tylko część ewidencyjną; trzeci miesiąc zawiera pełną deklarację)
+
+## Kogo dotyczy?
+
+Wszystkich czynnych podatników VAT — zarówno JDG, jak i spółek z o.o. — niezależnie od wielkości przychodów. Obowiązek zaczyna się od momentu rejestracji jako czynny podatnik VAT (formularz VAT-R).
+
+Firmy zwolnione z VAT (małe firmy poniżej progu lub zwolnione podmiotowo) **nie składają JPK_V7**.
+
+## Kiedy jest potrzebna?
+
+- **JPK_V7M:** do **25. dnia** następnego miesiąca (np. za styczeń — do 25 lutego)
+- **JPK_V7K:** do 25. dnia po zakończeniu kwartału (pełna deklaracja); dla miesięcy 1. i 2. kwartału — do 25. dnia następnego miesiąca (sama ewidencja)
+
+Jeśli 25. wypada w weekend lub święto — termin przesuwa się na następny dzień roboczy.
+
+## Kto zwykle to składa?
+
+Biuro rachunkowe lub główna księgowa na podstawie danych z systemu fakturowego. W praktyce:
+- zbiera faktury sprzedaży i zakupu za miesiąc
+- wgrywa je do systemu JPK
+- generuje i wysyła plik elektronicznie przez JPK Portal lub oprogramowanie księgowe
+
+Jako właściciel Twoje zadanie to dostarczyć kompletne dokumenty na czas.
+
+## JDG vs spółka z o.o.
+
+| | JDG | Spółka z o.o. |
+|---|---|---|
+| Obowiązek JPK_V7 | Tak (jeśli czynny vatowiec) | Tak (jeśli czynny vatowiec) |
+| Kto podpisuje plik | Właściciel lub pełnomocnik (UPL-1) | Zarząd lub pełnomocnik (UPL-1) |
+| Termin | Do 25. dnia następnego miesiąca | Do 25. dnia następnego miesiąca |
+| Stawka VAT | Zależy od działalności | Zależy od działalności |
+
+Zasady są identyczne — różni się tylko kto podpisuje i kto jest podatnikiem.
+
+## Najczęstsze błędy
+
+- **Brakujące faktury kosztowe** — jeśli nie dostarczysz wszystkich faktur kosztowych biuru, VAT naliczony nie zostanie ujęty, a nadpłacisz podatek.
+- **Faktury z błędnym NIP nabywcy** — błędny NIP w fakturze zakupowej może skutkować zakwestionowaniem odliczenia VAT przy kontroli.
+- **Opóźnione dostarczenie dokumentów biuru** — biuro rachunkowe nie może zamknąć pliku JPK bez kompletnych danych. Opóźnienie z Twojej strony = opóźnienie w złożeniu.
+- **Korekty JPK** — jeśli po złożeniu znajdziesz błąd, trzeba złożyć korektę. Warto sprawdzać dokumenty przed terminem, nie po.
+
+## Jak KsięgaI może pomóc
+
+KsięgaI integruje się z KSeF i automatycznie pobiera faktury sprzedaży i zakupu. Dla biura rachunkowego oznacza to:
+- faktury sprzedaży są już w systemie i gotowe do importu do JPK
+- dokumenty kosztowe mają OCR i kategoryzację
+- dopasowanie płatności bankowych do faktur jest automatyczne
+
+Biuro rachunkowe lub księgowa mają kompletny, porządny zestaw danych bez konieczności ręcznego zbierania dokumentów.
+
+> **Informacja ogólna:** Ten artykuł ma charakter edukacyjny i nie stanowi porady podatkowej. Zasady JPK_V7 mogą zależeć od Twojej formy rozliczeń VAT i rodzaju działalności — szczegóły potwierdź z biurem rachunkowym.`,
+    checklist: [
+      'Sprawdź, czy jesteś czynnym podatnikiem VAT — jeśli tak, obowiązuje Cię JPK_V7.',
+      'Ustal z biurem rachunkowym termin dostarczania dokumentów przed 25. dniem miesiąca.',
+      'Zbieraj faktury kosztowe na bieżąco — nie odkładaj na koniec miesiąca.',
+      'Sprawdź czy faktury zakupowe mają poprawny NIP wystawcy i nabywcy.',
+      'Jeśli wdrażasz KSeF — przekaż biuru dostęp, żeby mogło pobierać faktury automatycznie.',
+    ],
+    official_links: [
+      { label: 'JPK_V7 — informacje podatki.gov.pl', href: 'https://www.podatki.gov.pl/jednolity-plik-kontrolny/jpk_vat-z-deklaracja/', external: true },
+      { label: 'Portal JPK e-Deklaracje', href: 'https://www.podatki.gov.pl/jednolity-plik-kontrolny/', external: true },
+    ],
+    related_actions: [
+      { label: 'VAT-R — rejestracja VAT', href: '/poradnik/vat-r-rejestracja-vatowca' },
+      { label: 'KSeF dla JDG', href: '/poradnik/ksef-dla-jdg-jak-zaczac' },
+      { label: 'KSeF dla spółki z o.o.', href: '/poradnik/ksef-spolka-z-oo-kto-moze-nadac-dostep' },
+    ],
+    faq: [
+      {
+        question: 'Czy JPK_V7 zastąpił VAT-7?',
+        answer: 'Tak. Od 2020 roku JPK_V7 zastąpił zarówno formularz VAT-7/VAT-7K, jak i stary plik JPK_VAT. Teraz to jedna, połączona deklaracja.',
+      },
+      {
+        question: 'Jak często składa się JPK_V7?',
+        answer: 'Miesięcznie (JPK_V7M) lub kwartalnie (JPK_V7K). Większość małych firm rozlicza VAT miesięcznie. Wariant kwartalny jest dostępny dla małych podatników po spełnieniu warunków.',
+      },
+      {
+        question: 'Czy firma zwolniona z VAT składa JPK_V7?',
+        answer: 'Nie. JPK_V7 dotyczy wyłącznie czynnych podatników VAT. Firmy na zwolnieniu podmiotowym (np. poniżej progu 200 000 zł) nie składają tego pliku.',
+      },
+      {
+        question: 'Co się stanie jeśli złożę JPK_V7 po terminie?',
+        answer: 'Urząd Skarbowy może nałożyć karę porządkową za niezłożenie w terminie. Korekta po terminie jest możliwa, ale warto unikać opóźnień. Biuro rachunkowe powinno pilnować terminu 25. dnia.',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 20,
+    published_at: '2026-06-06T00:00:00.000Z',
+    updated_at: '2026-06-06T00:00:00.000Z',
+    category: fallbackWikiCategories[9],
+  },
+
+  // ─── Deklaracje: VAT-R ────────────────────────────────────────────────────────
+  {
+    id: 'fallback-vat-r',
+    slug: 'vat-r-rejestracja-vatowca',
+    title: 'VAT-R — kiedy i jak zarejestrować się jako podatnik VAT',
+    excerpt: 'VAT-R to formularz rejestracji VAT. Składasz go zanim wystawisz pierwszą fakturę z VAT — i zanim przekroczysz ustawowy próg obrotu.',
+    summary: 'Przewodnik po VAT-R: kiedy musisz zarejestrować się jako czynny vatowiec, kiedy możesz to zrobić dobrowolnie i co dzieje się po rejestracji.',
+    purpose: 'Wiele osób nie wie, że jest różnica między "podatnikiem VAT" a "czynnym podatnikiem VAT". VAT-R to właśnie ta granica — ten poradnik wyjaśnia kiedy i jak ją przekroczyć.',
+    body_markdown: `## Co to jest VAT-R?
+
+VAT-R to formularz rejestracji jako podatnik VAT. Składasz go w Urzędzie Skarbowym przed pierwszą transakcją podlegającą VAT lub przed przekroczeniem progu zwalniającego z VAT.
+
+Istnieją dwie sytuacje:
+- **Rejestracja obowiązkowa** — gdy Twoje przychody ze sprzedaży podlegającej VAT przekraczają 200 000 zł rocznie, lub gdy prowadzisz działalność wyłączoną ze zwolnienia (np. usługi prawnicze, sprzedaż niektórych towarów)
+- **Rejestracja dobrowolna** — kiedy chcesz odliczać VAT od zakupów firmowych, mimo że przychody są poniżej progu
+
+## Kogo dotyczy?
+
+Każdej firmy — JDG i spółki z o.o. — która chce lub musi być czynnym podatnikiem VAT. Formularz jest taki sam dla obu form.
+
+## Kiedy jest potrzebna?
+
+- **Przed pierwszą transakcją** — jeśli rejestrujesz się dobrowolnie lub Twoja działalność wyklucza zwolnienie
+- **Przed przekroczeniem progu** — nie czekaj na przekroczenie 200 000 zł — złóż VAT-R zanim to nastąpi
+- **Przed transakcją wewnątrzwspólnotową** — jeśli kupujesz lub sprzedajesz towar/usługę do/z UE, możesz potrzebować VAT-UE (osobny formularz, ale VAT-R jest warunkiem wstępnym)
+
+Rejestracja jako VAT-R nie jest jednorazowa — możesz też złożyć aktualizację (np. zmiana danych, wyrejestrowanie lub przejście na metodę kasową).
+
+## Kto zwykle to składa?
+
+Właściciel firmy lub biuro rachunkowe — formularz składa się do właściwego Urzędu Skarbowego. Można to zrobić elektronicznie przez e-Deklaracje lub papierowo.
+
+## JDG vs spółka z o.o.
+
+| | JDG | Spółka z o.o. |
+|---|---|---|
+| Formularz rejestracji VAT | VAT-R | VAT-R |
+| Kto podpisuje | Właściciel lub pełnomocnik | Zarząd lub pełnomocnik |
+| Próg zwolnienia z VAT | 200 000 zł rocznie | 200 000 zł rocznie |
+| Gdzie składać | US właściwy dla firmy | US właściwy dla firmy |
+
+Zasady są identyczne. Różni się tylko kto podpisuje formularz.
+
+## Najczęstsze błędy
+
+- **Czekanie z rejestracją do przekroczenia progu** — jeśli przekroczysz 200 000 zł bez wcześniejszej rejestracji, możesz odpowiadać za niezapłacony VAT od kwoty nadpisu progu.
+- **Wystawianie faktur VAT przed rejestracją** — nie możesz wystawiać faktur z VAT zanim urząd potwierdzi rejestrację. Faktura VAT bez rejestracji to problem.
+- **Niezaktualizowanie VAT-R przy zmianie danych** — zmiana adresu lub danych firmy powinna być odzwierciedlona w aktualizacji VAT-R.
+- **Nierejestrowanie się dobrowolnie mimo wysokich zakupów** — jeśli masz duże wydatki firmowe (sprzęt, usługi), a nie jesteś vatowcem, nie możesz odliczyć VAT od tych zakupów.
+
+## Jak KsięgaI może pomóc
+
+KsięgaI nie składa VAT-R za Ciebie, ale może pomóc w codziennym zarządzaniu VAT:
+- **Faktury sprzedaży** mają poprawnie oznaczone stawki VAT
+- **Dokumenty kosztowe** z VAT naliczonym są przechowywane w systemie i gotowe do odliczenia
+- Przez integrację z KSeF faktury trafiają bezpośrednio do biura rachunkowego bez manualnego zbierania
+
+> **Informacja ogólna:** Ten artykuł ma charakter edukacyjny i nie stanowi porady podatkowej. Obowiązek rejestracji VAT zależy od rodzaju działalności i skali obrotów — skonsultuj się z biurem rachunkowym.`,
+    checklist: [
+      'Ustal, czy Twoja działalność wymaga obowiązkowej rejestracji VAT (np. usługi prawnicze, sprzedaż określonych towarów).',
+      'Śledź przychody — zbliżając się do 200 000 zł rocznie złóż VAT-R przed przekroczeniem progu.',
+      'Jeśli chcesz odliczać VAT od zakupów firmowych — rozważ dobrowolną rejestrację.',
+      'Po rejestracji — zacznij wystawiać faktury z VAT i składać JPK_V7 co miesiąc.',
+    ],
+    official_links: [
+      { label: 'Formularz VAT-R — podatki.gov.pl', href: 'https://www.podatki.gov.pl/vat/formularze/', external: true },
+      { label: 'Kiedy rejestrować się jako podatnik VAT', href: 'https://www.podatki.gov.pl/vat/wyjasnienia/kiedy-zarejestrowac-sie-jako-podatnik-vat/', external: true },
+    ],
+    related_actions: [
+      { label: 'JPK_V7 — comiesięczna deklaracja VAT', href: '/poradnik/jpk-v7-deklaracja-vat' },
+      { label: 'VAT-UE — transakcje z UE', href: '/poradnik/vat-ue-transakcje-unijne' },
+      { label: 'VAT-9M — VAT dla niezarejestrowanych', href: '/poradnik/vat-9m-import-uslug' },
+    ],
+    faq: [
+      {
+        question: 'Czy muszę się rejestrować jako VAT od razu po otwarciu firmy?',
+        answer: 'Nie zawsze. Jeśli przychody nie przekroczą 200 000 zł rocznie i działalność nie wymaga obowiązkowej rejestracji, możesz być zwolniony. Warto ustalić z biurem czy rejestracja jest korzystna w Twojej sytuacji.',
+      },
+      {
+        question: 'Jak długo czeka się na rejestrację VAT?',
+        answer: 'Urząd Skarbowy potwierdza rejestrację zwykle w ciągu kilku dni roboczych. Przed złożeniem pierwszej faktury VAT upewnij się, że masz potwierdzenie rejestracji.',
+      },
+      {
+        question: 'Czy JDG i spółka z o.o. mają taki sam próg zwolnienia z VAT?',
+        answer: 'Tak, obydwie formy mają ten sam próg — 200 000 zł wartości sprzedaży netto rocznie. Ale niektóre rodzaje działalności wykluczają zwolnienie niezależnie od obrotu.',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 30,
+    published_at: '2026-06-06T00:00:00.000Z',
+    updated_at: '2026-06-06T00:00:00.000Z',
+    category: fallbackWikiCategories[9],
+  },
+
+  // ─── Deklaracje: VAT-UE ───────────────────────────────────────────────────────
+  {
+    id: 'fallback-vat-ue',
+    slug: 'vat-ue-transakcje-unijne',
+    title: 'VAT-UE — kiedy rejestrować się do transakcji wewnątrzwspólnotowych',
+    excerpt: 'Kupujesz usługi od zagranicznej firmy z UE? Sprzedajesz towary do innego kraju UE? Zanim wystawisz pierwszą fakturę — sprawdź czy potrzebujesz rejestracji VAT-UE.',
+    summary: 'Przewodnik po VAT-UE: co to jest, kogo dotyczy transakcji wewnątrzwspólnotowych, kiedy złożyć formularz i jak wygląda weryfikacja numeru VAT-UE.',
+    purpose: 'Właściciele firm kupujący oprogramowanie lub usługi z zagranicy często nie wiedzą, że takie transakcje wymagają rejestracji VAT-UE. Ten poradnik wyjaśnia kiedy i jak.',
+    body_markdown: `## Co to jest VAT-UE?
+
+VAT-UE to rejestracja do transakcji wewnątrzwspólnotowych w unijnym systemie VIES. Po rejestracji firma otrzymuje numer NIP z prefiksem "PL" (np. PL1234567890), który jest widoczny w unijnej bazie VIES dla kontrahentów z UE.
+
+Formularz rejestracyjny to VAT-R (zaznaczasz odpowiedni pole dotyczące transakcji wewnątrzwspólnotowych) lub aktualizacja istniejącej rejestracji VAT.
+
+## Kogo dotyczy?
+
+Firm, które:
+- **kupują usługi od dostawców z UE** (np. oprogramowanie SaaS, reklamy w Google/Meta, usługi konsultingowe od firm z UE) — mechanizm odwrotnego obciążenia VAT
+- **sprzedają towary lub usługi do firm z UE** zarejestrowanych jako podatnicy VAT
+- **nabywają towary wewnątrzwspólnotowo** (WNT — zakup towarów z innego kraju UE)
+- **dokonują wewnątrzwspólnotowej dostawy towarów** (WDT — sprzedaż towarów do innego kraju UE)
+
+## Kiedy jest potrzebna?
+
+Przed **pierwszą transakcją wewnątrzwspólnotową**. Jeśli np. subskrybujesz narzędzie SaaS od firmy z UE (np. z Niemiec lub Holandii), powinieneś być zarejestrowany w VAT-UE zanim wystawisz rozliczenie.
+
+Co ważne: jeśli nie jesteś czynnym podatnikiem VAT w Polsce (zwolnienie podmiotowe), a kupujesz usługi od zagranicznych firm z UE — i tak możesz mieć obowiązek rozliczenia VAT z tytułu importu usług (formularz VAT-9M).
+
+## Kto zwykle to składa?
+
+Biuro rachunkowe lub właściciel firmy — aktualizacja VAT-R składana do właściwego Urzędu Skarbowego. Rejestracja jest bezpłatna.
+
+## JDG vs spółka z o.o.
+
+| | JDG | Spółka z o.o. |
+|---|---|---|
+| Formularz | VAT-R (aktualizacja) | VAT-R (aktualizacja) |
+| Numer VAT-UE | PL + NIP | PL + NIP |
+| Dostępność w VIES | Tak, po rejestracji | Tak, po rejestracji |
+
+Brak różnic — zasady są takie same.
+
+## Najczęstsze błędy
+
+- **Brak rejestracji przy subskrypcji zagranicznych narzędzi SaaS** — zakup subskrypcji od np. firmy z Irlandii lub Holandii to WNS (wewnątrzwspólnotowe nabycie usług), które wymaga rozliczenia VAT.
+- **Podanie numeru VAT-UE kontrahentowi bez sprawdzenia ważności** — przed wystawieniem faktury bez VAT dla kontrahenta z UE warto sprawdzić jego numer VAT-UE w VIES.
+- **Niewykazywanie transakcji w JPK_V7** — transakcje wewnątrzwspólnotowe mają specjalne oznaczenia w JPK_V7 i muszą być poprawnie oznakowane.
+
+## Jak KsięgaI może pomóc
+
+KsięgaI może pomóc kategoryzować faktury kosztowe od zagranicznych dostawców i właściwie oznaczać transakcje wewnątrzwspólnotowe. Biuro rachunkowe korzystające z KsięgaI ma te dokumenty w systemie i może je poprawnie ująć w JPK_V7.
+
+> **Informacja ogólna:** Ten artykuł ma charakter edukacyjny i nie stanowi porady podatkowej. Zasady dotyczące transakcji wewnątrzwspólnotowych mogą być skomplikowane — skonsultuj się z biurem rachunkowym.`,
+    checklist: [
+      'Sprawdź czy kupujesz lub sprzedajesz towary/usługi do/od firm z UE.',
+      'Jeśli tak — złóż aktualizację VAT-R z zaznaczeniem transakcji wewnątrzwspólnotowych.',
+      'Przed wystawieniem faktury VAT-0 (WDT) — zweryfikuj numer VAT-UE kontrahenta w bazie VIES.',
+      'Informuj biuro rachunkowe o wszystkich zagranicznych fakturach kosztowych.',
+    ],
+    official_links: [
+      { label: 'VIES — weryfikacja numerów VAT-UE', href: 'https://ec.europa.eu/taxation_customs/vies/', external: true },
+      { label: 'VAT w transakcjach wewnątrzwspólnotowych — podatki.gov.pl', href: 'https://www.podatki.gov.pl/vat/wyjasnienia/transakcje-wewnatrzwspolnotowe/', external: true },
+    ],
+    related_actions: [
+      { label: 'VAT-R — rejestracja VAT', href: '/poradnik/vat-r-rejestracja-vatowca' },
+      { label: 'VAT-9M — import usług bez VAT', href: '/poradnik/vat-9m-import-uslug' },
+      { label: 'JPK_V7 — comiesięczna deklaracja', href: '/poradnik/jpk-v7-deklaracja-vat' },
+    ],
+    faq: [
+      {
+        question: 'Czy każda firma kupująca od zagranicznego dostawcy musi mieć VAT-UE?',
+        answer: 'Nie każda, ale firmy kupujące usługi od firm z UE (np. SaaS, reklamy) co do zasady rozliczają VAT z tytułu importu usług. Zakres i metoda zależą od rejestracji VAT firmy.',
+      },
+      {
+        question: 'Jak sprawdzić czy mój zagraniczny kontrahent ma ważny numer VAT-UE?',
+        answer: 'Przez unijną bazę VIES (vies.ec.europa.eu). Weryfikacja jest bezpłatna i pozwala sprawdzić aktywność numeru przed wystawieniem faktury bez VAT.',
+      },
+      {
+        question: 'Czy rejestracja VAT-UE jest płatna?',
+        answer: 'Nie. Rejestracja do transakcji wewnątrzwspólnotowych jest bezpłatna i odbywa się przez aktualizację formularza VAT-R.',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 40,
+    published_at: '2026-06-06T00:00:00.000Z',
+    updated_at: '2026-06-06T00:00:00.000Z',
+    category: fallbackWikiCategories[9],
+  },
+
+  // ─── Deklaracje: VAT-9M ───────────────────────────────────────────────────────
+  {
+    id: 'fallback-vat-9m',
+    slug: 'vat-9m-import-uslug',
+    title: 'VAT-9M — kiedy firma bez VAT płaci podatek od zagranicznych usług',
+    excerpt: 'Nie jesteś vatowcem, ale kupujesz usługi od zagranicznych firm? VAT-9M to deklaracja właśnie dla tego przypadku — rozliczasz VAT mimo że nie jesteś czynnym podatnikiem.',
+    summary: 'Wyjaśnienie VAT-9M: kto składa tę deklarację, kiedy powstaje obowiązek VAT od importu usług i jak wygląda rozliczenie dla firmy zwolnionej z VAT.',
+    purpose: 'Właściciele małych firm zwolnionych z VAT często nie wiedzą, że subskrypcja zagranicznego SaaS czy usługi z UE mogą generować obowiązek rozliczenia VAT. VAT-9M to odpowiedź na ten problem.',
+    body_markdown: `## Co to jest VAT-9M?
+
+VAT-9M to deklaracja podatkowa składana przez podmioty, które **nie są czynnymi podatnikami VAT** (są zwolnione podmiotowo lub przedmiotowo), ale mają jednorazowe lub nieregularne transakcje objęte VAT — przede wszystkim **import usług**.
+
+Import usług to sytuacja, gdy polska firma kupuje usługę od zagranicznego dostawcy (np. z USA, Niemiec, Francji), który nie nalicza polskiego VAT. Polski nabywca musi rozliczyć VAT samodzielnie, stosując mechanizm odwrotnego obciążenia.
+
+## Kogo dotyczy?
+
+Firm i osób prowadzących działalność, które:
+- **nie są czynnymi podatnikami VAT** (są na zwolnieniu podmiotowym — poniżej 200 000 zł obrotu — lub prowadzą działalność wyłącznie zwolnioną)
+- **kupują usługi od zagranicznych podmiotów** (np. subskrypcja Adobe, Notion, Slack, Google Ads, usługi od firm z UE lub spoza UE)
+- mają nabycie wewnątrzwspólnotowe towarów powyżej ustawowego progu (50 000 zł)
+
+Jeśli jesteś czynnym vatowcem — te transakcje rozliczasz przez JPK_V7, nie VAT-9M.
+
+## Kiedy jest potrzebna?
+
+VAT-9M składa się **za każdy miesiąc**, w którym wystąpiła taka transakcja — do **25. dnia następnego miesiąca**. Jeśli w danym miesiącu nie było żadnej takiej transakcji, nie składasz deklaracji za ten miesiąc.
+
+## Kto zwykle to składa?
+
+Właściciel firmy lub biuro rachunkowe. Jest to deklaracja samodzielna — nie ma tu możliwości delegowania na pracownika bez pełnomocnictwa.
+
+## JDG vs spółka z o.o.
+
+| | JDG (zwolniona z VAT) | Spółka z o.o. (zwolniona z VAT) |
+|---|---|---|
+| Obowiązek VAT-9M | Tak, przy imporcie usług | Tak, przy imporcie usług |
+| Termin | Do 25. następnego miesiąca | Do 25. następnego miesiąca |
+
+Zasady są identyczne — liczy się status VAT firmy, nie jej forma prawna.
+
+## Najczęstsze błędy
+
+- **Brak świadomości obowiązku** — większość małych firm zwolnionych z VAT nie wie, że zakup subskrypcji zagranicznego narzędzia generuje obowiązek VAT-9M.
+- **Zbieranie faktur na koniec roku** — VAT-9M składa się miesięcznie za miesiące, w których były transakcje. Zbieranie faktur zagranicznych na koniec roku i składanie jednej deklaracji to błąd.
+- **Mylenie z VAT-UE** — VAT-UE to rejestracja do VIES, VAT-9M to deklaracja rozliczeniowa. To dwie różne rzeczy, choć oba pojęcia dotyczą zagranicznych transakcji.
+
+## Jak KsięgaI może pomóc
+
+KsięgaI przechowuje faktury zagraniczne i może je oznaczać jako wymagające rozliczenia VAT. Biuro rachunkowe widzi te dokumenty w systemie i może na czas złożyć VAT-9M za miesiące, w których były transakcje.
+
+> **Informacja ogólna:** Ten artykuł ma charakter edukacyjny i nie stanowi porady podatkowej. Zasady rozliczania importu usług mogą być skomplikowane — skonsultuj się z biurem rachunkowym.`,
+    checklist: [
+      'Sprawdź, czy Twoja firma jest zwolniona z VAT (poniżej progu lub działalność zwolniona).',
+      'Zidentyfikuj wszystkie zagraniczne subskrypcje i usługi kupowane od dostawców spoza Polski.',
+      'Informuj biuro rachunkowe o każdej fakturze zagranicznej co miesiąc.',
+      'Jeśli składasz VAT-9M samodzielnie — pamiętaj o terminie do 25. następnego miesiąca.',
+    ],
+    official_links: [
+      { label: 'Formularz VAT-9M — podatki.gov.pl', href: 'https://www.podatki.gov.pl/vat/formularze/', external: true },
+    ],
+    related_actions: [
+      { label: 'VAT-R — rejestracja VAT', href: '/poradnik/vat-r-rejestracja-vatowca' },
+      { label: 'VAT-UE — transakcje z UE', href: '/poradnik/vat-ue-transakcje-unijne' },
+      { label: 'JPK_V7 — dla czynnych vatowców', href: '/poradnik/jpk-v7-deklaracja-vat' },
+    ],
+    faq: [
+      {
+        question: 'Czy mała firma z przychodami 50 000 zł rocznie musi składać VAT-9M?',
+        answer: 'Jeśli kupujesz usługi od zagranicznych firm (np. software SaaS, reklamy Google) — co do zasady tak, musisz rozliczyć VAT z tytułu importu usług. Warto potwierdzić z biurem rachunkowym czy Twoje konkretne transakcje generują ten obowiązek.',
+      },
+      {
+        question: 'Co to jest import usług?',
+        answer: 'To sytuacja, gdy polska firma kupuje usługę od zagranicznego dostawcy, który nie nalicza polskiego VAT. Polska firma musi wtedy samodzielnie rozliczyć VAT jako nabywca (mechanizm odwrotnego obciążenia).',
+      },
+      {
+        question: 'Czy VAT-9M trzeba składać jeśli nie było żadnych transakcji zagranicznych?',
+        answer: 'Nie. VAT-9M składasz tylko za miesiące, w których wystąpiły transakcje objęte tym obowiązkiem. Brak transakcji = brak deklaracji za ten miesiąc.',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 50,
+    published_at: '2026-06-06T00:00:00.000Z',
+    updated_at: '2026-06-06T00:00:00.000Z',
+    category: fallbackWikiCategories[9],
+  },
+
+  // ─── Deklaracje: ZUS DRA ─────────────────────────────────────────────────────
+  {
+    id: 'fallback-zus-dra',
+    slug: 'zus-dra-deklaracja-zus',
+    title: 'ZUS DRA — comiesięczna deklaracja ZUS dla przedsiębiorcy i pracodawcy',
+    excerpt: 'ZUS DRA to miesięczna deklaracja rozliczeniowa do ZUS. Składają ją JDG i pracodawcy — nalicza składki na ubezpieczenia społeczne za siebie i za pracowników.',
+    summary: 'Przewodnik po ZUS DRA: kto składa, kiedy, co deklaruje JDG a co pracodawca i jak zmienił się obowiązek przy małym ZUS plus.',
+    purpose: 'Wielu przedsiębiorców słyszy "ZUS DRA" nie wiedząc czym różni się od "składek ZUS". Ten poradnik wyjaśnia co to jest, kiedy składasz i co się w nim wpisuje.',
+    body_markdown: `## Co to jest ZUS DRA?
+
+ZUS DRA to miesięczna deklaracja rozliczeniowa składana do ZUS. Służy do:
+- **rozliczenia składek na ubezpieczenia społeczne** (emerytalne, rentowe, chorobowe, wypadkowe)
+- **rozliczenia składki zdrowotnej** (lub informacji o jej podstawie)
+- **rozliczenia składek za pracowników** — jeśli zatrudniasz
+
+W skrócie: ZUS DRA to "zeznanie do ZUS" analogiczne do deklaracji podatkowej, tyle że do ZUS. Na jego podstawie ZUS wie ile i za kogo opłacasz składki.
+
+## Kogo dotyczy?
+
+- **JDG** (jednoosobowa działalność gospodarcza) — przedsiębiorca deklaruje swoje składki
+- **Pracodawca** (JDG lub spółka z o.o.) zatrudniający pracowników lub zleceniobiorców — deklaruje składki za każdą zatrudnioną osobę
+- **Wspólnik jednoosobowej spółki z o.o.** — co do zasady podlega ZUS jak przedsiębiorca
+
+Razem z ZUS DRA (deklaracja zbiorcza) składane są raporty imienne RCA, RSA lub RZA — osobne dla każdej osoby ubezpieczonej.
+
+## Kiedy jest potrzebna?
+
+Terminy różnią się w zależności od typu płatnika:
+- **Jednostki budżetowe i samorządowe:** do **3. dnia** następnego miesiąca
+- **Pracodawcy (firmy):** do **5. dnia** następnego miesiąca
+- **Osoby fizyczne opłacające wyłącznie za siebie** (JDG bez pracowników): do **10. dnia** następnego miesiąca
+
+Jeśli termin wypada w weekend lub święto — przesuwa się na następny dzień roboczy.
+
+## Kto zwykle to składa?
+
+- **JDG bez pracowników:** właściciel samodzielnie przez PUE ZUS lub biuro rachunkowe z upoważnieniem
+- **Firma z pracownikami:** biuro rachunkowe lub kadry — składają DRA + raporty imienne za każdą osobę
+
+## JDG vs spółka z o.o.
+
+| | JDG | Spółka z o.o. |
+|---|---|---|
+| ZUS od właściciela | Tak (co do zasady) | Jednoosobowy wspólnik — tak; wieloosobowy — zazwyczaj nie z tytułu udziałów |
+| Podstawa składek | Zadeklarowana podstawa (min. 60% lub 30% przeciętnego wynagrodzenia, zależnie od okresu) | Wynagrodzenie z umowy |
+| ZUS za pracowników | Tak, jeśli zatrudnia | Tak, jeśli zatrudnia |
+
+Uwaga: zasady ZUS dla wspólnika jednoosobowej spółki z o.o. są specyficzne i zmieniały się na przestrzeni lat. Warto potwierdzić aktualny status z doradcą lub biurem rachunkowym.
+
+## Najczęstsze błędy
+
+- **Nieprawidłowa podstawa wymiaru składek** — szczególnie w trakcie "małego ZUS plus" lub "ulgi na start". Zmiana podstawy wymaga aktualizacji deklaracji.
+- **Nieterminowe złożenie** — nawet jeden dzień opóźnienia może skutkować naliczeniem odsetek od zaległych składek.
+- **Brak zgłoszenia nowego pracownika przed złożeniem DRA** — jeśli zatrudniłeś kogoś, najpierw zgłoś go (ZUS ZUA lub ZUS ZZA), a dopiero potem złóż DRA za miesiąc, w którym zaczął pracować.
+
+## Jak KsięgaI może pomóc
+
+KsięgaI przechowuje dokumenty kadrowe i listy płac. Dla biura rachunkowego, które obsługuje Twoje kadry, oznacza to:
+- bieżący dostęp do danych wynagrodzeniowych
+- powiązanie płatności ZUS z dokumentami
+- pełny ślad audytowy płatności składek
+
+> **Informacja ogólna:** Ten artykuł ma charakter edukacyjny i nie stanowi porady z zakresu ubezpieczeń społecznych. Zasady ZUS zależą od formy działalności, okresu prowadzenia firmy i konfiguracji zatrudnienia — skonsultuj się z biurem rachunkowym.`,
+    checklist: [
+      'Ustal termin składania ZUS DRA dla swojej firmy (do 5. lub 10. dnia następnego miesiąca).',
+      'Jeśli zatrudniasz pracowników — zgłoś ich do ZUS przed złożeniem DRA za miesiąc, w którym zaczęli pracę.',
+      'Sprawdź aktualną podstawę wymiaru składek ZUS dla JDG (ulga na start, mały ZUS plus, standardowa podstawa).',
+      'Upewnij się, że biuro rachunkowe ma upoważnienie do składania deklaracji ZUS w Twoim imieniu.',
+    ],
+    official_links: [
+      { label: 'PUE ZUS — platforma usług elektronicznych', href: 'https://www.zus.pl/pue', external: true },
+      { label: 'Deklaracje rozliczeniowe ZUS — informacje', href: 'https://www.zus.pl/firmy/przedsiebiorcy/rejestracja/obowiazki-platnika-skladek', external: true },
+    ],
+    related_actions: [
+      { label: 'PIT-11 — informacja dla pracowników', href: '/poradnik/pit-11-informacja-o-dochodach' },
+      { label: 'PIT-4R/PIT-8AR — roczne zaliczki', href: '/poradnik/pit-4r-pit-8ar-zaliczki-podatku' },
+    ],
+    faq: [
+      {
+        question: 'Czy JDG bez pracowników musi składać ZUS DRA?',
+        answer: 'Tak. JDG opłacająca składki za siebie składa ZUS DRA (lub skróconą deklarację ZUS DRA, jeśli nie zmienia się podstawa) do 10. dnia następnego miesiąca. Niektórzy przedsiębiorcy mogą korzystać z rozwiązania bez obowiązku składania DRA co miesiąc jeśli nic się nie zmienia — warto potwierdzić z biurem.',
+      },
+      {
+        question: 'Kiedy zmienia się termin składania ZUS DRA?',
+        answer: 'Termin zależy od tego, czy opłacasz składki za siebie (10. dzień), czy też zatrudniasz pracowników (5. dzień). Zmiana statusu zatrudnienia zmienia termin.',
+      },
+      {
+        question: 'Co to są raporty imienne RCA/RSA/RZA przy ZUS DRA?',
+        answer: 'To szczegółowe raporty do DRA, składane osobno za każdego ubezpieczonego pracownika lub zleceniobiorcę. RCA dotyczy składek społecznych i zdrowotnej, RSA — przerw w ubezpieczeniu, RZA — tylko składki zdrowotnej (zleceniobiorcy).',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 60,
+    published_at: '2026-06-06T00:00:00.000Z',
+    updated_at: '2026-06-06T00:00:00.000Z',
+    category: fallbackWikiCategories[9],
+  },
+
+  // ─── Deklaracje: PIT-36 ───────────────────────────────────────────────────────
+  {
+    id: 'fallback-pit-36',
+    slug: 'pit-36-jdg-zasady-ogolne',
+    title: 'PIT-36 — roczne rozliczenie JDG na zasadach ogólnych (skala podatkowa)',
+    excerpt: 'PIT-36 to roczna deklaracja podatkowa JDG rozliczającej się na skali podatkowej. Składasz ją do końca kwietnia za poprzedni rok — i dopiero wtedy wiesz ile naprawdę zapłaciłeś.',
+    summary: 'Przewodnik po PIT-36: kto składa, kiedy, co można odliczyć, jak działa skala podatkowa i czym różni się od PIT-36L i PIT-28.',
+    purpose: 'JDG na zasadach ogólnych często nie rozumieją różnicy między zaliczką miesięczną a rocznym PIT-36. Ten poradnik wyjaśnia jak to działa i czego pilnować przez cały rok.',
+    body_markdown: `## Co to jest PIT-36?
+
+PIT-36 to roczne zeznanie podatkowe składane przez osoby fizyczne, które mają przychody z:
+- **JDG (działalności gospodarczej) na zasadach ogólnych** — skala podatkowa 12% / 32%
+- działalności rolniczej podlegającej podatkowi dochodowemu
+- innych źródeł wymagających tego formularza
+
+Formularz PIT-36 jest bardziej rozbudowany niż PIT-37 (pracownicy). Umożliwia m.in. wspólne rozliczenie z małżonkiem, rozliczenie dzieci, a także różne odliczenia specyficzne dla przedsiębiorców.
+
+## Kogo dotyczy?
+
+JDG, która wybrała **zasady ogólne** (skala podatkowa) jako formę opodatkowania. To forma domyślna — jeśli przy rejestracji nie wybrałeś ryczałtu (PIT-28) ani podatku liniowego (PIT-36L), prawdopodobnie rozliczasz się przez PIT-36.
+
+## Kiedy jest potrzebna?
+
+- **Termin złożenia:** do **30 kwietnia** za poprzedni rok podatkowy
+- W trakcie roku: płacisz **zaliczki miesięczne lub kwartalne** na podatek. PIT-36 to roczne "rozliczenie" — porównujesz zapłacone zaliczki z faktycznym podatkiem i albo dopłacasz, albo dostajesz zwrot.
+
+## Kto zwykle to składa?
+
+Właściciel JDG lub biuro rachunkowe przez e-Deklaracje. Deklaracja musi być podpisana elektronicznie lub profilem zaufanym.
+
+## JDG vs spółka z o.o.
+
+| | JDG (zasady ogólne) | Spółka z o.o. |
+|---|---|---|
+| Roczne zeznanie | PIT-36 | CIT-8 (spółka) + PIT właściciela od wypłat |
+| Stawka podatku | 12% / 32% (skala) | 9% / 19% CIT + 19% PIT od dywidendy |
+| Termin | 30 kwietnia | 31 marca (CIT-8) |
+| Ulgi i odliczenia | Tak (dzieci, darowizny, IKZE, internet) | CIT-8 — ograniczone |
+
+Spółka z o.o. płaci CIT, a właściciel osobno PIT od wynagrodzenia lub dywidendy.
+
+## Najczęstsze błędy
+
+- **Niezbilansowanie zaliczek z rocznym podatkiem** — jeśli w trakcie roku nie płaciłeś zaliczek lub płaciłeś za mało, przy rocznym rozliczeniu może pojawić się duża dopłata z odsetkami.
+- **Pominięcie odliczeń** — PIT-36 pozwala na ulgi (np. IP Box, B+R, ulga dla klasy średniej, składki ZUS, IKZE). Warto sprawdzić z biurem co można odliczyć.
+- **Błędna ewidencja przychodów i kosztów w KPiR** — PIT-36 bazuje na KPiR (Księdze Przychodów i Rozchodów). Błędy w ewidencji = błędne zeznanie.
+- **Niemeldowanie dochodów z innych źródeł** — PIT-36 łączy dochód z JDG z innymi przychodami (np. najem, zlecenia). Zapomniane źródła to błąd w deklaracji.
+
+## Jak KsięgaI może pomóc
+
+KsięgaI porządkuje faktury i dokumenty kosztowe przez cały rok. Biuro rachunkowe mające dostęp do kompletnych danych może prawidłowo uzupełnić KPiR i na tej podstawie przygotować PIT-36. Automatyczne dopasowanie płatności i dokumentów zmniejsza ryzyko pominięcia kosztów.
+
+> **Informacja ogólna:** Ten artykuł ma charakter edukacyjny i nie stanowi porady podatkowej. Zakres odliczeń i właściwa forma opodatkowania dla JDG zależy od indywidualnej sytuacji — skonsultuj się z biurem rachunkowym lub doradcą podatkowym.`,
+    checklist: [
+      'Sprawdź, czy rozliczasz się na zasadach ogólnych (skala podatkowa 12%/32%) — to warunkuje konieczność składania PIT-36.',
+      'Płać zaliczki na podatek dochodowy regularnie w ciągu roku (miesięcznie lub kwartalnie).',
+      'Zbieraj dokumenty potwierdzające koszty uzyskania przychodu przez cały rok.',
+      'Złóż PIT-36 do 30 kwietnia za poprzedni rok podatkowy.',
+      'Sprawdź z biurem rachunkowym czy masz prawo do dodatkowych odliczeń (ulgi, składki ZUS, IKZE).',
+    ],
+    official_links: [
+      { label: 'PIT-36 — formularz i informacje', href: 'https://www.podatki.gov.pl/pit/formularze-pit/pit-36/', external: true },
+      { label: 'Podatek dochodowy JDG — podatki.gov.pl', href: 'https://www.podatki.gov.pl/pit/', external: true },
+    ],
+    related_actions: [
+      { label: 'PIT-36L — podatek liniowy dla JDG', href: '/poradnik/pit-36l-podatek-liniowy-jdg' },
+      { label: 'PIT-28 — ryczałt od przychodów', href: '/poradnik/pit-28-ryczalt-od-przychodow' },
+      { label: 'Pełna księgowość — o co chodzi', href: '/poradnik/pelna-ksiegowosc-spolka-zoo-o-co-chodzi' },
+    ],
+    faq: [
+      {
+        question: 'Czym różni się PIT-36 od PIT-37?',
+        answer: 'PIT-37 składają pracownicy i zleceniobiorcy — pracodawca pobiera zaliczki. PIT-36 składają przedsiębiorcy prowadzący JDG, którzy samodzielnie płacą zaliczki przez rok i rozliczają się rocznym zeznaniem.',
+      },
+      {
+        question: 'Do kiedy muszę złożyć PIT-36?',
+        answer: 'Do 30 kwietnia za poprzedni rok podatkowy. Można złożyć wcześniej — nie ma minimalnego okresu oczekiwania.',
+      },
+      {
+        question: 'Czy JDG na podatku liniowym składa PIT-36?',
+        answer: 'Nie. Podatek liniowy (19% flat) rozlicza się formularzem PIT-36L, nie PIT-36.',
+      },
+      {
+        question: 'Kiedy powinienem zmienić z zasad ogólnych na ryczałt lub podatek liniowy?',
+        answer: 'To decyzja zależna od Twojej sytuacji — poziomu dochodów, kosztów działalności, możliwości odliczeń. Warto przeprowadzić kalkulację z biurem rachunkowym przed końcem roku, bo zmiana formy opodatkowania obowiązuje od nowego roku.',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 70,
+    published_at: '2026-06-06T00:00:00.000Z',
+    updated_at: '2026-06-06T00:00:00.000Z',
+    category: fallbackWikiCategories[9],
+  },
+
+  // ─── Deklaracje: PIT-36L ─────────────────────────────────────────────────────
+  {
+    id: 'fallback-pit-36l',
+    slug: 'pit-36l-podatek-liniowy-jdg',
+    title: 'PIT-36L — roczne rozliczenie JDG na podatku liniowym',
+    excerpt: 'PIT-36L to roczna deklaracja JDG, która wybrała podatek liniowy — 19% od dochodu bez progresji i bez większości ulg podatkowych.',
+    summary: 'Przewodnik po PIT-36L: dla kogo jest podatek liniowy, kiedy składasz deklarację, jakich ulg nie możesz stosować i kiedy warto zmienić formę opodatkowania.',
+    purpose: 'JDG na liniowym często nie wiedzą czego nie mogą odliczyć przy podatku liniowym. Ten poradnik wyjaśnia kiedy liniowy się opłaca i co tracisz w zamian za stałą stawkę.',
+    body_markdown: `## Co to jest PIT-36L?
+
+PIT-36L to roczne zeznanie podatkowe dla JDG rozliczającej się **podatkiem liniowym** (19% od dochodu, bez progresji). "L" oznacza właśnie "liniowy".
+
+Podatek liniowy to alternatywa dla zasad ogólnych (12%/32%) i ryczałtu. Korzyść: stała stawka 19% niezależnie od wysokości dochodu, bez skoku na 32% przy przekroczeniu progu. Koszt: brak większości popularnych ulg podatkowych.
+
+## Kogo dotyczy?
+
+JDG, która złożyła oświadczenie o wyborze podatku liniowego. Wyboru dokonuje się przez CEIDG-1 — do 20. dnia miesiąca następnego po uzyskaniu pierwszego dochodu w roku, lub do końca roku na kolejny rok podatkowy.
+
+## Kiedy jest potrzebna?
+
+- **Termin:** do **30 kwietnia** za poprzedni rok podatkowy
+- W ciągu roku: płacisz **zaliczki miesięczne lub kwartalne** (19% od dochodu narastająco)
+- PIT-36L jest rocznym "wyrównaniem" zaliczek z rzeczywistym podatkiem
+
+## Kto zwykle to składa?
+
+Właściciel JDG lub biuro rachunkowe przez e-Deklaracje z podpisem kwalifikowanym lub profilem zaufanym.
+
+## JDG vs spółka z o.o.
+
+| | JDG (podatek liniowy) | Spółka z o.o. |
+|---|---|---|
+| Formularz roczny | PIT-36L | CIT-8 |
+| Stawka podatku | 19% od dochodu | 9% lub 19% CIT |
+| Ulgi | Ograniczone | Brak standardowych ulg PIT |
+
+## Co możesz, a czego nie możesz przy podatku liniowym
+
+**Możesz** odliczyć:
+- Składki ZUS społeczne (jako koszt działalności lub odliczenie)
+- Część składki zdrowotnej jako odliczenie od dochodu (po zmianach podatkowych)
+- Koszty uzyskania przychodu (tak jak na zasadach ogólnych)
+- Straty z lat ubiegłych
+
+**Nie możesz** odliczyć:
+- Ulgi na dziecko
+- Ulgi dla klasy średniej
+- Wspólnego rozliczenia z małżonkiem
+- Wielu innych ulg dostępnych na zasadach ogólnych
+
+## Najczęstsze błędy
+
+- **Wybór podatku liniowego przy niskich dochodach** — jeśli dochód nie przekracza drugiego progu podatkowego (w 2024: ok. 120 000 zł), zasady ogólne mogą być korzystniejsze ze względu na niższe stawki i dostępność ulg.
+- **Pominięcie odliczenia składki zdrowotnej** — po zmianach z 2023 roku część składki zdrowotnej można odliczyć od dochodu. Warto sprawdzić aktualny zakres z biurem.
+- **Próba rozliczenia się wspólnie z małżonkiem** — nie ma takiej możliwości na podatku liniowym.
+
+## Jak KsięgaI może pomóc
+
+Tak jak przy PIT-36: KsięgaI pilnuje kompletności dokumentów przez rok. Biuro rachunkowe mając pełny obraz przychodów i kosztów może prawidłowo ustalić podstawę opodatkowania i przygotować PIT-36L.
+
+> **Informacja ogólna:** Ten artykuł ma charakter edukacyjny i nie stanowi porady podatkowej. Wybór formy opodatkowania to decyzja indywidualna — skonsultuj się z biurem rachunkowym lub doradcą podatkowym.`,
+    checklist: [
+      'Upewnij się, że w CEIDG masz zaznaczony podatek liniowy jako forma opodatkowania.',
+      'Płać zaliczki na podatek liniowy (19%) regularnie w ciągu roku.',
+      'Złóż PIT-36L do 30 kwietnia za poprzedni rok.',
+      'Sprawdź z biurem co możesz odliczyć (składki ZUS, koszty, strata z lat ubiegłych).',
+      'Pod koniec roku oceń z biurem czy podatek liniowy nadal jest korzystny w stosunku do zasad ogólnych lub ryczałtu.',
+    ],
+    official_links: [
+      { label: 'PIT-36L — formularz i informacje', href: 'https://www.podatki.gov.pl/pit/formularze-pit/pit-36l/', external: true },
+    ],
+    related_actions: [
+      { label: 'PIT-36 — zasady ogólne', href: '/poradnik/pit-36-jdg-zasady-ogolne' },
+      { label: 'PIT-28 — ryczałt od przychodów', href: '/poradnik/pit-28-ryczalt-od-przychodow' },
+      { label: 'CEIDG-1 — zmiana formy opodatkowania', href: '/poradnik/ceidg-1-jdg' },
+    ],
+    faq: [
+      {
+        question: 'Kiedy podatek liniowy jest opłacalny dla JDG?',
+        answer: 'Gdy dochody przekraczają drugi próg podatkowy (ok. 120 000 zł rocznie) i nie korzystasz z wielu ulg podatkowych. Przy niższych dochodach zasady ogólne mogą być korzystniejsze — warto przeprowadzić kalkulację z biurem.',
+      },
+      {
+        question: 'Jak zmienić formę opodatkowania z zasad ogólnych na liniowy?',
+        answer: 'Przez aktualizację CEIDG-1 — zaznaczasz podatek liniowy. Zmiana obowiązuje od nowego roku podatkowego (oświadczenie do końca roku) lub od miesiąca, w którym zaczął się nowy rok (do 20. dnia następnego miesiąca po pierwszym dochodzie).',
+      },
+      {
+        question: 'Czy mogę być na podatku liniowym i jednocześnie być pracownikiem?',
+        answer: 'Możesz, ale podatek liniowy dotyczy wyłącznie przychodów z JDG. Wynagrodzenie z umowy o pracę jest opodatkowane na zasadach ogólnych przez pracodawcę.',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 80,
+    published_at: '2026-06-06T00:00:00.000Z',
+    updated_at: '2026-06-06T00:00:00.000Z',
+    category: fallbackWikiCategories[9],
+  },
+
+  // ─── Deklaracje: PIT-28 ───────────────────────────────────────────────────────
+  {
+    id: 'fallback-pit-28',
+    slug: 'pit-28-ryczalt-od-przychodow',
+    title: 'PIT-28 — roczne rozliczenie JDG na ryczałcie ewidencjonowanym',
+    excerpt: 'PIT-28 to roczna deklaracja JDG opodatkowanej ryczałtem. Płacisz podatek od przychodu (nie dochodu) — bez możliwości odliczania kosztów, ale z niższymi stawkami dla wielu branż.',
+    summary: 'Przewodnik po PIT-28: kiedy ryczałt jest korzystny, jakie są stawki ryczałtu dla różnych typów działalności, kiedy złożyć PIT-28 i czego nie można odliczyć.',
+    purpose: 'JDG na ryczałcie często nie rozumieją różnicy między podatkiem od przychodu a od dochodu. Ten poradnik wyjaśnia co to zmienia w praktyce i kiedy ryczałt ma sens.',
+    body_markdown: `## Co to jest PIT-28?
+
+PIT-28 to roczne zeznanie podatkowe dla JDG rozliczającej się **ryczałtem od przychodów ewidencjonowanych**. Kluczowa cecha: podatek jest naliczany od **przychodu**, nie od dochodu.
+
+Oznacza to: **nie odliczasz kosztów uzyskania przychodu** (bo podatek jest od przychodu brutto), ale w zamian możesz mieć niższe stawki podatkowe niż na zasadach ogólnych.
+
+Stawki ryczałtu (zależą od rodzaju działalności):
+- **2%** — działalność rolnicza, sprzedaż surowców
+- **3%** — działalność handlowa, gastronomia
+- **5.5%** — roboty budowlane, produkcja
+- **8.5%** — wolne zawody, usługi, wynajem (część)
+- **10%** — wynajem nieruchomości (część)
+- **12%** — usługi IT, programowanie, konsulting techniczny
+- **14%** — wolne zawody (lekarze, stomatolodzy, architekci, etc.)
+- **15%** — usługi pośrednictwa, handel udziałami i papierami
+- **17%** — inne usługi niemieszczące się w wyżej wymienionych
+
+## Kogo dotyczy?
+
+JDG, która wybrała ryczałt jako formę opodatkowania. Nie wszystkie rodzaje działalności mogą korzystać z ryczałtu — istnieją wykluczenia (np. pewne usługi doradcze, działalność regulowana).
+
+## Kiedy jest potrzebna?
+
+- **Termin:** do **15 lutego** za poprzedni rok podatkowy (inny termin niż PIT-36 i PIT-36L!)
+- W ciągu roku: płacisz **zaliczki miesięczne lub kwartalne**
+
+## Kto zwykle to składa?
+
+Właściciel JDG lub biuro rachunkowe przez e-Deklaracje.
+
+## JDG vs spółka z o.o.
+
+| | JDG (ryczałt) | Spółka z o.o. |
+|---|---|---|
+| Formularz roczny | PIT-28 | CIT-8 |
+| Podstawa podatku | Przychód (nie dochód) | Dochód |
+| Możliwość odliczenia kosztów | Brak | Tak |
+| Termin | 15 lutego | 31 marca |
+
+Spółka z o.o. nie może wybrać ryczałtu — to forma dostępna tylko dla JDG i innych podmiotów wymienionych w ustawie.
+
+## Kiedy ryczałt jest korzystny?
+
+Ryczałt opłaca się gdy:
+- Koszty prowadzenia działalności są **niskie** (software house, konsultant, IT freelancer)
+- Stawka ryczałtu (np. 8.5% lub 12%) jest **niższa** niż stawka po odliczeniu kosztów na zasadach ogólnych
+- Nie zależy Ci na ulgach podatkowych niedostępnych na ryczałcie
+
+Ryczałt może **nie** opłacać się gdy:
+- Masz wysokie koszty (sprzęt, podwykonawcy, wynajem biura) — nie odliczysz ich
+- Stawka ryczałtu dla Twojej działalności jest wysoka (14%, 15%, 17%)
+
+## Najczęstsze błędy
+
+- **Zła stawka ryczałtu dla działalności** — każdy rodzaj działalności ma przypisaną stawkę. Błędna stawka = błędnie naliczony podatek.
+- **Brak ewidencji przychodów** — ryczałtowiec ma obowiązek prowadzenia ewidencji przychodów. To uproszczona forma, ale musi istnieć.
+- **Mieszanie stawek bez rozdzielenia przychodów** — jeśli prowadzisz kilka rodzajów działalności z różnymi stawkami, musisz je rozdzielić w ewidencji.
+
+## Jak KsięgaI może pomóc
+
+KsięgaI rejestruje faktury sprzedaży i pozwala kategoryzować przychody według typów działalności. Biuro rachunkowe ma kompletną ewidencję przychodów potrzebną do PIT-28.
+
+> **Informacja ogólna:** Ten artykuł ma charakter edukacyjny i nie stanowi porady podatkowej. Właściwa stawka ryczałtu i opłacalność tej formy opodatkowania zależy od Twojej działalności — skonsultuj się z biurem rachunkowym.`,
+    checklist: [
+      'Sprawdź stawkę ryczałtu właściwą dla Twojej działalności (PKD i opis usług).',
+      'Prowadź ewidencję przychodów — obowiązek ryczałtowca.',
+      'Jeśli prowadzisz działalność mieszaną — rozdziel przychody według różnych stawek.',
+      'Złóż PIT-28 do 15 lutego za poprzedni rok (termin wcześniejszy niż PIT-36 i PIT-36L).',
+      'Przed końcem roku oceń z biurem czy ryczałt nadal jest korzystny.',
+    ],
+    official_links: [
+      { label: 'PIT-28 — formularz i informacje', href: 'https://www.podatki.gov.pl/pit/formularze-pit/pit-28/', external: true },
+      { label: 'Ryczałt od przychodów ewidencjonowanych', href: 'https://www.podatki.gov.pl/pit/informacje-dla-przedsiebiorcow/ryczalt-od-przychodow-ewidencjonowanych/', external: true },
+    ],
+    related_actions: [
+      { label: 'PIT-36 — zasady ogólne', href: '/poradnik/pit-36-jdg-zasady-ogolne' },
+      { label: 'PIT-36L — podatek liniowy', href: '/poradnik/pit-36l-podatek-liniowy-jdg' },
+      { label: 'CEIDG-1 — wybór formy opodatkowania', href: '/poradnik/ceidg-1-jdg' },
+    ],
+    faq: [
+      {
+        question: 'Jaką stawkę ryczałtu płaci programista lub specjalista IT?',
+        answer: 'Co do zasady usługi IT i programistyczne są objęte stawką 12%. Jednak zakres tej stawki jest ściśle zdefiniowany — warto potwierdzić z biurem rachunkowym czy Twoja działalność mieści się w tej kategorii.',
+      },
+      {
+        question: 'Do kiedy składa się PIT-28?',
+        answer: 'Do 15 lutego za poprzedni rok podatkowy — to wcześniejszy termin niż PIT-36 (30 kwietnia) i PIT-36L (30 kwietnia). Warto o tym pamiętać, by nie przegapić terminu.',
+      },
+      {
+        question: 'Czy na ryczałcie można odliczyć składki ZUS?',
+        answer: 'Tak — składki ZUS społeczne można odliczyć od przychodu (podstawa ryczałtu), a część składki zdrowotnej — jako odliczenie. Szczegółowy zakres zależy od aktualnych przepisów — warto potwierdzić z biurem.',
+      },
+      {
+        question: 'Czy mogę zmienić formę opodatkowania z ryczałtu na zasady ogólne w trakcie roku?',
+        answer: 'Co do zasady nie. Zmiana formy opodatkowania możliwa jest zwykle od nowego roku podatkowego lub w określonych sytuacjach. Warto zaplanować taką decyzję z biurem przed końcem roku.',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 90,
+    published_at: '2026-06-06T00:00:00.000Z',
+    updated_at: '2026-06-06T00:00:00.000Z',
+    category: fallbackWikiCategories[9],
+  },
+
+  // ─── Deklaracje: PIT-11 ───────────────────────────────────────────────────────
+  {
+    id: 'fallback-pit-11',
+    slug: 'pit-11-informacja-o-dochodach',
+    title: 'PIT-11 — co to jest i kiedy firma musi go wystawić pracownikom',
+    excerpt: 'PIT-11 to roczna informacja o dochodach i zaliczkach przekazywana pracownikom i do urzędu skarbowego. Jeśli zatrudniasz ludzi lub wypłacasz im zlecenia — PIT-11 jest Twoim obowiązkiem.',
+    summary: 'Przewodnik po PIT-11: kto wystawia, komu, kiedy, co zawiera i co się dzieje jeśli prześlesz go po terminie.',
+    purpose: 'JDG i spółki zatrudniające ludzi lub wypłacające zlecenia często nie wiedzą o PIT-11 dopóki pracownik nie zapyta gdzie jest jego PIT. Ten poradnik wyjaśnia kiedy i jak to działa.',
+    body_markdown: `## Co to jest PIT-11?
+
+PIT-11 to roczna informacja o dochodach uzyskanych przez pracownika lub zleceniobiorcę i pobranych z nich zaliczkach na podatek dochodowy. Wystawia ją płatnik (pracodawca, zleceniodawca) — nie pracownik.
+
+To nie jest deklaracja składana przez firmę do US w jej własnym imieniu. PIT-11 dotyczy **dochodów osób, którym firma wypłaciła wynagrodzenie i pobrała zaliczkę na podatek**.
+
+PIT-11 trafia do:
+1. **Pracownika lub zleceniobiorcy** — potrzebuje go do złożenia własnego zeznania rocznego (PIT-37 lub PIT-36)
+2. **Urzędu Skarbowego** — elektronicznie przez e-Deklaracje
+
+## Kogo dotyczy?
+
+Każdej firmy (JDG lub spółki z o.o.), która w danym roku:
+- zatrudniała pracowników na umowę o pracę
+- wypłacała wynagrodzenia z umów zlecenia lub o dzieło
+- wypłacała wynagrodzenia członkom zarządu
+- wypłacała inne świadczenia, od których pobierała zaliczkę na PIT
+
+## Kiedy jest potrzebna?
+
+- **Do końca stycznia** — wysłanie PIT-11 **do Urzędu Skarbowego** drogą elektroniczną
+- **Do końca lutego** — przekazanie PIT-11 **pracownikowi/zleceniobiorcy**
+
+Uwaga: to **dwa osobne terminy**. Urząd dostaje wcześniej, pracownik może dostać do końca lutego.
+
+## Kto zwykle to składa?
+
+Biuro rachunkowe lub dział kadr i płac. Wymaga dostępu do danych z list płac za cały rok.
+
+## JDG vs spółka z o.o.
+
+| | JDG zatrudniająca | Spółka z o.o. |
+|---|---|---|
+| Obowiązek PIT-11 | Tak (przy zatrudnieniu/zleceniach) | Tak (przy zatrudnieniu/zleceniach/zarządzie) |
+| Termin do US | Koniec stycznia | Koniec stycznia |
+| Termin do pracownika | Koniec lutego | Koniec lutego |
+| Kto wystawia | Właściciel lub biuro | Zarząd lub biuro |
+
+Obowiązek jest identyczny — różni się tylko kto jest płatnikiem.
+
+## Najczęstsze błędy
+
+- **Spóźniony PIT-11 lub brak PIT-11** — pracownik czeka na PIT-11 żeby złożyć własne zeznanie. Spóźnienie może powodować napięcia i problemy z US.
+- **Błędny NIP lub PESEL w PIT-11** — błąd w danych identyfikacyjnych może skutkować koniecznością korekty i problemami w US pracownika.
+- **Pominięcie umów o dzieło** — małe jednorazowe zlecenia lub umowy o dzieło też wymagają PIT-11 jeśli były pobierane zaliczki.
+- **Nieprawidłowa kwota zaliczek** — PIT-11 musi zgadzać się z faktycznie wpłaconymi do US zaliczkami. Rozbieżność wymaga korekty.
+
+## Jak KsięgaI może pomóc
+
+KsięgaI przechowuje dokumenty kadrowe i dane z list płac. Biuro rachunkowe korzystające z systemu ma dostęp do pełnych danych wynagrodzeniowych i może wystawić PIT-11 bez konieczności manualnego zbierania dokumentów z całego roku.
+
+> **Informacja ogólna:** Ten artykuł ma charakter edukacyjny i nie stanowi porady podatkowej. Szczegółowe zasady dotyczące PIT-11 zależą od formy zatrudnienia i rodzaju wypłacanych świadczeń — skonsultuj się z biurem rachunkowym.`,
+    checklist: [
+      'Ustal, komu w roku poprzednim wypłacałeś wynagrodzenia lub honoraria z pobraniem zaliczki na podatek.',
+      'Przekaż biuru rachunkowemu kompletne listy płac i umowy za cały rok.',
+      'Wyślij PIT-11 elektronicznie do Urzędu Skarbowego do końca stycznia.',
+      'Przekaż PIT-11 każdemu pracownikowi i zleceniobiorcy do końca lutego.',
+    ],
+    official_links: [
+      { label: 'PIT-11 — formularz i informacje', href: 'https://www.podatki.gov.pl/pit/formularze-pit/pit-11/', external: true },
+    ],
+    related_actions: [
+      { label: 'PIT-4R/PIT-8AR — roczne zaliczki', href: '/poradnik/pit-4r-pit-8ar-zaliczki-podatku' },
+      { label: 'ZUS DRA — deklaracja ZUS', href: '/poradnik/zus-dra-deklaracja-zus' },
+    ],
+    faq: [
+      {
+        question: 'Czy muszę wystawiać PIT-11 dla osoby, której wypłaciłem zlecenie za 500 zł?',
+        answer: 'Co do zasady tak, jeśli pobierałeś zaliczkę na podatek od tego zlecenia. Zlecenia do kwoty wolnej od podatku lub objęte zwolnieniem mogą podlegać innym zasadom — warto potwierdzić z biurem.',
+      },
+      {
+        question: 'Co się dzieje jeśli nie wyślę PIT-11 na czas do US?',
+        answer: 'US może nałożyć karę za niezłożenie w terminie. Ponadto pracownik może nie mieć podstaw do złożenia własnego zeznania rocznego w terminie. Warto traktować te terminy poważnie.',
+      },
+      {
+        question: 'Czy PIT-11 wystawia się dla prezesa spółki z o.o. za wynagrodzenie zarządu?',
+        answer: 'Tak. Wynagrodzenie zarządu (na podstawie uchwały) jest przychodem ze stosunku powołania i wymaga PIT-11, podobnie jak wynagrodzenie pracownika.',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 100,
+    published_at: '2026-06-06T00:00:00.000Z',
+    updated_at: '2026-06-06T00:00:00.000Z',
+    category: fallbackWikiCategories[9],
+  },
+
+  // ─── Deklaracje: PIT-4R / PIT-8AR ────────────────────────────────────────────
+  {
+    id: 'fallback-pit-4r-pit-8ar',
+    slug: 'pit-4r-pit-8ar-zaliczki-podatku',
+    title: 'PIT-4R i PIT-8AR — roczne deklaracje pracodawcy z zaliczek na podatek',
+    excerpt: 'Zatrudniasz pracowników lub wypłacasz zlecenia? Co roku musisz złożyć PIT-4R (zaliczki od wynagrodzeń) i ewentualnie PIT-8AR (zryczałtowany podatek). Oba terminy to koniec stycznia.',
+    summary: 'Wyjaśnienie PIT-4R i PIT-8AR: czym są, kto je składa, jaki jest termin i jak mają się do PIT-11 wystawianego pracownikom.',
+    purpose: 'Właściciele firm zatrudniających pracowników często mylą PIT-4R z PIT-11 i nie wiedzą że to dwa różne obowiązki. Ten poradnik wyjaśnia różnicę i terminy.',
+    body_markdown: `## Co to jest PIT-4R?
+
+PIT-4R to roczna deklaracja płatnika (pracodawcy), w której podsumowuje **wszystkie zaliczki na podatek dochodowy pobrane od pracowników i zleceniobiorców** w ciągu roku i przekazane do Urzędu Skarbowego.
+
+W skrócie: w ciągu roku co miesiąc pobierasz zaliczkę od wynagrodzenia pracownika i wpłacasz do US. PIT-4R to roczne "podsumowanie" tych wpłat.
+
+## Co to jest PIT-8AR?
+
+PIT-8AR to roczna deklaracja ze zryczałtowanego podatku dochodowego pobranego przez płatnika. Dotyczy m.in.:
+- niektórych przychodów z umów o dzieło (gdy zastosowano zryczałtowany podatek)
+- odsetek od pożyczek od osób fizycznych (jeśli pobierałeś podatek)
+- dywidend wypłacanych osobom fizycznym (np. wspólnicy spółki z o.o.)
+- innych przypadków zryczałtowanego podatku (np. nagrody, wygrane)
+
+## Kogo dotyczy?
+
+Każdego **płatnika** — firmy (JDG lub spółki z o.o.), który:
+- zatrudniał pracowników i odprowadzał zaliczki na ich PIT (PIT-4R)
+- pobierał zryczałtowany podatek od przychodów (PIT-8AR)
+
+## Kiedy jest potrzebna?
+
+Obydwa formularze: do **31 stycznia** za poprzedni rok podatkowy — wysyłane **elektronicznie** do Urzędu Skarbowego.
+
+Uwaga: PIT-11 (dla pracownika) ma termin do końca lutego — ale PIT-4R i PIT-8AR idą do US już do 31 stycznia.
+
+## Kto zwykle to składa?
+
+Biuro rachunkowe lub dział kadr i płac — na podstawie zsumowanych danych z list płac za cały rok.
+
+## JDG vs spółka z o.o.
+
+| | JDG zatrudniająca | Spółka z o.o. |
+|---|---|---|
+| PIT-4R | Tak, gdy zatrudnia | Tak, gdy zatrudnia |
+| PIT-8AR | Tak, gdy wypłaca dywidendy lub zryczałtowany podatek | Tak (dywidendy, niektóre świadczenia) |
+| Termin | 31 stycznia | 31 stycznia |
+
+Spółka z o.o. wypłacająca dywidendy wspólnikom **zawsze** ma obowiązek PIT-8AR.
+
+## Najczęstsze błędy
+
+- **Mylenie PIT-4R z PIT-11** — PIT-4R to deklaracja płatnika do US (podsumowanie zaliczek). PIT-11 to informacja dla pracownika. To dwa odrębne obowiązki, oba konieczne.
+- **Nieskładanie PIT-8AR przy dywidendach** — spółki z o.o. wypłacające dywidendę wspólnikom muszą pobrać 19% zryczałtowanego PIT od dywidendy i rozliczyć to przez PIT-8AR.
+- **Błędne zsumowanie zaliczek** — jeśli kwoty w PIT-4R nie zgadzają się z faktycznie wpłaconymi do US zaliczkami, US może wezwać do wyjaśnienia.
+
+## Jak KsięgaI może pomóc
+
+KsięgaI zbiera dane wynagrodzeniowe i dokumenty finansowe, które biuro rachunkowe potrzebuje do PIT-4R i PIT-8AR. Dla spółek wypłacających dywidendy — dokumentacja uchwał i przelewów dywidendowych jest dostępna w jednym miejscu.
+
+> **Informacja ogólna:** Ten artykuł ma charakter edukacyjny i nie stanowi porady podatkowej. Zasady poboru zryczałtowanego podatku mogą być skomplikowane — skonsultuj się z biurem rachunkowym.`,
+    checklist: [
+      'Ustal, czy w poprzednim roku pobierałeś zaliczki od pracowników — jeśli tak, złóż PIT-4R do 31 stycznia.',
+      'Ustal, czy wypłacałeś dywidendy lub inne przychody ze zryczałtowanym podatkiem — jeśli tak, złóż PIT-8AR do 31 stycznia.',
+      'Przekaż biuru rachunkowemu kompletne listy płac i potwierdzenia wpłat do US za cały rok.',
+      'Pamiętaj: PIT-4R/PIT-8AR do US do 31 stycznia; PIT-11 do pracownika do końca lutego.',
+    ],
+    official_links: [
+      { label: 'PIT-4R — formularz', href: 'https://www.podatki.gov.pl/pit/formularze-pit/pit-4r/', external: true },
+      { label: 'PIT-8AR — formularz', href: 'https://www.podatki.gov.pl/pit/formularze-pit/pit-8ar/', external: true },
+    ],
+    related_actions: [
+      { label: 'PIT-11 — informacja dla pracownika', href: '/poradnik/pit-11-informacja-o-dochodach' },
+      { label: 'ZUS DRA — deklaracja ZUS', href: '/poradnik/zus-dra-deklaracja-zus' },
+      { label: 'Jak wypłacać pieniądze ze spółki z o.o.', href: '/poradnik/jak-wyplacac-pieniadze-ze-spolki-zoo' },
+    ],
+    faq: [
+      {
+        question: 'Czy firma zatrudniająca 2 osoby musi składać i PIT-4R i PIT-11?',
+        answer: 'Tak. PIT-4R to deklaracja pracodawcy do US (podsumowanie zaliczek). PIT-11 to informacja dla każdego pracownika osobno. Oba obowiązki istnieją niezależnie od siebie.',
+      },
+      {
+        question: 'Czy PIT-8AR dotyczy tylko spółek z o.o. wypłacających dywidendy?',
+        answer: 'Nie tylko. PIT-8AR dotyczy każdego podmiotu pobierającego zryczałtowany podatek — np. od odsetek od pożyczek, nagród, wygranych lub dywidend. Większość małych JDG bez tych transakcji nie składa PIT-8AR.',
+      },
+      {
+        question: 'Jaki jest termin złożenia PIT-4R i PIT-8AR?',
+        answer: '31 stycznia za poprzedni rok podatkowy — wysyłane elektronicznie do właściwego Urzędu Skarbowego.',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 110,
+    published_at: '2026-06-06T00:00:00.000Z',
+    updated_at: '2026-06-06T00:00:00.000Z',
+    category: fallbackWikiCategories[9],
+  },
+
+  // ─── Deklaracje: CIT-8 ───────────────────────────────────────────────────────
+  {
+    id: 'fallback-cit-8',
+    slug: 'cit-8-podatek-dochodowy-spolka-zoo',
+    title: 'CIT-8 — roczna deklaracja podatkowa spółki z o.o.',
+    excerpt: 'CIT-8 to roczne zeznanie spółki z o.o. z podatku dochodowego od osób prawnych. Składasz je do końca marca za poprzedni rok — i to właśnie wtedy wiesz ile CIT-u spółka zapłaci.',
+    summary: 'Przewodnik po CIT-8: kto składa, kiedy, jakie są stawki CIT, co można odliczyć i czym różni się podatek spółki od podatku właściciela JDG.',
+    purpose: 'Właściciele spółek z o.o. często pytają: "kiedy spółka płaci podatek?". CIT-8 to odpowiedź — ten poradnik wyjaśnia jak działa roczny podatek dochodowy spółki.',
+    body_markdown: `## Co to jest CIT-8?
+
+CIT-8 to roczne zeznanie podatkowe w podatku dochodowym od osób prawnych (CIT). Każda spółka z o.o. (i inne osoby prawne) ma obowiązek złożyć CIT-8 za każdy rok podatkowy.
+
+W trakcie roku spółka płaci **zaliczki na CIT** co miesiąc. CIT-8 to roczne podsumowanie — porównujesz zapłacone zaliczki z faktycznym CIT i albo dopłacasz resztę, albo dostajesz zwrot.
+
+## Kogo dotyczy?
+
+Wszystkich spółek z o.o. (i innych osób prawnych). Nie dotyczy JDG — właściciel JDG płaci PIT, nie CIT.
+
+## Kiedy jest potrzebna?
+
+- **Termin złożenia:** do **3 miesięcy po zakończeniu roku podatkowego**
+  - Dla roku kończącego się 31 grudnia → do **31 marca** następnego roku
+  - Dla roku kończącego się w innym miesiącu → analogicznie 3 miesiące po jego zakończeniu
+- W ciągu roku: spółka płaci **miesięczne zaliczki na CIT** do 20. dnia następnego miesiąca
+- Małe podatnicy mogą wybrać zaliczki kwartalne
+
+## Stawki CIT (2024/2025)
+
+- **9% CIT** — dla **małych podatników** (przychody brutto poniżej 2 mln EUR w poprzednim roku)
+- **19% CIT** — dla pozostałych spółek
+
+Uwaga: 9% to stawka preferencyjna, ale nie przysługuje spółce w pierwszym roku jeśli była "tworzona" z innej spółki w celu skorzystania z niższej stawki. Szczegóły warto potwierdzić z biurem.
+
+## Kto zwykle to składa?
+
+Biuro rachunkowe lub główna księgowa — CIT-8 wymaga dostępu do pełnych ksiąg rachunkowych za rok. Podpisywany przez osobę uprawnioną do reprezentacji (zarząd) lub pełnomocnika podatkowego (UPL-1).
+
+## JDG vs spółka z o.o.
+
+| | JDG | Spółka z o.o. |
+|---|---|---|
+| Podatek dochodowy | PIT (12%/32% lub 19% lub ryczałt) | CIT (9% lub 19%) |
+| Formularz roczny | PIT-36, PIT-36L lub PIT-28 | CIT-8 |
+| Podatek właściciela od wypłaty | Brak (JDG = właściciel) | PIT 19% od dywidendy |
+| Termin | 30 kwietnia (PIT-36/L) lub 15 lutego (PIT-28) | 31 marca |
+
+W spółce z o.o. istnieje **podwójne opodatkowanie**: spółka płaci CIT od zysku, a właściciel płaci 19% PIT od dywidendy. Warto brać to pod uwagę przy planowaniu wypłat.
+
+## Najczęstsze błędy
+
+- **Nieterminowe zaliczki miesięczne** — spóźnienie z zaliczką generuje odsetki podatkowe od zaległości.
+- **Nieprawidłowe ustalenie czy spółka jest małym podatnikiem** — stawka 9% zależy od przychodów za poprzedni rok. Warto potwierdzić z biurem przed ustaleniem stawki zaliczek.
+- **Brak dokumentacji kosztów** — CIT bazuje na pełnej księgowości. Koszty bez dokumentów = koszty zakwestionowane przez US.
+- **Pominięcie cen transferowych** — jeśli spółka dokonuje transakcji z podmiotami powiązanymi (np. wspólnikiem, inną spółką właściciela), mogą obowiązywać wymogi dotyczące dokumentacji cen transferowych.
+
+## Jak KsięgaI może pomóc
+
+Spółka z o.o. prowadzi pełną księgowość. KsięgaI porządkuje faktury, dokumenty i płatności przez cały rok — biuro rachunkowe ma kompletne dane do zamknięcia roku i przygotowania CIT-8 bez konieczności żmudnego zbierania dokumentów z całego roku.
+
+> **Informacja ogólna:** Ten artykuł ma charakter edukacyjny i nie stanowi porady podatkowej. Zasady CIT i uprawnienie do stawki 9% są szczegółowo regulowane — skonsultuj się z biurem rachunkowym lub doradcą podatkowym.`,
+    checklist: [
+      'Sprawdź czy spółka kwalifikuje się do stawki 9% CIT (przychody poniżej 2 mln EUR w poprzednim roku).',
+      'Płać miesięczne zaliczki na CIT do 20. dnia następnego miesiąca.',
+      'Dostarcz biuru rachunkowemu kompletne dokumenty za cały rok przed terminem zamknięcia ksiąg.',
+      'Złóż CIT-8 do 31 marca (dla roku kończącego się 31 grudnia).',
+      'Jeśli spółka wypłaca dywidendy — zaplanuj z biurem PIT-8AR od dywidendy.',
+    ],
+    official_links: [
+      { label: 'CIT-8 — formularz i informacje', href: 'https://www.podatki.gov.pl/cit/formularze-cit/', external: true },
+      { label: 'Podatek dochodowy od osób prawnych — podatki.gov.pl', href: 'https://www.podatki.gov.pl/cit/', external: true },
+    ],
+    related_actions: [
+      { label: 'Pełna księgowość w spółce z o.o.', href: '/poradnik/pelna-ksiegowosc-spolka-zoo-o-co-chodzi' },
+      { label: 'e-Sprawozdanie finansowe spółki', href: '/poradnik/e-sprawozdanie-finansowe-spolka-zoo' },
+      { label: 'Jak wypłacać pieniądze ze spółki z o.o.', href: '/poradnik/jak-wyplacac-pieniadze-ze-spolki-zoo' },
+    ],
+    faq: [
+      {
+        question: 'Do kiedy spółka z o.o. musi złożyć CIT-8?',
+        answer: 'Do 3 miesięcy po zakończeniu roku podatkowego. Dla roku kończącego się 31 grudnia — do 31 marca. Jeśli rok podatkowy kończy się w innym miesiącu, termin przesuwa się odpowiednio.',
+      },
+      {
+        question: 'Kiedy spółka płaci CIT 9% a kiedy 19%?',
+        answer: 'Stawka 9% przysługuje małym podatnikom — spółkom, których przychody brutto w poprzednim roku nie przekroczyły 2 mln EUR (przeliczone na PLN według kursu NBP). Pozostałe spółki płacą 19%.',
+      },
+      {
+        question: 'Czy właściciel spółki z o.o. składa też swój PIT?',
+        answer: 'Tak. Spółka składa CIT-8, a właściciel-wspólnik składa swój roczny PIT od wypłaconych mu wynagrodzeń, dywidend lub innych przychodów z tytułu współpracy ze spółką.',
+      },
+      {
+        question: 'Czy nowo założona spółka może od razu płacić CIT 9%?',
+        answer: 'Co do zasady tak, jeśli spełnia warunki małego podatnika i nie jest "tworzona" z innej spółki w celu skorzystania z niższej stawki. Warto potwierdzić z biurem rachunkowym przed pierwszą zaliczką.',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 120,
+    published_at: '2026-06-06T00:00:00.000Z',
+    updated_at: '2026-06-06T00:00:00.000Z',
+    category: fallbackWikiCategories[9],
+  },
+
+  // ─── Deklaracje: e-sprawozdanie finansowe ────────────────────────────────────
+  {
+    id: 'fallback-e-sprawozdanie',
+    slug: 'e-sprawozdanie-finansowe-spolka-zoo',
+    title: 'e-Sprawozdanie finansowe spółki z o.o. — co to jest i kiedy złożyć',
+    excerpt: 'Każda spółka z o.o. musi co roku sporządzić i złożyć sprawozdanie finansowe w formie elektronicznej XML do KRS. To nie to samo co CIT-8 — to odrębny obowiązek z innym terminem.',
+    summary: 'Przewodnik po e-sprawozdaniu finansowym spółki z o.o.: co to jest, co zawiera, kto je podpisuje, kiedy złożyć i jak odróżnić od CIT-8.',
+    purpose: 'Właściciele spółek często mylą e-sprawozdanie finansowe z CIT-8 lub nie wiedzą że to dwa osobne obowiązki z różnymi terminami. Ten poradnik wyjaśnia czym jest e-sprawozdanie i co z nim zrobić.',
+    body_markdown: `## Co to jest e-sprawozdanie finansowe?
+
+Sprawozdanie finansowe to roczny dokument przedstawiający sytuację majątkową i wyniki finansowe spółki. Obejmuje:
+- **Bilans** — stan aktywów i pasywów na koniec roku
+- **Rachunek zysków i strat** — przychody, koszty i wynik finansowy
+- **Informacja dodatkowa** — uzupełniające informacje do bilansu i rachunku
+- Opcjonalnie: **Rachunek przepływów pieniężnych** i **Zestawienie zmian w kapitale własnym** (obowiązkowe dla większych spółek)
+
+"e-Sprawozdanie" oznacza, że od kilku lat musi być sporządzone w **formacie XML** (elektronicznym) zgodnym ze strukturą Ministerstwa Finansów, a nie w formacie PDF czy Word.
+
+## Kogo dotyczy?
+
+Wszystkich spółek z o.o. (i innych podmiotów prowadzących pełną księgowość). Każda spółka z o.o. ma obowiązek sporządzania rocznego sprawozdania finansowego — bez wyjątków, niezależnie od wielkości czy aktywności.
+
+## Kiedy jest potrzebna?
+
+Proces sprawozdania finansowego ma kilka etapów:
+
+1. **Sporządzenie sprawozdania** — przez kierownika jednostki (zarząd) z pomocą głównej księgowej lub biura rachunkowego. Termin: **do 3 miesięcy po zakończeniu roku** (do 31 marca dla roku kończącego się 31 grudnia)
+2. **Zatwierdzenie przez zgromadzenie wspólników** — uchwałą. Termin: **do 6 miesięcy po zakończeniu roku** (do 30 czerwca)
+3. **Złożenie do KRS** — po zatwierdzeniu, w ciągu **15 dni** od zatwierdzenia
+4. **Przesłanie do urzędu skarbowego** — od 2022 roku następuje automatycznie przez KRS, ale warto potwierdzić z biurem
+
+## Kto zwykle to sporządza i składa?
+
+Biuro rachunkowe sporządza sprawozdanie na podstawie ksiąg rachunkowych. Podpisuje je:
+- **Zarząd spółki** (każdy członek uprawniony do reprezentacji) — podpisem kwalifikowanym lub profilem zaufanym
+- **Główna księgowa** (jeśli jest osobno)
+
+Złożenie do KRS odbywa się przez system e-KRS lub przez pełnomocnika.
+
+## JDG vs spółka z o.o.
+
+| | JDG | Spółka z o.o. |
+|---|---|---|
+| Obowiązek sprawozdania finansowego | Brak (chyba że prowadzi pełną księgowość dobrowolnie lub z obowiązku) | Tak, obowiązkowe co roku |
+| Format | — | XML (e-Sprawozdanie) |
+| Gdzie składać | — | KRS + US (automatycznie) |
+| Termin zatwierdzenia | — | 6 miesięcy po zakończeniu roku |
+
+JDG na KPiR lub ryczałcie nie sporządza sprawozdania finansowego.
+
+## Najczęstsze błędy
+
+- **Mylenie z CIT-8** — CIT-8 to zeznanie podatkowe do Urzędu Skarbowego. Sprawozdanie finansowe to raport o stanie firmy do KRS. To dwa osobne obowiązki: CIT-8 do 31 marca, sprawozdanie do KRS do 30 czerwca (po zatwierdzeniu przez ZW).
+- **Spóźnione zgromadzenie wspólników** — zatwierdzenie sprawozdania wymaga uchwały zgromadzenia wspólników. Warto zaplanować zgromadzenie przed terminem, nie w ostatniej chwili.
+- **Brak podpisu wszystkich wymaganych osób** — sprawozdanie podpisują wszyscy, którzy mają obowiązek — zarząd i ewentualnie biegły rewident.
+- **Niezłożenie do KRS** — sprawozdanie złożone tylko do US (poprzez CIT-8) nie zwalnia z obowiązku złożenia do KRS. Obydwa obowiązki są osobne.
+
+## Jak KsięgaI może pomóc
+
+KsięgaI pilnuje obiegu dokumentów przez cały rok. Biuro rachunkowe mające kompletne dane może sprawnie zamknąć rok finansowy i sporządzić sprawozdanie zgodnie z terminami. Uchwały o zatwierdzeniu sprawozdania można przechowywać w module uchwał.
+
+> **Informacja ogólna:** Ten artykuł ma charakter edukacyjny i nie stanowi porady finansowej ani prawnej. Zasady sprawozdawczości mogą się różnić w zależności od wielkości spółki — skonsultuj się z biurem rachunkowym.`,
+    checklist: [
+      'Zlecaj biurowi rachunkowemu sporządzenie sprawozdania finansowego do 31 marca.',
+      'Zwołaj Zgromadzenie Wspólników i podejmij uchwałę zatwierdzającą sprawozdanie do 30 czerwca.',
+      'Złóż zatwierdzone e-sprawozdanie do KRS w ciągu 15 dni od zatwierdzenia.',
+      'Upewnij się że zarząd podpisał sprawozdanie kwalifikowanym podpisem lub profilem zaufanym.',
+      'Sprawdź z biurem czy złożenie do KRS automatycznie przekazuje sprawozdanie do US.',
+    ],
+    official_links: [
+      { label: 'e-Sprawozdania finansowe — Ministerstwo Finansów', href: 'https://www.podatki.gov.pl/e-sprawozdania-finansowe/', external: true },
+      { label: 'Portal e-KRS', href: 'https://ekrs.ms.gov.pl/', external: true },
+    ],
+    related_actions: [
+      { label: 'CIT-8 — roczny podatek spółki', href: '/poradnik/cit-8-podatek-dochodowy-spolka-zoo' },
+      { label: 'Pełna księgowość w spółce z o.o.', href: '/poradnik/pelna-ksiegowosc-spolka-zoo-o-co-chodzi' },
+      { label: 'Kiedy i jak przeprowadzić zgromadzenie wspólników', href: '/poradnik/kiedy-i-jak-zwolac-zgromadzenie-wspolnikow' },
+    ],
+    faq: [
+      {
+        question: 'Czym różni się CIT-8 od sprawozdania finansowego?',
+        answer: 'CIT-8 to zeznanie podatkowe składane do Urzędu Skarbowego (do 31 marca). Sprawozdanie finansowe to dokument o stanie finansowym spółki składany do KRS (po zatwierdzeniu przez ZW, do 30 czerwca). Oba obowiązki są osobne.',
+      },
+      {
+        question: 'Czy mała, nieaktywna spółka z o.o. też musi składać sprawozdanie?',
+        answer: 'Tak. Każda spółka z o.o. wpisana do KRS ma obowiązek rocznego sprawozdania finansowego — nawet jeśli nie prowadziła działalności. Biuro rachunkowe może sporządzić zerowe sprawozdanie.',
+      },
+      {
+        question: 'Kto podpisuje e-sprawozdanie finansowe?',
+        answer: 'Zarząd spółki — każda osoba wpisana jako uprawniona do reprezentacji. Podpis odbywa się profilem zaufanym lub kwalifikowanym podpisem elektronicznym przez system e-KRS lub e-Sprawozdania MF.',
+      },
+      {
+        question: 'Co grozi za niezłożenie sprawozdania do KRS?',
+        answer: 'Sąd rejestrowy może wszcząć postępowanie przymuszające i nałożyć grzywnę. Brak sprawozdania może też skutkować problemami przy ubieganiu się o finansowanie lub zawieraniu umów z kontrahentami sprawdzającymi KRS.',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 130,
+    published_at: '2026-06-06T00:00:00.000Z',
+    updated_at: '2026-06-06T00:00:00.000Z',
+    category: fallbackWikiCategories[9],
   },
 
   // ─── TODO: kolejne artykuły do dodania ──────────────────────────────────────

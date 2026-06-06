@@ -123,6 +123,25 @@ const CATEGORY_PRESENTATION: Record<string, WikiPresentationCategory> = {
       'Jak przygotować spółkę do pełnej księgowości',
     ],
   },
+  deklaracje: {
+    badge: 'Deklaracje',
+    shortLabel: 'Deklaracje',
+    accentClassName:
+      'from-rose-500/20 via-pink-500/10 to-transparent dark:from-rose-400/20 dark:via-pink-400/10 dark:to-transparent',
+    ctaTitle: 'Pilnuj terminów i dokumentów w KsięgaI',
+    ctaDescription:
+      'Deklaracje podatkowe i ZUS-owskie zależą od kompletności dokumentów. KsięgaI porządkuje faktury, płatności i dokumenty przez cały rok — biuro rachunkowe ma wszystko na czas.',
+    ctaLabel: 'Załóż konto w KsięgaI',
+    ctaHref: '/rejestracja',
+    roadmapTitle: 'Kolejne deklaracje w tej sekcji',
+    roadmapTopics: [
+      'CEIDG-1 — rejestracja i aktualizacja danych JDG',
+      'JPK_V7 — obowiązkowy plik VAT co miesiąc',
+      'CIT-8 — roczny podatek dochodowy spółki',
+      'PIT-36, PIT-36L, PIT-28 — roczne rozliczenie JDG',
+      'ZUS DRA — miesięczna deklaracja ZUS',
+    ],
+  },
   'uchwaly-decyzje': {
     badge: 'Uchwały i decyzje',
     shortLabel: 'Uchwały',
