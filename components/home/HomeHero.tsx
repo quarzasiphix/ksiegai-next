@@ -59,7 +59,7 @@ const LoggedOutHero = ({ onAnonymousPrimaryCtaClick }: HomeHeroProps) => {
 
   const changes = variant?.changes as Record<string, string> | undefined;
   const badge      = changes?.banner_badge   ?? 'Faktury, KSeF i płatności online';
-  const headline   = changes?.headline       ?? 'Wystawiaj faktury, obsługuj KSeF i przyjmuj płatności w jednym miejscu';
+  const headline   = 'KsięgaI — faktury, KSeF i płatności w jednym obiegu';
   const subheadline = changes?.subheadline   ?? 'KsięgaI łączy dokumenty, akceptacje i płatności w jednym obiegu, więc firma działa szybciej i bez ręcznego sklejania kilku narzędzi.';
   const ctaText    = changes?.cta            ?? 'Załóż konto';
   const ctaSecondary = changes?.cta_secondary ?? 'Jak to działa';
