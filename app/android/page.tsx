@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Download, Smartphone, Shield, RefreshCw, CheckCircle2 } from "lucide-react";
+import androidVersion from "../../public/android/version.json";
 
 export const metadata: Metadata = {
   title: "KsięgaI na Androida | Pobierz aplikację",
@@ -137,7 +138,7 @@ export default function AndroidPage() {
 
           <p className="text-sm text-white/40">
             Wersja{" "}
-            <VersionBadge />
+            <span className="font-semibold text-white/60">{androidVersion.version_name}</span>
             {" · "}wymaga Android 7.0+
           </p>
         </div>
@@ -253,18 +254,5 @@ async function Sha256Badge() {
     );
   } catch {
     return <span className="text-xs text-white/30 italic">brak danych</span>;
-  }
-}
-
-async function VersionBadge() {
-  try {
-    const res = await fetch("https://ksiegai.pl/android/version.json", {
-      next: { revalidate: 3600 },
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    return <span className="font-semibold text-white/60">{data.version_name}</span>;
-  } catch {
-    return null;
   }
 }
