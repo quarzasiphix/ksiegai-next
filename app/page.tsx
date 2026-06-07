@@ -84,13 +84,13 @@ export default function Home() {
                 {
                   "@type": "Organization",
                   name: "Tovernet Sp. z o.o.",
-                  url: "https://ksiegai.pl",
+                  url: "https://www.ksiegai.pl",
                   taxID: "7322228540",
                 },
                 {
                   "@type": "WebSite",
                   name: "KsięgaI",
-                  url: "https://ksiegai.pl",
+                  url: "https://www.ksiegai.pl",
                   inLanguage: "pl-PL",
                 },
               ],

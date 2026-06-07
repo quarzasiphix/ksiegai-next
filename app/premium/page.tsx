@@ -10,10 +10,10 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Premium - Pełna automatyzacja i kontrola | KsięgaI",
     description: "Infrastruktura finansowa dla rosnących firm. KSeF, JPK, AI i integracje bankowe w jednym systemie.",
-    url: "https://ksiegai.pl/premium",
+    url: "https://www.ksiegai.pl/premium",
   },
   alternates: {
-    canonical: "https://ksiegai.pl/premium",
+    canonical: "https://www.ksiegai.pl/premium/",
   },
 };
 

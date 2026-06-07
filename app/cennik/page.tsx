@@ -10,13 +10,13 @@ export const metadata: Metadata = {
   description:
     `Transparentny cennik KsięgaI. Plan dla JDG od ${formatPln(PUBLIC_PRICING.jdg.monthlyPricePln)}, pakiet Spółka Standard z pełną automatyzacją KSeF i płatnościami online Stripe (${formatPln(PUBLIC_PRICING.spolkaStandard.monthlyPricePln)}) oraz rozwiązania Enterprise.`,
   alternates: {
-    canonical: "https://ksiegai.pl/cennik",
+    canonical: "https://www.ksiegai.pl/cennik/",
   },
   openGraph: {
     title: "KsięgaI – cennik dla JDG i spółek",
     description:
       "Jedno narzędzie do rozliczeń KSeF, CIT, JPK i governance. Sprawdź, który plan KsięgaI najlepiej chroni Twoją firmę.",
-    url: "https://ksiegai.pl/cennik",
+    url: "https://www.ksiegai.pl/cennik",
     type: "website",
     locale: "pl_PL",
   },
@@ -132,7 +132,7 @@ const pricingSchema = {
   brand: { "@type": "Brand", name: "KsięgaI" },
   offers: {
     "@type": "Offer",
-    url: "https://ksiegai.pl/cennik",
+    url: "https://www.ksiegai.pl/cennik",
     priceCurrency: "PLN",
     price: String(PUBLIC_PRICING.spolkaStandard.monthlyPricePln),
     priceValidUntil: "2026-12-31",

@@ -33,12 +33,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     description,
     keywords: `${article.title}, ${article.category.name}, poradnik przedsiębiorcy, KSeF, księgowość online`,
     alternates: {
-      canonical: `https://ksiegai.pl/poradnik/${article.slug}`,
+      canonical: `https://www.ksiegai.pl/poradnik/${article.slug}/`,
     },
     openGraph: {
       title: `${article.title} | Poradnik KsięgaI`,
       description,
-      url: `https://ksiegai.pl/poradnik/${article.slug}`,
+      url: `https://www.ksiegai.pl/poradnik/${article.slug}`,
       type: 'article',
       locale: 'pl_PL',
     },
@@ -78,9 +78,9 @@ export default async function WikiArticlePage({ params }: PageProps) {
     publisher: {
       '@type': 'Organization',
       name: 'KsięgaI',
-      url: 'https://ksiegai.pl',
+      url: 'https://www.ksiegai.pl',
     },
-    mainEntityOfPage: `https://ksiegai.pl/poradnik/${article.slug}`,
+    mainEntityOfPage: `https://www.ksiegai.pl/poradnik/${article.slug}`,
   };
 
   const breadcrumbJsonLd = {
@@ -91,19 +91,19 @@ export default async function WikiArticlePage({ params }: PageProps) {
         '@type': 'ListItem',
         position: 1,
         name: 'Poradnik',
-        item: 'https://ksiegai.pl/poradnik',
+        item: 'https://www.ksiegai.pl/poradnik',
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: article.category.name,
-        item: `https://ksiegai.pl/poradnik/kategoria/${article.category.slug}`,
+        item: `https://www.ksiegai.pl/poradnik/kategoria/${article.category.slug}`,
       },
       {
         '@type': 'ListItem',
         position: 3,
         name: article.title,
-        item: `https://ksiegai.pl/poradnik/${article.slug}`,
+        item: `https://www.ksiegai.pl/poradnik/${article.slug}`,
       },
     ],
   };

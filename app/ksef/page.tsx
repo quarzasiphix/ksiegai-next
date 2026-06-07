@@ -18,12 +18,12 @@ export const metadata: Metadata = {
     "Jak KsięgaI obsługuje KSeF: token, walidacje, workflow zatwierdzania przed wysyłką, JPK i ślad audytowy. Bądź gotowy zanim KSeF stanie się obowiązkowy.",
   keywords:
     "KSeF, Krajowy System e-Faktur, KSeF obowiązkowy, token KSeF, KSeF jak zacząć, walidacje KSeF, JPK, e-faktura",
-  alternates: { canonical: "https://ksiegai.pl/ksef" },
+  alternates: { canonical: "https://www.ksiegai.pl/ksef/" },
   openGraph: {
     title: "KSeF w KsięgaI – przygotowanie i obsługa",
     description:
       "Wszystko czego potrzebujesz, żeby firma była gotowa na obowiązkowy KSeF: token, walidacje, workflow i ślad decyzji.",
-    url: "https://ksiegai.pl/ksef",
+    url: "https://www.ksiegai.pl/ksef",
     type: "website",
     locale: "pl_PL",
   },
