@@ -99,6 +99,15 @@ export default function AndroidPage() {
 
       <div className="mx-auto max-w-2xl px-6 py-20">
 
+        {/* Google Play notice */}
+        <div className="mb-10 flex items-start gap-3 rounded-2xl border border-amber-500/20 bg-amber-500/8 px-5 py-4 text-sm text-amber-200/80">
+          <span className="mt-0.5 text-lg leading-none">🕐</span>
+          <p className="leading-relaxed">
+            <span className="font-semibold text-amber-200">Aplikacja jest obecnie w trakcie publikacji w Google Play.</span>{" "}
+            Do tego czasu możesz pobrać wersję APK bezpośrednio z naszej strony.
+          </p>
+        </div>
+
         {/* Hero */}
         <div className="mb-14 flex flex-col items-center text-center gap-7">
 
