@@ -211,7 +211,24 @@ export default function AndroidPage() {
           </div>
         </div>
 
-        <p className="mt-12 text-center text-xs text-white/30">
+        {/* SHA256 checksum */}
+        <div className="mt-4 rounded-2xl border border-white/8 bg-white/4 px-5 py-4">
+          <p className="mb-1.5 text-xs font-semibold uppercase tracking-widest text-white/40">
+            Weryfikacja pliku (SHA-256)
+          </p>
+          <Sha256Badge />
+          <p className="mt-2 text-xs text-white/30">
+            Porównaj z{" "}
+            <a
+              href="/android/ksiegai-latest.sha256.txt"
+              className="text-white/50 underline underline-offset-2 hover:text-white/80 transition-colors"
+            >
+              ksiegai-latest.sha256.txt
+            </a>
+          </p>
+        </div>
+
+        <p className="mt-8 text-center text-xs text-white/30">
           Masz pytania?{" "}
           <Link href="/" className="text-white/50 underline underline-offset-2 hover:text-white/80 transition-colors">
             Wróć na stronę główną
@@ -220,6 +237,23 @@ export default function AndroidPage() {
       </div>
     </main>
   );
+}
+
+async function Sha256Badge() {
+  try {
+    const res = await fetch("https://ksiegai.pl/android/ksiegai-latest.sha256.txt", {
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) return <span className="text-xs text-white/30 italic">brak danych</span>;
+    const hash = (await res.text()).trim();
+    return (
+      <code className="block break-all font-mono text-xs text-emerald-400/80 leading-relaxed">
+        {hash}
+      </code>
+    );
+  } catch {
+    return <span className="text-xs text-white/30 italic">brak danych</span>;
+  }
 }
 
 async function VersionBadge() {
