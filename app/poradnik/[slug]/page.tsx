@@ -5,7 +5,8 @@ import { ArrowLeft, ArrowRight, CheckCircle2, ChevronRight, ExternalLink, ListCh
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { KsefInviteCTA } from '@/components/wiki/KsefInviteCTA';
 import { WikiArticleCard } from '@/components/wiki/WikiArticleCard';
-import { getAllWikiSlugs, getRelatedWikiArticles, getWikiArticle } from '@/lib/wiki';
+import { WikiCategorySidebar } from '@/components/wiki/WikiCategorySidebar';
+import { getAllWikiSlugs, getRelatedWikiArticles, getWikiArticle, getWikiArticlesByCategory } from '@/lib/wiki';
 import { formatWikiDate, getWikiPresentationCategory } from '@/lib/wiki-presentation';
 
 type PageProps = {
@@ -45,9 +46,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function WikiArticlePage({ params }: PageProps) {
+  const grouped = await getWikiArticlesByCategory();
   const article = await getWikiArticle(params.slug);
   if (!article) notFound();
-
+  const categorySidebarItems = grouped.map(({ category, articles }) => ({
+    category,
+    count: articles.length,
+  }));
   const related = await getRelatedWikiArticles(article.category.slug, article.slug, 3);
   const presentation = getWikiPresentationCategory(article.category.slug);
   const faqItems = (article.faq ?? []).map((item) => ({
@@ -192,7 +197,9 @@ export default async function WikiArticlePage({ params }: PageProps) {
         </section>
 
         <section className="px-4 py-12 md:py-14">
-          <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[minmax(0,760px)_320px] xl:grid-cols-[minmax(0,820px)_340px]">
+          <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[260px_minmax(0,760px)_320px] xl:grid-cols-[260px_minmax(0,820px)_340px]">
+            <WikiCategorySidebar items={categorySidebarItems} activeCategorySlug={article.category.slug} />
+
             <article className="rounded-[32px] border border-black/10 bg-white/92 p-6 shadow-[0_28px_90px_-60px_rgba(15,23,42,0.42)] dark:border-white/10 dark:bg-white/[0.04] md:p-10">
               {article.purpose ? (
                 <div className="mb-10 rounded-[24px] border border-sky-200/70 bg-sky-50/80 p-5 text-sm leading-7 text-slate-700 dark:border-sky-400/20 dark:bg-sky-400/10 dark:text-slate-200">

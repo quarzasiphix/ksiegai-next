@@ -3,7 +3,12 @@ import Link from 'next/link';
 import { ArrowRight, BookOpen, ExternalLink, Layers3, Sparkles } from 'lucide-react';
 import { WikiArticleCard } from '@/components/wiki/WikiArticleCard';
 import { getWikiArticlesByCategory } from '@/lib/wiki';
-import { getFeaturedArticles, getWikiPresentationCategory } from '@/lib/wiki-presentation';
+import {
+  getFeaturedArticles,
+  getWikiPresentationCategory,
+  splitKsefArticlesByStage,
+} from '@/lib/wiki-presentation';
+import styles from './poradnik.module.css';
 
 export const metadata: Metadata = {
   title: 'Poradnik dla przedsiębiorców | KsięgaI',
@@ -22,7 +27,16 @@ export default async function PoradnikPage() {
   const grouped = await getWikiArticlesByCategory();
   const totalArticles = grouped.reduce((n, g) => n + g.articles.length, 0);
   const totalCategories = grouped.length;
-  const featuredArticles = getFeaturedArticles(grouped);
+  const ksefGroup = grouped.find((group) => group.category.slug === 'ksef') ?? null;
+  const nonKsefGroups = grouped.filter((group) => group.category.slug !== 'ksef');
+  const featuredArticles = getFeaturedArticles(nonKsefGroups);
+  const ksefSplit = ksefGroup
+    ? splitKsefArticlesByStage(ksefGroup.articles)
+    : { initialRegistration: [], informational: [] };
+  const categorySidebarItems = grouped.map(({ category, articles }) => ({
+    category,
+    count: articles.length,
+  }));
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -46,6 +60,66 @@ export default async function PoradnikPage() {
       />
 
       <main className="min-h-screen bg-[linear-gradient(to_bottom,#f8fafc,white_18%,#f8fafc_100%)] dark:bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.12),transparent_34%),linear-gradient(to_bottom,#05070d,#09090b)]">
+        <div className="sticky top-0 z-20 -mx-4 border-b border-black/5 bg-white/92 px-4 py-3 backdrop-blur dark:border-white/10 dark:bg-slate-950/88 md:hidden">
+          <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+            <BookOpen className="h-4 w-4 text-sky-600 dark:text-sky-300" />
+            <span>Kategorie poradnika</span>
+          </div>
+          <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+            <Link
+              href="/poradnik"
+              className="whitespace-nowrap rounded-full border border-sky-500/30 bg-sky-500/10 px-3 py-2 text-sm text-sky-700 dark:text-sky-300"
+            >
+              Wszystkie kategorie
+            </Link>
+            {categorySidebarItems.map(({ category, count }) => (
+              <Link
+                key={category.slug}
+                href={`/poradnik/kategoria/${category.slug}`}
+                className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-black/10 bg-white px-3 py-2 text-sm text-slate-700 transition hover:border-sky-500/30 hover:text-sky-700 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-200 dark:hover:text-sky-300"
+              >
+                <span>{category.name}</span>
+                <span className="rounded-full bg-black/[0.04] px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-white/[0.08] dark:text-slate-300">
+                  {count}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        <aside className={`${styles.desktopRail} p-6`}>
+          <div className="flex items-center gap-2 text-sm font-medium uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+            <BookOpen className="h-4 w-4 text-sky-600 dark:text-sky-300" />
+            <span>Kategorie poradnika</span>
+          </div>
+          <div className="mt-4">
+            <Link
+              href="/poradnik"
+              className="flex items-center justify-between gap-3 rounded-2xl border border-sky-500/30 bg-sky-500/10 px-3 py-3 text-sm text-sky-700 dark:text-sky-300"
+            >
+              <span>Wszystkie kategorie</span>
+              <span className="rounded-full bg-white/80 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-white/[0.08] dark:text-slate-300">
+                {totalCategories}
+              </span>
+            </Link>
+          </div>
+          <div className="mt-3 space-y-2">
+            {categorySidebarItems.map(({ category, count }) => (
+              <Link
+                key={category.slug}
+                href={`/poradnik/kategoria/${category.slug}`}
+                className="flex items-center justify-between gap-3 rounded-2xl border border-black/5 bg-black/[0.02] px-3 py-3 text-sm text-slate-700 transition hover:border-sky-500/30 hover:text-sky-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-slate-200 dark:hover:text-sky-300"
+              >
+                <span>{category.name}</span>
+                <span className="rounded-full bg-white/80 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-white/[0.08] dark:text-slate-300">
+                  {count}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </aside>
+
+        <div className={styles.desktopContent}>
         <section className="border-b border-black/5 px-4 py-16 dark:border-white/10 md:py-20">
           <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,420px)] lg:items-end">
             <div>
@@ -104,98 +178,164 @@ export default async function PoradnikPage() {
           </div>
         </section>
 
-        {featuredArticles.length ? (
-          <section className="px-4 py-14 md:py-16">
-            <div className="mx-auto max-w-7xl">
-              <div className="mb-8 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-                <div>
-                  <div className="text-sm font-medium uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
-                    Polecane poradniki
-                  </div>
-                  <h2 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950 dark:text-white">
-                    Zacznij od tematów, które najczęściej blokują start
-                  </h2>
-                </div>
-                <Link
-                  href="/rejestracja"
-                  className="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 transition hover:text-sky-700 dark:text-slate-200 dark:hover:text-sky-300"
-                >
-                  Załóż konto i uporządkuj proces
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
-
-              <div className="grid gap-5 xl:grid-cols-3">
-                {featuredArticles.map((article, index) => (
-                  <WikiArticleCard
-                    key={article.slug}
-                    article={article}
-                    category={article.category}
-                    showCategory
-                    variant={index === 0 ? 'featured' : 'default'}
-                    className={index === 0 ? 'xl:col-span-2' : ''}
-                  />
-                ))}
-              </div>
-            </div>
-          </section>
-        ) : null}
-
-        <section className="px-4 pb-16">
-          <div className="mx-auto max-w-7xl space-y-12">
-            {grouped.map(({ category, articles }) => {
-              const presentation = getWikiPresentationCategory(category.slug);
-
-              return (
-                <section
-                  key={category.slug}
-                  className="rounded-[32px] border border-black/10 bg-white/70 p-6 shadow-[0_28px_90px_-56px_rgba(15,23,42,0.45)] dark:border-white/10 dark:bg-white/[0.03] sm:p-8"
-                >
-                  <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-                    <div className="max-w-3xl">
-                      <div className="inline-flex rounded-full border border-black/10 bg-black/[0.03] px-3 py-1 text-xs font-medium uppercase tracking-[0.16em] text-slate-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-300">
-                        {presentation.badge}
+        <section className="px-4 py-14 md:py-16">
+          <div className="mx-auto max-w-7xl">
+            <div className="space-y-12">
+              {featuredArticles.length ? (
+                <section className="rounded-[32px] border border-black/10 bg-white/70 p-6 shadow-[0_28px_90px_-56px_rgba(15,23,42,0.45)] dark:border-white/10 dark:bg-white/[0.03] sm:p-8">
+                  <div className="mb-8 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                    <div>
+                      <div className="text-sm font-medium uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+                        Polecane poradniki
                       </div>
-                      <div className="mt-4 flex flex-wrap items-center gap-3">
-                        <Link href={`/poradnik/kategoria/${category.slug}`} className="group inline-flex items-center gap-2">
-                          <h2 className="text-2xl font-semibold tracking-tight text-slate-950 transition group-hover:text-sky-700 dark:text-white dark:group-hover:text-sky-300 md:text-3xl">
-                            {category.name}
-                          </h2>
-                          <ArrowRight className="h-5 w-5 text-slate-400 transition group-hover:text-sky-600 dark:group-hover:text-sky-300" />
-                        </Link>
-                        <span className="rounded-full bg-sky-500/10 px-3 py-1 text-sm font-medium text-sky-700 dark:text-sky-300">
-                          {articles.length} {articles.length === 1 ? 'poradnik' : 'poradniki'}
-                        </span>
-                      </div>
-                      {category.description ? (
-                        <p className="mt-3 max-w-2xl text-base leading-8 text-slate-600 dark:text-slate-300">
-                          {category.description}
-                        </p>
-                      ) : null}
+                      <h2 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950 dark:text-white">
+                        Zacznij od tematów, które najczęściej blokują start
+                      </h2>
                     </div>
-
                     <Link
-                      href={`/poradnik/kategoria/${category.slug}`}
-                      className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/80 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-sky-500/30 hover:text-sky-700 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-200 dark:hover:text-sky-300"
+                      href="/rejestracja"
+                      className="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 transition hover:text-sky-700 dark:text-slate-200 dark:hover:text-sky-300"
                     >
-                      Zobacz całą kategorię
+                      Załóż konto i uporządkuj proces
                       <ArrowRight className="h-4 w-4" />
                     </Link>
                   </div>
 
-                  <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-                    {articles.map((article) => (
+                  <div className="grid gap-5 xl:grid-cols-3">
+                    {featuredArticles.map((article, index) => (
                       <WikiArticleCard
                         key={article.slug}
                         article={article}
-                        category={category}
+                        category={article.category}
+                        showCategory
+                        variant={index === 0 ? 'featured' : 'default'}
+                        className={index === 0 ? 'xl:col-span-2' : ''}
+                      />
+                    ))}
+                  </div>
+                </section>
+              ) : null}
+
+              {ksefGroup && ksefSplit.initialRegistration.length ? (
+                <section className="rounded-[32px] border border-sky-200/70 bg-[linear-gradient(135deg,rgba(14,165,233,0.08),rgba(255,255,255,0.96)_34%,rgba(255,255,255,0.92))] p-6 shadow-[0_28px_90px_-56px_rgba(15,23,42,0.45)] dark:border-sky-400/20 dark:bg-[linear-gradient(135deg,rgba(14,165,233,0.14),rgba(255,255,255,0.04)_34%,rgba(255,255,255,0.03))] sm:p-8">
+                  <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                    <div className="max-w-3xl">
+                      <div className="inline-flex rounded-full border border-sky-500/20 bg-sky-500/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.16em] text-sky-700 dark:text-sky-300">
+                        Start z KSeF
+                      </div>
+                      <h2 className="mt-4 text-3xl font-semibold tracking-tight text-slate-950 dark:text-white md:text-4xl">
+                        Jak założyć i uruchomić KSeF
+                      </h2>
+                      <p className="mt-3 max-w-2xl text-base leading-8 text-slate-600 dark:text-slate-300">
+                        Tu są tylko 2 ścieżki startowe: jedna dla JDG, druga dla spółki z o.o. Najpierw wybierz swój typ firmy, potem przejdź do dalszych poradników KSeF.
+                      </p>
+                    </div>
+
+                    <Link
+                      href={`/poradnik/kategoria/${ksefGroup.category.slug}`}
+                      className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/80 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-sky-500/30 hover:text-sky-700 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-200 dark:hover:text-sky-300"
+                    >
+                      Zobacz wszystkie poradniki KSeF
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </div>
+
+                  <div className="grid gap-5 md:grid-cols-2">
+                    {ksefSplit.initialRegistration.map((article) => (
+                      <WikiArticleCard
+                        key={article.slug}
+                        article={article}
+                        category={ksefGroup.category}
                         showCategory={false}
                       />
                     ))}
                   </div>
                 </section>
-              );
-            })}
+              ) : null}
+
+              {ksefGroup && ksefSplit.informational.length ? (
+                <section className="rounded-[32px] border border-black/10 bg-white/70 p-6 shadow-[0_28px_90px_-56px_rgba(15,23,42,0.45)] dark:border-white/10 dark:bg-white/[0.03] sm:p-8">
+                  <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                    <div className="max-w-3xl">
+                      <div className="inline-flex rounded-full border border-black/10 bg-black/[0.03] px-3 py-1 text-xs font-medium uppercase tracking-[0.16em] text-slate-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-300">
+                        KSeF
+                      </div>
+                      <h2 className="mt-4 text-2xl font-semibold tracking-tight text-slate-950 dark:text-white md:text-3xl">
+                        Pozostałe poradniki KSeF
+                      </h2>
+                      <p className="mt-3 max-w-2xl text-base leading-8 text-slate-600 dark:text-slate-300">
+                        Dalsze tematy po starcie: token, dostęp dla biura rachunkowego i inne operacyjne poradniki związane z KSeF.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+                    {ksefSplit.informational.map((article) => (
+                      <WikiArticleCard
+                        key={article.slug}
+                        article={article}
+                        category={ksefGroup.category}
+                        showCategory={false}
+                      />
+                    ))}
+                  </div>
+                </section>
+              ) : null}
+
+              {nonKsefGroups.map(({ category, articles }) => {
+                const presentation = getWikiPresentationCategory(category.slug);
+
+                return (
+                  <section
+                    key={category.slug}
+                    className="rounded-[32px] border border-black/10 bg-white/70 p-6 shadow-[0_28px_90px_-56px_rgba(15,23,42,0.45)] dark:border-white/10 dark:bg-white/[0.03] sm:p-8"
+                  >
+                    <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                      <div className="max-w-3xl">
+                        <div className="inline-flex rounded-full border border-black/10 bg-black/[0.03] px-3 py-1 text-xs font-medium uppercase tracking-[0.16em] text-slate-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-300">
+                          {presentation.badge}
+                        </div>
+                        <div className="mt-4 flex flex-wrap items-center gap-3">
+                          <Link href={`/poradnik/kategoria/${category.slug}`} className="group inline-flex items-center gap-2">
+                            <h2 className="text-2xl font-semibold tracking-tight text-slate-950 transition group-hover:text-sky-700 dark:text-white dark:group-hover:text-sky-300 md:text-3xl">
+                              {category.name}
+                            </h2>
+                            <ArrowRight className="h-5 w-5 text-slate-400 transition group-hover:text-sky-600 dark:group-hover:text-sky-300" />
+                          </Link>
+                          <span className="rounded-full bg-sky-500/10 px-3 py-1 text-sm font-medium text-sky-700 dark:text-sky-300">
+                            {articles.length} {articles.length === 1 ? 'poradnik' : 'poradniki'}
+                          </span>
+                        </div>
+                        {category.description ? (
+                          <p className="mt-3 max-w-2xl text-base leading-8 text-slate-600 dark:text-slate-300">
+                            {category.description}
+                          </p>
+                        ) : null}
+                      </div>
+
+                      <Link
+                        href={`/poradnik/kategoria/${category.slug}`}
+                        className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/80 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-sky-500/30 hover:text-sky-700 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-200 dark:hover:text-sky-300"
+                      >
+                        Zobacz całą kategorię
+                        <ArrowRight className="h-4 w-4" />
+                      </Link>
+                    </div>
+
+                    <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+                      {articles.map((article) => (
+                        <WikiArticleCard
+                          key={article.slug}
+                          article={article}
+                          category={category}
+                          showCategory={false}
+                        />
+                      ))}
+                    </div>
+                  </section>
+                );
+              })}
+            </div>
           </div>
         </section>
 
@@ -224,6 +364,7 @@ export default async function PoradnikPage() {
             </div>
           </div>
         </section>
+        </div>
       </main>
     </>
   );

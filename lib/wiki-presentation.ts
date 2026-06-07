@@ -1,5 +1,10 @@
 import type { WikiArticle, WikiArticleListItem, WikiCategory } from '@/lib/wiki';
 
+const INITIAL_KSEF_REGISTRATION_SLUGS = new Set([
+  'ksef-dla-jdg-jak-zaczac',
+  'ksef-spolka-z-oo-kto-moze-nadac-dostep',
+]);
+
 export type WikiPresentationCategory = {
   badge: string;
   shortLabel: string;
@@ -202,4 +207,26 @@ export function getFeaturedArticles(
 
 export function getQuickTopics(articles: Array<WikiArticleListItem | WikiArticle>): string[] {
   return articles.slice(0, 5).map((article) => article.title);
+}
+
+export function isInitialKsefRegistrationArticle(article: Pick<WikiArticleListItem, 'slug'>): boolean {
+  return INITIAL_KSEF_REGISTRATION_SLUGS.has(article.slug);
+}
+
+export function splitKsefArticlesByStage<T extends Pick<WikiArticleListItem, 'slug'>>(articles: T[]): {
+  initialRegistration: T[];
+  informational: T[];
+} {
+  const initialRegistration: T[] = [];
+  const informational: T[] = [];
+
+  for (const article of articles) {
+    if (isInitialKsefRegistrationArticle(article)) {
+      initialRegistration.push(article);
+    } else {
+      informational.push(article);
+    }
+  }
+
+  return { initialRegistration, informational };
 }

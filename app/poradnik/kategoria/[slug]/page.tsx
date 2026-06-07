@@ -1,14 +1,20 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, ArrowRight, BookOpen, ChevronRight, ExternalLink, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ChevronRight, ExternalLink, Sparkles } from 'lucide-react';
 import { WikiArticleCard } from '@/components/wiki/WikiArticleCard';
+import { WikiCategorySidebar } from '@/components/wiki/WikiCategorySidebar';
 import {
+  getWikiArticlesByCategory,
   getAllWikiCategorySlugs,
   getWikiArticlesForCategory,
   getWikiCategoryBySlug,
 } from '@/lib/wiki';
-import { getQuickTopics, getWikiPresentationCategory } from '@/lib/wiki-presentation';
+import {
+  getQuickTopics,
+  getWikiPresentationCategory,
+  splitKsefArticlesByStage,
+} from '@/lib/wiki-presentation';
 
 type PageProps = {
   params: { slug: string };
@@ -42,11 +48,27 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function WikiCategoryPage({ params }: PageProps) {
+  const grouped = await getWikiArticlesByCategory();
   const { category, articles } = await getWikiArticlesForCategory(params.slug);
   if (!category) notFound();
+  const categorySidebarItems = grouped.map(({ category, articles }) => ({
+    category,
+    count: articles.length,
+  }));
   const presentation = getWikiPresentationCategory(category.slug);
-  const featuredArticle = articles[0] ?? null;
-  const remainingArticles = articles.slice(1);
+  const isKsefCategory = category.slug === 'ksef';
+  const { initialRegistration, informational } = isKsefCategory
+    ? splitKsefArticlesByStage(articles)
+    : { initialRegistration: [], informational: articles };
+  const featuredArticle = isKsefCategory
+    ? initialRegistration[0] ?? informational[0] ?? null
+    : articles[0] ?? null;
+  const remainingArticles = isKsefCategory
+    ? [
+        ...initialRegistration.filter((article) => article.slug !== featuredArticle?.slug),
+        ...informational.filter((article) => article.slug !== featuredArticle?.slug),
+      ]
+    : articles.slice(1);
   const quickTopics = getQuickTopics(articles);
 
   const breadcrumbJsonLd = {
@@ -129,7 +151,10 @@ export default async function WikiCategoryPage({ params }: PageProps) {
         </section>
 
         <section className="px-4 py-12 md:py-14">
-          <div className="mx-auto max-w-7xl space-y-10">
+          <div className="mx-auto max-w-7xl lg:grid lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-8">
+            <WikiCategorySidebar items={categorySidebarItems} activeCategorySlug={category.slug} />
+
+            <div className="space-y-10">
             {featuredArticle ? (
               <div className="grid gap-6 xl:grid-cols-[minmax(0,1.25fr)_360px]">
                 <WikiArticleCard article={featuredArticle} category={category} showCategory={false} variant="featured" />
@@ -183,19 +208,65 @@ export default async function WikiCategoryPage({ params }: PageProps) {
                 <div className="mb-6 flex items-center justify-between gap-4">
                   <div>
                     <h2 className="text-2xl font-semibold tracking-tight text-slate-950 dark:text-white">
-                      Wszystkie poradniki w tej kategorii
+                      {isKsefCategory ? 'Dalsze poradniki w tej kategorii' : 'Wszystkie poradniki w tej kategorii'}
                     </h2>
                     <p className="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">
-                      Każdy poradnik prowadzi od formalności lub problemu do konkretnego następnego kroku.
+                      {isKsefCategory
+                        ? 'Najpierw ścieżka startowa dla JDG lub spółki, potem tematy operacyjne: tokeny, dostępy i dalsza obsługa KSeF.'
+                        : 'Każdy poradnik prowadzi od formalności lub problemu do konkretnego następnego kroku.'}
                     </p>
                   </div>
                 </div>
 
-                <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-                  {remainingArticles.map((article) => (
-                    <WikiArticleCard key={article.slug} article={article} category={category} showCategory={false} />
-                  ))}
-                </div>
+                {isKsefCategory ? (
+                  <div className="space-y-8">
+                    {initialRegistration.filter((article) => article.slug !== featuredArticle?.slug).length ? (
+                      <div>
+                        <div className="mb-4 flex flex-wrap items-center gap-3">
+                          <h3 className="text-xl font-semibold tracking-tight text-slate-950 dark:text-white">
+                            Rejestracja początkowa KSeF
+                          </h3>
+                          <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-sm font-medium text-emerald-700 dark:text-emerald-300">
+                            Druga ścieżka startowa
+                          </span>
+                        </div>
+                        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+                          {initialRegistration
+                            .filter((article) => article.slug !== featuredArticle?.slug)
+                            .map((article) => (
+                              <WikiArticleCard key={article.slug} article={article} category={category} showCategory={false} />
+                            ))}
+                        </div>
+                      </div>
+                    ) : null}
+
+                    {informational.filter((article) => article.slug !== featuredArticle?.slug).length ? (
+                      <div className="border-t border-black/5 pt-8 dark:border-white/10">
+                        <div className="mb-4">
+                          <h3 className="text-xl font-semibold tracking-tight text-slate-950 dark:text-white">
+                            Pozostałe poradniki KSeF
+                          </h3>
+                          <p className="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">
+                            Instrukcje uzupełniające po pierwszym wejściu: token, uprawnienia dla biura i podobne tematy operacyjne.
+                          </p>
+                        </div>
+                        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+                          {informational
+                            .filter((article) => article.slug !== featuredArticle?.slug)
+                            .map((article) => (
+                              <WikiArticleCard key={article.slug} article={article} category={category} showCategory={false} />
+                            ))}
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+                ) : (
+                  <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+                    {remainingArticles.map((article) => (
+                      <WikiArticleCard key={article.slug} article={article} category={category} showCategory={false} />
+                    ))}
+                  </div>
+                )}
               </div>
             ) : (
               <div className="rounded-[28px] border border-dashed border-black/10 bg-white/70 p-8 dark:border-white/10 dark:bg-white/[0.03]">
@@ -207,6 +278,7 @@ export default async function WikiCategoryPage({ params }: PageProps) {
                 </p>
               </div>
             )}
+            </div>
           </div>
         </section>
       </main>

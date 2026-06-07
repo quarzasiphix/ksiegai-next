@@ -1,6 +1,4 @@
 # TODO (Multi-agent)
-Created: legacy-existing (exact date unknown)
-Last modified: 2026-06-01 12:35 CEST
 
 ## Ownership zones
 - Agent A: frontend/UI/UX and SEO content/pages
@@ -27,55 +25,6 @@ Last modified: 2026-06-01 12:35 CEST
   - Notes:
     - Follows T-304 implementation; environment-level action required.
 ## IN PROGRESS
-- [ ] T-324: Hydrate `/rejestracja` invite context from stored invite token
-  - Owner: Codex
-  - Started: 2026-06-01 12:35 CEST
-  - Branch: main (shared)
-  - Reviewer: self
-  - Status: pr_ready
-  - Notes:
-    - Registration now reads the shared invite token contract from `pending_invite_token`, `ksiegai_invite_token`, and the `ksiegai_invite_token` cookie.
-    - Password, magic-link, and OAuth invite paths use the same token resolver.
-    - Valid invite lookup hydrates the prepared company context even when the user reaches `/rejestracja` without `?invite=`.
-  - Files touched (actual):
-    - `ksiegai-next/app/rejestracja/page.tsx`
-    - `ksiegai-next/docs/TODO.md`
-  - DoD:
-    - [x] `/rejestracja` can show invite info from stored token without direct invite-link navigation
-    - [x] invite token is cleared from canonical and legacy storage after successful claim
-    - [x] touched registration page type-checks
-  - Checks run:
-    - `cd ksiegai-next && npx tsc --noEmit --skipLibCheck --jsx preserve --moduleResolution node --target es2020 --module esnext --lib dom,dom.iterable,esnext --allowSyntheticDefaultImports --esModuleInterop app/rejestracja/page.tsx` (pass)
-    - `cd ksiegai-next && npm run build` (blocked: missing `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` for prebuild)
-    - `cd ksiegai-next && npm run lint` (blocked: Next ESLint setup prompt)
-
-- [ ] T-323: Add first-visit invite welcome overlay on marketing pages
-  - Owner: Codex
-  - Started: 2026-05-25 17:34 CEST
-  - Branch: main (shared)
-  - Reviewer: self
-  - Status: pr_ready
-  - Notes:
-    - Scope freeze: `ksiegai-next` invite-entry UX only.
-    - Added a centered invite-only welcome overlay in the global marketing layout.
-    - Overlay reads cached invite attribution when present, falls back to generic invite copy when details are missing, and stores local dismissal so it does not reopen repeatedly for the same invite.
-    - Bridged `InviteTokenCapture` into `pending_invite_token` so invite visitors can continue from content pages into the existing registration/login flow without losing token context.
-    - No schema, RLS, or `ksiegai_auth_token` contract changes.
-  - Files touched (actual):
-    - `ksiegai-next/components/InviteWelcomeOverlay.tsx`
-    - `ksiegai-next/components/InviteTokenCapture.tsx`
-    - `ksiegai-next/app/layout.tsx`
-    - `ksiegai-next/docs/TODO.md`
-    - `ksiegai-next/docs/NOTES.md`
-  - DoD:
-    - [x] invite-link visitors see a premium welcome overlay on public marketing pages
-    - [x] close and CTA dismiss locally so the overlay does not repeat for the same invite
-    - [x] missing invite details fall back to generic copy without breaking render
-    - [ ] `cd ksiegai-next && npx tsc --noEmit` passes
-  - Checks run:
-    - `cd ksiegai-next && npx tsc --noEmit` (blocked by pre-existing repo issues in `node_modules2/*` and unrelated `app/auth/login/page.tsx`)
-    - `cd ksiegai-next && bash -lc 'npx tsc --noEmit --pretty false >/tmp/ksiegai-next-tsc.log 2>&1; rg -n "InviteWelcomeOverlay|InviteTokenCapture|app/layout.tsx" /tmp/ksiegai-next-tsc.log || true'` (pass: no touched-file TypeScript errors)
-
 - [ ] T-322: Fix `/logowanie` hydration mismatch from remembered-profile bootstrap
   - Owner: Codex
   - Started: 2026-05-03 00:00
@@ -298,15 +247,6 @@ Last modified: 2026-06-01 12:35 CEST
     - Confirm audit doc reflects current runtime probe outputs.
 
 ## DONE
-- [x] T-324: Fix NIP-8 poradnik email link alias
-  - Owner: Codex
-  - Reviewer: self
-  - Verified:
-    - `getAllWikiSlugs()` includes `nip-8-po-rejestracji-spolki-zoo`
-    - `getWikiArticle('nip-8-po-rejestracji-spolki-zoo')` resolves the existing NIP-8 fallback article
-    - `rg` confirmed the alias is wired into static slug generation and article lookup
-    - `cd ksiegai-next && npx tsc --noEmit --pretty false` is blocked by pre-existing errors in `app/auth/login/page.tsx` and `node_modules2/*`
-  - Date: 2026-05-31
 - [x] T-322: Logged-in homepage hero with business profile panel + app handoff
   - Owner: Codex
   - Reviewer: self
