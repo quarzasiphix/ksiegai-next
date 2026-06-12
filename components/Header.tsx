@@ -4,11 +4,10 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { getAuthToken, redirectToApp, clearAuthToken, storeAuthToken, storeAndRedirect, checkAndRedirectToLocalhost } from "@/lib/auth/crossDomainAuth";
-import { User, Crown, LogOut, Sun, Moon, ReceiptText } from "lucide-react";
+import { User, Crown, LogOut, ReceiptText } from "lucide-react";
 
 export default function Header() {
   const [user, setUser] = useState<any>(null);
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
 
   useEffect(() => {
     // Check for logout flag from app domain
@@ -226,12 +225,6 @@ export default function Header() {
     }
   };
 
-  const toggleTheme = () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(newTheme);
-    document.documentElement.classList.toggle('dark');
-  };
-
   return (
     <header className="sticky top-0 z-50 border-b border-gray-800 bg-gray-900/80 backdrop-blur-lg">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -259,19 +252,6 @@ export default function Header() {
 
           {/* Right Section */}
           <div className="ml-auto flex min-w-0 items-center gap-2 sm:gap-3 md:gap-4 flex-nowrap justify-end w-auto">
-            {/* Theme Toggle */}
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-full hover:bg-gray-800 transition-colors"
-              aria-label="Toggle theme"
-            >
-              {theme === 'dark' ? (
-                <Sun className="h-5 w-5 text-yellow-400" />
-              ) : (
-                <Moon className="h-5 w-5 text-blue-500" />
-              )}
-            </button>
-
             {/* Auth Section */}
             {user ? (
               <div className="flex items-center gap-2 sm:gap-3 md:gap-4 flex-nowrap justify-end">

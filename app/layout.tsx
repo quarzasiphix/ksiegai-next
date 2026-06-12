@@ -69,7 +69,7 @@ export default function RootLayout({
   const supabaseOrigin = process.env.NEXT_PUBLIC_SUPABASE_URL;
 
   return (
-    <html lang="pl" className="dark">
+    <html lang="pl" className="dark" style={{ colorScheme: "dark" }}>
       <head>
         {gtmId && (
           <Script
