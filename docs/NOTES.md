@@ -1,4 +1,678 @@
 # Notes
+Created: legacy-existing (exact date unknown)
+Last modified: 2026-05-31 20:13 CEST
+
+## 2026-05-31 - Added NIP-8 poradnik alias used by invite emails
+
+What changed:
+- Added a wiki slug alias in [lib/wiki.ts](/p/k/ksiegai-next/lib/wiki.ts) so `/poradnik/nip-8-po-rejestracji-spolki-zoo/` resolves to the existing NIP-8 article at `nip-8-spolka-zoo`.
+- Included the alias in generated static poradnik params, so the static export can emit the email-linked page.
+
+Why:
+- The invite email links to `/poradnik/nip-8-po-rejestracji-spolki-zoo/?invite=...`, but `ksiegai-next` only generated `/poradnik/nip-8-spolka-zoo/`.
+
+Verification evidence (2026-05-31):
+- Confirmed `getAllWikiSlugs()` now returns `nip-8-po-rejestracji-spolki-zoo`.
+- Confirmed `getWikiArticle('nip-8-po-rejestracji-spolki-zoo')` resolves the existing NIP-8 article instead of returning null.
+
+## 2026-05-25 - Invite overlay now shows once per opened invite link and hides for claimed invites
+
+What changed:
+- Updated [components/InviteTokenCapture.tsx](/mnt/c/k/ksiegai-next/components/InviteTokenCapture.tsx) so opening a link with `?invite=...` now:
+  - stores the invite token locally
+  - immediately removes `invite` from the URL
+  - sets a one-time `sessionStorage` trigger for the welcome overlay only when `lookup_admin_invite(...)` says the invite is still valid
+- Updated [components/InviteWelcomeOverlay.tsx](/mnt/c/k/ksiegai-next/components/InviteWelcomeOverlay.tsx) so the overlay no longer depends on the live URL param and no longer uses persistent local dismissals; it opens once from the session trigger and then clears that trigger immediately.
+- Restored URL cleanup in [app/rejestracja/page.tsx](/mnt/c/k/ksiegai-next/app/rejestracja/page.tsx), [app/logowanie/page.tsx](/mnt/c/k/ksiegai-next/app/logowanie/page.tsx), and [components/Header.tsx](/mnt/c/k/ksiegai-next/components/Header.tsx).
+
+Why:
+- the popup should appear only once when a user opens an invite link
+- the raw invite token should not stay visible in the browser URL
+- already claimed invites should not keep reopening the marketing welcome overlay
+
+Verification evidence (2026-05-25):
+- Re-read the capture/overlay flow and confirmed `history.replaceState()` removes `invite` again.
+- Confirmed the overlay now keys off a one-time session trigger instead of the current URL.
+- Confirmed `InviteTokenCapture` skips setting the overlay trigger when `lookup_admin_invite(...)` is not valid, which covers claimed invites.
+
+## 2026-05-25 - Invite screens now keep `?invite=` in the URL
+
+What changed:
+- Updated [app/rejestracja/page.tsx](/mnt/c/k/ksiegai-next/app/rejestracja/page.tsx), [app/logowanie/page.tsx](/mnt/c/k/ksiegai-next/app/logowanie/page.tsx), and [components/Header.tsx](/mnt/c/k/ksiegai-next/components/Header.tsx) so the invite token is no longer stripped from the URL on first load.
+- The invite flow still caches `pending_invite_token` in localStorage, but the URL itself now remains a live source of truth for showing invite-personalized UI.
+
+Why:
+- invite entry screens should show the personalized invite state every time the user opens a link containing `?invite=...`, not only on the first load before the param gets removed
+
+Verification evidence (2026-05-25):
+- Re-read all three invite-entry effects and confirmed they still persist the token locally but no longer call `history.replaceState()` to remove `invite` from the URL.
+
+## 2026-05-25 - Added first-visit invite welcome overlay on marketing pages
+
+What changed:
+- Added [components/InviteWelcomeOverlay.tsx](/mnt/c/k/ksiegai-next/components/InviteWelcomeOverlay.tsx) and mounted it from [app/layout.tsx](/mnt/c/k/ksiegai-next/app/layout.tsx).
+- The overlay opens only when the current URL includes `?invite=...`, skips auth routes, reads cached invite attribution when available, and falls back to generic invited-user copy when cached details are incomplete.
+- Closing the overlay or clicking `Continue to blog` stores a local dismissal keyed to the cached invite identity so the same invite does not keep reopening the modal.
+- Updated [components/InviteTokenCapture.tsx](/mnt/c/k/ksiegai-next/components/InviteTokenCapture.tsx) to also persist `pending_invite_token`, keeping content-page invite entries compatible with the existing registration/login flow.
+- Added PostHog event coverage for:
+  - `invite_welcome_overlay_viewed`
+  - `invite_welcome_overlay_dismissed`
+
+Why:
+- invite visitors needed a stronger email-to-site handoff that feels deliberate and personalized instead of dropping straight into normal public browsing
+- the marketing site already had invite capture, but content-page entries could lose compatibility with the registration flow because the global capture key and auth-flow key were different
+
+Verification evidence (2026-05-25):
+- Re-read the mounted layout flow and confirmed the overlay is gated behind `?invite=` and local dismissal.
+- Re-read the overlay fallback logic and confirmed it renders safely with recipient/company details, company-only details, or no cached details at all.
+
+Scope notes:
+- Marketing invite UX only.
+- No schema, RLS, or `ksiegai_auth_token` handoff changes.
+
+## 2026-05-25 - Added missing fallback article for `/poradnik/nip-8-spolka-zoo`
+
+What changed:
+- Added a fallback wiki article entry for slug `nip-8-spolka-zoo` in [lib/wiki-fallback.ts](/mnt/c/k/ksiegai-next/lib/wiki-fallback.ts).
+- The slug was already referenced from related-actions links, but no article existed under that exact path, which caused a 404.
+
+Why:
+- `/poradnik/nip-8-spolka-zoo` was linked internally and expected to resolve.
+- The page failed because the fallback article list had references to the slug but no actual article block.
+
+Verification evidence (2026-05-25):
+- Re-checked the fallback wiki source and confirmed the exact slug now exists as a standalone article entry.
+
+## 2026-05-25 - Redirect invited first-login straight into onboarding routes
+
+What changed:
+- Added [lib/auth/inviteOnboarding.ts](/mnt/c/k/ksiegai-next/lib/auth/inviteOnboarding.ts) to map invite company types to app onboarding routes.
+- Updated invite-claim redirects in [app/rejestracja/page.tsx](/mnt/c/k/ksiegai-next/app/rejestracja/page.tsx), [app/logowanie/page.tsx](/mnt/c/k/ksiegai-next/app/logowanie/page.tsx), and [app/auth/callback/page.tsx](/mnt/c/k/ksiegai-next/app/auth/callback/page.tsx).
+- Claimed invites now go to `/onboard/jdg` or `/onboard/spolka` instead of `/invite-welcome`.
+
+Why:
+- invited users should enter the app through the onboarding route that matches the invited business type
+- the app can then show the invite-linked business context immediately instead of a generic dashboard or company-creation entry
+
+Verification evidence (2026-05-25):
+- Re-read the three invite claim redirect paths and confirmed all now use the same onboarding-path mapper.
+
+Scope notes:
+- Invite redirect behavior only.
+- No change to the `ksiegai_auth_token` handoff contract.
+
+## 2026-05-25 - Linked claimed invite metadata onto business profiles
+
+What changed:
+- Added [supabase/migrations/20260525093825_link_invite_to_business_profile.sql](/mnt/c/k/ksiegai-next/supabase/migrations/20260525093825_link_invite_to_business_profile.sql).
+- New `business_profiles` columns:
+  - `source_invite_id`
+  - `source_invite_token_hash`
+- Backfilled those columns from already-claimed rows in `admin_company_invites`.
+- Replaced `claim_admin_invite(...)` so every future invite claim writes the invite id and token hash onto the created business profile row.
+
+Why:
+- the invite row already knew which business profile it created, but the business profile itself had no reverse link back to the invite
+- that made later invite-aware onboarding, analytics joins, and support/debugging depend too much on transient local storage or auth metadata
+
+Verification evidence (2026-05-25):
+- Re-read the migration and confirmed it both backfills existing claimed invites and writes the linkage during new claims.
+- Confirmed the stored value is the invite token hash, not the raw token.
+
+Scope notes:
+- Shared schema / claim-flow change.
+- No change to the `ksiegai_auth_token` handoff contract.
+
+## 2026-05-25 - Fixed saved invite token routing for registration vs login
+
+What changed:
+- Added [supabase/migrations/20260525093235_add_invite_recipient_account_flag.sql](/mnt/c/k/ksiegai-next/supabase/migrations/20260525093235_add_invite_recipient_account_flag.sql) to extend `lookup_admin_invite(...)` with `recipient_has_account`.
+- Updated [app/rejestracja/page.tsx](/mnt/c/k/ksiegai-next/app/rejestracja/page.tsx) so invite personalization now works when the token is already saved in `localStorage`, not only when `?invite=` is present in the URL.
+- Invited users whose recipient e-mail already has an account are now redirected from `/rejestracja` to `/logowanie` automatically after invite lookup.
+- Updated [app/logowanie/page.tsx](/mnt/c/k/ksiegai-next/app/logowanie/page.tsx) to also accept and persist `?invite=` directly, then prefill the invited e-mail from invite lookup.
+- Updated [components/Header.tsx](/mnt/c/k/ksiegai-next/components/Header.tsx) so the invite CTA goes to `/logowanie?invite=...` for existing invited accounts and `/rejestracja?invite=...` otherwise.
+
+Why:
+- the saved invite flow was inconsistent: the header could show the invite company, but `/rejestracja` only personalized when the token was still in the URL
+- existing invited users should not be pushed through registration again; they should land on login with the invited e-mail already filled in
+
+Verification evidence (2026-05-25):
+- Re-read the invite lookup path in header, registration, and login and confirmed all three now read the same saved invite token source.
+- Re-read the new migration and confirmed `lookup_admin_invite(...)` now returns `recipient_has_account` by checking `auth.users` for the invited e-mail.
+
+Scope notes:
+- Invite routing and personalization only.
+- No change to the `ksiegai_auth_token` handoff contract.
+
+## 2026-05-24 - Hardened go-to-app handoff for not-yet-verified users
+
+What changed:
+- Updated [components/Header.tsx](/mnt/c/k/ksiegai-next/components/Header.tsx) so `Przejdź do aplikacji` no longer depends only on a live in-memory Supabase session on the marketing site.
+- The CTA now falls back to:
+  - the stored cross-domain token when present
+  - a session restore attempt from the cross-domain token before redirecting
+- This keeps the handoff path working for accounts that exist but do not yet have a stable local session on the marketing domain.
+
+Why:
+- some not-yet-verified users could click the header CTA and reach a broken handoff path where the marketing site user state existed, but `supabase.auth.getSession()` was not enough to complete a clean redirect into the app
+- the CTA should prefer an already-issued cross-domain token when available instead of acting like the user is unauthenticated
+
+Verification evidence (2026-05-24):
+- Re-read the CTA handler and confirmed it now tries current session, then stored cross-domain token, then a restore attempt, before falling back to a plain redirect.
+
+Scope notes:
+- Header auth handoff only.
+- No route, schema, RLS, or `ksiegai_auth_token` contract changes.
+
+## 2026-05-24 - Added invite funnel attribution and PostHog event coverage
+
+What changed:
+- Added invite-attribution helpers in [lib/posthog/inviteAttribution.ts](/mnt/c/k/ksiegai-next/lib/posthog/inviteAttribution.ts) to persist invite context locally and register it as PostHog super-properties.
+- Extended [app/rejestracja/page.tsx](/mnt/c/k/ksiegai-next/app/rejestracja/page.tsx), [app/logowanie/page.tsx](/mnt/c/k/ksiegai-next/app/logowanie/page.tsx), and [app/auth/callback/page.tsx](/mnt/c/k/ksiegai-next/app/auth/callback/page.tsx) so invited flows now capture:
+  - `invite_link_opened`
+  - `invite_registration_started`
+  - `invite_password_submitted`
+  - `invite_company_prefilled`
+  - `business_activated`
+- Extended auth user metadata writes during invite claim so the app receives invite attribution fields such as `invite_token_hash`, `invite_company_name`, `invite_recipient_email`, `invite_company_type`, and `invite_business_profile_id`.
+- Updated [components/wiki/WikiArticleCard.tsx](/mnt/c/k/ksiegai-next/components/wiki/WikiArticleCard.tsx) to capture `poradnik_card_clicked` directly from the shared poradnik card component.
+
+Why:
+- invite tracking was fragmented between the marketing site and the app, which made it hard to follow one invited person from first content touch through registration and handoff
+- the product app needs stable invite properties on the authenticated user record to continue attribution after the cross-domain redirect
+- `poradnik_card_clicked` should be emitted at the click source, not inferred only from later referrers
+
+Verification evidence (2026-05-24):
+- Re-read the touched auth paths and confirmed invite claims now write the same invite attribution fields into auth user metadata before redirecting to the app.
+- Re-read the shared wiki card component and confirmed poradnik card clicks now emit `poradnik_card_clicked` with article and destination metadata.
+
+Scope notes:
+- Tracking and auth metadata only.
+- No route, schema, RLS, or `ksiegai_auth_token` contract changes in this slice.
+
+## 2026-05-24 - Added optional premium trial to admin company invites
+
+What changed:
+- Added `premium_trial_days` to admin-created company invites in [supabase/migrations/20260524_admin_invites_premium_trial.sql](/mnt/c/k/ksiegai-next/supabase/migrations/20260524_admin_invites_premium_trial.sql).
+- Extended `upsert_admin_invite` so admin tools can store an optional trial duration on the invite.
+- Extended `claim_admin_invite` so claiming an invite can create the business profile with:
+  - `subscription_tier` derived from company type
+  - `subscription_status = 'trial'`
+  - `subscription_starts_at`
+  - `trial_ends_at`
+- Also aligned `claim_admin_invite` return payload with the app callback usage by returning `invite_id` and `campaign_source`.
+
+Why:
+- admin invite onboarding needed a way to pre-grant a time-bounded Premium trial during invite setup
+- the existing premium model already reads `subscription_tier`, `subscription_status`, and `trial_ends_at` from `business_profiles`, so the invite claim flow should write into that canonical surface instead of inventing a parallel trial system
+
+Verification evidence (2026-05-24):
+- Re-read the new migration and confirmed the invite field is persisted, validated, and consumed during claim.
+- Re-checked the premium access code in `ksef-ai` and confirmed business-level trial access is already derived from `trial_ends_at` and `subscription_tier`.
+
+Scope notes:
+- Admin invite schema and claim-flow change.
+- UI for editing/creating the field lives in `admin-ksiegai`; runtime premium consumption remains in `ksef-ai`.
+
+## 2026-05-24 - Fixed password signup email confirmation redirect
+
+What changed:
+- Updated [app/auth/confirm/page.tsx](/mnt/c/k/ksiegai-next/app/auth/confirm/page.tsx) so email confirmation for `type=signup` no longer redirects users to `/settings/password`.
+- `signup` confirmations now redirect to `/welcome?flow=signup`.
+- `invite` confirmations now redirect to `/welcome?flow=invite` instead of the password setup screen.
+
+Why:
+- password-based signup already sets the password before the user clicks the confirmation e-mail
+- sending confirmed signup users to the app password setup screen was incorrect and created a false "add password" step
+- the correct next step after successful signup confirmation is onboarding
+
+Verification evidence (2026-05-24):
+- Re-read the confirm flow and confirmed `type=signup` now resolves to the onboarding path instead of `/settings/password`.
+- Verified the password setup screen in `ksef-ai` is described as optional login setup, which matches removing it from the password-signup confirmation path.
+
+Scope notes:
+- Marketing-site auth confirmation redirect only.
+- No schema, RLS, or `ksiegai_auth_token` contract changes.
+
+## 2026-05-24 - Added CRBR slug alias to prevent poradnik 404
+
+What changed:
+- Added a fallback wiki article alias in [lib/wiki-fallback.ts](/mnt/c/k/ksiegai-next/lib/wiki-fallback.ts) for the slug `/poradnik/crbr-spolka-zoo-beneficjent-rzeczywisty`.
+- Kept the existing CRBR article slug `/poradnik/crbr-spolka-zoo-co-zglosic` intact and mapped the requested alternate slug to the same content.
+
+Why:
+- the requested URL was 404ing because the repo only had the CRBR article under a different fallback slug
+- this is a slug-compatibility fix, not a content absence fix
+
+Verification evidence (2026-05-24):
+- Re-read fallback wiki entries and confirmed both CRBR slugs now exist in the static article source, so `generateStaticParams()` can include the alias and the route can resolve.
+
+Scope notes:
+- Content routing alias only.
+- No schema, RLS, or `ksiegai_auth_token` contract changes.
+
+## 2026-05-24 - Stopped shared search-param tracking from deopting whole pages
+
+What changed:
+- Updated [components/PostHogProvider.tsx](/mnt/c/k/ksiegai-next/components/PostHogProvider.tsx) so `useSearchParams()` is no longer called at the top level of the root layout provider.
+- Moved query-string dependent tracking and attribution persistence into a small `RouteEffectsTracker` child that stays behind the existing `Suspense` boundary.
+
+Why:
+- `PostHogProvider` sits in the root layout, so using `useSearchParams()` there was causing full-page client-side rendering deopts on routes like `/poradnik/[slug]` and `/ksef`.
+- The search-param logic only needs a tiny client island, not a whole-page deopt.
+
+Verification evidence (2026-05-24):
+- Re-read the provider and confirmed the root provider no longer imports route query state into the layout-level render path.
+- `useSearchParams()` now stays scoped to a Suspense-wrapped child component instead of the layout shell.
+
+Scope notes:
+- Tracking/layout rendering fix only.
+- No route, schema, RLS, or `ksiegai_auth_token` contract changes.
+
+## 2026-05-24 - Made invite onboarding export-safe for static builds
+
+What changed:
+- Extracted the invite onboarding UI and logic into [components/invites/InviteRegistrationPage.tsx](/mnt/c/k/ksiegai-next/components/invites/InviteRegistrationPage.tsx).
+- Added a static invite entry page at [app/zaproszenie/page.tsx](/mnt/c/k/ksiegai-next/app/zaproszenie/page.tsx) that reads the invite token from `?token=...`.
+- Removed the dynamic App Router page `app/zaproszenie/[token]/page.tsx` entirely so Next static export no longer tries to build an incompatible open-ended token route.
+
+Why:
+- `output: "export"` cannot build an open-ended dynamic route like `/zaproszenie/[token]` without static params.
+- The old invite route shape blocked production builds.
+- A static `/zaproszenie?token=...` page keeps the flow compatible with this repo's export mode.
+
+Verification evidence (2026-05-24):
+- Re-read the route setup and confirmed the static `/zaproszenie` page now exists, while the dynamic token route no longer violates the export requirement.
+
+Scope notes:
+- Invite onboarding route handling only.
+- No schema, RLS, or `ksiegai_auth_token` contract changes.
+
+## 2026-05-24 - Stopped AB test tracking from throwing 406 on missing assignments
+
+What changed:
+- Updated [lib/ab-testing-ssg.ts](/mnt/c/k/ksiegai-next/lib/ab-testing-ssg.ts) so assignment lookups used by page-view, conversion, and custom-event tracking now use `maybeSingle()` instead of `single()`.
+- Updated [lib/ab-testing-supabase.ts](/mnt/c/k/ksiegai-next/lib/ab-testing-supabase.ts) the same way for zero-or-one assignment reads.
+- Added explicit early returns on real lookup errors while treating “no row yet” as a normal state.
+
+Why:
+- fresh or unassigned sessions were hitting PostgREST with a single-object expectation on `ab_test_assignments`
+- when no assignment row existed yet, Supabase returned `406` / `PGRST116` (`0 rows`), which is noisy and incorrect for this flow
+- assignment reads in this path are naturally zero-or-one, not exactly-one
+
+Verification evidence (2026-05-24):
+- Re-read all `ab_test_assignments` lookup paths touched in the two modules and confirmed the failing `select=id&test_id=...&session_id=...` reads no longer demand exactly one row.
+
+Scope notes:
+- Client tracking logic only.
+- No route, auth, schema, or `ksiegai_auth_token` contract changes.
+
+## 2026-05-24 - Replaced weak homepage hero copy on the main index
+
+What changed:
+- Updated the default homepage hero copy in [components/home/HomeHero.tsx](/mnt/c/k/ksiegai-next/components/home/HomeHero.tsx).
+- Replaced the old control/variant example strings in [public/ab-tests.example.json](/mnt/c/k/ksiegai-next/public/ab-tests.example.json) so the stale wording does not remain in sample AB payloads.
+- New hero direction is simpler and more product-shaped:
+  - one place for faktury, KSeF, and payments
+  - less abstract language
+  - no awkward "warstwa kontroli i odpowiedzialności" phrasing
+
+Why:
+- the previous homepage hero copy was too abstract and sounded unnatural
+- the core landing page message should explain the product fast, in plain language, without making users decode internal process language
+
+Verification evidence (2026-05-24):
+- Re-read the live default strings in `HomeHero.tsx` and confirmed the main homepage fallback now communicates one clear value proposition instead of the old awkward copy.
+- Re-read `public/ab-tests.example.json` and confirmed the sample hero copy matches the updated direction.
+
+Scope notes:
+- Copy-only marketing change.
+- No route, auth, schema, or `ksiegai_auth_token` contract changes.
+
+## 2026-05-24 - Corrected KSeF sp. z o.o. poradnik sequence around konto organizacji and ZAW-FA
+
+What changed:
+- Updated the fallback article for `/poradnik/ksef-spolka-z-oo-kto-moze-nadac-dostep` in [lib/wiki-fallback.ts](/mnt/c/k/ksiegai-next/lib/wiki-fallback.ts) to correct the first-access sequence for sp. z o.o.
+- Rewrote the guide so it now states clearly:
+  - first access starts in e-Urząd Skarbowy on `konto organizacji`
+  - then the representative files `ZAW-FA`
+  - only after that can anyone log into the KSeF portal in the company context
+  - token generation and granting access to staff/accounting office happen after first KSeF access, not before
+- Updated the article excerpt, summary, checklist, FAQ, and `updated_at` timestamp to match the corrected flow.
+
+Why:
+- the previous copy incorrectly implied that a KRS representative could start directly from the KSeF portal
+- for this article, that order was wrong and would mislead users about the prerequisite `konto organizacji` and `ZAW-FA` steps
+
+Verification evidence (2026-05-24):
+- Re-read the article source block in `lib/wiki-fallback.ts` and verified the order is now explicit: `konto organizacji` -> `ZAW-FA` -> first KSeF login -> token / further permissions.
+
+Scope notes:
+- Content-only change in fallback poradnik data.
+- No route, auth, schema, or `ksiegai_auth_token` contract changes.
+
+## 2026-05-18 - Reworked poradnik into a wider SaaS knowledge hub layout
+
+What changed:
+- Rebuilt [app/poradnik/page.tsx](/mnt/c/k/ksiegai-next/app/poradnik/page.tsx) into a full-width hub with:
+  - stronger hero
+  - article/category stats
+  - featured guides
+  - category sections with premium card grids
+- Reworked [app/poradnik/kategoria/[slug]/page.tsx](/mnt/c/k/ksiegai-next/app/poradnik/kategoria/[slug]/page.tsx) into a real category landing page with:
+  - wider hero
+  - featured article
+  - quick topics
+  - category CTA/roadmap panel
+- Rebuilt [app/poradnik/[slug]/page.tsx](/mnt/c/k/ksiegai-next/app/poradnik/[slug]/page.tsx) into a structured article layout with:
+  - richer hero
+  - wider article column
+  - sticky sidebar
+  - related actions
+  - stronger related-guide linking
+- Added shared wiki presentation helpers and reusable wiki article cards:
+  - [components/wiki/WikiArticleCard.tsx](/mnt/c/k/ksiegai-next/components/wiki/WikiArticleCard.tsx)
+  - [lib/wiki-presentation.ts](/mnt/c/k/ksiegai-next/lib/wiki-presentation.ts)
+- Improved [components/MarkdownRenderer.tsx](/mnt/c/k/ksiegai-next/components/MarkdownRenderer.tsx) typography and spacing for guide readability.
+- Expanded `getRelatedWikiArticles(...)` in [lib/wiki.ts](/mnt/c/k/ksiegai-next/lib/wiki.ts) so related links can fall back to adjacent categories when same-category content is too thin.
+- Tightened external official-link behavior to use `rel="noopener noreferrer"` on article pages.
+
+Why:
+- the previous poradnik pages were too narrow on desktop and read more like simple blog pages than a serious SaaS docs/SEO system
+- the new layout is built to scale as more KSeF/compliance/faktury guides are added without changing routes or the content model
+
+Verification evidence (2026-05-18):
+- `cd /mnt/c/k/ksiegai-next && npx tsc --noEmit` -> pass
+- `cd /mnt/c/k/ksiegai-next && npm run build` -> pass
+
+Scope notes:
+- No route or slug changes.
+- No database schema, RLS, or Supabase backend contract changes.
+- No change to the `ksiegai_auth_token` cross-domain handoff contract.
+
+## 2026-05-18 - Rebuilt sitemap around the full public site surface
+
+What changed:
+- Updated [app/sitemap.ts](/mnt/c/k/ksiegai-next/app/sitemap.ts) to use one explicit static route map for the public marketing/legal/conversion pages.
+- Added `/rejestracja` to the sitemap.
+- Kept the full poradnik tree covered:
+  - `/poradnik`
+  - `/poradnik/kategoria/[slug]`
+  - `/poradnik/[slug]`
+- Left helper auth routes out of the sitemap so it stays focused on real public pages.
+
+Why:
+- the old sitemap was a partial hand-maintained list
+- the public content surface, especially poradnik, needed a clearer canonical map
+
+Verification evidence (2026-05-18):
+- `cd /mnt/c/k/ksiegai-next && npx tsc --noEmit` -> pass
+- `cd /mnt/c/k/ksiegai-next && npm run build` -> pass
+
+Scope notes:
+- No database schema, RLS, or Supabase backend contract changes.
+- No change to the `ksiegai_auth_token` cross-domain handoff contract.
+
+## 2026-05-17 - Preserved marketing UTM attribution across auth handoff into app
+
+What changed:
+- Updated [lib/auth/crossDomainAuth.ts](/mnt/c/k/ksiegai-next/lib/auth/crossDomainAuth.ts) so redirects into `app.ksiegai.pl` now carry stored handoff attribution params.
+- The handoff now preserves:
+  - `utm_source`
+  - `utm_medium`
+  - `utm_campaign`
+  - `utm_term`
+  - `utm_content`
+- Added a default fallback of `utm_source=ksiegai_site` when no explicit source is present.
+- Updated [components/PostHogProvider.tsx](/mnt/c/k/ksiegai-next/components/PostHogProvider.tsx) to persist those attribution params from the current marketing-site URL so they survive OAuth and magic-link auth bounces before `redirectToApp(...)`.
+
+Why:
+- signup/login already called `posthog.identify(...)`, but the cross-domain redirect into the app was dropping marketing attribution
+- preserving UTM params is the simple safe version of cross-domain journey tracking before passing PostHog IDs directly
+
+Verification evidence (2026-05-17):
+- `cd ksiegai-next && npx tsc --noEmit` -> passed
+
+Scope notes:
+- No database schema, RLS, or Supabase backend contract changes.
+- No change to the `ksiegai_auth_token` cross-domain handoff contract.
+
+## 2026-05-17 - Localhost PostHog now tags internal marketing traffic and privacy policy mentions PostHog
+
+What changed:
+- Updated [components/PostHogProvider.tsx](/mnt/c/k/ksiegai-next/components/PostHogProvider.tsx) so localhost sessions are no longer skipped entirely.
+- Local marketing sessions now register:
+  - `app_surface: marketing`
+  - `is_internal_user: true`
+- Localhost uses the direct PostHog host, while deployed builds still use the first-party `/ingest` proxy path.
+- Updated [app/polityka-prywatnosci/page.tsx](/mnt/c/k/ksiegai-next/app/polityka-prywatnosci/page.tsx) to mention PostHog explicitly in provider/cookies/analytics disclosure.
+
+Why:
+- internal test traffic on localhost should be identifiable in PostHog instead of being dropped
+- privacy policy needed to disclose the analytics tooling more explicitly
+
+Verification evidence (2026-05-17):
+- `cd ksiegai-next && npx tsc --noEmit` -> passed
+
+Scope notes:
+- No database schema, RLS, or Supabase backend contract changes.
+- No change to the `ksiegai_auth_token` cross-domain handoff contract.
+
+## 2026-05-17 - Registered PostHog marketing defaults
+
+What changed:
+- Updated [components/PostHogProvider.tsx](/mnt/c/k/ksiegai-next/components/PostHogProvider.tsx) so `ksiegai-next` registers the default PostHog property `app_surface: marketing` right after initialization.
+
+Why:
+- marketing-site events should carry a stable surface marker so product and acquisition traffic are easier to separate in PostHog.
+
+Verification evidence (2026-05-17):
+- `cd ksiegai-next && npx tsc --noEmit` -> passed
+
+Scope notes:
+- No database schema, RLS, or Supabase backend contract changes.
+- No change to the `ksiegai_auth_token` cross-domain handoff contract.
+
+## 2026-05-17 - Proxied PostHog through first-party Cloudflare Pages function path
+
+What changed:
+- Updated [components/PostHogProvider.tsx](/mnt/c/k/ksiegai-next/components/PostHogProvider.tsx) so deployed builds use the first-party `/ingest` path for PostHog instead of calling `https://eu.i.posthog.com` directly from the browser.
+- Added [functions/ingest/[[path]].ts](/mnt/c/k/ksiegai-next/functions/ingest/[[path]].ts) as a Cloudflare Pages Function proxy that forwards `/ingest` and `/ingest/*` to the PostHog EU host.
+- Restored [wrangler.jsonc](/mnt/c/k/ksiegai-next/wrangler.jsonc) to the normal Pages-oriented shape instead of the separate-Worker setup.
+- The proxy strips `cookie`, `authorization`, `origin`, `referer`, and `host` headers before forwarding so first-party site credentials are not leaked upstream.
+
+Why:
+- production `ksiegai.pl` was still requesting PostHog assets and config from the third-party `eu.i.posthog.com` domain
+- that is commonly blocked by browser privacy tooling and ad blockers
+- this site is deployed through Cloudflare Pages, so the proxy must live in the Pages `functions/` surface instead of a separate Worker-only entrypoint
+- routing analytics through the app's own domain makes delivery more reliable on Cloudflare without changing the rest of the static export architecture
+
+Verification evidence (2026-05-17):
+- `cd ksiegai-next && npx tsc --noEmit` -> passed
+- `cd ksiegai-next && npm run build` -> passed
+
+Scope notes:
+- No database schema, RLS, or Supabase backend contract changes.
+- No change to the `ksiegai_auth_token` cross-domain handoff contract.
+
+## 2026-05-17 - Fixed poradnik static export crash for fallback categories
+
+What changed:
+- Updated [lib/wiki.ts](/mnt/c/k/ksiegai-next/lib/wiki.ts) so fallback wiki categories with non-UUID ids do not get passed into a UUID-only `category_id` database filter.
+- Added a small UUID guard and skipped the DB category query when the category comes from fallback content like `fallback-compliance`.
+
+Why:
+- public poradnik fallback categories use ids like `fallback-compliance`
+- export was crashing in `getWikiArticlesForCategory()` because Supabase/Postgres was receiving `.eq('category_id', 'fallback-compliance')`
+- Postgres correctly rejected that with `invalid input syntax for type uuid`
+
+Verification evidence (2026-05-17):
+- `cd ksiegai-next && npm run build` -> passed
+- this specifically clears the failing static export paths under:
+  - `/poradnik/[slug]`
+  - `/poradnik/kategoria/[slug]`
+
+## 2026-05-17 - Disabled PostHog on local `ksiegai-next` hosts
+
+What changed:
+- Updated [components/PostHogProvider.tsx](/mnt/c/k/ksiegai-next/components/PostHogProvider.tsx) so PostHog only initializes when the browser is not on a loopback host.
+- Added explicit local-host detection for:
+  - `localhost`
+  - `127.*`
+  - `0.0.0.0`
+  - `[::1]`
+- When running on those local hosts, the provider now returns children without booting PostHog.
+
+Why:
+- `ksiegai-next` was still initializing PostHog on local `127.0.0.1`, which caused external `config.js` requests during dev even though analytics should stay off locally.
+
+Verification evidence (2026-05-17):
+- Regex sanity check confirmed:
+  - `localhost` -> `true`
+  - `127.0.0.1` -> `true`
+  - `0.0.0.0` -> `true`
+  - `[::1]` -> `true`
+  - `example.com` -> `false`
+- `cd ksiegai-next && npx tsc --noEmit --pretty false` did not complete in this environment, so typecheck is still pending.
+
+## 2026-05-16 - Centralized public pricing values
+
+What changed:
+- Added `lib/pricing.ts` as the shared source for public JDG and Spółka Standard plan amounts.
+- Updated `/cennik`, `/premium`, and `/regulamin` to read pricing copy from the shared module instead of repeating hardcoded numbers.
+- Moved the `/cennik` plan cards and schema price onto the centralized values so public marketing copy and legal copy drift less easily.
+
+Verification evidence (2026-05-16):
+- `cd ksiegai-next && npx tsc --noEmit` -> passed
+
+Scope notes:
+- No database schema, RLS, or Supabase backend contract changes.
+- No change to the `ksiegai_auth_token` cross-domain handoff contract.
+
+## 2026-05-16 - Public poradnik article routes and simplified homepage hero
+
+What changed:
+- Added public article pages at `/poradnik/[slug]` with server metadata, structured data, checklist sidebar, official links, and related article cards.
+- Added public category pages at `/poradnik/kategoria/[slug]`.
+- Extended `app/sitemap.ts` to include `/poradnik`, public wiki categories, and public wiki article URLs.
+- Added fallback public wiki categories/articles in `lib/wiki-fallback.ts` for key SEO topics (`KSeF token`, `konto organizacji e-US`, `CRBR`, `e-Doręczenia`) so the poradnik works even when CMS rows are sparse.
+- Added visible breadcrumb trails plus breadcrumb schema on public wiki article/category pages.
+- Added visible FAQ sections on article pages when FAQ data exists.
+- Added public `llms.txt`.
+- Simplified the homepage hero by removing the client-side A/B hero/preload path and switching to one static message focused on KSeF + Stripe + checklist workflows.
+- Reduced hero clutter by removing the third equal-weight CTA and replacing it with three compact proof cards.
+- Added `Poradnik` to the footer and tightened SEO-facing copy on `/cennik` and `/poradnik` to mention KSeF and Stripe more explicitly.
+
+Verification evidence (2026-05-16):
+- `cd ksiegai-next && npx tsc --noEmit` -> passed
+
+Scope notes:
+- No database schema, RLS, or Supabase backend contract changes.
+- No change to the `ksiegai_auth_token` cross-domain handoff contract.
+
+## 2026-05-09 - Token-based quick resume for saved `/logowanie` profiles
+
+What changed:
+- Added per-profile remembered session token storage alongside the existing remembered-profile list.
+- `/logowanie` now tries direct session restore for the clicked profile before falling back to Google, magic-link, or password confirmation.
+- `/auth/callback`, `/logowanie`, and the shared header auth listener now refresh the stored profile token whenever a session is created or refreshed.
+
+Verification evidence (2026-05-09):
+- `cd ksiegai-next && npx tsc --noEmit` -> passed
+- `cd ksiegai-next && npm run build` -> passed
+
+Scope notes:
+- No database schema, RLS, or Supabase backend contract changes.
+- No change to the `ksiegai_auth_token` cross-domain handoff contract.
+
+## 2026-05-04 - Split local dev and export build output directories
+
+What changed:
+- Added `distDir: isDevCommand ? ".next-dev" : ".next"` in `next.config.js`.
+- Local `next dev` now writes to `.next-dev`, while build/export keeps using `.next`.
+
+Why:
+- The app mixes two incompatible modes:
+  - local dev server (`next dev`)
+  - static export build for Cloudflare Pages (`next build` with `output: "export"`)
+- Reusing the same `.next` directory let local runtime pick up stale export artifacts, which caused missing manifest errors such as `middleware-manifest.json`.
+
+Verification evidence (2026-05-04):
+- Config inspection confirms dev/build outputs are now separated by lifecycle event.
+
+Scope notes:
+- No database schema, RLS, or Supabase backend contract changes.
+- No change to the `ksiegai_auth_token` cross-domain handoff contract.
+
+## 2026-05-04 - Moved TypeScript build toolchain into production deps
+
+What changed:
+- Moved `typescript`, `@types/node`, `@types/react`, and `@types/react-dom` into `dependencies` in `package.json`.
+- Refreshed `package-lock.json` so production-only installs use the same dependency split.
+
+Verification evidence (2026-05-04):
+- `cd ksiegai-next && npx tsc --noEmit` -> passed
+- `package-lock.json` root package entry now lists the TypeScript toolchain under `dependencies`
+
+Scope notes:
+- No database schema, RLS, or Supabase backend contract changes.
+- No change to the `ksiegai_auth_token` cross-domain handoff contract.
+
+## 2026-05-04 - Removed runtime `@/` imports from `ksiegai-next`
+
+What changed:
+- Replaced runtime `@/` path-alias imports across `app/`, `components/`, `hooks/`, and `lib/` with relative imports.
+- Kept the same module graph and behavior; this is a build-compatibility change only.
+
+Verification evidence (2026-05-04):
+- `rg` scan across `app/`, `components/`, `hooks/`, and `lib/` found no remaining runtime `@/` imports.
+- `cd ksiegai-next && npx tsc --noEmit` -> passed
+
+Scope notes:
+- No database schema, RLS, or Supabase backend contract changes.
+- No change to the `ksiegai_auth_token` cross-domain handoff contract.
+
+## 2026-05-04 - Fixed Cloudflare build blockers in `ksiegai-next`
+
+What changed:
+- Moved `tailwindcss`, `postcss`, and `autoprefixer` into runtime `dependencies` in `package.json` so production-only installs still have the CSS toolchain that `next build` requires.
+- Added `baseUrl: "."` to `tsconfig.json` so the existing `@/*` alias resolves reliably during Next builds.
+- Resolved a leftover merge conflict in `app/sitemap.ts` by keeping both live public routes: `/generator-faktur` and `/darmowy-generator-faktur`.
+- Refreshed `package-lock.json` after the dependency section change.
+
+Verification evidence (2026-05-04):
+- `cd ksiegai-next && npx tsc --noEmit` -> originally failed on merge conflict markers in `app/sitemap.ts`; passed after conflict cleanup.
+- `cd ksiegai-next && npm run build` -> advanced past the earlier Tailwind/alias failures; local build now stops only on missing Linux SWC binary in this WSL workspace (`node_modules/@next` contains `swc-win32-x64-msvc`, not the Linux package).
+
+Scope notes:
+- No database schema, RLS, or Supabase backend contract changes.
+- No change to the `ksiegai_auth_token` cross-domain handoff contract.
+
+## 2026-05-04 - Added `ksiegai-next/.env.production` scaffold
+
+What changed:
+- Added `ksiegai-next/.env.production` with the production Supabase URL, anon key, app domain, marketing domain, optional GTM slot, and `NODE_ENV=production`.
+- Left `SUPABASE_SERVICE_ROLE_KEY` as an explicit replacement token because no private production secret is stored in the repo and this file should not invent one.
+
+Verification evidence (2026-05-04):
+- Cross-checked file contents against current `ksiegai-next` runtime env usage in `app/layout.tsx`, `app/api/ab-track/route.ts`, `lib/supabase.ts`, `lib/abTesting.ts`, and `lib/auth/crossDomainAuth.ts`.
+
+Scope notes:
+- No database schema, RLS, or Supabase backend contract changes.
+- No change to the `ksiegai_auth_token` cross-domain handoff contract.
+
+## 2026-05-03 - `/logowanie` hydration mismatch from remembered-profile bootstrap
+
+What changed:
+- Removed the render-time fallback to `getLatestRememberedProfile()` inside `app/logowanie/page.tsx`.
+- The login page now derives remembered-profile bootstrap only from React state that is populated after client mount, so the server HTML and first client render stay aligned.
+
+Verification evidence (2026-05-03):
+- `cd ksiegai-next && npx tsc --noEmit` -> passed
+
+Scope notes:
+- No database schema, RLS, or Supabase backend contract changes.
+- No change to the `ksiegai_auth_token` cross-domain handoff contract.
 
 ## 2026-04-11 - Logged-in homepage hero with business profiles and selected-app handoff
 

@@ -1,31 +1,45 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "../../lib/supabase";
 import {
-  clearAuthToken,
-  getAuthToken,
-  isTokenExpired,
   redirectToApp,
+  restoreSessionFromAuthToken,
   storeAuthToken,
   storeAndRedirect,
-} from "@/lib/auth/crossDomainAuth";
-import { setAuthFlowOrigin } from "@/lib/auth/welcomeEmail";
+} from "../../lib/auth/crossDomainAuth";
+import { getInviteOnboardingPath } from "../../lib/auth/inviteOnboarding";
+import { setAuthFlowOrigin } from "../../lib/auth/welcomeEmail";
 import {
   clearPendingLoginAttempt,
   createPendingLoginAttempt,
-  getLatestRememberedProfile,
+  getRememberedProfileAuthToken,
+  getPreferredLoginProfile,
   getPendingLoginAttempt,
   getPendingLoginLabel,
   loadRememberedProfiles,
   removeRememberedProfile,
+  removeRememberedProfileAuthToken,
   saveRememberedProfile,
+  saveRememberedProfileAuthToken,
+  setPreferredLoginProfile,
   setPendingLoginAttempt as persistPendingLoginAttempt,
   type PendingLoginAttempt,
   type RememberedLoginProfile,
-} from "@/lib/auth/loginProfiles";
+} from "../../lib/auth/loginProfiles";
 import { Mail, Lock, Loader2, UserRoundCheck, X } from "lucide-react";
 import Link from "next/link";
+import posthog from "posthog-js";
+import {
+  captureInviteEvent,
+  identifyInvitedUser,
+  registerInviteAttribution,
+} from "../../lib/posthog/inviteAttribution";
+
+async function sha256hex(text: string): Promise<string> {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
 
 // Google Icon Component
 const GoogleIcon = ({ className }: { className?: string }) => (
@@ -34,6 +48,13 @@ const GoogleIcon = ({ className }: { className?: string }) => (
     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
     <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
     <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+  </svg>
+);
+
+// Apple Icon Component
+const AppleIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.46 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701z"/>
   </svg>
 );
 
@@ -50,6 +71,10 @@ export default function Login() {
   const [pendingLoginAttempt, setPendingLoginAttemptState] = useState<PendingLoginAttempt | null>(null);
   const [activeSessionProfile, setActiveSessionProfile] = useState<RememberedLoginProfile | null>(null);
   const [selectedSavedPasswordProfile, setSelectedSavedPasswordProfile] = useState<RememberedLoginProfile | null>(null);
+  const [isApplePlatform, setIsApplePlatform] = useState(false);
+  const [inviteCompany, setInviteCompany] = useState<string | null>(null);
+  const [inviteEmail, setInviteEmail] = useState<string | null>(null);
+  const [inviteCompanyType, setInviteCompanyType] = useState<string | null>(null);
 
   const refreshRememberedProfiles = () => {
     const profiles = loadRememberedProfiles();
@@ -93,6 +118,16 @@ export default function Login() {
     setActiveSessionProfile(sessionProfile);
     setSelectedSavedPasswordProfile(null);
     setEmail(sessionProfile.email);
+    setPreferredLoginProfile({
+      userId: sessionProfile.userId,
+      email: sessionProfile.email,
+    });
+    saveRememberedProfileAuthToken(session.user, {
+      access_token: session.access_token,
+      refresh_token: session.refresh_token,
+      expires_at: session.expires_at || 0,
+      user_id: session.user.id,
+    });
     refreshRememberedProfiles();
 
     return sessionProfile;
@@ -105,37 +140,123 @@ export default function Login() {
       return session;
     }
 
-    const token = getAuthToken();
-    if (!token) return null;
-
-    if (isTokenExpired(token)) {
-      clearAuthToken();
+    const { restored } = await restoreSessionFromAuthToken((tokens) =>
+      supabase.auth.setSession(tokens),
+    );
+    if (!restored) {
       return null;
     }
-
-    const { data, error } = await supabase.auth.setSession({
-      access_token: token.access_token,
-      refresh_token: token.refresh_token,
-    });
-
-    if (error) {
-      console.error("[Login] Failed to resume session from cross-domain token:", error);
-      clearAuthToken();
-      return null;
+    const {
+      data: { session: restoredSession },
+    } = await supabase.auth.getSession();
+    if (restoredSession) {
+      await applyAuthenticatedSession(restoredSession);
     }
-
-    if (data.session) {
-      await applyAuthenticatedSession(data.session);
-    }
-
-    return data.session ?? null;
+    return restoredSession ?? null;
   };
+
+  const resumeSavedProfileSession = async (profile: RememberedLoginProfile) => {
+    const profileToken = getRememberedProfileAuthToken(profile);
+    if (!profileToken) {
+      return false;
+    }
+
+    setLoading(true);
+    const { restored } = await restoreSessionFromAuthToken(
+      (tokens) => supabase.auth.setSession(tokens),
+      {
+        token: profileToken,
+        onRestoreFailure: () => {
+          removeRememberedProfileAuthToken(profile.userId);
+        },
+      },
+    );
+
+    if (!restored) {
+      refreshRememberedProfiles();
+      setLoading(false);
+      return false;
+    }
+
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session) {
+      setLoading(false);
+      return false;
+    }
+
+    await applyAuthenticatedSession(session);
+    storeAndRedirect({
+      access_token: session.access_token,
+      refresh_token: session.refresh_token,
+      expires_at: session.expires_at || 0,
+      user_id: session.user.id,
+    });
+    setLoading(false);
+    return true;
+  };
+
+  useEffect(() => {
+    setIsApplePlatform(/Mac|iPhone|iPad|iPod/i.test(navigator.userAgent));
+  }, []);
+
+  useEffect(() => {
+    const urlToken = new URLSearchParams(window.location.search).get("invite");
+    const token = urlToken || localStorage.getItem("pending_invite_token");
+    if (!token) return;
+    if (urlToken) {
+      localStorage.setItem("pending_invite_token", urlToken);
+      const clean = new URL(window.location.href);
+      clean.searchParams.delete("invite");
+      window.history.replaceState({}, "", clean.toString());
+    }
+    const cached = localStorage.getItem("pending_invite_company");
+    if (cached) {
+      setInviteCompany(cached);
+    }
+    sha256hex(token).then(async (hash) => {
+      const { data, error } = await (supabase.rpc as any)("lookup_admin_invite", { p_token_hash: hash });
+      if (!error && data?.is_valid) {
+        registerInviteAttribution({
+          invite_token_hash: hash,
+          invite_token_prefix: token.slice(0, 12),
+          invite_company_name: data.company_name ?? null,
+          invite_recipient_email: data.recipient_email ?? null,
+          invite_recipient_name: data.recipient_name ?? null,
+          invite_company_type: data.company_type ?? null,
+        });
+        setInviteCompany(data.company_name ?? null);
+        setInviteEmail(data.recipient_email ?? null);
+        setInviteCompanyType(data.company_type ?? null);
+        if (data.company_name) localStorage.setItem("pending_invite_company", data.company_name);
+        captureInviteEvent('invite_company_prefilled', {
+          page: '/logowanie',
+          company_name: data.company_name ?? null,
+          recipient_email: data.recipient_email ?? null,
+        });
+        // Pre-fill email only if the field is empty or still has the auto-detected profile email
+        if (data.recipient_email) {
+          setEmail((prev) => (prev === "" || prev === data.recipient_email) ? data.recipient_email : prev);
+        }
+      }
+    });
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
 
     refreshRememberedProfiles();
     setPendingLoginAttemptState(getPendingLoginAttempt());
+    const preferredProfile = getPreferredLoginProfile();
+    if (preferredProfile) {
+      setSelectedSavedPasswordProfile(
+        preferredProfile.lastLoginMethod === "password" ? preferredProfile : null,
+      );
+      setEmail(preferredProfile.email);
+      setUseMagicLink(preferredProfile.lastLoginMethod === "magic_link");
+    }
 
     void (async () => {
       try {
@@ -148,7 +269,10 @@ export default function Login() {
     })();
 
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session) {
+      if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session) {
+        if (event === 'SIGNED_IN') {
+          posthog.identify(session.user.id, { email: session.user.email });
+        }
         const hadPendingAttempt = Boolean(getPendingLoginAttempt());
         const sessionProfile = await applyAuthenticatedSession(session);
         storeAuthToken({
@@ -160,7 +284,49 @@ export default function Login() {
         if (sessionProfile && isMounted) {
           setActiveSessionProfile(sessionProfile);
         }
-        if (hadPendingAttempt) {
+        if (hadPendingAttempt && event === 'SIGNED_IN') {
+          // Check for a pending invite and claim it before redirecting
+          const pendingToken = localStorage.getItem('pending_invite_token');
+          if (pendingToken) {
+            const tokenHash = await sha256hex(pendingToken);
+            const { data: claimData, error: claimError } = await (supabase.rpc as any)('claim_admin_invite', {
+              p_token_hash: tokenHash,
+            });
+            if (!claimError && claimData) {
+              const { business_profile_id, company_name, invite_id, campaign_source } = claimData;
+              identifyInvitedUser(session.user.id, session.user.email, {
+                invited: true, invite_id, invite_company_name: company_name,
+                invite_business_profile_id: business_profile_id,
+                ...(campaign_source ? { invite_campaign_source: campaign_source } : {}),
+              });
+              posthog.capture('invite_claimed', { business_profile_id, company_name, invite_id, via: 'login' });
+              captureInviteEvent('business_activated', {
+                business_profile_id,
+                company_name,
+                invite_id,
+                via: 'login',
+              });
+              void supabase.auth.updateUser({
+                data: {
+                  invite_id,
+                  invite_company_name: company_name,
+                  invite_campaign_source: campaign_source ?? null,
+                  invite_token_hash: tokenHash,
+                  invite_recipient_email: inviteEmail ?? session.user.email ?? null,
+                  invite_company_type: inviteCompanyType,
+                  invite_business_profile_id: business_profile_id,
+                },
+              });
+              localStorage.removeItem('pending_invite_token');
+              localStorage.removeItem('pending_invite_company');
+              redirectToApp(getInviteOnboardingPath(inviteCompanyType), {
+                invite: "1",
+                bp: business_profile_id,
+                cn: company_name,
+              });
+              return;
+            }
+          }
           redirectToApp('/dashboard');
         }
       } else if (event === 'SIGNED_OUT' && isMounted) {
@@ -194,6 +360,7 @@ export default function Login() {
       return false;
     }
 
+    posthog.capture('login_initiated', { method: 'magic_link' });
     setLoading(true);
     setAuthFlowOrigin("login");
     const pendingAttempt = createPendingLoginAttempt({
@@ -213,10 +380,12 @@ export default function Login() {
     if (error) {
       clearPendingLoginAttempt();
       setPendingLoginAttemptState(null);
+      posthog.capture('login_failed', { method: 'magic_link' });
       setError("Nie udało się wysłać linku. Spróbuj ponownie.");
       return false;
     }
 
+    posthog.capture('magic_link_sent', { flow: 'login' });
     setEmail(nextEmail);
     setMagicLinkSent(true);
     setResendCooldown(60);
@@ -232,6 +401,7 @@ export default function Login() {
       return;
     }
 
+    posthog.capture('login_initiated', { method: 'password' });
     setLoading(true);
     const pendingAttempt = createPendingLoginAttempt({
       email,
@@ -248,6 +418,7 @@ export default function Login() {
     if (error) {
       clearPendingLoginAttempt();
       setPendingLoginAttemptState(null);
+      posthog.capture('login_failed', { method: 'password' });
       setError("Nieprawidłowy e-mail lub hasło");
     }
   };
@@ -259,6 +430,7 @@ export default function Login() {
   };
 
   const handleGoogleSignIn = async () => {
+    posthog.capture('login_google_clicked');
     setError(null);
     setLoading(true);
     setAuthFlowOrigin("login");
@@ -273,18 +445,53 @@ export default function Login() {
     });
     setPendingAttempt(pendingAttempt);
     try {
+      const pendingToken = localStorage.getItem('pending_invite_token');
+      const inviteQuery = pendingToken ? `?reg=invite&inv=${await sha256hex(pendingToken)}` : '';
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${window.location.origin}/auth/callback${inviteQuery}`,
         },
       });
-      
+
       if (error) throw error;
     } catch (err) {
       clearPendingLoginAttempt();
       setPendingLoginAttemptState(null);
       setError("Nie udało się zalogować przez Google. Spróbuj ponownie.");
+      setLoading(false);
+    }
+  };
+
+  const handleAppleSignIn = async () => {
+    posthog.capture('login_apple_clicked');
+    setError(null);
+    setLoading(true);
+    setAuthFlowOrigin("login");
+    const resolvedEmail = selectedSavedPasswordProfile?.email || email;
+    const selectedProfile =
+      selectedSavedPasswordProfile ||
+      rememberedProfiles.find((profile) => profile.email === resolvedEmail.trim().toLowerCase());
+    const pendingAttempt = createPendingLoginAttempt({
+      email: resolvedEmail,
+      displayName: selectedProfile?.displayName || "konto Apple",
+      method: "apple",
+    });
+    setPendingAttempt(pendingAttempt);
+    try {
+      const pendingToken = localStorage.getItem('pending_invite_token');
+      const inviteQuery = pendingToken ? `?reg=invite&inv=${await sha256hex(pendingToken)}` : '';
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'apple',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback${inviteQuery}`,
+        },
+      });
+      if (error) throw error;
+    } catch (err) {
+      clearPendingLoginAttempt();
+      setPendingLoginAttemptState(null);
+      setError("Nie udało się zalogować przez Apple. Spróbuj ponownie.");
       setLoading(false);
     }
   };
@@ -297,6 +504,10 @@ export default function Login() {
     setError(null);
     setMagicLinkSent(false);
     setEmail(profile.email);
+    setPreferredLoginProfile({
+      userId: profile.userId,
+      email: profile.email,
+    });
 
     if (activeSessionProfile?.email === profile.email) {
       const { data: { session } } = await supabase.auth.getSession();
@@ -311,7 +522,12 @@ export default function Login() {
       }
     }
 
-    if (profile.lastLoginMethod === "google") {
+    if (await resumeSavedProfileSession(profile)) {
+      return;
+    }
+
+    if (profile.lastLoginMethod === "google" || profile.lastLoginMethod === "apple") {
+      const provider = profile.lastLoginMethod;
       setSelectedSavedPasswordProfile(null);
       setUseMagicLink(false);
       setLoading(true);
@@ -319,13 +535,13 @@ export default function Login() {
       const pendingAttempt = createPendingLoginAttempt({
         email: profile.email,
         displayName: profile.displayName,
-        method: "google",
+        method: provider,
       });
       setPendingAttempt(pendingAttempt);
 
       try {
         const { error } = await supabase.auth.signInWithOAuth({
-          provider: 'google',
+          provider,
           options: {
             redirectTo: `${window.location.origin}/auth/callback`,
           },
@@ -337,7 +553,7 @@ export default function Login() {
         setPendingLoginAttemptState(null);
         setLoading(false);
         setSelectedSavedPasswordProfile(profile);
-        setError("Nie udało się wznowić logowania Google. Potwierdź hasłem albo użyj linku logowania.");
+        setError(`Nie udało się wznowić logowania ${provider === 'apple' ? 'Apple' : 'Google'}. Potwierdź hasłem albo użyj linku logowania.`);
       }
       return;
     }
@@ -369,7 +585,7 @@ export default function Login() {
 
   const pendingLoginLabel = getPendingLoginLabel(pendingLoginAttempt);
   const latestRememberedProfile = rememberedProfiles[0] ?? null;
-  const resumeCandidateProfile = activeSessionProfile ?? latestRememberedProfile ?? getLatestRememberedProfile();
+  const resumeCandidateProfile = activeSessionProfile ?? latestRememberedProfile;
   const shouldShowBootstrapCard = sessionBootstrapping && !magicLinkSent && Boolean(resumeCandidateProfile);
 
   return (
@@ -429,14 +645,33 @@ export default function Login() {
         ) : (
           <>
             <div className="text-center mb-8 animate-fade-in">
-              <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
-                Witaj ponownie
-              </h1>
-              <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
-                {latestRememberedProfile
-                  ? `Ostatnio logował się ${latestRememberedProfile.displayName}.`
-                  : "Zaloguj się do swojego konta"}
-              </p>
+              {inviteCompany ? (
+                <>
+                  <div className="inline-flex items-center gap-3 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-2xl px-5 py-3 mb-4">
+                    <div className="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center shrink-0">
+                      <span className="text-sm font-bold text-white">{inviteCompany.charAt(0).toUpperCase()}</span>
+                    </div>
+                    <span className="text-sm font-semibold text-blue-900 dark:text-blue-100">{inviteCompany}</span>
+                  </div>
+                  <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
+                    Dołącz do firmy
+                  </h1>
+                  <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
+                    Zaloguj się, żeby zaakceptować zaproszenie.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
+                    Witaj ponownie
+                  </h1>
+                  <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
+                    {latestRememberedProfile
+                      ? `Ostatnio logował się ${latestRememberedProfile.displayName}.`
+                      : "Zaloguj się do swojego konta"}
+                  </p>
+                </>
+              )}
             </div>
             
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 animate-fade-in">
@@ -552,9 +787,11 @@ export default function Login() {
                           <div className="hidden sm:block text-[11px] text-gray-400 dark:text-gray-500">
                             {profile.lastLoginMethod === "google"
                               ? "Google"
-                              : profile.lastLoginMethod === "magic_link"
-                                ? "Link logowania"
-                                : "Hasło"}
+                              : profile.lastLoginMethod === "apple"
+                                ? "Apple"
+                                : profile.lastLoginMethod === "magic_link"
+                                  ? "Link logowania"
+                                  : "Hasło"}
                           </div>
                           <button
                             type="button"
@@ -568,7 +805,7 @@ export default function Login() {
                       ))}
                     </div>
                     <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
-                      Kliknięcie profilu spróbuje wznowić logowanie ostatnio używaną metodą. Profile hasłowe poproszą tylko o hasło.
+                      Kliknięcie profilu najpierw spróbuje przywrócić zapisaną sesję tego konta. Jeśli token wygasł, wrócimy do ostatnio użytej metody logowania.
                     </p>
                   </div>
                 ) : null}
@@ -581,7 +818,18 @@ export default function Login() {
                   <GoogleIcon className="h-5 w-5" />
                   Zaloguj przez Google
                 </button>
-                
+
+                {isApplePlatform && (
+                  <button
+                    onClick={handleAppleSignIn}
+                    disabled={loading}
+                    className="w-full bg-black hover:bg-gray-900 dark:bg-white dark:hover:bg-gray-100 text-white dark:text-black text-lg px-10 py-4 h-auto shadow-xl hover:shadow-2xl transition-all rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+                  >
+                    <AppleIcon className="h-5 w-5" />
+                    Zaloguj przez Apple
+                  </button>
+                )}
+
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
@@ -589,6 +837,32 @@ export default function Login() {
                   <div className="relative flex justify-center text-sm">
                     <span className="px-2 bg-white dark:bg-gray-800 text-gray-500">lub</span>
                   </div>
+                </div>
+
+                {/* Method toggle */}
+                <div className="flex rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
+                  <button
+                    type="button"
+                    onClick={() => { setUseMagicLink(false); setError(null); }}
+                    className={`flex-1 py-2 text-sm font-medium transition-colors ${
+                      !useMagicLink
+                        ? "bg-blue-600 text-white"
+                        : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
+                    }`}
+                  >
+                    Hasło
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setUseMagicLink(true); setError(null); }}
+                    className={`flex-1 py-2 text-sm font-medium transition-colors ${
+                      useMagicLink
+                        ? "bg-blue-600 text-white"
+                        : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
+                    }`}
+                  >
+                    Link e-mail
+                  </button>
                 </div>
 
                 {!useMagicLink ? (
@@ -613,16 +887,6 @@ export default function Login() {
                           >
                             Wybierz inne konto
                           </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setUseMagicLink(true);
-                              setError(null);
-                            }}
-                            className="text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
-                          >
-                            Użyj linku logowania
-                          </button>
                         </div>
                       </div>
                     ) : null}
@@ -635,11 +899,15 @@ export default function Login() {
                         <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                         <input
                           id="email"
+                          name="email"
                           type="email"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           required
                           readOnly={Boolean(selectedSavedPasswordProfile)}
+                          autoComplete="username"
+                          autoCapitalize="none"
+                          autoCorrect="off"
                           placeholder="twoj@email.pl"
                           className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white read-only:bg-gray-50 read-only:text-gray-500 dark:read-only:bg-gray-800 dark:read-only:text-gray-300"
                         />
@@ -654,10 +922,12 @@ export default function Login() {
                         <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                         <input
                           id="password"
+                          name="password"
                           type="password"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                           required
+                          autoComplete="current-password"
                           placeholder="••••••••"
                           className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         />
@@ -678,13 +948,6 @@ export default function Login() {
                       {loading ? 'Logowanie...' : 'Zaloguj się'}
                     </button>
 
-                    <button
-                      type="button"
-                      onClick={() => setUseMagicLink(true)}
-                      className="w-full text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white py-2"
-                    >
-                      Nie pamiętasz hasła? Użyj linku logowania
-                    </button>
                   </form>
                 ) : (
                   <form onSubmit={handleMagicLink} className="space-y-4">
@@ -707,11 +970,15 @@ export default function Login() {
                         <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                         <input
                           id="email-magic"
+                          name="email"
                           type="email"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           required
                           readOnly={Boolean(selectedSavedPasswordProfile)}
+                          autoComplete="username"
+                          autoCapitalize="none"
+                          autoCorrect="off"
                           placeholder="twoj@email.pl"
                           className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white read-only:bg-gray-50 read-only:text-gray-500 dark:read-only:bg-gray-800 dark:read-only:text-gray-300"
                         />
@@ -735,13 +1002,6 @@ export default function Login() {
                       {loading ? 'Wysyłanie...' : 'Wyślij link logowania'}
                     </button>
 
-                    <button
-                      type="button"
-                      onClick={() => setUseMagicLink(false)}
-                      className="w-full text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white py-2"
-                    >
-                      Wróć do logowania hasłem
-                    </button>
                   </form>
                 )}
               </div>

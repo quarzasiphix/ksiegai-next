@@ -1,0 +1,8 @@
+{
+  "version_code": 3,
+  "version_name": "1.0.2",
+  "download_url": "https://ksiegai.pl/android/ksiegai-latest.apk",
+  "release_notes": "Automatyczne powiadomienie o nowej wersji, pobieranie APK i otwieranie instalatora Androida.",
+  "force_update": false,
+  "released_at": "2026-06-08"
+}

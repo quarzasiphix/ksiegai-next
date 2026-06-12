@@ -1,15 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
-import { storeAuthToken, redirectToApp } from "@/lib/auth/crossDomainAuth";
-import { consumeAuthFlowOrigin, sendWelcomeEmailIfNewUser } from "@/lib/auth/welcomeEmail";
+import { supabase } from "../../../lib/supabase";
+import { storeAuthToken, redirectToApp } from "../../../lib/auth/crossDomainAuth";
+import { getInviteOnboardingPath } from "../../../lib/auth/inviteOnboarding";
+import { consumeAuthFlowOrigin, sendWelcomeEmailIfNewUser } from "../../../lib/auth/welcomeEmail";
 import {
   clearPendingLoginAttempt,
   getPendingLoginAttempt,
   getPendingLoginLabel,
   saveRememberedProfile,
-} from "@/lib/auth/loginProfiles";
+  saveRememberedProfileAuthToken,
+  setPreferredLoginProfile,
+} from "../../../lib/auth/loginProfiles";
+import posthog from "posthog-js";
+import {
+  captureInviteEvent,
+  identifyInvitedUser,
+  registerInviteAttribution,
+} from "../../../lib/posthog/inviteAttribution";
 
 export default function AuthCallback() {
   const [pendingLoginLabel, setPendingLoginLabel] = useState<string | null>(null);
@@ -24,6 +33,7 @@ export default function AuthCallback() {
 
       if (error) {
         console.error('Auth callback error:', error);
+        posthog.captureException(error);
         clearPendingLoginAttempt();
         window.location.href = '/rejestracja?error=auth_failed';
         return;
@@ -32,20 +42,146 @@ export default function AuthCallback() {
       const { session } = data;
 
       if (session) {
+        posthog.identify(session.user.id, { email: session.user.email });
         const authFlowOrigin = consumeAuthFlowOrigin();
+        posthog.capture('auth_callback_completed', { flow: authFlowOrigin ?? 'unknown' });
         const pendingAttempt = getPendingLoginAttempt();
         const rememberedProfile = saveRememberedProfile(session.user, pendingAttempt?.method ?? null);
+        if (rememberedProfile) {
+          setPreferredLoginProfile({
+            userId: rememberedProfile.userId,
+            email: rememberedProfile.email,
+          });
+        }
         clearPendingLoginAttempt();
         setPendingLoginLabel(
           rememberedProfile?.email || rememberedProfile?.displayName || session.user.email || null,
         );
+        saveRememberedProfileAuthToken(session.user, {
+          access_token: session.access_token,
+          refresh_token: session.refresh_token,
+          expires_at: session.expires_at || 0,
+          user_id: session.user.id,
+        });
+
+        // Parse URL params early — needed for both welcome email and redirect logic
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirectFrom = urlParams.get('from');
+        const localhostPort = urlParams.get('port');
+        const regParam = urlParams.get('reg'); // 'password' | 'magic_link' | 'invite'
+        const inviteHash = urlParams.get('inv'); // SHA-256 hash of invite token (reg=invite only)
+
+        // ── Invite claim flow ─────────────────────────────────────────────────
+        if (regParam === 'invite' && inviteHash) {
+          const { data: inviteLookup } = await (supabase.rpc as any)('lookup_admin_invite', { p_token_hash: inviteHash });
+          registerInviteAttribution({
+            invite_token_hash: inviteHash,
+            invite_token_prefix: inviteHash.slice(0, 12),
+            invite_company_name: inviteLookup?.company_name ?? null,
+            invite_recipient_email: inviteLookup?.recipient_email ?? session.user.email ?? null,
+            invite_recipient_name: inviteLookup?.recipient_name ?? null,
+            invite_company_type: inviteLookup?.company_type ?? null,
+          });
+          posthog.capture('invite_email_confirmed', { invite_hash_prefix: inviteHash.slice(0, 8) });
+          try {
+            const { data: claimData, error: claimError } = await (supabase.rpc as any)('claim_admin_invite', {
+              p_token_hash: inviteHash,
+            });
+            const token = {
+              access_token: session.access_token,
+              refresh_token: session.refresh_token,
+              expires_at: session.expires_at || 0,
+              user_id: session.user.id,
+            };
+            storeAuthToken(token);
+            if (claimError) {
+              console.error('[AuthCallback] Invite claim failed:', claimError);
+              posthog.captureException(claimError);
+              redirectToApp('/onboard');
+              return;
+            }
+            const { business_profile_id, company_name, invite_id, campaign_source } = claimData as {
+              business_profile_id: string;
+              company_name: string;
+              invite_id: string;
+              campaign_source: string | null;
+            };
+
+            // Tag user in PostHog with invite properties (person-level, permanent)
+            identifyInvitedUser(session.user.id, session.user.email, {
+              invited: true,
+              invite_id,
+              invite_company_name: company_name,
+              invite_business_profile_id: business_profile_id,
+              ...(campaign_source ? { invite_campaign_source: campaign_source } : {}),
+            });
+            // Store the registration session so admin can link to it from the invite page
+            const registrationSessionId = (posthog as any)?.get_session_id?.();
+            if (registrationSessionId) {
+              void (supabase.rpc as any)('update_posthog_session', { p_session_id: registrationSessionId }).catch(() => {});
+            }
+            posthog.capture('invite_claimed', {
+              business_profile_id,
+              company_name,
+              invite_id,
+              campaign_source: campaign_source ?? null,
+            });
+            captureInviteEvent('business_activated', {
+              business_profile_id,
+              company_name,
+              invite_id,
+              campaign_source: campaign_source ?? null,
+            });
+
+            // Attach invite metadata to the auth user for future queries
+            void supabase.auth.updateUser({
+              data: {
+                invite_id,
+                invite_company_name: company_name,
+                invite_campaign_source: campaign_source ?? null,
+                invite_token_hash: inviteHash,
+                invite_recipient_email: inviteLookup?.recipient_email ?? session.user.email ?? null,
+                invite_company_type: inviteLookup?.company_type ?? null,
+                invite_business_profile_id: business_profile_id,
+              },
+            });
+
+            // Clear the raw token and cached company from localStorage — invite consumed
+            localStorage.removeItem('pending_invite_token');
+            localStorage.removeItem('pending_invite_company');
+
+            const dest = getInviteOnboardingPath(inviteLookup?.company_type ?? null);
+            if (redirectFrom === 'localhost' && localhostPort) {
+              window.location.href = `http://localhost:${localhostPort}${dest}?invite=1&bp=${business_profile_id}&cn=${encodeURIComponent(company_name)}`;
+            } else {
+              redirectToApp(dest, {
+                invite: "1",
+                bp: business_profile_id,
+                cn: company_name,
+              });
+            }
+            return;
+          } catch (err) {
+            console.error('[AuthCallback] Unexpected invite claim error:', err);
+            storeAuthToken({
+              access_token: session.access_token,
+              refresh_token: session.refresh_token,
+              expires_at: session.expires_at || 0,
+              user_id: session.user.id,
+            });
+            redirectToApp('/onboard');
+            return;
+          }
+        }
 
         // Welcome email must not delay the cross-domain auth handoff.
+        // Use ?reg param (URL-encoded, survives new-tab opens) as primary signal;
+        // fall back to sessionStorage authFlowOrigin for older links without ?reg.
         void sendWelcomeEmailIfNewUser({
           userId: session.user.id,
           email: session.user.email,
           createdAt: session.user.created_at,
-          force: authFlowOrigin === "register",
+          force: !!regParam || authFlowOrigin === "register",
         });
 
         // Store token for cross-domain access
@@ -62,25 +198,22 @@ export default function AuthCallback() {
           const { from, port } = JSON.parse(localhostRedirect);
           console.log("[AuthCallback] Redirecting back to localhost:", port);
           sessionStorage.removeItem('localhost_redirect');
-          
+
           // Redirect back to localhost
           window.location.href = `http://localhost:${port}/dashboard`;
           return;
         }
-        
-        // Check URL parameters for localhost redirect
-        const urlParams = new URLSearchParams(window.location.search);
-        const redirectFrom = urlParams.get('from');
-        const localhostPort = urlParams.get('port');
-        
+
         if (redirectFrom === 'localhost' && localhostPort) {
           console.log("[AuthCallback] Redirecting back to localhost from URL params:", localhostPort);
-          window.location.href = `http://localhost:${localhostPort}/dashboard`;
+          const dest = regParam ? `/welcome?flow=${regParam}` : '/dashboard';
+          window.location.href = `http://localhost:${localhostPort}${dest}`;
           return;
         }
 
-        // Always redirect to app subdomain root - let app routing handle onboarding
-        redirectToApp('/');
+        // For registrations redirect to onboarding; for logins go to root
+        const onboardingPath = regParam ? `/welcome?flow=${regParam}` : '/';
+        redirectToApp(onboardingPath);
       } else {
         // No session, redirect to registration
         clearPendingLoginAttempt();

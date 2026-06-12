@@ -1,4 +1,6 @@
 # ksiegai-next Agent Guide
+Created: legacy-existing (exact date unknown)
+Last modified: 2026-05-26 11:33 CEST
 
 > Source of truth for work in `ksiegai-next/`, aligned to the current implementation.
 
@@ -17,6 +19,8 @@
 2. Cross-domain auth token contract with app must remain compatible.
 3. Do not move AB-test runtime to direct DB calls from browser; keep static file / API flow.
 4. Use env vars/secrets for sensitive keys; do not hardcode credentials.
+5. `ksiegai-next` shares the canonical Supabase backend owned in `ksef-ai/supabase/`; shared schema/RPC/RLS migrations belong there, not here.
+6. `ksiegai-next/supabase/migrations/` is retired as a shared-backend migration location; keep it empty except for a marker README unless this app gets a separate backend.
 
 ## 3. Real Route Surface
 
@@ -71,6 +75,8 @@ When changing auth flow:
 1. preserve token schema compatibility with `ksef-ai`
 2. verify localhost and production redirect behavior
 3. verify callback path behavior for OAuth/magic-link
+4. if the change needs shared Supabase schema/RPC/RLS work, add the migration under `ksef-ai/supabase/migrations/`, not `ksiegai-next/supabase/`
+5. if you find migration SQL inside `ksiegai-next/supabase/migrations/` for the shared backend, move it to `ksef-ai/supabase/migrations/`
 
 When changing AB testing:
 1. keep prebuild output contract (`public/ab-tests.json`)
@@ -82,3 +88,10 @@ When changing AB testing:
 - Some auth pages are duplicated by path style (`/logowanie` and `/auth/login`); avoid removing paths without checking external links.
 - Static export constraints apply to routing/features.
 - Some workspace docs still reference old route names and older AB table names.
+
+## 9. graphify
+
+- Prefer local graph first: `cd /p/k/ksiegai-next && graphify query "<question>"`
+- Use `graphify explain "<symbol>"` and `graphify path "<A>" "<B>"` when symbol names are known.
+- After code changes in this app, update this app graph first: `graphify update /p/k/ksiegai-next`
+- Use root `/p/k/graphify-out/graph.json` only for cross-app questions.

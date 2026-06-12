@@ -1,0 +1,707 @@
+{
+  "/p/k/ksiegai-next/postcss.config.mjs": {
+    "mtime": 1778745121.4884973,
+    "ast_hash": "c56b5f3c12f777a86e2513f45daab56a",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/tailwind.config.js": {
+    "mtime": 1778745121.6300905,
+    "ast_hash": "b726693daec121e3abf009c42a78c7ff",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/next.config.js": {
+    "mtime": 1778745121.4284983,
+    "ast_hash": "7288143cb40e5221eb382fb0337f4d32",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/package.json": {
+    "mtime": 1778949409.4599645,
+    "ast_hash": "39b26c3ea93f63caf3b1dfb0b3cfcca9",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/tsconfig.json": {
+    "mtime": 1778745121.6380892,
+    "ast_hash": "8396d575b154e32fe392147d66e34e14",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/docs/AB_TEST_TEMPLATE.json": {
+    "mtime": 1778745120.8112319,
+    "ast_hash": "0964caf877c66215bba3a9f357d823a3",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/docs/tailwind.config.ts": {
+    "mtime": 1778745121.1491272,
+    "ast_hash": "56905d2463187f39b5b23e0831120ab9",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/components/PostHogProvider.tsx": {
+    "mtime": 1779648131.9088116,
+    "ast_hash": "4f6db9cc92a529080f2f94a98cbcbf3d",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/components/LegalDocumentPage.tsx": {
+    "mtime": 1778707117.6408,
+    "ast_hash": "593460fe3f38dc47a6bb14bd43c746d6",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/components/InviteWelcomeOverlay.tsx": {
+    "mtime": 1779725830.474687,
+    "ast_hash": "74374858ec01f18133980725ba33f787",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/components/InviteTokenCapture.tsx": {
+    "mtime": 1779724534.2951434,
+    "ast_hash": "33be28aa5d4a54f26428ef421e017f35",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/components/Header.tsx": {
+    "mtime": 1780307790.9020202,
+    "ast_hash": "bb773e5396f6bc39a35b940b2c6590a6",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/components/Footer.tsx": {
+    "mtime": 1779646518.1848373,
+    "ast_hash": "fdbc23f71555dee74f451423342794f4",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/components/MarkdownRenderer.tsx": {
+    "mtime": 1779130181.203229,
+    "ast_hash": "6e96a6cab5b64eff2e1f3111bab97900",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/components/landing-variants.tsx": {
+    "mtime": 1778959847.298772,
+    "ast_hash": "ebb8dad002a26251b1183026f2db0f29",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/components/invites/InviteRegistrationPage.tsx": {
+    "mtime": 1779647755.9608915,
+    "ast_hash": "66fb55943ca366fa05d5eea9b3f6f1b3",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/components/home/HomeHero.tsx": {
+    "mtime": 1779647328.862841,
+    "ast_hash": "7a70bd6cb34366cfdab796bc9e68a660",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/components/invoice-tools/AnonymousInvoiceGenerator.tsx": {
+    "mtime": 1777899559.439885,
+    "ast_hash": "1caa05bcca26440bea4d063cd718a7b1",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/components/invoice-tools/AnonymousInvoicePdfTemplate.tsx": {
+    "mtime": 1777899559.022461,
+    "ast_hash": "2244f85563c3f2554bb8ea621d20d62c",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/components/wiki/WikiArticleCard.tsx": {
+    "mtime": 1779651921.6946654,
+    "ast_hash": "a59a6daac2ffaade0a6792aa6210fcb8",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/components/wiki/KsefInviteCTA.tsx": {
+    "mtime": 1779906940.9025316,
+    "ast_hash": "334cce0fd4e0e76816d654be7c424b2d",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/components/analytics/PageAnalytics.tsx": {
+    "mtime": 1779131464.6198478,
+    "ast_hash": "9ad72e85beb394a19625dd0fb4056b6c",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/components/analytics/TrackedLink.tsx": {
+    "mtime": 1779131463.3066626,
+    "ast_hash": "c686cc2a8820f980948b220837ef5ad0",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/scripts/fetch-ab-tests.js": {
+    "mtime": 1778745121.5364976,
+    "ast_hash": "fe725814f37d0c5ca026b0a221b4918c",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/scripts/verify-ab-setup.js": {
+    "mtime": 1778745121.569498,
+    "ast_hash": "38e1d8309c9d94ab9916aa75451462fb",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/hooks/useABTest.ts": {
+    "mtime": 1778745121.1916876,
+    "ast_hash": "e788c1ada08065882e95464ba8b50126",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/hooks/useVariant.ts": {
+    "mtime": 1778745121.234356,
+    "ast_hash": "4d47528031ffb4f17d6258567c6fa1a9",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/hooks/useABTestSSG.ts": {
+    "mtime": 1778745121.2176907,
+    "ast_hash": "a94fcf1fe43ed8dd457d0a60f8152a1f",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/sitemap.ts": {
+    "mtime": 1779132694.2714665,
+    "ast_hash": "c1abc1a598ec92d56425647609954ddc",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/robots.ts": {
+    "mtime": 1778745120.67511,
+    "ast_hash": "28b4b71669c60bfd8d7369b308ee27f4",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/page.tsx": {
+    "mtime": 1779133806.675924,
+    "ast_hash": "79d058bef5f9cba8d9eca58c800819f1",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/faq-section.tsx": {
+    "mtime": 1778745120.4186263,
+    "ast_hash": "b9c3b399cb165c2607233a83ad80b3b6",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/manifest.ts": {
+    "mtime": 1778745120.6124017,
+    "ast_hash": "223eff2600ef026eea0b92f093dbcbbc",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/layout.tsx": {
+    "mtime": 1779723474.0814033,
+    "ast_hash": "0bf68f330038a38f7e45e77d0e6222ab",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/global-error.tsx": {
+    "mtime": 1773258593.439663,
+    "ast_hash": "803abc7f505885331fad15587e1ff927",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/error.tsx": {
+    "mtime": 1773258593.4336598,
+    "ast_hash": "183dd5aae739f7621151cb73030e6650",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/premium/page.tsx": {
+    "mtime": 1778960030.820121,
+    "ast_hash": "10919a337f8800433d79bed7e1e733bb",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/premium/metadata.ts": {
+    "mtime": 1778745120.637496,
+    "ast_hash": "1183481d662ea9d006bdfc2ea86a2dd2",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/platnosci-online/page.tsx": {
+    "mtime": 1779131550.446549,
+    "ast_hash": "3f6b06a80358414784dbaadcae89f28d",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/darmowy-generator-faktur/page.tsx": {
+    "mtime": 1777899557.302639,
+    "ast_hash": "f67fae617a8ae73ef6ad0c3dc399bad2",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/poradnik/page.tsx": {
+    "mtime": 1779130401.0972795,
+    "ast_hash": "c728ac70032332eb8ffbc0f3bbef89a1",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/poradnik/kategoria/[slug]/page.tsx": {
+    "mtime": 1779130428.4064076,
+    "ast_hash": "a5e0ce724de3a9e812759912e29b5f08",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/poradnik/[slug]/page.tsx": {
+    "mtime": 1779907055.9212558,
+    "ast_hash": "9e624eda47a580c1b4a3a59ac78f44e0",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/accountant-dashboard/page.tsx": {
+    "mtime": 1778745120.2899365,
+    "ast_hash": "dc2a39fac096e5afb54cae4861576223",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/bezpieczenstwo-danych/page.tsx": {
+    "mtime": 1779131552.5030031,
+    "ast_hash": "e2ca5e139d1c5dd21466354778003dbe",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/rodo/page.tsx": {
+    "mtime": 1778707326.3684075,
+    "ast_hash": "a401413631f2f37384c82ea40dacfd58",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/jdg/page.tsx": {
+    "mtime": 1779131525.4597552,
+    "ast_hash": "7a86597707443754730918174e42d262",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/logowanie/page.tsx": {
+    "mtime": 1779724534.2991436,
+    "ast_hash": "ce3eaa32d1483cf5202f1061e755cad7",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/logowanie/metadata.ts": {
+    "mtime": 1772105747.6114252,
+    "ast_hash": "dc163dcfd144456acd88cf68b3324f52",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/governance/page.tsx": {
+    "mtime": 1778745120.5066266,
+    "ast_hash": "fbef8c4563b6c33194fc288e9a44681f",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/faktury/page.tsx": {
+    "mtime": 1779131543.8302808,
+    "ast_hash": "5657808d10eb8f6c68b03c626ec197b9",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/ksef/page.tsx": {
+    "mtime": 1779133851.6240625,
+    "ast_hash": "2f75ccb29023c55f44c11004abc487a5",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/cennik/page.tsx": {
+    "mtime": 1779131792.161684,
+    "ast_hash": "e6ca00eefc5f71c08adab7343a6bf25a",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/auth/confirm/page.tsx": {
+    "mtime": 1779650059.9781702,
+    "ast_hash": "3be70f58443bcd26262f7978b0dc8804",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/auth/confirm/metadata.ts": {
+    "mtime": 1773157421.7239542,
+    "ast_hash": "f42f8329eaeef83cee591513c3edd6d7",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/auth/login/page.tsx": {
+    "mtime": 1778745120.3469672,
+    "ast_hash": "79c08b07f4f1957cca01e738997d8c9b",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/auth/callback/page.tsx": {
+    "mtime": 1779703616.6321847,
+    "ast_hash": "c8d53fc66064c0fa9f9b07f0181eebc4",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/api/ab-track/route.ts": {
+    "mtime": 1778745120.318967,
+    "ast_hash": "93756154be1a42ef99260a5436ea7d52",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/jak-to-dziala/page.tsx": {
+    "mtime": 1779131760.030057,
+    "ast_hash": "334ef76cac3b897a60051779e5f3c5d0",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/rejestracja/page.tsx": {
+    "mtime": 1780310113.0558214,
+    "ast_hash": "fd2f0437ec9bf694e95aeeb4bc910c21",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/rejestracja/metadata.ts": {
+    "mtime": 1772105763.2295806,
+    "ast_hash": "4ebf4cb7478384db096cdd6ca95e6b0e",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/polityka-zwrotow/page.tsx": {
+    "mtime": 1778707380.7339091,
+    "ast_hash": "90547a0d5712fa38ba8ffbd86cf2bff3",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/infrastructure/page.tsx": {
+    "mtime": 1778959846.2871878,
+    "ast_hash": "87262e45a3912b75181dacbe49e4f74a",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/polityka-prywatnosci/page.tsx": {
+    "mtime": 1779015501.7913659,
+    "ast_hash": "732c32530c7cda7421f474849368121a",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/spolka-z-oo/page.tsx": {
+    "mtime": 1779131530.230433,
+    "ast_hash": "e47e4560422ce24032db099e6187dcba",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/zaproszenie/page.tsx": {
+    "mtime": 1779647756.1288984,
+    "ast_hash": "c0a90eec5973284e775743e92d486ec4",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/dla-ksiegowych/page.tsx": {
+    "mtime": 1779131737.6680627,
+    "ast_hash": "b152141d108e24eb875f54624dda09e4",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/regulamin/page.tsx": {
+    "mtime": 1778960031.3830402,
+    "ast_hash": "c52c4c97af8db2aee90ef7787a57d2ac",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/generator-faktur/page.tsx": {
+    "mtime": 1778745120.464598,
+    "ast_hash": "ad62a7868f50d539fbd3924dc00a5a59",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/app/generator-faktur/InvoiceGeneratorClient.tsx": {
+    "mtime": 1778949654.4307268,
+    "ast_hash": "39c4ccb12918701d8f76a500124a5996",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/functions/ingest/[[path]].ts": {
+    "mtime": 1779013189.9380703,
+    "ast_hash": "92699184a938fcca9fb28ac53449bcda",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/functions/api/ab-track.ts": {
+    "mtime": 1778745121.1731274,
+    "ast_hash": "ea12ef3fc8051533887716984031f173",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/public/ab-tests.example.json": {
+    "mtime": 1779647329.0308454,
+    "ast_hash": "dffa561963d3337a0fc6f158cc008b59",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/public/ab-tests.json": {
+    "mtime": 1779788216.826175,
+    "ast_hash": "99914b932bd37a50b983c5e7c90ae93b",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/lib/supabase-server.ts": {
+    "mtime": 1778958505.660839,
+    "ast_hash": "8f4f95060c5746cc571dc64e2acc1e39",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/lib/wiki-presentation.ts": {
+    "mtime": 1779907070.5900443,
+    "ast_hash": "1219f04bb08543a0194bd715f9adfea6",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/lib/abTesting.ts": {
+    "mtime": 1778745121.3023598,
+    "ast_hash": "ae9b03b0a8d339e0a840bb5225b09517",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/lib/wiki-fallback.ts": {
+    "mtime": 1779788264.4901745,
+    "ast_hash": "82a28f16811dc609a7e19a0cc9276721",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/lib/supabase.ts": {
+    "mtime": 1778745121.350356,
+    "ast_hash": "375d0f3a1d68860073af7ba262ad35e7",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/lib/ab-testing-supabase.ts": {
+    "mtime": 1779647374.0697901,
+    "ast_hash": "5f355745bfbe97aeea0adc1163ac8978",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/lib/pricing.ts": {
+    "mtime": 1778960029.5183327,
+    "ast_hash": "9684a89e7ae979f7260f43e28f2f836a",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/lib/ab-testing.ts": {
+    "mtime": 1778745121.284356,
+    "ast_hash": "f4d5f90e9d2749efdb1757dccffa4d19",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/lib/ab-testing-ssg.ts": {
+    "mtime": 1779647373.9017835,
+    "ast_hash": "23547780395451c3dfc2618e2e8088e3",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/lib/supabase-client.ts": {
+    "mtime": 1778745121.3323567,
+    "ast_hash": "59fc62cc9108d5f4d8572aca56c190d4",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/lib/wiki.ts": {
+    "mtime": 1780251241.5745218,
+    "ast_hash": "42402acd1c763ac75aadf468dff29f62",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/lib/home/businessProfiles.ts": {
+    "mtime": 1777899561.8664947,
+    "ast_hash": "2a36bfb4df362a4c84b6fc2f34a10b02",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/lib/supabase/decision-service.ts": {
+    "mtime": 1778745121.3743558,
+    "ast_hash": "adbba399fcc05cb08f3ee4d852f915db",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/lib/invoice-tools/pdf.ts": {
+    "mtime": 1777899562.654876,
+    "ast_hash": "47278b973aa9dbf7c10d4758ccd0d5ee",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/lib/invoice-tools/persistence.ts": {
+    "mtime": 1777899562.2596664,
+    "ast_hash": "947d32f2bfc762a69451b434c7cf0797",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/lib/invoice-tools/anonymousInvoice.ts": {
+    "mtime": 1774269140.0290177,
+    "ast_hash": "9e4515a814e172eb998ab8ed9021c964",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/lib/auth/welcomeEmail.ts": {
+    "mtime": 1777899561.4738398,
+    "ast_hash": "f8c21b1a7a5e3b492d84016c909276fc",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/lib/auth/crossDomainAuth.ts": {
+    "mtime": 1780302485.0344226,
+    "ast_hash": "881e34d2f606cdc89b3a6bb839380ab2",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/lib/auth/loginProfiles.ts": {
+    "mtime": 1779019600.626564,
+    "ast_hash": "618e8f46641962a968a82271294d5994",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/lib/auth/inviteOnboarding.ts": {
+    "mtime": 1779703600.5202868,
+    "ast_hash": "617288987d7bd56454181045e12208c5",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/lib/posthog/inviteAttribution.ts": {
+    "mtime": 1779651608.0385623,
+    "ast_hash": "b54507737ea3eb43b98b8f1385e70dce",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/lib/types/ab-testing.ts": {
+    "mtime": 1778745121.3969247,
+    "ast_hash": "13b179a133cc85890ee94ee07f10a5bb",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/lib/types/decision-gate.ts": {
+    "mtime": 1778745121.418945,
+    "ast_hash": "df333c1a518e2e6c489b2e8152bfc99d",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/AGENT_GUIDE.md": {
+    "mtime": 1779788264.4901745,
+    "ast_hash": "350a5e0e7b4bd4493024e9c12ce9560c",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/posthog-setup-report.md": {
+    "mtime": 1778949918.0896416,
+    "ast_hash": "dbc4287635fcab362f08483bd243041f",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/docs/README.md": {
+    "mtime": 1778745121.0721288,
+    "ast_hash": "a3e681a5dbb3081a2c2df957b90cbf24",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/docs/GOOGLE_TAG_MANAGER_SETUP.md": {
+    "mtime": 1778745121.043127,
+    "ast_hash": "069d663790a6c9c21be6ad20ad1a9017",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/docs/DEPLOYMENT_FIX.md": {
+    "mtime": 1778745120.9359055,
+    "ast_hash": "10a8a5330b8151c2fd6685bbeeb672d6",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/docs/CLOUDFLARE_DEPLOYMENT.md": {
+    "mtime": 1778745120.882904,
+    "ast_hash": "c302eac64e88f6700490986b70019895",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/docs/QUICK_START_AB_TESTING.md": {
+    "mtime": 1778745121.053129,
+    "ast_hash": "17db839e755aff84f927580d41279c15",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/docs/GOOGLE_LOGIN_FIX.md": {
+    "mtime": 1778745121.011525,
+    "ast_hash": "21311528178b1a3bdbbb2d26cd9bb96e",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/docs/BUILD_FIXED.md": {
+    "mtime": 1778745120.8489058,
+    "ast_hash": "7a248c965f8857a18b28c2c90f314b74",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/docs/GOOGLE_LOGIN_FINAL_FIX.md": {
+    "mtime": 1778745120.9959052,
+    "ast_hash": "1843bddd3fcf33d6dc586809697ca378",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/docs/AB_TESTING.md": {
+    "mtime": 1778745120.7416177,
+    "ast_hash": "c87e5d68fe5ff925aaa7099ae6495e8f",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/docs/CLOUDFLARE_DEPLOY_GUIDE.md": {
+    "mtime": 1778745120.9009063,
+    "ast_hash": "8490e323c4eb2fc9bb510eba8c4be3a0",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/docs/AB_TESTING_IMPLEMENTATION_SUMMARY.md": {
+    "mtime": 1778745120.7586179,
+    "ast_hash": "4585931ff31456d9db12a0859ab2d12a",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/docs/README_AB_TESTING.md": {
+    "mtime": 1778745121.0891297,
+    "ast_hash": "9646a02667aa023297e60256d4dc6355",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/docs/ANONYMOUS_GENERATOR_RECOVERY_FLOW.md": {
+    "mtime": 1773390724.2474444,
+    "ast_hash": "58e81d0db2b8a63d8d48afe8ac8994ed",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/docs/AB_TESTING_SSG.md": {
+    "mtime": 1778745120.7756166,
+    "ast_hash": "ae6ca728e1ad8ebcb4231030418ad201",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/docs/SECURE_AB_TEST_CONVERSION.md": {
+    "mtime": 1778745121.123128,
+    "ast_hash": "876b297f0ad9c0453c0ade47dd3aa576",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/docs/NOTES.md": {
+    "mtime": 1780251250.3782463,
+    "ast_hash": "4d8e4720dcecb1448b04578e7447f9a5",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/docs/DECISION_GATE_ARCHITECTURE.md": {
+    "mtime": 1778745120.9179058,
+    "ast_hash": "6db410b6eb0e8ec81e9afc92ac05af2d",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/docs/README_AB_TESTING_SSG.md": {
+    "mtime": 1778745121.1071274,
+    "ast_hash": "948905195d59874ada1c4a3a77a8d1bc",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/docs/TODO.md": {
+    "mtime": 1780310157.6134405,
+    "ast_hash": "a735574b9f2192a4a6ad130088696913",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/docs/AB_TEST_USER_ATTRIBUTION.md": {
+    "mtime": 1778745120.830905,
+    "ast_hash": "dee4d24a7e2007e04bfcc311a2df2d24",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/docs/AB_TESTING_SYSTEM_ARCHITECTURE.md": {
+    "mtime": 1778745120.7936184,
+    "ast_hash": "9200e0ceaae21b58b74b9bf5cf222159",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/docs/BUILD_FIX_GUIDE.md": {
+    "mtime": 1778745120.8669052,
+    "ast_hash": "c9f4b49e26f4a578d2af924e75cb6f3c",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/docs/DEPLOYMENT_READY.md": {
+    "mtime": 1778745120.9549046,
+    "ast_hash": "857ed4144b41c7b2a6d7b22069a95e6a",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/docs/GOOGLE_LOGIN_SESSION_FIX.md": {
+    "mtime": 1778745121.0271268,
+    "ast_hash": "b7924621c1a650e0dd3a717c69dad772",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/docs/DEPLOY_NEXT_JS_GUIDE.md": {
+    "mtime": 1778745120.9769084,
+    "ast_hash": "6feebf445069a63e51bf08b35dd38668",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/docs/legacy/README.md": {
+    "mtime": 1777998001.4821754,
+    "ast_hash": "e89ff58a430ddf967c73e1be9afd559e",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/docs/auth/REGISTRATION_FLOW_AUDIT_2026-02-26.md": {
+    "mtime": 1772105944.961603,
+    "ast_hash": "0ab9f4e66727050b0d12d419ad0ccc1e",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/.claude/skills/integration-nextjs-app-router/SKILL.md": {
+    "mtime": 1778770178.0,
+    "ast_hash": "d62940881a559b1b7f99c1a29f73f9e5",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/.claude/skills/integration-nextjs-app-router/references/basic-integration-1.0-begin.md": {
+    "mtime": 1778770178.0,
+    "ast_hash": "d556fa6044d27efbda7da00e3430fac9",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/.claude/skills/integration-nextjs-app-router/references/EXAMPLE.md": {
+    "mtime": 1778770178.0,
+    "ast_hash": "b389b708a12239cc82a53e981cc94e35",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/.claude/skills/integration-nextjs-app-router/references/identify-users.md": {
+    "mtime": 1778770178.0,
+    "ast_hash": "1d66ef5c2f45e79af398f2eed4995f28",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/.claude/skills/integration-nextjs-app-router/references/basic-integration-1.3-conclude.md": {
+    "mtime": 1778770178.0,
+    "ast_hash": "9567e63543c553c191fed77afbb47097",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/.claude/skills/integration-nextjs-app-router/references/basic-integration-1.1-edit.md": {
+    "mtime": 1778770178.0,
+    "ast_hash": "ee82810cbe100680a71105cf95e7abad",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/.claude/skills/integration-nextjs-app-router/references/basic-integration-1.2-revise.md": {
+    "mtime": 1778770178.0,
+    "ast_hash": "f83c9f2349b979d0f65cd343d981ac6a",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/.claude/skills/integration-nextjs-app-router/references/next-js.md": {
+    "mtime": 1778770178.0,
+    "ast_hash": "4f5cc5dd6fc3b3131d3e983717aa670e",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/supabase/migrations/README.md": {
+    "mtime": 1779720324.0190852,
+    "ast_hash": "684de8b9186ece11e2d6cb513a9a4920",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/public/llms.txt": {
+    "mtime": 1778959701.4632542,
+    "ast_hash": "5e6f9e7149611af1676c4c0897089ded",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/public/icon-192.png": {
+    "mtime": 1772185850.4889402,
+    "ast_hash": "6bacd2e63a15c81b28f81b463ae3e120",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/public/icon-512.png": {
+    "mtime": 1772185850.4959366,
+    "ast_hash": "999a78920e8f9e254e4bf805c98b7c9f",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/next-env.d.ts": {
+    "mtime": 1766155539.4182668,
+    "ast_hash": "187b4b5b507c358a018aeeadd81abe57",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/components/invites/InviteActivationOverlay.tsx": {
+    "mtime": 1780307124.968807,
+    "ast_hash": "36eadd38168f0a51acf3820a840473d3",
+    "semantic_hash": ""
+  },
+  "/p/k/ksiegai-next/public/email-assets/spolka-welcome-ksef.png": {
+    "mtime": 1779902668.143701,
+    "ast_hash": "0c5b60e1e8571e66e3dcffef866466bc",
+    "semantic_hash": ""
+  }
+}

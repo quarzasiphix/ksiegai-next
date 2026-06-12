@@ -2,9 +2,8 @@
 
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { Suspense, useEffect, useState } from "react";
-import { redirectToApp, storeAuthToken } from "@/lib/auth/crossDomainAuth";
-import { sendWelcomeEmailIfNewUser } from "@/lib/auth/welcomeEmail";
-import { supabase } from "@/lib/supabase";
+import { redirectToApp, storeAuthToken } from "../../../lib/auth/crossDomainAuth";
+import { supabase } from "../../../lib/supabase";
 
 const SUPPORTED_EMAIL_OTP_TYPES = new Set<EmailOtpType>([
   "signup",
@@ -62,15 +61,6 @@ function ConfirmEmailInner() {
           return;
         }
 
-        if (type === "signup" || type === "invite") {
-          await sendWelcomeEmailIfNewUser({
-            userId: session.user.id,
-            email: session.user.email,
-            createdAt: session.user.created_at,
-            force: true,
-          });
-        }
-
         storeAuthToken({
           access_token: session.access_token,
           refresh_token: session.refresh_token,
@@ -79,11 +69,15 @@ function ConfirmEmailInner() {
         });
 
         const targetPath =
-          type === "signup" || type === "invite"
-            ? "/settings/password"
-            : type === "recovery"
-              ? "/dashboard"
-              : "/";
+          type === "signup"
+            ? "/welcome?flow=signup"
+            : type === "invite"
+              ? "/welcome?flow=invite"
+              : type === "magiclink" || type === "email"
+                ? "/welcome?flow=magic_link"
+                : type === "recovery"
+                  ? "/dashboard"
+                  : "/";
 
         redirectToApp(targetPath);
       } catch (error) {

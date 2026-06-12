@@ -1,19 +1,22 @@
 import type { Metadata } from "next";
 import { CheckCircle2, Crown, Zap, Shield, Building, Calculator, CreditCard, Star } from "lucide-react";
 import Link from "next/link";
+import { PUBLIC_PRICING, formatPln, formatPlnAnnual } from "../../lib/pricing";
+import { TrackedLink } from "@/components/analytics/TrackedLink";
+import { PageAnalytics } from "@/components/analytics/PageAnalytics";
 
 export const metadata: Metadata = {
   title: "Cennik KsięgaI | Nowoczesna księgowość JDG i spółek z o.o.",
   description:
-    "Transparentny cennik KsięgaI. Plan dla JDG od 19 zł, pakiet Spółka Standard z pełną automatyzacją (89 zł) oraz rozwiązania Enterprise. Wybierz model dopasowany do odpowiedzialności Twojej firmy.",
+    `Transparentny cennik KsięgaI. Plan dla JDG od ${formatPln(PUBLIC_PRICING.jdg.monthlyPricePln)}, pakiet Spółka Standard z pełną automatyzacją KSeF i płatnościami online Stripe (${formatPln(PUBLIC_PRICING.spolkaStandard.monthlyPricePln)}) oraz rozwiązania Enterprise.`,
   alternates: {
-    canonical: "https://ksiegai.pl/cennik",
+    canonical: "https://www.ksiegai.pl/cennik/",
   },
   openGraph: {
     title: "KsięgaI – cennik dla JDG i spółek",
     description:
       "Jedno narzędzie do rozliczeń KSeF, CIT, JPK i governance. Sprawdź, który plan KsięgaI najlepiej chroni Twoją firmę.",
-    url: "https://ksiegai.pl/cennik",
+    url: "https://www.ksiegai.pl/cennik",
     type: "website",
     locale: "pl_PL",
   },
@@ -21,30 +24,31 @@ export const metadata: Metadata = {
 
 const plans = [
   {
-    name: "JDG Start",
+    name: PUBLIC_PRICING.jdg.name,
     tagline: "Dla jednoosobowych działalności w trybie lean",
-    price: "19 zł",
+    price: formatPln(PUBLIC_PRICING.jdg.monthlyPricePln),
     cadence: "miesiąc",
     icon: Calculator,
     features: [
       "Faktury + ewidencja przychodów",
       "Import banku: CSV teraz, integracje bankowe w przygotowaniu",
-      "KSeF-ready: walidacje, archiwum i workflow wysyłki",
+      "Obsługa KSeF: walidacje, archiwum i workflow wysyłki",
       "Zestawienia VAT/PIT do eksportu (jeśli dotyczy)",
     ],
     cta: { label: "Rozpocznij 7-dniowy trial", href: "/rejestracja" },
     highlight: false,
   },
   {
-    name: "Spółka Standard",
+    name: PUBLIC_PRICING.spolkaStandard.name,
     tagline: "Pełna księgowość i governance dla spółek z o.o.",
-    price: "89 zł",
+    price: formatPln(PUBLIC_PRICING.spolkaStandard.monthlyPricePln),
     cadence: "miesiąc",
-    annual: "999 zł/rok – oszczędzasz 69 zł",
+    annual: `${formatPlnAnnual(PUBLIC_PRICING.spolkaStandard.annualPricePln)} – oszczędzasz ${formatPln(PUBLIC_PRICING.spolkaStandard.annualSavingsPln)}`,
     badge: "Najczęściej wybierany",
     icon: Shield,
     features: [
       "Wszystko z JDG + workflow zatwierdzania (wyjątki + audyt)",
+      "Płatności online przez Stripe i monitoring rozliczeń faktur",
       "JPK_V7M i CIT-8: przygotowanie + eksport + walidacje",
       "Repozytorium uchwał, majątku i amortyzacji",
       "Priorytetowe wsparcie (SLA do 4h w dni robocze)",
@@ -111,6 +115,10 @@ const faqs = [
     a: "Nie. Trial trwa 7 dni i obejmuje pełny zakres funkcji Spółka Standard. Po zakończeniu wybierasz plan albo eksportujesz swoje dane.",
   },
   {
+    q: "Czy KsięgaI obsługuje KSeF i płatności online?",
+    a: "Tak. KsięgaI wspiera obieg dokumentów pod KSeF, a płatności online dla faktur są obsługiwane przez Stripe.",
+  },
+  {
     q: "Jak wygląda wdrożenie Enterprise?",
     a: "Rozpoczynamy od warsztatów bezpieczeństwa i mapy procesów. Następnie wdrażamy system w Twojej infrastrukturze albo w dedykowanej chmurze KsięgaI.",
   },
@@ -124,9 +132,9 @@ const pricingSchema = {
   brand: { "@type": "Brand", name: "KsięgaI" },
   offers: {
     "@type": "Offer",
-    url: "https://ksiegai.pl/cennik",
+    url: "https://www.ksiegai.pl/cennik",
     priceCurrency: "PLN",
-    price: "89",
+    price: String(PUBLIC_PRICING.spolkaStandard.monthlyPricePln),
     priceValidUntil: "2026-12-31",
     availability: "https://schema.org/InStock",
   },
@@ -135,6 +143,7 @@ const pricingSchema = {
 export default function Pricing() {
   return (
     <div className="relative overflow-hidden bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100">
+      <PageAnalytics page="cennik" intent="conversion" />
       <div className="pointer-events-none absolute inset-0 -z-10 opacity-60">
         <div className="absolute -top-24 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-blue-500/20 blur-3xl" />
         <div className="absolute bottom-0 right-0 h-96 w-96 translate-x-1/3 translate-y-1/3 rounded-full bg-amber-500/10 blur-3xl" />
@@ -164,12 +173,14 @@ export default function Pricing() {
                   <strong>Dla JDG</strong> — prosty start. <strong>Dla spółek</strong> — pełna odpowiedzialność. <strong>Dla grup</strong> — kontrola na poziomie zarządu.
                 </p>
                 <div className="flex flex-wrap gap-4">
-                  <Link
+                  <TrackedLink
                     href="/rejestracja"
+                    event="cta_clicked"
+                    eventProps={{ page: "cennik", cta_id: "hero_primary", text: "Przetestuj 7 dni za darmo", destination: "/rejestracja" }}
                     className="inline-flex items-center justify-center rounded-2xl bg-white px-6 py-3 text-base font-semibold text-gray-900 transition hover:-translate-y-0.5 hover:bg-blue-50"
                   >
                     Przetestuj 7 dni za darmo
-                  </Link>
+                  </TrackedLink>
                   <a
                     href="#comparison"
                     className="inline-flex items-center justify-center rounded-2xl border border-white/30 px-6 py-3 text-base font-semibold text-white/90 transition hover:border-white hover:text-white"
@@ -247,8 +258,14 @@ export default function Pricing() {
                       </li>
                     ))}
                   </ul>
-                  <Link href={plan.cta.href} className="mt-auto block">
+                  <TrackedLink
+                    href={plan.cta.href}
+                    event="cta_clicked"
+                    eventProps={{ page: "cennik", cta_id: "plan_cta", plan: plan.name, text: plan.cta.label, destination: plan.cta.href }}
+                    className="mt-auto block"
+                  >
                     <button
+                      type="button"
                       className={`mt-8 w-full rounded-2xl border px-5 py-3 text-base font-semibold transition ${
                         plan.highlight
                           ? "border-white/30 bg-white text-blue-700 hover:bg-gray-100"
@@ -257,7 +274,7 @@ export default function Pricing() {
                     >
                       {plan.cta.label}
                     </button>
-                  </Link>
+                  </TrackedLink>
                 </div>
               );
             })}
@@ -274,12 +291,14 @@ export default function Pricing() {
                 <p className="text-sm font-semibold text-blue-600">Porównanie planów</p>
                 <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Co dokładnie dostajesz w każdym pakiecie?</h2>
               </div>
-              <Link
+              <TrackedLink
                 href="/rejestracja"
+                event="cta_clicked"
+                eventProps={{ page: "cennik", cta_id: "comparison_cta", text: "Wybierz plan", destination: "/rejestracja" }}
                 className="rounded-2xl bg-gray-900 px-5 py-2 text-sm font-semibold text-white transition hover:bg-gray-800 dark:bg-white dark:text-gray-900"
               >
                 Wybierz plan
-              </Link>
+              </TrackedLink>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[640px] text-left text-sm">
@@ -364,21 +383,25 @@ export default function Pricing() {
         <div className="mx-auto w-full max-w-4xl px-6 text-center">
           <h2 className="mb-6 text-4xl font-bold text-white md:text-5xl">Gotowy na księgowość bez stresu?</h2>
           <p className="mb-8 text-xl text-blue-100">
-            Dołącz do przedsiębiorców, którzy wybrali odpowiedzialność zamiast chaosu.
+            Dołącz do przedsiębiorców, którzy wybrali odpowiedzialność i uporządkowany proces.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <Link
+            <TrackedLink
               href="/rejestracja"
+              event="cta_clicked"
+              eventProps={{ page: "cennik", cta_id: "footer_primary", text: "Rozpocznij 7-dniowy trial", destination: "/rejestracja" }}
               className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-8 py-4 text-lg font-semibold text-white transition hover:bg-blue-700"
             >
               Rozpocznij 7-dniowy trial
-            </Link>
-            <a
+            </TrackedLink>
+            <TrackedLink
               href="mailto:kontakt@ksiegai.pl"
+              event="cta_clicked"
+              eventProps={{ page: "cennik", cta_id: "footer_contact", text: "Porozmawiaj z ekspertem", destination: "mailto" }}
               className="inline-flex items-center justify-center rounded-2xl border border-white/30 px-8 py-4 text-lg font-semibold text-white transition hover:border-white hover:bg-white/10"
             >
               Porozmawiaj z ekspertem
-            </a>
+            </TrackedLink>
           </div>
           <p className="mt-6 text-sm text-gray-400">Bez karty kredytowej • Pełny dostęp • Anuluj w dowolnym momencie</p>
         </div>

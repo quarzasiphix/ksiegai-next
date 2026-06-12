@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getVariant, type LandingPageVariant } from '@/lib/ab-testing';
+import { getVariant, type LandingPageVariant } from "../lib/ab-testing";
 
 /**
  * Hook to get the current A/B testing variant

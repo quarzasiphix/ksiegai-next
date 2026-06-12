@@ -4,24 +4,96 @@
 const APP_DOMAIN = process.env.NEXT_PUBLIC_APP_DOMAIN || 'app.ksiegai.pl';
 const COOKIE_NAME = 'ksiegai_auth_token';
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
+const HANDOFF_ATTRIBUTION_KEY = 'ksiegai_handoff_attribution';
+const HANDOFF_UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'] as const;
 
-interface AuthToken {
+export interface AuthToken {
   access_token: string;
   refresh_token: string;
   expires_at: number;
   user_id: string;
 }
 
+type SessionSetter = (session: {
+  access_token: string;
+  refresh_token: string;
+}) => Promise<{ data: { session: unknown | null }; error: unknown | null }>;
+
 type RedirectParams = Record<string, string | number | boolean | null | undefined>;
 
-const buildAppPath = (path: string, params?: RedirectParams): string => {
-  if (!params) {
-    return path;
+type HandoffAttributionParams = Partial<Record<(typeof HANDOFF_UTM_KEYS)[number], string>>;
+
+const getDefaultHandoffAttribution = (): HandoffAttributionParams => ({
+  utm_source: 'ksiegai_site',
+});
+
+const readStoredHandoffAttribution = (): HandoffAttributionParams => {
+  if (typeof window === 'undefined') return {};
+
+  try {
+    const stored = window.sessionStorage.getItem(HANDOFF_ATTRIBUTION_KEY);
+    if (!stored) return {};
+    const parsed = JSON.parse(stored) as HandoffAttributionParams;
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch (error) {
+    console.warn('[crossDomainAuth] Failed to read stored handoff attribution:', error);
+    return {};
+  }
+};
+
+const writeStoredHandoffAttribution = (params: HandoffAttributionParams): void => {
+  if (typeof window === 'undefined') return;
+
+  try {
+    window.sessionStorage.setItem(HANDOFF_ATTRIBUTION_KEY, JSON.stringify(params));
+  } catch (error) {
+    console.warn('[crossDomainAuth] Failed to store handoff attribution:', error);
+  }
+};
+
+const extractHandoffAttribution = (search: string): HandoffAttributionParams => {
+  const urlParams = new URLSearchParams(search);
+  const nextParams: HandoffAttributionParams = {};
+
+  for (const key of HANDOFF_UTM_KEYS) {
+    const value = urlParams.get(key);
+    if (value) {
+      nextParams[key] = value;
+    }
   }
 
-  const searchParams = new URLSearchParams();
+  return nextParams;
+};
 
-  for (const [key, value] of Object.entries(params)) {
+const resolveHandoffAttribution = (): HandoffAttributionParams => {
+  if (typeof window === 'undefined') return getDefaultHandoffAttribution();
+
+  const fromUrl = extractHandoffAttribution(window.location.search);
+  const stored = readStoredHandoffAttribution();
+  const resolved = {
+    ...getDefaultHandoffAttribution(),
+    ...stored,
+    ...fromUrl,
+  };
+
+  return resolved;
+};
+
+export const persistHandoffAttribution = (): void => {
+  if (typeof window === 'undefined') return;
+  writeStoredHandoffAttribution(resolveHandoffAttribution());
+};
+
+const buildAppPath = (path: string, params?: RedirectParams): string => {
+  const searchParams = new URLSearchParams();
+  const handoffAttribution = resolveHandoffAttribution();
+
+  for (const [key, value] of Object.entries(handoffAttribution)) {
+    if (!value) continue;
+    searchParams.set(key, value);
+  }
+
+  for (const [key, value] of Object.entries(params || {})) {
     if (value == null) continue;
     searchParams.set(key, String(value));
   }
@@ -119,12 +191,21 @@ export const clearAuthToken = (): void => {
 export const redirectToApp = (path: string = '/dashboard', params?: RedirectParams): void => {
   if (typeof window === 'undefined') return;
 
+  persistHandoffAttribution();
   const resolvedPath = buildAppPath(path, params);
-  const appUrl = window.location.hostname.includes('localhost')
-    ? `http://localhost:8080${resolvedPath}` // Local dev - React app runs on port 8080
-    : `https://${APP_DOMAIN}${resolvedPath}`; // Production
 
-  window.location.href = appUrl;
+  if (window.location.hostname.includes('localhost')) {
+    // On localhost, cross-port cookies are unreliable — embed the auth token in
+    // the URL so ksef-ai can bootstrap the session without cookie dependency.
+    const token = getAuthToken();
+    const tokenParam = token ? `_xat=${encodeURIComponent(JSON.stringify(token))}` : '';
+    const sep = resolvedPath.includes('?') ? '&' : '?';
+    const appUrl = `http://localhost:8080${resolvedPath}${tokenParam ? sep + tokenParam : ''}`;
+    window.location.href = appUrl;
+    return;
+  }
+
+  window.location.href = `https://${APP_DOMAIN}${resolvedPath}`;
 };
 
 /**
@@ -182,4 +263,33 @@ export const validateToken = async (token: AuthToken): Promise<boolean> => {
     return false;
   }
   return true;
+};
+
+export const restoreSessionFromAuthToken = async (
+  setSession: SessionSetter,
+  options?: {
+    token?: AuthToken | null;
+    onRestoreFailure?: (token: AuthToken) => void;
+  },
+): Promise<{ restored: boolean; token: AuthToken | null }> => {
+  const token = options?.token ?? getAuthToken();
+  if (!token) {
+    return { restored: false, token: null };
+  }
+
+  const { data, error } = await setSession({
+    access_token: token.access_token,
+    refresh_token: token.refresh_token,
+  });
+
+  if (error || !data.session) {
+    if (options?.onRestoreFailure) {
+      options.onRestoreFailure(token);
+    } else {
+      clearAuthToken();
+    }
+    return { restored: false, token };
+  }
+
+  return { restored: true, token };
 };

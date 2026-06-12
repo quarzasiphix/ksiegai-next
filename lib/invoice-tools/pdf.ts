@@ -1,9 +1,9 @@
 import {
   type AnonymousInvoiceDraft,
   buildInvoiceFilename,
-} from "@/lib/invoice-tools/anonymousInvoice";
+} from "./anonymousInvoice";
 import React from "react";
-import AnonymousInvoicePdfTemplate from "@/components/invoice-tools/AnonymousInvoicePdfTemplate";
+import AnonymousInvoicePdfTemplate from "../../components/invoice-tools/AnonymousInvoicePdfTemplate";
 
 const PAGE_WIDTH = 794;
 const PAGE_HEIGHT = 1123;

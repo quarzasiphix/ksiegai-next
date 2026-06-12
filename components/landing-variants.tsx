@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import type { LandingPageVariant } from "@/lib/ab-testing";
+import type { LandingPageVariant } from "../lib/ab-testing";
 
 /**
  * Variant-specific hero content
@@ -36,7 +36,7 @@ export function HeroSubheadline({ variant }: HeroVariantProps) {
     return (
       <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-gray-300 mb-4 sm:mb-6 font-medium leading-relaxed animate-fade-in px-2">
         Faktury wpadają automatycznie. Wszystko ma ślad audytu. <br className="hidden sm:block" />
-        Księgowa widzi wszystko bez maili — i nie chce wracać do chaosu.
+        Księgowa widzi wszystko bez maili — i nie chce wracać do ręcznego obiegu.
       </p>
     );
   }
@@ -72,7 +72,7 @@ export function HeroMechanism({ variant }: HeroVariantProps) {
     return (
       <div className="bg-blue-900/30 border border-blue-500/30 rounded-2xl p-4 sm:p-6 max-w-2xl mx-auto mb-8 animate-fade-in">
         <p className="text-base sm:text-lg text-blue-200 font-medium text-center">
-          <span className="text-blue-400 font-bold">Dlaczego księgowe zostają:</span> Raz zobaczą workflow z rolami, śladem audytu i automatycznym odbiorem — nie chcą wracać do chaosu.
+          <span className="text-blue-400 font-bold">Dlaczego księgowe zostają:</span> Raz zobaczą workflow z rolami, śladem audytu i automatycznym odbiorem — nie chcą wracać do ręcznego obiegu.
         </p>
       </div>
     );

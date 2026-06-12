@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Script from "next/script";
+import { Suspense } from "react";
 import "./globals.css";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import { PostHogProvider } from "@/components/PostHogProvider";
+import { InviteTokenCapture } from "@/components/InviteTokenCapture";
+import { InviteWelcomeOverlay } from "@/components/InviteWelcomeOverlay";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -38,11 +42,11 @@ export const metadata: Metadata = {
     description: "Automatyzacja faktur, podatków i KSeF dla przedsiębiorców, którzy wolą budować firmę niż pilnować papierów. Pełna zgodność z polskimi przepisami.",
     type: "website",
     locale: "pl_PL",
-    url: "https://ksiegai.pl",
+    url: "https://www.ksiegai.pl",
     siteName: "KsięgaI",
     images: [
       {
-        url: "https://ksiegai.pl/og-image.png",
+        url: "https://www.ksiegai.pl/og-image.png",
         width: 1200,
         height: 630,
         alt: "KsięgaI - Profesjonalna księgowość online dla polskich firm",
@@ -53,10 +57,19 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "KsięgaI - Księgowość, która nie kradnie Twojego czasu",
     description: "Automatyzacja faktur, podatków i KSeF dla polskich przedsiębiorców. Zgodność z KSeF i JPK.",
-    images: ["https://ksiegai.pl/og-image.png"],
+    images: ["https://www.ksiegai.pl/og-image.png"],
   },
   alternates: {
-    canonical: "https://ksiegai.pl",
+    canonical: "https://www.ksiegai.pl/",
+  },
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    shortcut: '/favicon.ico',
+    apple: '/icon-192.png',
   },
 };
 
@@ -92,29 +105,76 @@ export default function RootLayout({
         <meta name="bingbot" content="index, follow" />
         <meta name="googlebot" content="index, follow" />
         <meta name="format-detection" content="telephone=no" />
+        <link rel="privacy-policy" href="https://www.ksiegai.pl/polityka-prywatnosci" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                {
+                  "@type": "Organization",
+                  "@id": "https://www.ksiegai.pl/#organization",
+                  name: "KsięgaI",
+                  legalName: "Tovernet Sp. z o.o.",
+                  url: "https://www.ksiegai.pl",
+                  logo: {
+                    "@type": "ImageObject",
+                    url: "https://www.ksiegai.pl/icon-512.png",
+                    width: 512,
+                    height: 512,
+                  },
+                  contactPoint: {
+                    "@type": "ContactPoint",
+                    email: "kontakt@ksiegai.pl",
+                    contactType: "customer service",
+                    availableLanguage: "Polish",
+                  },
+                  taxID: "7322228540",
+                  areaServed: "PL",
+                  foundingLocation: { "@type": "Place", addressCountry: "PL" },
+                },
+                {
+                  "@type": "WebSite",
+                  "@id": "https://www.ksiegai.pl/#website",
+                  url: "https://www.ksiegai.pl",
+                  name: "KsięgaI",
+                  inLanguage: "pl-PL",
+                  publisher: { "@id": "https://www.ksiegai.pl/#organization" },
+                },
+              ],
+            }),
+          }}
+        />
       </head>
       <body className={inter.className}>
-        {gtmId && (
-          <Script
-            id="gtm-script"
-            src={`https://www.googletagmanager.com/gtm.js?id=${gtmId}`}
-            strategy="afterInteractive"
-          />
-        )}
-        
-        <Header />
-        <main>
-          {children}
-        </main>
-        <Footer />
-        
-        {gtmId && (
-          <noscript
-            dangerouslySetInnerHTML={{
-              __html: `<iframe src="https://www.googletagmanager.com/ns.html?id=${gtmId}" height="0" width="0" style="display:none;visibility:hidden"></iframe>`,
-            }}
-          />
-        )}
+        <PostHogProvider>
+          <Suspense fallback={null}>
+            <InviteTokenCapture />
+            <InviteWelcomeOverlay />
+          </Suspense>
+          {gtmId && (
+            <Script
+              id="gtm-script"
+              src={`https://www.googletagmanager.com/gtm.js?id=${gtmId}`}
+              strategy="afterInteractive"
+            />
+          )}
+
+          <Header />
+          <main>
+            {children}
+          </main>
+          <Footer />
+
+          {gtmId && (
+            <noscript
+              dangerouslySetInnerHTML={{
+                __html: `<iframe src="https://www.googletagmanager.com/ns.html?id=${gtmId}" height="0" width="0" style="display:none;visibility:hidden"></iframe>`,
+              }}
+            />
+          )}
+        </PostHogProvider>
       </body>
     </html>
   );

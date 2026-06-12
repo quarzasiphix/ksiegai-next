@@ -33,9 +33,9 @@ import {
   type AnonymousInvoiceDraft,
   type InvoiceItemDraft,
   type InvoicePartyDraft,
-} from "@/lib/invoice-tools/anonymousInvoice";
-import { persistAnonymousInvoiceDraft } from "@/lib/invoice-tools/persistence";
-import { downloadAnonymousInvoicePdf } from "@/lib/invoice-tools/pdf";
+} from "../../lib/invoice-tools/anonymousInvoice";
+import { persistAnonymousInvoiceDraft } from "../../lib/invoice-tools/persistence";
+import { downloadAnonymousInvoicePdf } from "../../lib/invoice-tools/pdf";
 
 type PartyKey = "seller" | "buyer";
 type LookupFeedbackState = "idle" | "loading" | "success" | "error";

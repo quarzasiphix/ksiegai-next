@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     follow: false,
   },
   alternates: {
-    canonical: "https://ksiegai.pl/rejestracja",
+    canonical: "https://www.ksiegai.pl/rejestracja/",
   },
 };
 

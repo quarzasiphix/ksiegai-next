@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { CheckCircle2, Shield, Users, TrendingUp, FileCheck, Clock, AlertCircle, Zap, Lock, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { TrackedLink } from "@/components/analytics/TrackedLink";
+import { PageAnalytics } from "@/components/analytics/PageAnalytics";
 
 export const metadata: Metadata = {
   title: "Dla księgowych | KsięgaI – narzędzie do skalowania biura rachunkowego",
@@ -8,21 +10,22 @@ export const metadata: Metadata = {
     "KsięgaI eliminuje ręczną robotę, która blokuje skalowanie księgowych. Obsługuj więcej firm bez zwiększania liczby godzin. Pełna kontrola, audytowalność i wsparcie decyzji.",
   keywords: "oprogramowanie dla księgowych, biuro rachunkowe, automatyzacja księgowości, narzędzie dla księgowych, skalowanie biura rachunkowego",
   openGraph: {
-    title: "KsięgaI dla księgowych – skaluj bez chaosu",
+    title: "KsięgaI dla księgowych – skaluj biuro rachunkowe z kontrolą",
     description:
       "System eliminuje operacyjną robotę, księgowy podejmuje decyzje. Obsługuj więcej klientów z pełną kontrolą i audytowalnością.",
-    url: "https://ksiegai.pl/dla-ksiegowych",
+    url: "https://www.ksiegai.pl/dla-ksiegowych",
     type: "website",
     locale: "pl_PL",
   },
   alternates: {
-    canonical: "https://ksiegai.pl/dla-ksiegowych",
+    canonical: "https://www.ksiegai.pl/dla-ksiegowych/",
   },
 };
 
 export default function DlaKsiegowych() {
   return (
     <div className="relative overflow-hidden bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100">
+      <PageAnalytics page="dla-ksiegowych" persona="accountant" intent="signup" />
       <div className="pointer-events-none absolute inset-0 -z-10 opacity-60">
         <div className="absolute -top-24 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-blue-500/20 blur-3xl" />
         <div className="absolute bottom-0 right-0 h-96 w-96 translate-x-1/3 translate-y-1/3 rounded-full bg-green-500/10 blur-3xl" />
@@ -55,19 +58,23 @@ export default function DlaKsiegowych() {
                 KSeF = fala wdrożeń. Przygotuj klientów wcześniej, zanim przyjdą jednocześnie.
               </p>
               <div className="flex flex-wrap gap-4">
-                <Link
+                <TrackedLink
                   href="/rejestracja"
+                  event="cta_clicked"
+                  eventProps={{ page: "dla-ksiegowych", persona: "accountant", cta_id: "hero_primary", text: "Przetestuj z jednym klientem", destination: "/rejestracja" }}
                   className="inline-flex items-center justify-center rounded-2xl bg-green-500 px-8 py-4 text-base font-semibold text-gray-900 transition hover:bg-green-400"
                 >
                   Przetestuj z jednym klientem
                   <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-                <a
+                </TrackedLink>
+                <TrackedLink
                   href="mailto:kontakt@ksiegai.pl"
+                  event="cta_clicked"
+                  eventProps={{ page: "dla-ksiegowych", persona: "accountant", cta_id: "hero_contact", text: "Porozmawiaj o wdrożeniu", destination: "mailto" }}
                   className="inline-flex items-center justify-center rounded-2xl border border-white/30 px-8 py-4 text-base font-semibold text-white/90 transition hover:border-white hover:bg-white/10"
                 >
                   Porozmawiaj o wdrożeniu
-                </a>
+                </TrackedLink>
               </div>
             </div>
           </div>
@@ -81,7 +88,7 @@ export default function DlaKsiegowych() {
             <p className="mb-2 text-sm font-semibold text-blue-600">Jak to działa w praktyce</p>
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white">System wykonuje pracę operacyjną. Księgowy podejmuje decyzje.</h2>
             <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">
-              Ta sama liczba godzin. Więcej klientów. Mniej chaosu.
+              Ta sama liczba godzin. Więcej klientów. Mniej ręcznej koordynacji.
             </p>
           </div>
           <div className="grid gap-6 md:grid-cols-3 mb-12">
@@ -260,13 +267,15 @@ export default function DlaKsiegowych() {
             <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
               Masz jednego klienta, na którym chcesz to sprawdzić?
             </h3>
-            <Link
+            <TrackedLink
               href="/rejestracja"
+              event="cta_clicked"
+              eventProps={{ page: "dla-ksiegowych", persona: "accountant", cta_id: "mid_cta", text: "Uruchom pilotaż (7 dni)", destination: "/rejestracja" }}
               className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-8 py-4 text-base font-semibold text-white transition hover:bg-blue-700"
             >
               Uruchom pilotaż (7 dni)
               <ArrowRight className="ml-2 h-5 w-5" />
-            </Link>
+            </TrackedLink>
             <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
               Bez karty • Eksport danych • Zero lock-in
             </p>
@@ -284,7 +293,7 @@ export default function DlaKsiegowych() {
           <div className="grid gap-8 md:grid-cols-2">
             <div className="rounded-2xl border border-gray-200 bg-white p-8 dark:border-gray-800 dark:bg-gray-900">
               <div className="mb-2 text-xs font-bold text-blue-600 uppercase tracking-wide">Największa wartość</div>
-              <h3 className="mb-4 text-2xl font-semibold text-gray-900 dark:text-white">Więcej firm bez chaosu</h3>
+              <h3 className="mb-4 text-2xl font-semibold text-gray-900 dark:text-white">Więcej firm w jednym uporządkowanym procesie</h3>
               <ul className="space-y-3 text-gray-600 dark:text-gray-400">
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-500" />
@@ -435,18 +444,22 @@ export default function DlaKsiegowych() {
             Możesz zrezygnować bez migracji, bez lock-in, z pełnym eksportem danych.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <Link
+            <TrackedLink
               href="/rejestracja"
+              event="cta_clicked"
+              eventProps={{ page: "dla-ksiegowych", persona: "accountant", cta_id: "footer_primary", text: "Rozpocznij 7-dniowy trial", destination: "/rejestracja" }}
               className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-8 py-4 text-lg font-semibold text-white transition hover:bg-blue-700"
             >
               Rozpocznij 7-dniowy trial
-            </Link>
-            <a
+            </TrackedLink>
+            <TrackedLink
               href="mailto:kontakt@ksiegai.pl"
+              event="cta_clicked"
+              eventProps={{ page: "dla-ksiegowych", persona: "accountant", cta_id: "footer_contact", text: "Porozmawiaj o wdrożeniu biura", destination: "mailto" }}
               className="inline-flex items-center justify-center rounded-2xl border border-gray-300 px-8 py-4 text-lg font-semibold text-gray-900 transition hover:bg-gray-50 dark:border-gray-700 dark:text-white dark:hover:bg-gray-900"
             >
               Porozmawiaj o wdrożeniu biura
-            </a>
+            </TrackedLink>
           </div>
           <p className="mt-6 text-sm text-gray-500 dark:text-gray-400">
             Bez zobowiązań • Pełny dostęp do wszystkich funkcji • Anuluj w dowolnym momencie

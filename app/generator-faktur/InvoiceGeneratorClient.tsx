@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ChangeEvent, useState } from "react";
 import { Calculator, Download, FileText, Sparkles } from "lucide-react";
+import posthog from "posthog-js";
 
 type PartyFields = {
   name: string;
@@ -102,6 +103,7 @@ export default function InvoiceGeneratorClient() {
   }
 
   function handlePrint() {
+    posthog.capture('invoice_generator_printed', { vat_rate: form.vatRate, gross_amount: totals.gross });
     window.print();
   }
 
@@ -184,6 +186,7 @@ export default function InvoiceGeneratorClient() {
                 </button>
                 <Link
                   href="/rejestracja"
+                  onClick={() => posthog.capture('invoice_generator_signup_cta_clicked')}
                   className="inline-flex w-full items-center justify-center rounded-2xl border border-white/20 px-5 py-3 text-sm font-semibold text-white transition hover:border-white hover:bg-white/5"
                 >
                   Potrzebujesz pelnego workflow? Zaloz konto

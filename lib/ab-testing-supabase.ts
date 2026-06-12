@@ -60,7 +60,7 @@ export async function getVariantAssignment(
       .select('variant_id')
       .eq('test_id', testId)
       .eq('session_id', sessionId)
-      .single();
+      .maybeSingle();
 
     if (existing && !fetchError) {
       return (existing as any).variant_id;
@@ -145,12 +145,17 @@ export async function trackConversion(
 ) {
   try {
     // Get assignment ID
-    const { data: assignment } = await supabase
+    const { data: assignment, error: assignmentError } = await supabase
       .from('ab_test_assignments')
       .select('id')
       .eq('test_id', testId)
       .eq('session_id', sessionId)
-      .single() as any;
+      .maybeSingle() as any;
+
+    if (assignmentError) {
+      console.error('Error looking up assignment for conversion:', assignmentError);
+      return;
+    }
 
     if (!assignment) {
       console.error('No assignment found for conversion tracking');
@@ -184,12 +189,17 @@ export async function trackEvent(
   metadata?: Record<string, any>
 ) {
   try {
-    const { data: assignment } = await supabase
+    const { data: assignment, error: assignmentError } = await supabase
       .from('ab_test_assignments')
       .select('id')
       .eq('test_id', testId)
       .eq('session_id', sessionId)
-      .single() as any;
+      .maybeSingle() as any;
+
+    if (assignmentError) {
+      console.error('Error looking up assignment for event tracking:', assignmentError);
+      return;
+    }
 
     if (assignment) {
       await supabase.from('ab_test_events').insert({

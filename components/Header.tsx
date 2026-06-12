@@ -3,40 +3,57 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { getAuthToken, redirectToApp, clearAuthToken, storeAuthToken, storeAndRedirect, checkAndRedirectToLocalhost } from "@/lib/auth/crossDomainAuth";
-import { User, Crown, LogOut, ReceiptText } from "lucide-react";
+import {
+  clearAuthToken,
+  getAuthToken,
+  redirectToApp,
+  restoreSessionFromAuthToken,
+  storeAndRedirect,
+  storeAuthToken,
+} from "@/lib/auth/crossDomainAuth";
+import { saveRememberedProfile, saveRememberedProfileAuthToken } from "@/lib/auth/loginProfiles";
+import { ArrowRight, LogOut, ReceiptText, User } from "lucide-react";
+import posthog from "posthog-js";
+
+async function sha256hex(text: string): Promise<string> {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
 
 export default function Header() {
   const [user, setUser] = useState<any>(null);
+  const [inviteToken, setInviteToken] = useState<string | null>(null);
+  const [inviteCompany, setInviteCompany] = useState<string | null>(null);
+  const [inviteHasAccount, setInviteHasAccount] = useState(false);
 
   useEffect(() => {
     // Check for logout flag from app domain
     const logoutParams = new URLSearchParams(window.location.search);
     const logoutFlag = logoutParams.get('logout');
-    
+
     if (logoutFlag === 'true') {
       console.log("[Header] Logout flag detected from app, clearing session");
       clearAuthToken();
       supabase.auth.signOut({ scope: 'local' });
       setUser(null);
-      
+
       // Clean URL without reload
       window.history.replaceState({}, '', window.location.pathname);
       return;
     }
-    
+
     // Check if this is an OAuth callback with tokens in URL hash
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     const accessToken = hashParams.get('access_token');
     const refreshToken = hashParams.get('refresh_token');
     const expiresIn = hashParams.get('expires_in');
-    
+
     if (accessToken && refreshToken) {
       console.log("[Header] Detected OAuth callback in URL hash, processing...");
-      
+
       // Create session from the tokens
       const expiresAt = expiresIn ? Math.floor(Date.now() / 1000) + parseInt(expiresIn) : undefined;
-      
+
       supabase.auth.setSession({
         access_token: accessToken,
         refresh_token: refreshToken,
@@ -46,10 +63,17 @@ export default function Header() {
           window.location.href = '/logowanie?error=oauth_failed';
           return;
         }
-        
+
         if (data.session) {
           console.log("[Header] OAuth session created successfully:", data.session.user.id);
-          
+          saveRememberedProfile(data.session.user, "google");
+          saveRememberedProfileAuthToken(data.session.user, {
+            access_token: data.session.access_token,
+            refresh_token: data.session.refresh_token,
+            expires_at: data.session.expires_at || 0,
+            user_id: data.session.user.id,
+          });
+
           // Store token for cross-domain access
           storeAuthToken({
             access_token: data.session.access_token,
@@ -57,7 +81,7 @@ export default function Header() {
             expires_at: data.session.expires_at || 0,
             user_id: data.session.user.id,
           });
-          
+
           // Check if we need to redirect back to localhost
           const localhostRedirect = sessionStorage.getItem('localhost_redirect');
           if (localhostRedirect) {
@@ -67,24 +91,24 @@ export default function Header() {
             window.location.href = `http://localhost:${port}/dashboard`;
             return;
           }
-          
+
           // Check URL parameters for localhost redirect
           const urlParams = new URLSearchParams(window.location.search);
           const redirectFrom = urlParams.get('from');
           const localhostPort = urlParams.get('port');
-          
+
           if (redirectFrom === 'localhost' && localhostPort) {
             console.log("[Header] OAuth complete, redirecting back to localhost from URL params:", localhostPort);
             window.location.href = `http://localhost:${localhostPort}/dashboard`;
             return;
           }
-          
+
           // Default: redirect to app dashboard
           console.log("[Header] OAuth complete, redirecting to app dashboard");
           redirectToApp('/');
         }
       });
-      
+
       return; // Don't continue with normal auth flow
     }
 
@@ -92,20 +116,11 @@ export default function Header() {
     const token = getAuthToken();
     if (token) {
       console.log("[Header] Found cross-domain token, restoring session");
-      // Only set session if it's not expired
-      if (token.expires_at * 1000 > Date.now()) {
-        supabase.auth.setSession({
-          access_token: token.access_token,
-          refresh_token: token.refresh_token,
-        }).catch(error => {
-          console.error("[Header] Failed to restore session:", error);
-          // Clear invalid token
-          clearAuthToken();
-        });
-      } else {
-        console.log("[Header] Token expired, clearing");
-        clearAuthToken();
-      }
+      void restoreSessionFromAuthToken((tokens) => supabase.auth.setSession(tokens)).then(({ restored }) => {
+        if (!restored) {
+          console.error("[Header] Failed to restore session from cross-domain token");
+        }
+      });
     } else {
       console.log("[Header] No cross-domain token found");
     }
@@ -115,7 +130,7 @@ export default function Header() {
     const redirectFrom = urlParams.get('from');
     const localhostPort = urlParams.get('port');
     const action = urlParams.get('action');
-    
+
     // Handle Google login action for localhost
     if (action === 'google_login' && redirectFrom === 'localhost' && localhostPort) {
       console.log("[Header] Initiating Google login for localhost:", localhostPort);
@@ -124,7 +139,7 @@ export default function Header() {
         from: 'localhost',
         port: localhostPort
       }));
-      
+
       // Initiate Google OAuth flow
       supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -134,7 +149,7 @@ export default function Header() {
       });
       return;
     }
-    
+
     // Check if we need to redirect back to localhost after login
     if (redirectFrom === 'localhost' && localhostPort && !token) {
       console.log("[Header] Waiting for login to redirect back to localhost:", localhostPort);
@@ -149,8 +164,15 @@ export default function Header() {
     // Listen for auth changes
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       console.log("[Header] Auth state changed:", event, session?.user?.id);
-      
-      if (event === 'SIGNED_IN' && session) {
+
+      if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session) {
+        saveRememberedProfile(session.user, null);
+        saveRememberedProfileAuthToken(session.user, {
+          access_token: session.access_token,
+          refresh_token: session.refresh_token,
+          expires_at: session.expires_at || 0,
+          user_id: session.user.id,
+        });
         // Store new token for cross-domain access
         storeAuthToken({
           access_token: session.access_token,
@@ -158,7 +180,7 @@ export default function Header() {
           expires_at: session.expires_at || 0,
           user_id: session.user.id,
         });
-        
+
         // Check if we need to redirect back to localhost after login
         const localhostRedirect = sessionStorage.getItem('localhost_redirect');
         if (localhostRedirect) {
@@ -169,12 +191,12 @@ export default function Header() {
           window.location.href = localUrl;
           return;
         }
-        
+
         // Check URL parameters for localhost redirect
         const urlParams = new URLSearchParams(window.location.search);
         const redirectFrom = urlParams.get('from');
         const localhostPort = urlParams.get('port');
-        
+
         if (redirectFrom === 'localhost' && localhostPort) {
           console.log("[Header] Login complete, redirecting back to localhost:", localhostPort);
           const localUrl = `http://localhost:${localhostPort}/dashboard`;
@@ -185,7 +207,7 @@ export default function Header() {
         // Clear token on sign out
         clearAuthToken();
       }
-      
+
       setUser(session?.user || null);
     });
 
@@ -200,6 +222,46 @@ export default function Header() {
     };
   }, []);
 
+  useEffect(() => {
+    // Pick up invite token from URL (any page with ?invite=TOKEN) or localStorage
+    const urlToken = new URLSearchParams(window.location.search).get("invite");
+    if (urlToken) {
+      localStorage.setItem("pending_invite_token", urlToken);
+      // New token arrived — clear stale cached company name
+      localStorage.removeItem("pending_invite_company");
+      const clean = new URL(window.location.href);
+      clean.searchParams.delete("invite");
+      window.history.replaceState({}, "", clean.toString());
+    }
+    const token = urlToken || localStorage.getItem("pending_invite_token");
+    if (!token) return;
+
+    // Show personalized header immediately — use cached company name if available
+    const cachedCompany = localStorage.getItem("pending_invite_company");
+    setInviteToken(token);
+    if (cachedCompany) setInviteCompany(cachedCompany);
+
+    sha256hex(token).then(async (hash) => {
+      const { data, error } = await (supabase.rpc as any)("lookup_admin_invite", { p_token_hash: hash });
+      if (error) {
+        // Network/RPC error — don't clear a potentially valid token, just skip
+        return;
+      }
+      if (data?.is_valid && data?.company_name) {
+        localStorage.setItem("pending_invite_company", data.company_name);
+        setInviteCompany(data.company_name);
+        setInviteHasAccount(Boolean(data.recipient_has_account));
+      } else {
+        // Token explicitly invalid or expired — clean up
+        localStorage.removeItem("pending_invite_token");
+        localStorage.removeItem("pending_invite_company");
+        setInviteToken(null);
+        setInviteCompany(null);
+        setInviteHasAccount(false);
+      }
+    });
+  }, []);
+
   const handleLogout = async () => {
     console.log("[Header] Logging out - clearing cross-domain token");
     clearAuthToken();
@@ -209,6 +271,7 @@ export default function Header() {
   };
 
   const handleGoToApp = async () => {
+    posthog.capture('header_go_to_app_clicked');
     // Get current session and store token before redirecting
     const { data: { session } } = await supabase.auth.getSession();
     if (session) {
@@ -219,10 +282,31 @@ export default function Header() {
         expires_at: session.expires_at || 0,
         user_id: session.user.id,
       });
-    } else {
-      // Fallback to regular redirect
-      redirectToApp('/dashboard');
+      return;
     }
+
+    const existingCrossDomainToken = getAuthToken();
+    if (existingCrossDomainToken) {
+      storeAndRedirect(existingCrossDomainToken, '/dashboard');
+      return;
+    }
+
+    const { restored } = await restoreSessionFromAuthToken((tokens) => supabase.auth.setSession(tokens));
+    if (restored) {
+      const { data: { session: restoredSession } } = await supabase.auth.getSession();
+      if (restoredSession) {
+        storeAndRedirect({
+          access_token: restoredSession.access_token,
+          refresh_token: restoredSession.refresh_token,
+          expires_at: restoredSession.expires_at || 0,
+          user_id: restoredSession.user.id,
+        });
+        return;
+      }
+    }
+
+    // Last-resort redirect. App bootstrap will decide whether it can restore auth.
+    redirectToApp('/dashboard');
   };
 
   return (
@@ -272,12 +356,35 @@ export default function Header() {
                     <span className="hidden lg:inline">Wyloguj</span>
                   </button>
                 </div>
-                <button 
+                <button
                   onClick={handleGoToApp}
                   className="bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-5 py-2 rounded-lg font-semibold transition-colors text-sm sm:text-base whitespace-nowrap"
                 >
                   Przejdź do aplikacji
                 </button>
+              </div>
+            ) : inviteToken ? (
+              /* ── Invited (not yet registered) ── */
+              <div className="flex items-center gap-2 sm:gap-3 flex-nowrap">
+                {/* Company pill — shown immediately; name fills in once RPC returns or from cache */}
+                {inviteCompany && (
+                  <div className="flex items-center gap-2 min-w-0 bg-gray-800/70 border border-gray-700 rounded-full pl-1 pr-3 py-1">
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-blue-600 flex items-center justify-center shrink-0">
+                      <span className="text-xs font-bold text-white leading-none">
+                        {inviteCompany.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                    <span className="text-xs sm:text-sm font-medium text-white max-w-[130px] sm:max-w-[200px] truncate">
+                      {inviteCompany}
+                    </span>
+                  </div>
+                )}
+                <Link href={`/${inviteHasAccount ? "logowanie" : "rejestracja"}?invite=${inviteToken}`}>
+                  <button className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1.5 rounded-lg font-medium transition-colors text-sm whitespace-nowrap">
+                    Przejdź
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </button>
+                </Link>
               </div>
             ) : (
               <div className="flex items-center gap-2 sm:gap-3 flex-nowrap">

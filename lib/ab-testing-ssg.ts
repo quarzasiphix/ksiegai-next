@@ -1,6 +1,6 @@
 'use client';
 
-import { supabase } from '@/lib/supabase-client';
+import { supabase } from "./supabase-client";
 
 /**
  * A/B Testing for Static Site Generation (SSG)
@@ -176,25 +176,40 @@ function selectVariantByWeight(variants: ABTestVariant[]): ABTestVariant {
 }
 
 /**
- * Load A/B tests from static JSON file
+ * Load A/B tests — Supabase (live, admin-managed) with static JSON fallback.
  */
 export async function loadABTests(): Promise<Record<string, ABTest>> {
+  // Try live tests from Supabase first (RLS: status = 'active' readable by anon)
+  try {
+    const { data, error } = await (supabase as any)
+      .from('ab_test_definitions')
+      .select('id, test_key, name, page_path, traffic_allocation, variants, primary_goal, secondary_goals')
+      .eq('status', 'active');
+
+    if (!error && data && (data as any[]).length > 0) {
+      const tests: Record<string, ABTest> = {};
+      for (const row of (data as any[])) {
+        tests[row.page_path] = row as ABTest;
+      }
+      if (typeof window !== 'undefined') {
+        (window as any).__AB_TESTS_CACHE = tests;
+      }
+      return tests;
+    }
+  } catch {
+    // fall through to static JSON
+  }
+
+  // Fallback: static /ab-tests.json (build-time override or empty)
   try {
     const response = await fetch('/ab-tests.json');
-    if (!response.ok) {
-      console.warn('No A/B tests configuration found');
-      return {};
-    }
+    if (!response.ok) return {};
     const tests = await response.json();
-    
-    // Cache in window for synchronous access
     if (typeof window !== 'undefined') {
       (window as any).__AB_TESTS_CACHE = tests;
     }
-    
     return tests;
-  } catch (error) {
-    console.error('Error loading A/B tests:', error);
+  } catch {
     return {};
   }
 }
@@ -371,12 +386,17 @@ export async function trackPageView(testId: string, variantId: string, pagePath:
   
   try {
     // Get assignment ID first
-    const { data: assignment } = await supabase
+    const { data: assignment, error: assignmentError } = await supabase
       .from('ab_test_assignments')
       .select('id')
       .eq('test_id', testId)
       .eq('session_id', sessionId)
-      .single() as any; // Type assertion to bypass TypeScript issues
+      .maybeSingle() as any; // Type assertion to bypass TypeScript issues
+
+    if (assignmentError) {
+      console.error('Failed to look up assignment for page view:', assignmentError);
+      return;
+    }
 
     if (assignment) {
       await supabase.from('ab_test_events').insert({
@@ -419,12 +439,17 @@ export async function trackConversion(testKey: string, eventName: string, value?
     if (!test) return;
 
     // Get assignment ID
-    const { data: assignment } = await supabase
+    const { data: assignment, error: assignmentError } = await supabase
       .from('ab_test_assignments')
       .select('id')
       .eq('test_id', test.id)
       .eq('session_id', sessionId)
-      .single() as any; // Type assertion to bypass TypeScript issues
+      .maybeSingle() as any; // Type assertion to bypass TypeScript issues
+
+    if (assignmentError) {
+      console.error('Failed to look up assignment for conversion:', assignmentError);
+      return;
+    }
 
     if (assignment) {
       await supabase.from('ab_test_events').insert({
@@ -475,12 +500,17 @@ export async function trackEvent(
     if (!test) return;
 
     // Get assignment ID
-    const { data: assignment } = await supabase
+    const { data: assignment, error: assignmentError } = await supabase
       .from('ab_test_assignments')
       .select('id')
       .eq('test_id', test.id)
       .eq('session_id', sessionId)
-      .single() as any; // Type assertion to bypass TypeScript issues
+      .maybeSingle() as any; // Type assertion to bypass TypeScript issues
+
+    if (assignmentError) {
+      console.error('Failed to look up assignment for event tracking:', assignmentError);
+      return;
+    }
 
     if (assignment) {
       const eventData: any = {

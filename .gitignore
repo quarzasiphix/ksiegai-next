@@ -12,10 +12,12 @@
 # next.js
 /.next/
 /out/
+.next-dev
+/.next-dev
 
 # production
 /build
-
+node_modules2
 # misc
 .DS_Store
 *.pem
@@ -35,3 +37,8 @@ next-env.d.ts
 # wrangler
 .wrangler/
 wrangler.toml
+
+.env
+.env.local
+.env.development
+.env.copy.local

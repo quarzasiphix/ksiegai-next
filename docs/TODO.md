@@ -1,4 +1,6 @@
 # TODO (Multi-agent)
+Created: legacy-existing (exact date unknown)
+Last modified: 2026-06-12 16:00 CEST
 
 ## Ownership zones
 - Agent A: frontend/UI/UX and SEO content/pages
@@ -25,6 +27,28 @@
   - Notes:
     - Follows T-304 implementation; environment-level action required.
 ## IN PROGRESS
+- [ ] T-322: Fix `/logowanie` hydration mismatch from remembered-profile bootstrap
+  - Owner: Codex
+  - Started: 2026-05-03 00:00
+  - Branch: main (shared)
+  - Reviewer: self
+  - Status: pr_ready
+  - Notes:
+    - Scope freeze: `ksiegai-next` login hydration fix only.
+    - Root cause: `/logowanie` was calling `getLatestRememberedProfile()` during render, so the first client render could read localStorage and insert remembered-profile bootstrap UI that the server HTML did not contain.
+    - Fix: keep remembered-profile bootstrap fully state-driven after client mount; do not read storage-backed fallback directly in render.
+    - No schema, RLS, or `ksiegai_auth_token` contract changes.
+  - Files touched (actual):
+    - `ksiegai-next/app/logowanie/page.tsx`
+    - `ksiegai-next/docs/TODO.md`
+    - `ksiegai-next/docs/NOTES.md`
+  - DoD:
+    - [x] `/logowanie` server render matches first client render
+    - [x] remembered-profile resume still works after client bootstrapping
+    - [x] `cd ksiegai-next && npx tsc --noEmit` passes
+  - Checks run:
+    - `cd ksiegai-next && npx tsc --noEmit` (pass)
+
 - [ ] T-321: Make Google auth callback hand off to `app.ksiegai.pl` immediately
   - Owner: Codex (Agent B)
   - Started: 2026-04-04 11:52
@@ -225,17 +249,6 @@
     - Confirm audit doc reflects current runtime probe outputs.
 
 ## DONE
-<<<<<<< HEAD
-- [x] T-309: Add public `/generator-faktur` page in ksiegai-next
-  - Owner: Codex
-  - Reviewer: self
-  - Verified:
-    - `cd ksiegai-next && ./node_modules/.bin/tsc --noEmit --pretty false` passed
-    - `cd ksiegai-next && npm run lint` blocked because `next lint` opened first-run ESLint setup prompt instead of running checks
-    - runtime smoke blocked in sandbox because `next dev` did not bind to `127.0.0.1:3000` during CLI verification attempt
-  - PR/Commit: pending
-  - Date: 2026-03-13
-=======
 - [x] T-322: Logged-in homepage hero with business profile panel + app handoff
   - Owner: Codex
   - Reviewer: self
@@ -352,7 +365,6 @@
     - feature scope stayed static-export safe: client-only page, no backend persistence, sitemap entry added
   - PR/Commit: `d2f8dd1`
   - Date: 2026-03-11
->>>>>>> 003750cfdd806cb7dff430bbdf1a9d26a423e5e3
 - [x] T-308: Fix `/auth/confirm` signup email links for static export
   - Owner: Codex
   - Reviewer: self

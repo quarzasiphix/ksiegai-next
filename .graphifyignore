@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+node_modules*/
+
+# Build output
+.next/
+.next*/
+dist/
+build/
+out/
+coverage/
+.turbo/
+.vercel/
+
+# Graphify output
+graphify-out/
+
+# Local environment and caches
+.env
+.env.*
+!.env.example
+!.env.local.example
+!.env.production.example
+.cache/
+tmp/
+temp/
+*.log
+
+# Generated package manager state
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+bun.lockb

@@ -1,5 +1,5 @@
-import { supabase } from "@/lib/supabase";
-import { getInvoiceTotals, sanitizeTaxId, type AnonymousInvoiceDraft } from "@/lib/invoice-tools/anonymousInvoice";
+import { supabase } from "../supabase";
+import { getInvoiceTotals, sanitizeTaxId, type AnonymousInvoiceDraft } from "./anonymousInvoice";
 
 const ANONYMOUS_INVOICE_SOURCE = "anonymous_generator";
 

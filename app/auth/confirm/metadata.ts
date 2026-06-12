@@ -8,6 +8,6 @@ export const metadata: Metadata = {
     follow: false,
   },
   alternates: {
-    canonical: "https://ksiegai.pl/auth/confirm",
+    canonical: "https://www.ksiegai.pl/auth/confirm/",
   },
 };

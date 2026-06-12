@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { supabase } from "../supabase";
 
 const WELCOME_SENT_PREFIX = "welcome_email_sent:";
 const NEW_USER_WINDOW_MS = 24 * 60 * 60 * 1000;

@@ -9,7 +9,7 @@ import {
   setupScrollTracking,
   type ABTest,
   type ABTestVariant,
-} from '@/lib/ab-testing-ssg';
+} from "../lib/ab-testing-ssg";
 
 interface UseABTestResult {
   variant: ABTestVariant | null;
