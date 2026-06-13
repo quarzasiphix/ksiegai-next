@@ -5,6 +5,7 @@ import { supabase } from "../../lib/supabase";
 import { storeAuthToken, redirectToApp } from "../../lib/auth/crossDomainAuth";
 import { getInviteOnboardingPath } from "../../lib/auth/inviteOnboarding";
 import { setAuthFlowOrigin } from "../../lib/auth/welcomeEmail";
+import { listAccessibleHomeBusinessProfiles } from "../../lib/home/businessProfiles";
 import { getSessionId, getVariantAssignments } from "../../lib/ab-testing-ssg";
 import {
   captureInviteEvent,
@@ -131,7 +132,74 @@ export default function Register() {
   const [activeSession, setActiveSession] = useState<{
     email: string | null;
     displayName: string;
+    companyName: string | null;
+    continuePath: string;
+    continueParams?: Record<string, string>;
+    isInviteContinuation: boolean;
+    isResolving: boolean;
   } | null>(null);
+
+  const resolveActiveSessionState = async (session: NonNullable<Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"]>) => {
+    const metadata = (session.user.user_metadata ?? {}) as Record<string, unknown>;
+    const fallbackDisplayName =
+      session.user.user_metadata?.full_name ||
+      session.user.user_metadata?.name ||
+      session.user.email?.split("@")[0] ||
+      "użytkownika";
+
+    const inviteBusinessProfileId =
+      typeof metadata.invite_business_profile_id === "string" && metadata.invite_business_profile_id.trim()
+        ? metadata.invite_business_profile_id.trim()
+        : null;
+    const inviteCompanyName =
+      typeof metadata.invite_company_name === "string" && metadata.invite_company_name.trim()
+        ? metadata.invite_company_name.trim()
+        : null;
+    const inviteCompanyType =
+      typeof metadata.invite_company_type === "string" && metadata.invite_company_type.trim()
+        ? metadata.invite_company_type.trim()
+        : null;
+
+    if (inviteBusinessProfileId && inviteCompanyName) {
+      return {
+        email: session.user.email ?? null,
+        displayName: fallbackDisplayName,
+        companyName: inviteCompanyName,
+        continuePath: getInviteOnboardingPath(inviteCompanyType),
+        continueParams: {
+          invite: "1",
+          bp: inviteBusinessProfileId,
+          cn: inviteCompanyName,
+        },
+        isInviteContinuation: true,
+        isResolving: false,
+      };
+    }
+
+    try {
+      const profiles = await listAccessibleHomeBusinessProfiles(session.user.id);
+      const primaryProfile = profiles[0] ?? null;
+
+      return {
+        email: session.user.email ?? null,
+        displayName: fallbackDisplayName,
+        companyName: primaryProfile?.name ?? null,
+        continuePath: primaryProfile ? "/" : "/onboard",
+        isInviteContinuation: false,
+        isResolving: false,
+      };
+    } catch (error) {
+      console.warn("[Register] Failed to resolve active session company context:", error);
+      return {
+        email: session.user.email ?? null,
+        displayName: fallbackDisplayName,
+        companyName: null,
+        continuePath: "/",
+        isInviteContinuation: false,
+        isResolving: false,
+      };
+    }
+  };
 
   useEffect(() => { setVariantAssignments(getVariantAssignments()); }, []);
   useEffect(() => { setIsApplePlatform(/Mac|iPhone|iPad|iPod/i.test(navigator.userAgent)); }, []);
@@ -217,6 +285,13 @@ export default function Register() {
             session.user.user_metadata?.name ||
             session.user.email?.split("@")[0] ||
             "użytkownika",
+          companyName: null,
+          continuePath: "/",
+          isInviteContinuation: false,
+          isResolving: true,
+        });
+        void resolveActiveSessionState(session).then((resolved) => {
+          setActiveSession((current) => (current ? resolved : current));
         });
       } else if (event === "SIGNED_OUT") {
         setActiveSession(null);
@@ -248,7 +323,13 @@ export default function Register() {
           session.user.user_metadata?.name ||
           session.user.email?.split("@")[0] ||
           "użytkownika",
+        companyName: null,
+        continuePath: "/",
+        isInviteContinuation: false,
+        isResolving: true,
       });
+      const resolved = await resolveActiveSessionState(session);
+      setActiveSession((current) => (current ? resolved : current));
     })();
   }, []);
 
@@ -618,52 +699,91 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
 
   // ─── Main form ───────────────────────────────────────────────────────────────
 
-  const activeSessionBanner = activeSession ? (
-    <div className="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 shadow-sm dark:border-emerald-900/60 dark:bg-emerald-950/30">
-      <div className="flex items-start gap-3">
-        <div className="mt-0.5 rounded-full bg-emerald-100 p-2 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-200">
-          <UserRoundCheck className="h-4 w-4" />
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-emerald-900 dark:text-emerald-100">
-            Jesteś już zalogowany jako {activeSession.displayName}
-          </p>
-          {activeSession.email ? (
-            <p className="mt-1 text-xs text-emerald-700 dark:text-emerald-300">{activeSession.email}</p>
-          ) : null}
-          <p className="mt-2 text-xs text-emerald-800 dark:text-emerald-200">
-            Rejestrujesz nowe konto? Jeśli nie, przejdź od razu do aplikacji.
-          </p>
-          <div className="mt-3 flex flex-wrap gap-2">
+  const activeSessionWelcome = activeSession ? (
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-blue-50 dark:from-slate-950 dark:via-slate-900 dark:to-emerald-950/40 flex items-center justify-center p-4">
+      <div className="w-full max-w-lg">
+        <div className="rounded-[28px] border border-emerald-200/80 bg-white/95 p-8 shadow-xl dark:border-emerald-900/60 dark:bg-slate-900/95">
+          <div className="flex items-start gap-4">
+            <div className="rounded-2xl bg-emerald-100 p-3 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-200">
+              <UserRoundCheck className="h-6 w-6" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold uppercase tracking-[0.16em] text-emerald-700 dark:text-emerald-300">
+                Konto aktywne
+              </p>
+              <h1 className="mt-3 text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+                {activeSession.isResolving
+                  ? "Sprawdzamy Twoją firmę"
+                  : `Witaj ponownie${activeSession.companyName ? `, ${activeSession.companyName}` : ""}`}
+              </h1>
+              <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                {activeSession.isResolving
+                  ? "Masz już aktywną sesję. Przygotowujemy najbezpieczniejszą ścieżkę powrotu do aplikacji."
+                  : activeSession.isInviteContinuation
+                    ? "Masz już aktywny dostęp do zaproszonej firmy. Przejdź dalej, żeby dokończyć onboarding zamiast zakładać nowe konto."
+                    : "Masz już aktywną sesję. Nie musisz ponownie ustawiać hasła ani przechodzić rejestracji."}
+              </p>
+              {activeSession.email ? (
+                <p className="mt-3 text-xs font-medium text-slate-500 dark:text-slate-400">
+                  {activeSession.email}
+                </p>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="mt-8 rounded-2xl border border-slate-200 bg-slate-50/80 p-4 dark:border-slate-800 dark:bg-slate-950/40">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
+              Dalej
+            </p>
+            <p className="mt-2 text-sm text-slate-700 dark:text-slate-200">
+              {activeSession.isResolving
+                ? "Za chwilę odblokujemy przycisk przejścia."
+                : activeSession.isInviteContinuation
+                  ? "Wrócisz do ścieżki aktywacji i konfiguracji firmy."
+                  : activeSession.companyName
+                    ? `Otworzymy aplikację dla profilu ${activeSession.companyName}.`
+                    : "Otworzymy aplikację w Twoim ostatnim kontekście."}
+            </p>
+          </div>
+
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <button
               type="button"
+              disabled={activeSession.isResolving}
               onClick={async () => {
                 const { data: { session } } = await supabase.auth.getSession();
-                if (!session) { setActiveSession(null); return; }
+                if (!session) {
+                  setActiveSession(null);
+                  return;
+                }
                 storeAuthToken({
                   access_token: session.access_token,
                   refresh_token: session.refresh_token,
                   expires_at: session.expires_at || 0,
                   user_id: session.user.id,
                 });
-                redirectToApp("/");
+                redirectToApp(activeSession.continuePath, activeSession.continueParams);
               }}
-              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
+              className="inline-flex flex-1 items-center justify-center rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Przejdź do aplikacji
+              {activeSession.isResolving ? "Ładowanie..." : "Przejdź do aplikacji"}
             </button>
             <button
               type="button"
               onClick={() => setActiveSession(null)}
-              className="rounded-lg border border-emerald-300 px-4 py-2 text-sm font-medium text-emerald-800 transition hover:bg-emerald-100 dark:border-emerald-800 dark:text-emerald-200 dark:hover:bg-emerald-900/40"
+              className="inline-flex flex-1 items-center justify-center rounded-xl border border-slate-300 px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
             >
-              Rejestruję nowe konto
+              Użyj innego konta
             </button>
           </div>
         </div>
       </div>
     </div>
   ) : null;
+
+  if (activeSessionWelcome) {
+    return activeSessionWelcome;
+  }
 
   // ─── Auth card for invited users ────────────────────────────────────────────
   const inviteAuthCardContent = inviteData ? (
@@ -1022,7 +1142,6 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
 
             {/* ── Right: Auth card ── */}
             <div className="min-w-0">
-              {activeSessionBanner}
               <div className="text-center mb-4">
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Odblokuj dostęp</h1>
                 <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
@@ -1061,7 +1180,6 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {activeSessionBanner}
         <div className="text-center mb-7">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Zacznij za darmo</h1>
           <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
