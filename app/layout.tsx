@@ -80,10 +80,33 @@ export default function RootLayout({
 }>) {
   const gtmId = process.env.NEXT_PUBLIC_GTM_ID;
   const supabaseOrigin = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const darkModeLockScript = `
+    (function() {
+      var root = document.documentElement;
+      root.classList.remove('light');
+      root.classList.add('dark');
+      root.style.colorScheme = 'dark';
+      root.setAttribute('data-theme', 'dark');
+
+      try {
+        var keysToLock = ['theme', 'color-theme', 'appearance', 'mode', 'next-theme'];
+        for (var i = 0; i < keysToLock.length; i += 1) {
+          localStorage.setItem(keysToLock[i], 'dark');
+        }
+      } catch (error) {
+        // Ignore storage errors in locked-down browsers.
+      }
+    })();
+  `;
 
   return (
     <html lang="pl" className="dark" style={{ colorScheme: "dark" }}>
       <head>
+        <Script
+          id="force-dark-mode"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: darkModeLockScript }}
+        />
         {gtmId && (
           <Script
             id="gtm-init"
