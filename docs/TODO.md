@@ -1,6 +1,6 @@
 # TODO (Multi-agent)
 Created: legacy-existing (exact date unknown)
-Last modified: 2026-06-12 16:00 CEST
+Last modified: 2026-06-13 13:46 CEST
 
 ## Ownership zones
 - Agent A: frontend/UI/UX and SEO content/pages
@@ -27,6 +27,30 @@ Last modified: 2026-06-12 16:00 CEST
   - Notes:
     - Follows T-304 implementation; environment-level action required.
 ## IN PROGRESS
+- [ ] T-323: Prevent generic registration flash on invite registration entry
+  - Owner: Codex
+  - Started: 2026-06-13 13:46
+  - Branch: main (shared)
+  - Reviewer: self
+  - Status: pr_ready
+  - Notes:
+    - Scope freeze: `ksiegai-next` `/rejestracja?invite=...` first-paint behavior only.
+    - Root cause: the page was a client component that started with `inviteStep='none'`, so the generic registration form could render before the invite lookup effect switched into invite mode.
+    - Fix: move query-param read to the server page wrapper, pass `initialInviteToken` into the client component, and start invite entries in `loading` state on the first render.
+    - No schema, RLS, or `ksiegai_auth_token` contract changes.
+  - Files touched (actual):
+    - `ksiegai-next/app/rejestracja/page.tsx`
+    - `ksiegai-next/app/rejestracja/RegisterClient.tsx`
+    - `ksiegai-next/docs/TODO.md`
+    - `ksiegai-next/docs/NOTES.md`
+  - DoD:
+    - [x] `/rejestracja?invite=...` no longer flashes the generic registration screen before invite bootstrap
+    - [x] invite lookup still persists token and redirects existing invite accounts to `/logowanie`
+    - [x] no auth handoff contract changes
+  - Checks run:
+    - `cd /p/k && graphify update /p/k/ksiegai-next` (pass)
+    - `cd /p/k/ksiegai-next && npx tsc --noEmit --pretty false` (known pre-existing failures outside this change: `app/auth/login/page.tsx` nullability and `node_modules2/*`)
+
 - [ ] T-322: Fix `/logowanie` hydration mismatch from remembered-profile bootstrap
   - Owner: Codex
   - Started: 2026-05-03 00:00
