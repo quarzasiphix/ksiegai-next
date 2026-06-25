@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 import { storeAuthToken, redirectToApp } from "../../lib/auth/crossDomainAuth";
 import { getInviteOnboardingPath } from "../../lib/auth/inviteOnboarding";
@@ -114,6 +115,8 @@ export default function RegisterClient({
 }: {
   initialInviteToken?: string | null;
 }) {
+  const searchParams = useSearchParams();
+  const inviteToken = searchParams?.get("invite") ?? initialInviteToken ?? null;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
@@ -131,7 +134,7 @@ export default function RegisterClient({
   const [isApplePlatform, setIsApplePlatform] = useState(false);
   const [inviteData, setInviteData] = useState<FullInviteData | null>(null);
   const [inviteStep, setInviteStep] = useState<"loading" | "form" | "none">(
-    initialInviteToken ? "loading" : "none"
+    inviteToken ? "loading" : "none"
   );
   const [showMobileOverlay, setShowMobileOverlay] = useState(false);
   const tokenHashRef = useRef<string>("");
@@ -211,7 +214,7 @@ export default function RegisterClient({
   useEffect(() => { setIsApplePlatform(/Mac|iPhone|iPad|iPod/i.test(navigator.userAgent)); }, []);
 
   useEffect(() => {
-    const urlToken = initialInviteToken || new URLSearchParams(window.location.search).get("invite");
+    const urlToken = inviteToken;
     const token = urlToken || getStoredInviteToken();
     if (!token) {
       setInviteStep("none");
@@ -272,7 +275,7 @@ export default function RegisterClient({
         setInviteStep("none");
       }
     });
-  }, [initialInviteToken]);
+  }, [inviteToken]);
 
   useEffect(() => {
     if (resendCooldown <= 0) return;
