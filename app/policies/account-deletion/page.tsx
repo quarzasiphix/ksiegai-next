@@ -113,6 +113,27 @@ export default function AccountDeletionPage() {
         </div>
       </section>
 
+      {/* Direct request CTA */}
+      <section className="py-10 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="max-w-xl mx-auto text-center space-y-4">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Chcesz złożyć wniosek o usunięcie danych bezpośrednio?
+            </p>
+            <a
+              href="mailto:kontakt@ksiegai.pl?subject=Wniosek%20o%20usuni%C4%99cie%20danych%20RODO&body=Dzień%20dobry%2C%0A%0AWnoszę%20o%20usunięcie%20moich%20danych%20osobowych%20zgodnie%20z%20art.%2017%20RODO.%0A%0AAdres%20e-mail%20konta%3A%20"
+              className="inline-flex items-center gap-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-semibold px-6 py-3 transition-colors text-sm"
+            >
+              <Mail className="h-4 w-4" />
+              Wyślij wniosek o usunięcie danych
+            </a>
+            <p className="text-xs text-gray-400 dark:text-gray-600">
+              Otworzy Twój klient e-mail z wypełnionym szablonem. Odpowiemy w ciągu 30 dni.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* What gets deleted */}
       <section className="py-12 sm:py-16 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
         <div className="container mx-auto px-4 sm:px-6">
