@@ -1,5 +1,7 @@
 import RegisterClient from "./RegisterClient";
 
+export const dynamic = "force-dynamic";
+
 type SearchParamsInput =
   | Record<string, string | string[] | undefined>
   | Promise<Record<string, string | string[] | undefined>>
