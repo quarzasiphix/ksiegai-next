@@ -1,6 +1,23 @@
 # Notes
 Created: legacy-existing (exact date unknown)
-Last modified: 2026-05-31 20:13 CEST
+Last modified: 2026-06-13 13:46 CEST
+
+## 2026-06-13 - Server-seeded invite registration avoids generic form flash
+
+What changed:
+- Split [app/rejestracja/page.tsx](/p/k/ksiegai-next/app/rejestracja/page.tsx) into a small server wrapper that reads `searchParams.invite` before the first render.
+- Moved the existing client registration logic into [app/rejestracja/RegisterClient.tsx](/p/k/ksiegai-next/app/rejestracja/RegisterClient.tsx) and added `initialInviteToken`.
+- Invite entries now initialize with `inviteStep = "loading"` when the URL already contains `?invite=...`, so the page shows invite-loading UI immediately instead of briefly rendering the generic registration form first.
+
+Why:
+- invited users opening `/rejestracja?invite=...` were seeing the normal registration screen for a split second because invite detection only happened in a client `useEffect`
+- the first paint should already match the invite flow when the token is present in the URL
+
+Verification evidence (2026-06-13):
+- Re-read the new server wrapper and confirmed it resolves the first `invite` param before rendering the client component.
+- Re-read the client bootstrap and confirmed invite mode now starts from `loading` when `initialInviteToken` exists, while the existing token persistence and `/logowanie` redirect behavior remain intact.
+- Ran `graphify update /p/k/ksiegai-next` successfully.
+- `cd /p/k/ksiegai-next && npx tsc --noEmit --pretty false` remains noisy from pre-existing issues outside this change (`app/auth/login/page.tsx` nullability and `node_modules2/*`).
 
 ## 2026-05-31 - Added NIP-8 poradnik alias used by invite emails
 

@@ -18,12 +18,12 @@ export const metadata: Metadata = {
     "System ewidencji i obiegu dokumentów dla spółek z o.o.: workflow zatwierdzania, role i pełnomocnictwa, KSeF-ready, JPK i ślad audytowy.",
   keywords:
     "spółka z o.o. faktury, KSeF spółka, obieg dokumentów spółka, workflow zatwierdzania, JPK spółka, role użytkowników księgowość",
-  alternates: { canonical: "https://ksiegai.pl/spolka-z-oo" },
+  alternates: { canonical: "https://www.ksiegai.pl/spolka-z-oo/" },
   openGraph: {
     title: "KsięgaI dla spółek z o.o. – obieg dokumentów i KSeF",
     description:
       "Pełen obieg dokumentów dla spółki z o.o.: roles, workflow zatwierdzania, KSeF, JPK i ślad audytowy.",
-    url: "https://ksiegai.pl/spolka-z-oo",
+    url: "https://www.ksiegai.pl/spolka-z-oo",
     type: "website",
     locale: "pl_PL",
   },

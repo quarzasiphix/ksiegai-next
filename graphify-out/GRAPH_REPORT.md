@@ -1,16 +1,16 @@
-# Graph Report - ksiegai-next  (2026-06-01)
+# Graph Report - ksiegai-next  (2026-06-13)
 
 ## Corpus Check
-- 137 files · ~159,692 words
+- 144 files · ~186,207 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1771 nodes · 2133 edges · 142 communities (115 shown, 27 thin omitted)
+- 1846 nodes · 2248 edges · 147 communities (120 shown, 27 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `827daaa1`
+- Built from commit: `5071aa63`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -149,13 +149,18 @@
 - [[_COMMUNITY_Community 136|Community 136]]
 - [[_COMMUNITY_Community 137|Community 137]]
 - [[_COMMUNITY_Community 138|Community 138]]
+- [[_COMMUNITY_Community 141|Community 141]]
+- [[_COMMUNITY_Community 143|Community 143]]
+- [[_COMMUNITY_Community 144|Community 144]]
+- [[_COMMUNITY_Community 145|Community 145]]
+- [[_COMMUNITY_Community 146|Community 146]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `Notes` - 42 edges
 2. `PostHog Next.js app router example` - 19 edges
 3. `A/B Testing Implementation Summary` - 18 edges
 4. `compilerOptions` - 17 edges
-5. `supabase` - 16 edges
+5. `supabase` - 17 edges
 6. `canUseStorage()` - 16 edges
 7. `Cloudflare Pages Deployment Guide` - 16 edges
 8. `A/B Testing for Static Site Generation (SSG)` - 16 edges
@@ -174,15 +179,15 @@
 - `generateStaticParams()` --calls--> `getAllWikiCategorySlugs()`  [EXTRACTED]
   app/poradnik/kategoria/[slug]/page.tsx → lib/wiki.ts
 
-## Communities (142 total, 27 thin omitted)
+## Communities (147 total, 27 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.07
-Nodes (49): metadata, AnonymousInvoiceDraft, buildInvoiceFilename(), clearSellerCookie(), clearStoredSeller(), createEmptyItem(), createEmptyParty(), fetchCompanyByTaxId() (+41 more)
+Nodes (50): faqItems, metadata, AnonymousInvoiceDraft, buildInvoiceFilename(), clearSellerCookie(), clearStoredSeller(), createEmptyItem(), createEmptyParty() (+42 more)
 
 ### Community 1 - "Community 1"
-Cohesion: 0.07
-Nodes (51): generateMetadata(), generateStaticParams(), PageProps, generateMetadata(), generateStaticParams(), PageProps, sitemap(), staticLastModified (+43 more)
+Cohesion: 0.06
+Nodes (58): generateMetadata(), generateStaticParams(), PageProps, generateMetadata(), generateStaticParams(), PageProps, sitemap(), staticLastModified (+50 more)
 
 ### Community 2 - "Community 2"
 Cohesion: 0.07
@@ -265,20 +270,20 @@ Cohesion: 0.07
 Nodes (27): dependencies, autoprefixer, lucide-react, next, postcss, posthog-js, posthog-node, react (+19 more)
 
 ### Community 22 - "Community 22"
-Cohesion: 0.05
-Nodes (45): inter, metadata, AuthToken, buildAppPath(), checkAndRedirectToLocalhost(), clearAuthToken(), extractHandoffAttribution(), getAuthToken() (+37 more)
+Cohesion: 0.14
+Nodes (23): AuthToken, buildAppPath(), checkAndRedirectToLocalhost(), clearAuthToken(), extractHandoffAttribution(), getAuthToken(), getDefaultHandoffAttribution(), HANDOFF_UTM_KEYS (+15 more)
 
 ### Community 23 - "Community 23"
 Cohesion: 0.15
-Nodes (7): getInviteOnboardingPath(), setAuthFlowOrigin(), COMPANY_TYPE_LABELS, getInboxProvider(), INBOX_PROVIDERS, INVITE_STATUS_ROWS, Register()
+Nodes (8): COMPANY_TYPE_LABELS, getInboxProvider(), INBOX_PROVIDERS, INVITE_STATUS_ROWS, readFirstParam(), Register(), RegisterPage(), SearchParamsInput
 
 ### Community 24 - "Community 24"
 Cohesion: 0.08
 Nodes (25): 1. Create Build-Time Fetch Script, 2. Update package.json, 3. Create Client-Side A/B Library, 4. Create Tracking API Route, 5. Use in Components, A/B Testing with Static Site Generation (SSG), Advantages, Best Practices (+17 more)
 
 ### Community 25 - "Community 25"
-Cohesion: 0.28
-Nodes (8): COMPANY_TYPE_LABELS, formatCapital(), FullInviteData, InviteActivationOverlay(), parsePersonList(), PersonEntry, Props, STATUS_ROWS
+Cohesion: 0.16
+Nodes (15): COMPANY_TYPE_LABELS, formatCapital(), FullInviteData, InviteActivationOverlay(), parsePersonList(), PersonEntry, Props, STATUS_ROWS (+7 more)
 
 ### Community 26 - "Community 26"
 Cohesion: 0.08
@@ -309,8 +314,8 @@ Cohesion: 0.19
 Nodes (13): ABTest, ABTestVariant, getAllAssignments(), getSessionId(), getStoredAssignments(), getVariantForTest(), selectVariant(), storeAssignment() (+5 more)
 
 ### Community 33 - "Community 33"
-Cohesion: 0.29
-Nodes (6): AuthFlowOrigin, consumeAuthFlowOrigin(), getWelcomeSentKey(), isFreshlyRegistered(), sendWelcomeEmailIfNewUser(), supabase
+Cohesion: 0.18
+Nodes (8): AuthFlowOrigin, consumeAuthFlowOrigin(), getWelcomeSentKey(), isFreshlyRegistered(), sendWelcomeEmailIfNewUser(), setAuthFlowOrigin(), SUPPORTED_EMAIL_OTP_TYPES, supabase
 
 ### Community 34 - "Community 34"
 Cohesion: 0.15
@@ -349,16 +354,16 @@ Cohesion: 0.18
 Nodes (11): Client-side initialization (instrumentation-client.ts), code:typescript (import posthog from "posthog-js"), code:typescript (posthog.identify(username, {), code:typescript (posthog.capture('burrito_considered', {), code:typescript (posthog.captureException(error);), code:typescript (const posthog = getPostHogClient();), Error tracking (profile/page.tsx), Event tracking (burrito/page.tsx) (+3 more)
 
 ### Community 43 - "Community 43"
-Cohesion: 0.29
-Nodes (10): buildOverlayContent(), getFirstName(), HIDDEN_PATH_PREFIXES, OverlayContent, captureInviteEvent(), getInviteAttribution(), identifyInvitedUser(), InviteAttribution (+2 more)
+Cohesion: 0.13
+Nodes (14): getInviteOnboardingPath(), buildOverlayContent(), getFirstName(), HIDDEN_PATH_PREFIXES, OverlayContent, captureInviteEvent(), getInviteAttribution(), identifyInvitedUser() (+6 more)
 
 ### Community 44 - "Community 44"
 Cohesion: 0.20
 Nodes (9): Findings, Fixes Applied in This Work Unit, Flow Map (Implemented), High, Medium, Registration + Marketing Audit (2026-02-26), Remaining Actions, Scope (+1 more)
 
 ### Community 45 - "Community 45"
-Cohesion: 0.22
-Nodes (6): COMPANY_TYPE_LABELS, getInboxProvider(), INBOX_PROVIDERS, InviteData, InviteRegistrationPage(), InviteRegistrationPageProps
+Cohesion: 0.17
+Nodes (7): ACCESS_FEATURES, COMPANY_TYPE_LABELS, getInboxProvider(), INBOX_PROVIDERS, InviteData, InviteRegistrationPage(), InviteRegistrationPageProps
 
 ### Community 46 - "Community 46"
 Cohesion: 0.20
@@ -604,25 +609,45 @@ Nodes (4): Build Fails, Events Not Tracking, Tests Not Loading, 🔧 Troubleshoo
 Cohesion: 0.67
 Nodes (3): Admin Panel, Key Metrics Tracked, 📈 Viewing Results
 
+### Community 141 - "Community 141"
+Cohesion: 0.11
+Nodes (17): BusinessProfileRow, getHomeBusinessDashboardData(), getUnreadKsefInboxSummary(), HomeBusinessDashboardData, HomeBusinessInboxSummary, HomeBusinessProfile, listAccessibleHomeBusinessProfiles(), MembershipRow (+9 more)
+
+### Community 143 - "Community 143"
+Cohesion: 0.10
+Nodes (19): 10. Refresh Triggers, 1. App Shell Graph, 2. Public Route Surface, 3. Auth Handoff Graph, 4. Poradnik / Wiki Graph, 5. AB Testing Graph, 6. Marketing Composition Graph, 7. Static Export Constraint Graph (+11 more)
+
+### Community 144 - "Community 144"
+Cohesion: 0.15
+Nodes (9): FEATURES, metadata, STEPS, download_url, force_update, release_notes, released_at, version_code (+1 more)
+
+### Community 145 - "Community 145"
+Cohesion: 0.22
+Nodes (4): inter, metadata, InviteTokenCapture(), InviteWelcomeOverlay()
+
+### Community 146 - "Community 146"
+Cohesion: 0.22
+Nodes (6): COMPARISON_TABLE, ComparisonRow, DeclarationCard, JDG_DECLARATIONS, metadata, SPOLKA_DECLARATIONS
+
 ## Knowledge Gaps
-- **848 isolated node(s):** `config`, `nextConfig`, `name`, `version`, `private` (+843 more)
+- **884 isolated node(s):** `config`, `nextConfig`, `name`, `version`, `private` (+879 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **27 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `supabase` connect `Community 33` to `Community 0`, `Community 35`, `Community 45`, `Community 16`, `Community 17`, `Community 22`, `Community 23`, `Community 31`?**
-  _High betweenness centrality (0.019) - this node is a cross-community bridge._
-- **Why does `MarkdownRenderer()` connect `Community 31` to `Community 1`?**
-  _High betweenness centrality (0.005) - this node is a cross-community bridge._
-- **Why does `captureInviteEvent()` connect `Community 43` to `Community 1`, `Community 23`, `Community 17`, `Community 33`?**
-  _High betweenness centrality (0.004) - this node is a cross-community bridge._
+- **Why does `supabase` connect `Community 33` to `Community 0`, `Community 35`, `Community 43`, `Community 141`, `Community 45`, `Community 16`, `Community 145`, `Community 17`, `Community 22`, `Community 23`, `Community 31`?**
+  _High betweenness centrality (0.021) - this node is a cross-community bridge._
 - **What connects `config`, `nextConfig`, `name` to the rest of the system?**
-  _848 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _884 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
-  _Cohesion score 0.07062146892655367 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06885245901639345 - nodes in this community are weakly interconnected._
 - **Should `Community 1` be split into smaller, more focused modules?**
-  _Cohesion score 0.06939890710382514 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.0639386189258312 - nodes in this community are weakly interconnected._
 - **Should `Community 2` be split into smaller, more focused modules?**
   _Cohesion score 0.07215686274509804 - nodes in this community are weakly interconnected._
+- **Should `Community 3` be split into smaller, more focused modules?**
+  _Cohesion score 0.043478260869565216 - nodes in this community are weakly interconnected._
+- **Should `Community 4` be split into smaller, more focused modules?**
+  _Cohesion score 0.045454545454545456 - nodes in this community are weakly interconnected._

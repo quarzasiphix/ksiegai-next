@@ -19,12 +19,12 @@ export const metadata: Metadata = {
     "Wystawiaj faktury VAT, faktury uproszczone i korygujące. Płatności Stripe bezpośrednio przy fakturze. KSeF-ready. Dostęp dla księgowej.",
   keywords:
     "wystawianie faktur, faktury VAT online, program do fakturowania, faktury KSeF, płatności przy fakturze, faktura link do płatności",
-  alternates: { canonical: "https://ksiegai.pl/faktury" },
+  alternates: { canonical: "https://www.ksiegai.pl/faktury/" },
   openGraph: {
     title: "Faktury w KsięgaI – wystawianie, KSeF, płatności online",
     description:
       "System fakturowania dla JDG i spółek: faktury VAT, KSeF-ready, płatności Stripe, eksport dla księgowej.",
-    url: "https://ksiegai.pl/faktury",
+    url: "https://www.ksiegai.pl/faktury",
     type: "website",
     locale: "pl_PL",
   },

@@ -10,12 +10,12 @@ export const metadata: Metadata = {
     "Przyjmuj płatności online bezpośrednio przy fakturze. Stripe Connect, karta kredytowa, BLIK, przelew. Automatyczne dopasowanie płatności do faktur.",
   keywords:
     "płatności online faktura, Stripe faktura, link do płatności faktura, przyjmowanie płatności online, BLIK faktura, płatność kartą faktura",
-  alternates: { canonical: "https://ksiegai.pl/platnosci-online" },
+  alternates: { canonical: "https://www.ksiegai.pl/platnosci-online/" },
   openGraph: {
     title: "Płatności online przy fakturze | KsięgaI",
     description:
       "Stripe Connect w KsięgaI: link do płatności przy każdej fakturze, automatyczne dopasowanie, status w czasie rzeczywistym.",
-    url: "https://ksiegai.pl/platnosci-online",
+    url: "https://www.ksiegai.pl/platnosci-online",
     type: "website",
     locale: "pl_PL",
   },

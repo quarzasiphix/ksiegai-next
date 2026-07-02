@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/api/', '/auth/'],
     },
-    sitemap: 'https://ksiegai.pl/sitemap.xml',
+    sitemap: 'https://www.ksiegai.pl/sitemap.xml',
   }
 }

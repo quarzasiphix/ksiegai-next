@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 import { getWikiArticlesByCategory } from '@/lib/wiki';
 
-const baseUrl = 'https://ksiegai.pl';
+const baseUrl = 'https://www.ksiegai.pl';
 const staticLastModified = new Date('2026-05-18T00:00:00+02:00');
 
 const staticRoutes: Array<{
@@ -42,13 +42,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     return [
       {
-        url: `${baseUrl}/poradnik/kategoria/${category.slug}`,
+        url: `${baseUrl}/poradnik/kategoria/${category.slug}/`,
         lastModified: categoryLastModified,
         changeFrequency: 'weekly' as const,
         priority: 0.65,
       },
       ...articles.map((article) => ({
-        url: `${baseUrl}/poradnik/${article.slug}`,
+        url: `${baseUrl}/poradnik/${article.slug}/`,
         lastModified: new Date(article.updated_at || article.published_at || staticLastModified),
         changeFrequency: 'weekly' as const,
         priority: 0.6,
@@ -58,7 +58,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     ...staticRoutes.map((route) => ({
-      url: `${baseUrl}${route.path}`,
+      url: route.path === '' ? `${baseUrl}/` : `${baseUrl}${route.path}/`,
       lastModified: staticLastModified,
       changeFrequency: route.changeFrequency,
       priority: route.priority,

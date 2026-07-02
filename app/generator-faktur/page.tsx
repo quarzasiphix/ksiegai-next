@@ -6,13 +6,13 @@ export const metadata: Metadata = {
   description:
     "Wygeneruj prostą fakturę VAT online w przeglądarce. Uzupełnij dane, policz netto i VAT oraz przygotuj podgląd do druku lub zapisu jako PDF.",
   alternates: {
-    canonical: "https://ksiegai.pl/generator-faktur",
+    canonical: "https://www.ksiegai.pl/generator-faktur/",
   },
   openGraph: {
     title: "Darmowy generator faktur online | KsięgaI",
     description:
       "Prosty generator faktur dla freelancerów, JDG i małych firm. Wypełnij dane kontrahenta, policz VAT i przygotuj dokument do wydruku.",
-    url: "https://ksiegai.pl/generator-faktur",
+    url: "https://www.ksiegai.pl/generator-faktur",
     type: "website",
     locale: "pl_PL",
   },

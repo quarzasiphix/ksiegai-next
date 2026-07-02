@@ -729,7 +729,7 @@
       "source_file": "components/InviteWelcomeOverlay.tsx",
       "source_location": "L56",
       "id": "components_invitewelcomeoverlay_invitewelcomeoverlay",
-      "community": 22,
+      "community": 145,
       "norm_label": "invitewelcomeoverlay()"
     },
     {
@@ -738,7 +738,7 @@
       "source_file": "components/InviteTokenCapture.tsx",
       "source_location": "L1",
       "id": "components_invitetokencapture_tsx",
-      "community": 22,
+      "community": 145,
       "norm_label": "invitetokencapture.tsx"
     },
     {
@@ -747,7 +747,7 @@
       "source_file": "components/InviteTokenCapture.tsx",
       "source_location": "L14",
       "id": "components_invitetokencapture_sha256hex",
-      "community": 22,
+      "community": 145,
       "norm_label": "sha256hex()"
     },
     {
@@ -756,7 +756,7 @@
       "source_file": "components/InviteTokenCapture.tsx",
       "source_location": "L21",
       "id": "components_invitetokencapture_invitetokencapture",
-      "community": 22,
+      "community": 145,
       "norm_label": "invitetokencapture()"
     },
     {
@@ -772,7 +772,7 @@
       "label": "sha256hex()",
       "file_type": "code",
       "source_file": "components/Header.tsx",
-      "source_location": "L11",
+      "source_location": "L18",
       "id": "components_header_sha256hex",
       "community": 22,
       "norm_label": "sha256hex()"
@@ -781,7 +781,7 @@
       "label": "Header()",
       "file_type": "code",
       "source_file": "components/Header.tsx",
-      "source_location": "L16",
+      "source_location": "L23",
       "id": "components_header_header",
       "community": 22,
       "norm_label": "header()"
@@ -792,7 +792,7 @@
       "source_file": "components/Footer.tsx",
       "source_location": "L1",
       "id": "components_footer_tsx",
-      "community": 22,
+      "community": 145,
       "norm_label": "footer.tsx"
     },
     {
@@ -801,7 +801,7 @@
       "source_file": "components/Footer.tsx",
       "source_location": "L3",
       "id": "components_footer_footer",
-      "community": 22,
+      "community": 145,
       "norm_label": "footer()"
     },
     {
@@ -925,7 +925,7 @@
       "label": "COMPANY_TYPE_LABELS",
       "file_type": "code",
       "source_file": "components/invites/InviteRegistrationPage.tsx",
-      "source_location": "L16",
+      "source_location": "L17",
       "id": "invites_inviteregistrationpage_company_type_labels",
       "community": 45,
       "norm_label": "company_type_labels"
@@ -934,16 +934,25 @@
       "label": "INBOX_PROVIDERS",
       "file_type": "code",
       "source_file": "components/invites/InviteRegistrationPage.tsx",
-      "source_location": "L25",
+      "source_location": "L26",
       "id": "invites_inviteregistrationpage_inbox_providers",
       "community": 45,
       "norm_label": "inbox_providers"
     },
     {
+      "label": "ACCESS_FEATURES",
+      "file_type": "code",
+      "source_file": "components/invites/InviteRegistrationPage.tsx",
+      "source_location": "L42",
+      "id": "invites_inviteregistrationpage_access_features",
+      "community": 45,
+      "norm_label": "access_features"
+    },
+    {
       "label": "getInboxProvider()",
       "file_type": "code",
       "source_file": "components/invites/InviteRegistrationPage.tsx",
-      "source_location": "L41",
+      "source_location": "L49",
       "id": "invites_inviteregistrationpage_getinboxprovider",
       "community": 45,
       "norm_label": "getinboxprovider()"
@@ -952,7 +961,7 @@
       "label": "sha256hex()",
       "file_type": "code",
       "source_file": "components/invites/InviteRegistrationPage.tsx",
-      "source_location": "L46",
+      "source_location": "L54",
       "id": "invites_inviteregistrationpage_sha256hex",
       "community": 45,
       "norm_label": "sha256hex()"
@@ -961,7 +970,7 @@
       "label": "InviteData",
       "file_type": "code",
       "source_file": "components/invites/InviteRegistrationPage.tsx",
-      "source_location": "L53",
+      "source_location": "L61",
       "id": "invites_inviteregistrationpage_invitedata",
       "community": 45,
       "norm_label": "invitedata"
@@ -970,16 +979,34 @@
       "label": "InviteRegistrationPageProps",
       "file_type": "code",
       "source_file": "components/invites/InviteRegistrationPage.tsx",
-      "source_location": "L67",
+      "source_location": "L75",
       "id": "invites_inviteregistrationpage_inviteregistrationpageprops",
       "community": 45,
       "norm_label": "inviteregistrationpageprops"
     },
     {
+      "label": "CompanyInfoCard()",
+      "file_type": "code",
+      "source_file": "components/invites/InviteRegistrationPage.tsx",
+      "source_location": "L80",
+      "id": "invites_inviteregistrationpage_companyinfocard",
+      "community": 45,
+      "norm_label": "companyinfocard()"
+    },
+    {
+      "label": "MobileCompanySheet()",
+      "file_type": "code",
+      "source_file": "components/invites/InviteRegistrationPage.tsx",
+      "source_location": "L141",
+      "id": "invites_inviteregistrationpage_mobilecompanysheet",
+      "community": 45,
+      "norm_label": "mobilecompanysheet()"
+    },
+    {
       "label": "InviteRegistrationPage()",
       "file_type": "code",
       "source_file": "components/invites/InviteRegistrationPage.tsx",
-      "source_location": "L71",
+      "source_location": "L194",
       "id": "invites_inviteregistrationpage_inviteregistrationpage",
       "community": 45,
       "norm_label": "inviteregistrationpage()"
@@ -994,64 +1021,19 @@
       "norm_label": "inviteactivationoverlay.tsx"
     },
     {
-      "label": "COMPANY_TYPE_LABELS",
-      "file_type": "code",
-      "source_file": "components/invites/InviteActivationOverlay.tsx",
-      "source_location": "L6",
-      "id": "invites_inviteactivationoverlay_company_type_labels",
-      "community": 25,
-      "norm_label": "company_type_labels"
-    },
-    {
       "label": "FullInviteData",
       "file_type": "code",
       "source_file": "components/invites/InviteActivationOverlay.tsx",
-      "source_location": "L15",
+      "source_location": "L7",
       "id": "invites_inviteactivationoverlay_fullinvitedata",
       "community": 25,
       "norm_label": "fullinvitedata"
     },
     {
-      "label": "PersonEntry",
-      "file_type": "code",
-      "source_file": "components/invites/InviteActivationOverlay.tsx",
-      "source_location": "L33",
-      "id": "invites_inviteactivationoverlay_personentry",
-      "community": 25,
-      "norm_label": "personentry"
-    },
-    {
-      "label": "parsePersonList()",
-      "file_type": "code",
-      "source_file": "components/invites/InviteActivationOverlay.tsx",
-      "source_location": "L39",
-      "id": "invites_inviteactivationoverlay_parsepersonlist",
-      "community": 25,
-      "norm_label": "parsepersonlist()"
-    },
-    {
-      "label": "formatCapital()",
-      "file_type": "code",
-      "source_file": "components/invites/InviteActivationOverlay.tsx",
-      "source_location": "L47",
-      "id": "invites_inviteactivationoverlay_formatcapital",
-      "community": 25,
-      "norm_label": "formatcapital()"
-    },
-    {
-      "label": "STATUS_ROWS",
-      "file_type": "code",
-      "source_file": "components/invites/InviteActivationOverlay.tsx",
-      "source_location": "L55",
-      "id": "invites_inviteactivationoverlay_status_rows",
-      "community": 25,
-      "norm_label": "status_rows"
-    },
-    {
       "label": "Props",
       "file_type": "code",
       "source_file": "components/invites/InviteActivationOverlay.tsx",
-      "source_location": "L62",
+      "source_location": "L25",
       "id": "invites_inviteactivationoverlay_props",
       "community": 25,
       "norm_label": "props"
@@ -1060,10 +1042,82 @@
       "label": "InviteActivationOverlay()",
       "file_type": "code",
       "source_file": "components/invites/InviteActivationOverlay.tsx",
-      "source_location": "L67",
+      "source_location": "L30",
       "id": "invites_inviteactivationoverlay_inviteactivationoverlay",
       "community": 25,
       "norm_label": "inviteactivationoverlay()"
+    },
+    {
+      "label": "InviteCompanyCard.tsx",
+      "file_type": "code",
+      "source_file": "components/invites/InviteCompanyCard.tsx",
+      "source_location": "L1",
+      "id": "components_invites_invitecompanycard_tsx",
+      "community": 25,
+      "norm_label": "invitecompanycard.tsx"
+    },
+    {
+      "label": "COMPANY_TYPE_LABELS",
+      "file_type": "code",
+      "source_file": "components/invites/InviteCompanyCard.tsx",
+      "source_location": "L6",
+      "id": "invites_invitecompanycard_company_type_labels",
+      "community": 25,
+      "norm_label": "company_type_labels"
+    },
+    {
+      "label": "STATUS_ROWS",
+      "file_type": "code",
+      "source_file": "components/invites/InviteCompanyCard.tsx",
+      "source_location": "L15",
+      "id": "invites_invitecompanycard_status_rows",
+      "community": 25,
+      "norm_label": "status_rows"
+    },
+    {
+      "label": "PersonEntry",
+      "file_type": "code",
+      "source_file": "components/invites/InviteCompanyCard.tsx",
+      "source_location": "L22",
+      "id": "invites_invitecompanycard_personentry",
+      "community": 25,
+      "norm_label": "personentry"
+    },
+    {
+      "label": "parsePersonList()",
+      "file_type": "code",
+      "source_file": "components/invites/InviteCompanyCard.tsx",
+      "source_location": "L28",
+      "id": "invites_invitecompanycard_parsepersonlist",
+      "community": 25,
+      "norm_label": "parsepersonlist()"
+    },
+    {
+      "label": "formatCapital()",
+      "file_type": "code",
+      "source_file": "components/invites/InviteCompanyCard.tsx",
+      "source_location": "L36",
+      "id": "invites_invitecompanycard_formatcapital",
+      "community": 25,
+      "norm_label": "formatcapital()"
+    },
+    {
+      "label": "Props",
+      "file_type": "code",
+      "source_file": "components/invites/InviteCompanyCard.tsx",
+      "source_location": "L44",
+      "id": "invites_invitecompanycard_props",
+      "community": 25,
+      "norm_label": "props"
+    },
+    {
+      "label": "InviteCompanyCard()",
+      "file_type": "code",
+      "source_file": "components/invites/InviteCompanyCard.tsx",
+      "source_location": "L50",
+      "id": "invites_invitecompanycard_invitecompanycard",
+      "community": 25,
+      "norm_label": "invitecompanycard()"
     },
     {
       "label": "HomeHero.tsx",
@@ -1071,7 +1125,7 @@
       "source_file": "components/home/HomeHero.tsx",
       "source_location": "L1",
       "id": "components_home_homehero_tsx",
-      "community": 22,
+      "community": 141,
       "norm_label": "homehero.tsx"
     },
     {
@@ -1080,7 +1134,7 @@
       "source_file": "components/home/HomeHero.tsx",
       "source_location": "L29",
       "id": "home_homehero_homeheroprops",
-      "community": 22,
+      "community": 141,
       "norm_label": "homeheroprops"
     },
     {
@@ -1089,7 +1143,7 @@
       "source_file": "components/home/HomeHero.tsx",
       "source_location": "L33",
       "id": "home_homehero_sessionstate",
-      "community": 22,
+      "community": 141,
       "norm_label": "sessionstate"
     },
     {
@@ -1098,7 +1152,7 @@
       "source_file": "components/home/HomeHero.tsx",
       "source_location": "L37",
       "id": "home_homehero_formatentitylabel",
-      "community": 22,
+      "community": 141,
       "norm_label": "formatentitylabel()"
     },
     {
@@ -1107,7 +1161,7 @@
       "source_file": "components/home/HomeHero.tsx",
       "source_location": "L50",
       "id": "home_homehero_buildsessiontoken",
-      "community": 22,
+      "community": 141,
       "norm_label": "buildsessiontoken()"
     },
     {
@@ -1116,7 +1170,7 @@
       "source_file": "components/home/HomeHero.tsx",
       "source_location": "L57",
       "id": "home_homehero_loggedouthero",
-      "community": 22,
+      "community": 141,
       "norm_label": "loggedouthero()"
     },
     {
@@ -1125,7 +1179,7 @@
       "source_file": "components/home/HomeHero.tsx",
       "source_location": "L142",
       "id": "home_homehero_homehero",
-      "community": 22,
+      "community": 141,
       "norm_label": "homehero()"
     },
     {
@@ -1298,6 +1352,51 @@
       "id": "wiki_wikiarticlecard_wikiarticlecard",
       "community": 1,
       "norm_label": "wikiarticlecard()"
+    },
+    {
+      "label": "WikiCategorySidebar.tsx",
+      "file_type": "code",
+      "source_file": "components/wiki/WikiCategorySidebar.tsx",
+      "source_location": "L1",
+      "id": "components_wiki_wikicategorysidebar_tsx",
+      "community": 1,
+      "norm_label": "wikicategorysidebar.tsx"
+    },
+    {
+      "label": "WikiCategorySidebarItem",
+      "file_type": "code",
+      "source_file": "components/wiki/WikiCategorySidebar.tsx",
+      "source_location": "L5",
+      "id": "wiki_wikicategorysidebar_wikicategorysidebaritem",
+      "community": 1,
+      "norm_label": "wikicategorysidebaritem"
+    },
+    {
+      "label": "WikiCategorySidebarProps",
+      "file_type": "code",
+      "source_file": "components/wiki/WikiCategorySidebar.tsx",
+      "source_location": "L10",
+      "id": "wiki_wikicategorysidebar_wikicategorysidebarprops",
+      "community": 1,
+      "norm_label": "wikicategorysidebarprops"
+    },
+    {
+      "label": "joinClassNames()",
+      "file_type": "code",
+      "source_file": "components/wiki/WikiCategorySidebar.tsx",
+      "source_location": "L18",
+      "id": "wiki_wikicategorysidebar_joinclassnames",
+      "community": 1,
+      "norm_label": "joinclassnames()"
+    },
+    {
+      "label": "WikiCategorySidebar()",
+      "file_type": "code",
+      "source_file": "components/wiki/WikiCategorySidebar.tsx",
+      "source_location": "L22",
+      "id": "wiki_wikicategorysidebar_wikicategorysidebar",
+      "community": 1,
+      "norm_label": "wikicategorysidebar()"
     },
     {
       "label": "KsefInviteCTA.tsx",
@@ -1656,7 +1755,7 @@
       "source_file": "hooks/useABTestSSG.ts",
       "source_location": "L37",
       "id": "hooks_useabtestssg_useabtestssg",
-      "community": 22,
+      "community": 141,
       "norm_label": "useabtestssg()"
     },
     {
@@ -1719,7 +1818,7 @@
       "source_file": "app/page.tsx",
       "source_location": "L1",
       "id": "app_page_tsx",
-      "community": 22,
+      "community": 141,
       "norm_label": "page.tsx"
     },
     {
@@ -1728,7 +1827,7 @@
       "source_file": "app/page.tsx",
       "source_location": "L27",
       "id": "app_page_home",
-      "community": 22,
+      "community": 141,
       "norm_label": "home()"
     },
     {
@@ -1737,7 +1836,7 @@
       "source_file": "app/faq-section.tsx",
       "source_location": "L1",
       "id": "app_faq_section_tsx",
-      "community": 22,
+      "community": 141,
       "norm_label": "faq-section.tsx"
     },
     {
@@ -1746,7 +1845,7 @@
       "source_file": "app/faq-section.tsx",
       "source_location": "L3",
       "id": "app_faq_section_faqsection",
-      "community": 22,
+      "community": 141,
       "norm_label": "faqsection()"
     },
     {
@@ -1773,7 +1872,7 @@
       "source_file": "app/layout.tsx",
       "source_location": "L1",
       "id": "app_layout_tsx",
-      "community": 22,
+      "community": 145,
       "norm_label": "layout.tsx"
     },
     {
@@ -1782,7 +1881,7 @@
       "source_file": "app/layout.tsx",
       "source_location": "L12",
       "id": "app_layout_inter",
-      "community": 22,
+      "community": 145,
       "norm_label": "inter"
     },
     {
@@ -1791,7 +1890,7 @@
       "source_file": "app/layout.tsx",
       "source_location": "L14",
       "id": "app_layout_metadata",
-      "community": 22,
+      "community": 145,
       "norm_label": "metadata"
     },
     {
@@ -1800,7 +1899,7 @@
       "source_file": "app/layout.tsx",
       "source_location": "L76",
       "id": "app_layout_rootlayout",
-      "community": 22,
+      "community": 145,
       "norm_label": "rootlayout()"
     },
     {
@@ -1942,16 +2041,25 @@
       "label": "metadata",
       "file_type": "code",
       "source_file": "app/darmowy-generator-faktur/page.tsx",
-      "source_location": "L4",
+      "source_location": "L7",
       "id": "darmowy_generator_faktur_page_metadata",
       "community": 0,
       "norm_label": "metadata"
     },
     {
+      "label": "faqItems",
+      "file_type": "code",
+      "source_file": "app/darmowy-generator-faktur/page.tsx",
+      "source_location": "L34",
+      "id": "darmowy_generator_faktur_page_faqitems",
+      "community": 0,
+      "norm_label": "faqitems"
+    },
+    {
       "label": "FreeInvoiceGeneratorPage()",
       "file_type": "code",
       "source_file": "app/darmowy-generator-faktur/page.tsx",
-      "source_location": "L20",
+      "source_location": "L67",
       "id": "darmowy_generator_faktur_page_freeinvoicegeneratorpage",
       "community": 0,
       "norm_label": "freeinvoicegeneratorpage()"
@@ -1969,7 +2077,7 @@
       "label": "metadata",
       "file_type": "code",
       "source_file": "app/poradnik/page.tsx",
-      "source_location": "L8",
+      "source_location": "L13",
       "id": "poradnik_page_metadata",
       "community": 1,
       "norm_label": "metadata"
@@ -1978,7 +2086,7 @@
       "label": "PoradnikPage()",
       "file_type": "code",
       "source_file": "app/poradnik/page.tsx",
-      "source_location": "L21",
+      "source_location": "L26",
       "id": "poradnik_page_poradnikpage",
       "community": 1,
       "norm_label": "poradnikpage()"
@@ -1996,7 +2104,7 @@
       "label": "PageProps",
       "file_type": "code",
       "source_file": "app/poradnik/kategoria/[slug]/page.tsx",
-      "source_location": "L13",
+      "source_location": "L19",
       "id": "app_poradnik_kategoria_slug_page_tsx_slug_page_pageprops",
       "community": 1,
       "norm_label": "pageprops"
@@ -2005,7 +2113,7 @@
       "label": "generateStaticParams()",
       "file_type": "code",
       "source_file": "app/poradnik/kategoria/[slug]/page.tsx",
-      "source_location": "L17",
+      "source_location": "L23",
       "id": "app_poradnik_kategoria_slug_page_tsx_slug_page_generatestaticparams",
       "community": 1,
       "norm_label": "generatestaticparams()"
@@ -2014,7 +2122,7 @@
       "label": "generateMetadata()",
       "file_type": "code",
       "source_file": "app/poradnik/kategoria/[slug]/page.tsx",
-      "source_location": "L22",
+      "source_location": "L28",
       "id": "app_poradnik_kategoria_slug_page_tsx_slug_page_generatemetadata",
       "community": 1,
       "norm_label": "generatemetadata()"
@@ -2023,10 +2131,91 @@
       "label": "WikiCategoryPage()",
       "file_type": "code",
       "source_file": "app/poradnik/kategoria/[slug]/page.tsx",
-      "source_location": "L44",
+      "source_location": "L50",
       "id": "slug_page_wikicategorypage",
       "community": 1,
       "norm_label": "wikicategorypage()"
+    },
+    {
+      "label": "page.tsx",
+      "file_type": "code",
+      "source_file": "app/poradnik/deklaracje/page.tsx",
+      "source_location": "L1",
+      "id": "app_poradnik_deklaracje_page_tsx",
+      "community": 146,
+      "norm_label": "page.tsx"
+    },
+    {
+      "label": "metadata",
+      "file_type": "code",
+      "source_file": "app/poradnik/deklaracje/page.tsx",
+      "source_location": "L5",
+      "id": "deklaracje_page_metadata",
+      "community": 146,
+      "norm_label": "metadata"
+    },
+    {
+      "label": "DeclarationCard",
+      "file_type": "code",
+      "source_file": "app/poradnik/deklaracje/page.tsx",
+      "source_location": "L22",
+      "id": "deklaracje_page_declarationcard",
+      "community": 146,
+      "norm_label": "declarationcard"
+    },
+    {
+      "label": "JDG_DECLARATIONS",
+      "file_type": "code",
+      "source_file": "app/poradnik/deklaracje/page.tsx",
+      "source_location": "L30",
+      "id": "deklaracje_page_jdg_declarations",
+      "community": 146,
+      "norm_label": "jdg_declarations"
+    },
+    {
+      "label": "SPOLKA_DECLARATIONS",
+      "file_type": "code",
+      "source_file": "app/poradnik/deklaracje/page.tsx",
+      "source_location": "L121",
+      "id": "deklaracje_page_spolka_declarations",
+      "community": 146,
+      "norm_label": "spolka_declarations"
+    },
+    {
+      "label": "ComparisonRow",
+      "file_type": "code",
+      "source_file": "app/poradnik/deklaracje/page.tsx",
+      "source_location": "L212",
+      "id": "deklaracje_page_comparisonrow",
+      "community": 146,
+      "norm_label": "comparisonrow"
+    },
+    {
+      "label": "COMPARISON_TABLE",
+      "file_type": "code",
+      "source_file": "app/poradnik/deklaracje/page.tsx",
+      "source_location": "L220",
+      "id": "deklaracje_page_comparison_table",
+      "community": 146,
+      "norm_label": "comparison_table"
+    },
+    {
+      "label": "AppliesBadge()",
+      "file_type": "code",
+      "source_file": "app/poradnik/deklaracje/page.tsx",
+      "source_location": "L238",
+      "id": "deklaracje_page_appliesbadge",
+      "community": 146,
+      "norm_label": "appliesbadge()"
+    },
+    {
+      "label": "DeklaracjePage()",
+      "file_type": "code",
+      "source_file": "app/poradnik/deklaracje/page.tsx",
+      "source_location": "L294",
+      "id": "deklaracje_page_deklaracjepage",
+      "community": 146,
+      "norm_label": "deklaracjepage()"
     },
     {
       "label": "page.tsx",
@@ -2041,7 +2230,7 @@
       "label": "PageProps",
       "file_type": "code",
       "source_file": "app/poradnik/[slug]/page.tsx",
-      "source_location": "L11",
+      "source_location": "L12",
       "id": "app_poradnik_slug_page_tsx_slug_page_pageprops",
       "community": 1,
       "norm_label": "pageprops"
@@ -2050,7 +2239,7 @@
       "label": "generateStaticParams()",
       "file_type": "code",
       "source_file": "app/poradnik/[slug]/page.tsx",
-      "source_location": "L15",
+      "source_location": "L16",
       "id": "app_poradnik_slug_page_tsx_slug_page_generatestaticparams",
       "community": 1,
       "norm_label": "generatestaticparams()"
@@ -2059,7 +2248,7 @@
       "label": "generateMetadata()",
       "file_type": "code",
       "source_file": "app/poradnik/[slug]/page.tsx",
-      "source_location": "L20",
+      "source_location": "L21",
       "id": "app_poradnik_slug_page_tsx_slug_page_generatemetadata",
       "community": 1,
       "norm_label": "generatemetadata()"
@@ -2068,7 +2257,7 @@
       "label": "WikiArticlePage()",
       "file_type": "code",
       "source_file": "app/poradnik/[slug]/page.tsx",
-      "source_location": "L47",
+      "source_location": "L48",
       "id": "slug_page_wikiarticlepage",
       "community": 1,
       "norm_label": "wikiarticlepage()"
@@ -2394,7 +2583,7 @@
       "source_file": "app/auth/confirm/page.tsx",
       "source_location": "L1",
       "id": "app_auth_confirm_page_tsx",
-      "community": 22,
+      "community": 33,
       "norm_label": "page.tsx"
     },
     {
@@ -2403,7 +2592,7 @@
       "source_file": "app/auth/confirm/page.tsx",
       "source_location": "L8",
       "id": "confirm_page_supported_email_otp_types",
-      "community": 22,
+      "community": 33,
       "norm_label": "supported_email_otp_types"
     },
     {
@@ -2412,7 +2601,7 @@
       "source_file": "app/auth/confirm/page.tsx",
       "source_location": "L17",
       "id": "confirm_page_confirmemailinner",
-      "community": 22,
+      "community": 33,
       "norm_label": "confirmemailinner()"
     },
     {
@@ -2421,7 +2610,7 @@
       "source_file": "app/auth/confirm/page.tsx",
       "source_location": "L126",
       "id": "confirm_page_confirmemailpage",
-      "community": 22,
+      "community": 33,
       "norm_label": "confirmemailpage()"
     },
     {
@@ -2475,7 +2664,7 @@
       "source_file": "app/auth/callback/page.tsx",
       "source_location": "L1",
       "id": "app_auth_callback_page_tsx",
-      "community": 33,
+      "community": 43,
       "norm_label": "page.tsx"
     },
     {
@@ -2484,7 +2673,7 @@
       "source_file": "app/auth/callback/page.tsx",
       "source_location": "L23",
       "id": "callback_page_authcallback",
-      "community": 33,
+      "community": 43,
       "norm_label": "authcallback()"
     },
     {
@@ -2560,103 +2749,121 @@
       "norm_label": "page.tsx"
     },
     {
+      "label": "SearchParamsInput",
+      "file_type": "code",
+      "source_file": "app/rejestracja/page.tsx",
+      "source_location": "L3",
+      "id": "rejestracja_page_searchparamsinput",
+      "community": 23,
+      "norm_label": "searchparamsinput"
+    },
+    {
+      "label": "readFirstParam()",
+      "file_type": "code",
+      "source_file": "app/rejestracja/page.tsx",
+      "source_location": "L8",
+      "id": "rejestracja_page_readfirstparam",
+      "community": 23,
+      "norm_label": "readfirstparam()"
+    },
+    {
+      "label": "RegisterPage()",
+      "file_type": "code",
+      "source_file": "app/rejestracja/page.tsx",
+      "source_location": "L13",
+      "id": "rejestracja_page_registerpage",
+      "community": 23,
+      "norm_label": "registerpage()"
+    },
+    {
+      "label": "RegisterClient.tsx",
+      "file_type": "code",
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L1",
+      "id": "app_rejestracja_registerclient_tsx",
+      "community": 43,
+      "norm_label": "registerclient.tsx"
+    },
+    {
       "label": "INBOX_PROVIDERS",
       "file_type": "code",
-      "source_file": "app/rejestracja/page.tsx",
-      "source_location": "L17",
-      "id": "rejestracja_page_inbox_providers",
-      "community": 23,
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L19",
+      "id": "rejestracja_registerclient_inbox_providers",
+      "community": 43,
       "norm_label": "inbox_providers"
-    },
-    {
-      "label": "COMPANY_TYPE_LABELS",
-      "file_type": "code",
-      "source_file": "app/rejestracja/page.tsx",
-      "source_location": "L37",
-      "id": "rejestracja_page_company_type_labels",
-      "community": 23,
-      "norm_label": "company_type_labels"
-    },
-    {
-      "label": "INVITE_STATUS_ROWS",
-      "file_type": "code",
-      "source_file": "app/rejestracja/page.tsx",
-      "source_location": "L46",
-      "id": "rejestracja_page_invite_status_rows",
-      "community": 23,
-      "norm_label": "invite_status_rows"
     },
     {
       "label": "sha256hex()",
       "file_type": "code",
-      "source_file": "app/rejestracja/page.tsx",
-      "source_location": "L57",
-      "id": "rejestracja_page_sha256hex",
-      "community": 23,
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L44",
+      "id": "rejestracja_registerclient_sha256hex",
+      "community": 43,
       "norm_label": "sha256hex()"
     },
     {
       "label": "getInboxProvider()",
       "file_type": "code",
-      "source_file": "app/rejestracja/page.tsx",
-      "source_location": "L62",
-      "id": "rejestracja_page_getinboxprovider",
-      "community": 23,
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L49",
+      "id": "rejestracja_registerclient_getinboxprovider",
+      "community": 43,
       "norm_label": "getinboxprovider()"
     },
     {
       "label": "getStoredInviteToken()",
       "file_type": "code",
-      "source_file": "app/rejestracja/page.tsx",
-      "source_location": "L67",
-      "id": "rejestracja_page_getstoredinvitetoken",
-      "community": 23,
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L54",
+      "id": "rejestracja_registerclient_getstoredinvitetoken",
+      "community": 43,
       "norm_label": "getstoredinvitetoken()"
     },
     {
       "label": "persistInviteToken()",
       "file_type": "code",
-      "source_file": "app/rejestracja/page.tsx",
-      "source_location": "L85",
-      "id": "rejestracja_page_persistinvitetoken",
-      "community": 23,
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L72",
+      "id": "rejestracja_registerclient_persistinvitetoken",
+      "community": 43,
       "norm_label": "persistinvitetoken()"
     },
     {
       "label": "clearInviteToken()",
       "file_type": "code",
-      "source_file": "app/rejestracja/page.tsx",
-      "source_location": "L97",
-      "id": "rejestracja_page_clearinvitetoken",
-      "community": 23,
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L84",
+      "id": "rejestracja_registerclient_clearinvitetoken",
+      "community": 43,
       "norm_label": "clearinvitetoken()"
     },
     {
       "label": "GoogleIcon()",
       "file_type": "code",
-      "source_file": "app/rejestracja/page.tsx",
-      "source_location": "L110",
-      "id": "rejestracja_page_googleicon",
-      "community": 23,
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L97",
+      "id": "rejestracja_registerclient_googleicon",
+      "community": 43,
       "norm_label": "googleicon()"
     },
     {
       "label": "AppleIcon()",
       "file_type": "code",
-      "source_file": "app/rejestracja/page.tsx",
-      "source_location": "L119",
-      "id": "rejestracja_page_appleicon",
-      "community": 23,
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L106",
+      "id": "rejestracja_registerclient_appleicon",
+      "community": 43,
       "norm_label": "appleicon()"
     },
     {
-      "label": "Register()",
+      "label": "RegisterClient()",
       "file_type": "code",
-      "source_file": "app/rejestracja/page.tsx",
-      "source_location": "L125",
-      "id": "rejestracja_page_register",
-      "community": 23,
-      "norm_label": "register()"
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L112",
+      "id": "rejestracja_registerclient_registerclient",
+      "community": 43,
+      "norm_label": "registerclient()"
     },
     {
       "label": "metadata.ts",
@@ -2846,6 +3053,60 @@
       "id": "dla_ksiegowych_page_dlaksiegowych",
       "community": 2,
       "norm_label": "dlaksiegowych()"
+    },
+    {
+      "label": "page.tsx",
+      "file_type": "code",
+      "source_file": "app/android/page.tsx",
+      "source_location": "L1",
+      "id": "app_android_page_tsx",
+      "community": 144,
+      "norm_label": "page.tsx"
+    },
+    {
+      "label": "metadata",
+      "file_type": "code",
+      "source_file": "app/android/page.tsx",
+      "source_location": "L6",
+      "id": "android_page_metadata",
+      "community": 144,
+      "norm_label": "metadata"
+    },
+    {
+      "label": "STEPS",
+      "file_type": "code",
+      "source_file": "app/android/page.tsx",
+      "source_location": "L22",
+      "id": "android_page_steps",
+      "community": 144,
+      "norm_label": "steps"
+    },
+    {
+      "label": "FEATURES",
+      "file_type": "code",
+      "source_file": "app/android/page.tsx",
+      "source_location": "L28",
+      "id": "android_page_features",
+      "community": 144,
+      "norm_label": "features"
+    },
+    {
+      "label": "AndroidPage()",
+      "file_type": "code",
+      "source_file": "app/android/page.tsx",
+      "source_location": "L36",
+      "id": "android_page_androidpage",
+      "community": 144,
+      "norm_label": "androidpage()"
+    },
+    {
+      "label": "Sha256Badge()",
+      "file_type": "code",
+      "source_file": "app/android/page.tsx",
+      "source_location": "L243",
+      "id": "android_page_sha256badge",
+      "community": 144,
+      "norm_label": "sha256badge()"
     },
     {
       "label": "page.tsx",
@@ -3154,6 +3415,69 @@
       "norm_label": "ab-tests.json"
     },
     {
+      "label": "version.json",
+      "file_type": "code",
+      "source_file": "public/android/version.json",
+      "source_location": "L1",
+      "id": "public_android_version_json",
+      "community": 144,
+      "norm_label": "version.json"
+    },
+    {
+      "label": "version_code",
+      "file_type": "code",
+      "source_file": "public/android/version.json",
+      "source_location": "L2",
+      "id": "android_version_version_code",
+      "community": 144,
+      "norm_label": "version_code"
+    },
+    {
+      "label": "version_name",
+      "file_type": "code",
+      "source_file": "public/android/version.json",
+      "source_location": "L3",
+      "id": "android_version_version_name",
+      "community": 144,
+      "norm_label": "version_name"
+    },
+    {
+      "label": "download_url",
+      "file_type": "code",
+      "source_file": "public/android/version.json",
+      "source_location": "L4",
+      "id": "android_version_download_url",
+      "community": 144,
+      "norm_label": "download_url"
+    },
+    {
+      "label": "release_notes",
+      "file_type": "code",
+      "source_file": "public/android/version.json",
+      "source_location": "L5",
+      "id": "android_version_release_notes",
+      "community": 144,
+      "norm_label": "release_notes"
+    },
+    {
+      "label": "force_update",
+      "file_type": "code",
+      "source_file": "public/android/version.json",
+      "source_location": "L6",
+      "id": "android_version_force_update",
+      "community": 144,
+      "norm_label": "force_update"
+    },
+    {
+      "label": "released_at",
+      "file_type": "code",
+      "source_file": "public/android/version.json",
+      "source_location": "L7",
+      "id": "android_version_released_at",
+      "community": 144,
+      "norm_label": "released_at"
+    },
+    {
       "label": "supabase-server.ts",
       "file_type": "code",
       "source_file": "lib/supabase-server.ts",
@@ -3181,10 +3505,19 @@
       "norm_label": "wiki-presentation.ts"
     },
     {
-      "label": "WikiPresentationCategory",
+      "label": "INITIAL_KSEF_REGISTRATION_SLUGS",
       "file_type": "code",
       "source_file": "lib/wiki-presentation.ts",
       "source_location": "L3",
+      "id": "lib_wiki_presentation_initial_ksef_registration_slugs",
+      "community": 1,
+      "norm_label": "initial_ksef_registration_slugs"
+    },
+    {
+      "label": "WikiPresentationCategory",
+      "file_type": "code",
+      "source_file": "lib/wiki-presentation.ts",
+      "source_location": "L8",
       "id": "lib_wiki_presentation_wikipresentationcategory",
       "community": 1,
       "norm_label": "wikipresentationcategory"
@@ -3193,7 +3526,7 @@
       "label": "DEFAULT_PRESENTATION",
       "file_type": "code",
       "source_file": "lib/wiki-presentation.ts",
-      "source_location": "L15",
+      "source_location": "L20",
       "id": "lib_wiki_presentation_default_presentation",
       "community": 1,
       "norm_label": "default_presentation"
@@ -3202,7 +3535,7 @@
       "label": "CATEGORY_PRESENTATION",
       "file_type": "code",
       "source_file": "lib/wiki-presentation.ts",
-      "source_location": "L33",
+      "source_location": "L38",
       "id": "lib_wiki_presentation_category_presentation",
       "community": 1,
       "norm_label": "category_presentation"
@@ -3211,7 +3544,7 @@
       "label": "getWikiPresentationCategory()",
       "file_type": "code",
       "source_file": "lib/wiki-presentation.ts",
-      "source_location": "L146",
+      "source_location": "L170",
       "id": "lib_wiki_presentation_getwikipresentationcategory",
       "community": 1,
       "norm_label": "getwikipresentationcategory()"
@@ -3220,7 +3553,7 @@
       "label": "formatWikiDate()",
       "file_type": "code",
       "source_file": "lib/wiki-presentation.ts",
-      "source_location": "L151",
+      "source_location": "L175",
       "id": "lib_wiki_presentation_formatwikidate",
       "community": 1,
       "norm_label": "formatwikidate()"
@@ -3229,7 +3562,7 @@
       "label": "getWikiArticleTypeLabel()",
       "file_type": "code",
       "source_file": "lib/wiki-presentation.ts",
-      "source_location": "L160",
+      "source_location": "L184",
       "id": "lib_wiki_presentation_getwikiarticletypelabel",
       "community": 1,
       "norm_label": "getwikiarticletypelabel()"
@@ -3238,7 +3571,7 @@
       "label": "getFeaturedArticles()",
       "file_type": "code",
       "source_file": "lib/wiki-presentation.ts",
-      "source_location": "L171",
+      "source_location": "L195",
       "id": "lib_wiki_presentation_getfeaturedarticles",
       "community": 1,
       "norm_label": "getfeaturedarticles()"
@@ -3247,10 +3580,28 @@
       "label": "getQuickTopics()",
       "file_type": "code",
       "source_file": "lib/wiki-presentation.ts",
-      "source_location": "L184",
+      "source_location": "L208",
       "id": "lib_wiki_presentation_getquicktopics",
       "community": 1,
       "norm_label": "getquicktopics()"
+    },
+    {
+      "label": "isInitialKsefRegistrationArticle()",
+      "file_type": "code",
+      "source_file": "lib/wiki-presentation.ts",
+      "source_location": "L212",
+      "id": "lib_wiki_presentation_isinitialksefregistrationarticle",
+      "community": 1,
+      "norm_label": "isinitialksefregistrationarticle()"
+    },
+    {
+      "label": "splitKsefArticlesByStage()",
+      "file_type": "code",
+      "source_file": "lib/wiki-presentation.ts",
+      "source_location": "L216",
+      "id": "lib_wiki_presentation_splitksefarticlesbystage",
+      "community": 1,
+      "norm_label": "splitksefarticlesbystage()"
     },
     {
       "label": "abTesting.ts",
@@ -3445,7 +3796,7 @@
       "label": "fallbackWikiArticles",
       "file_type": "code",
       "source_file": "lib/wiki-fallback.ts",
-      "source_location": "L99",
+      "source_location": "L106",
       "id": "lib_wiki_fallback_fallbackwikiarticles",
       "community": 1,
       "norm_label": "fallbackwikiarticles"
@@ -4140,7 +4491,7 @@
       "source_file": "lib/home/businessProfiles.ts",
       "source_location": "L1",
       "id": "lib_home_businessprofiles_ts",
-      "community": 22,
+      "community": 141,
       "norm_label": "businessprofiles.ts"
     },
     {
@@ -4149,7 +4500,7 @@
       "source_file": "lib/home/businessProfiles.ts",
       "source_location": "L3",
       "id": "home_businessprofiles_businessprofilerow",
-      "community": 22,
+      "community": 141,
       "norm_label": "businessprofilerow"
     },
     {
@@ -4158,7 +4509,7 @@
       "source_file": "lib/home/businessProfiles.ts",
       "source_location": "L15",
       "id": "home_businessprofiles_membershiprow",
-      "community": 22,
+      "community": 141,
       "norm_label": "membershiprow"
     },
     {
@@ -4167,7 +4518,7 @@
       "source_file": "lib/home/businessProfiles.ts",
       "source_location": "L21",
       "id": "home_businessprofiles_unreadinvoicerow",
-      "community": 22,
+      "community": 141,
       "norm_label": "unreadinvoicerow"
     },
     {
@@ -4176,7 +4527,7 @@
       "source_file": "lib/home/businessProfiles.ts",
       "source_location": "L26",
       "id": "home_businessprofiles_homebusinessprofile",
-      "community": 22,
+      "community": 141,
       "norm_label": "homebusinessprofile"
     },
     {
@@ -4185,7 +4536,7 @@
       "source_file": "lib/home/businessProfiles.ts",
       "source_location": "L38",
       "id": "home_businessprofiles_homebusinessinboxsummary",
-      "community": 22,
+      "community": 141,
       "norm_label": "homebusinessinboxsummary"
     },
     {
@@ -4194,7 +4545,7 @@
       "source_file": "lib/home/businessProfiles.ts",
       "source_location": "L43",
       "id": "home_businessprofiles_homebusinessdashboarddata",
-      "community": 22,
+      "community": 141,
       "norm_label": "homebusinessdashboarddata"
     },
     {
@@ -4203,7 +4554,7 @@
       "source_file": "lib/home/businessProfiles.ts",
       "source_location": "L49",
       "id": "home_businessprofiles_normalizeprofile",
-      "community": 22,
+      "community": 141,
       "norm_label": "normalizeprofile()"
     },
     {
@@ -4212,7 +4563,7 @@
       "source_file": "lib/home/businessProfiles.ts",
       "source_location": "L61",
       "id": "home_businessprofiles_sortprofiles",
-      "community": 22,
+      "community": 141,
       "norm_label": "sortprofiles()"
     },
     {
@@ -4221,7 +4572,7 @@
       "source_file": "lib/home/businessProfiles.ts",
       "source_location": "L70",
       "id": "home_businessprofiles_listaccessiblehomebusinessprofiles",
-      "community": 22,
+      "community": 141,
       "norm_label": "listaccessiblehomebusinessprofiles()"
     },
     {
@@ -4230,7 +4581,7 @@
       "source_file": "lib/home/businessProfiles.ts",
       "source_location": "L124",
       "id": "home_businessprofiles_getunreadksefinboxsummary",
-      "community": 22,
+      "community": 141,
       "norm_label": "getunreadksefinboxsummary()"
     },
     {
@@ -4239,7 +4590,7 @@
       "source_file": "lib/home/businessProfiles.ts",
       "source_location": "L156",
       "id": "home_businessprofiles_gethomebusinessdashboarddata",
-      "community": 22,
+      "community": 141,
       "norm_label": "gethomebusinessdashboarddata()"
     },
     {
@@ -4923,7 +5274,7 @@
       "source_file": "lib/auth/welcomeEmail.ts",
       "source_location": "L20",
       "id": "auth_welcomeemail_setauthfloworigin",
-      "community": 23,
+      "community": 33,
       "norm_label": "setauthfloworigin()"
     },
     {
@@ -5382,7 +5733,7 @@
       "source_file": "lib/auth/inviteOnboarding.ts",
       "source_location": "L1",
       "id": "lib_auth_inviteonboarding_ts",
-      "community": 23,
+      "community": 43,
       "norm_label": "inviteonboarding.ts"
     },
     {
@@ -5391,7 +5742,7 @@
       "source_file": "lib/auth/inviteOnboarding.ts",
       "source_location": "L1",
       "id": "auth_inviteonboarding_getinviteonboardingpath",
-      "community": 23,
+      "community": 43,
       "norm_label": "getinviteonboardingpath()"
     },
     {
@@ -9976,6 +10327,186 @@
       "norm_label": "anonymous generator recovery flow"
     },
     {
+      "label": "GRAPH_MAP.md",
+      "file_type": "document",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L1",
+      "id": "docs_graph_map_md",
+      "community": 143,
+      "norm_label": "graph_map.md"
+    },
+    {
+      "label": "ksiegai-next Graph Map",
+      "file_type": "document",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L1",
+      "id": "docs_graph_map_ksiegai_next_graph_map",
+      "community": 143,
+      "norm_label": "ksiegai-next graph map"
+    },
+    {
+      "label": "1. App Shell Graph",
+      "file_type": "document",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L7",
+      "id": "docs_graph_map_1_app_shell_graph",
+      "community": 143,
+      "norm_label": "1. app shell graph"
+    },
+    {
+      "label": "code:mermaid (flowchart TD)",
+      "file_type": "document",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L9",
+      "id": "docs_graph_map_codeblock_1",
+      "community": 143,
+      "norm_label": "code:mermaid (flowchart td)"
+    },
+    {
+      "label": "2. Public Route Surface",
+      "file_type": "document",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L33",
+      "id": "docs_graph_map_2_public_route_surface",
+      "community": 143,
+      "norm_label": "2. public route surface"
+    },
+    {
+      "label": "code:mermaid (flowchart LR)",
+      "file_type": "document",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L35",
+      "id": "docs_graph_map_codeblock_2",
+      "community": 143,
+      "norm_label": "code:mermaid (flowchart lr)"
+    },
+    {
+      "label": "3. Auth Handoff Graph",
+      "file_type": "document",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L79",
+      "id": "docs_graph_map_3_auth_handoff_graph",
+      "community": 143,
+      "norm_label": "3. auth handoff graph"
+    },
+    {
+      "label": "code:mermaid (flowchart LR)",
+      "file_type": "document",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L81",
+      "id": "docs_graph_map_codeblock_3",
+      "community": 143,
+      "norm_label": "code:mermaid (flowchart lr)"
+    },
+    {
+      "label": "4. Poradnik / Wiki Graph",
+      "file_type": "document",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L102",
+      "id": "docs_graph_map_4_poradnik_wiki_graph",
+      "community": 143,
+      "norm_label": "4. poradnik / wiki graph"
+    },
+    {
+      "label": "code:mermaid (flowchart TD)",
+      "file_type": "document",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L104",
+      "id": "docs_graph_map_codeblock_4",
+      "community": 143,
+      "norm_label": "code:mermaid (flowchart td)"
+    },
+    {
+      "label": "5. AB Testing Graph",
+      "file_type": "document",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L133",
+      "id": "docs_graph_map_5_ab_testing_graph",
+      "community": 143,
+      "norm_label": "5. ab testing graph"
+    },
+    {
+      "label": "code:mermaid (flowchart TD)",
+      "file_type": "document",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L135",
+      "id": "docs_graph_map_codeblock_5",
+      "community": 143,
+      "norm_label": "code:mermaid (flowchart td)"
+    },
+    {
+      "label": "6. Marketing Composition Graph",
+      "file_type": "document",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L155",
+      "id": "docs_graph_map_6_marketing_composition_graph",
+      "community": 143,
+      "norm_label": "6. marketing composition graph"
+    },
+    {
+      "label": "code:mermaid (mindmap)",
+      "file_type": "document",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L157",
+      "id": "docs_graph_map_codeblock_6",
+      "community": 143,
+      "norm_label": "code:mermaid (mindmap)"
+    },
+    {
+      "label": "7. Static Export Constraint Graph",
+      "file_type": "document",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L195",
+      "id": "docs_graph_map_7_static_export_constraint_graph",
+      "community": 143,
+      "norm_label": "7. static export constraint graph"
+    },
+    {
+      "label": "code:mermaid (flowchart LR)",
+      "file_type": "document",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L197",
+      "id": "docs_graph_map_codeblock_7",
+      "community": 143,
+      "norm_label": "code:mermaid (flowchart lr)"
+    },
+    {
+      "label": "8. Cross-Repo Relationship",
+      "file_type": "document",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L210",
+      "id": "docs_graph_map_8_cross_repo_relationship",
+      "community": 143,
+      "norm_label": "8. cross-repo relationship"
+    },
+    {
+      "label": "code:mermaid (flowchart LR)",
+      "file_type": "document",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L212",
+      "id": "docs_graph_map_codeblock_8",
+      "community": 143,
+      "norm_label": "code:mermaid (flowchart lr)"
+    },
+    {
+      "label": "9. Start-Here Paths For Agents",
+      "file_type": "document",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L225",
+      "id": "docs_graph_map_9_start_here_paths_for_agents",
+      "community": 143,
+      "norm_label": "9. start-here paths for agents"
+    },
+    {
+      "label": "10. Refresh Triggers",
+      "file_type": "document",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L253",
+      "id": "docs_graph_map_10_refresh_triggers",
+      "community": 143,
+      "norm_label": "10. refresh triggers"
+    },
+    {
       "label": "AB_TESTING_SSG.md",
       "file_type": "document",
       "source_file": "docs/AB_TESTING_SSG.md",
@@ -12049,7 +12580,7 @@
       "label": "DONE",
       "file_type": "document",
       "source_file": "docs/TODO.md",
-      "source_location": "L300",
+      "source_location": "L251",
       "id": "docs_todo_done",
       "community": 84,
       "norm_label": "done"
@@ -15941,6 +16472,150 @@
       "id": "migrations_readme_ksiegai_next_supabase_migrations",
       "community": 138,
       "norm_label": "ksiegai-next supabase migrations"
+    },
+    {
+      "label": "COMPANY_TYPE_LABELS",
+      "file_type": "code",
+      "source_file": "components/invites/InviteActivationOverlay.tsx",
+      "source_location": "L6",
+      "community": 25,
+      "norm_label": "company_type_labels",
+      "id": "invites_inviteactivationoverlay_company_type_labels"
+    },
+    {
+      "label": "PersonEntry",
+      "file_type": "code",
+      "source_file": "components/invites/InviteActivationOverlay.tsx",
+      "source_location": "L33",
+      "community": 25,
+      "norm_label": "personentry",
+      "id": "invites_inviteactivationoverlay_personentry"
+    },
+    {
+      "label": "parsePersonList()",
+      "file_type": "code",
+      "source_file": "components/invites/InviteActivationOverlay.tsx",
+      "source_location": "L39",
+      "community": 25,
+      "norm_label": "parsepersonlist()",
+      "id": "invites_inviteactivationoverlay_parsepersonlist"
+    },
+    {
+      "label": "formatCapital()",
+      "file_type": "code",
+      "source_file": "components/invites/InviteActivationOverlay.tsx",
+      "source_location": "L47",
+      "community": 25,
+      "norm_label": "formatcapital()",
+      "id": "invites_inviteactivationoverlay_formatcapital"
+    },
+    {
+      "label": "STATUS_ROWS",
+      "file_type": "code",
+      "source_file": "components/invites/InviteActivationOverlay.tsx",
+      "source_location": "L55",
+      "community": 25,
+      "norm_label": "status_rows",
+      "id": "invites_inviteactivationoverlay_status_rows"
+    },
+    {
+      "label": "INBOX_PROVIDERS",
+      "file_type": "code",
+      "source_file": "app/rejestracja/page.tsx",
+      "source_location": "L17",
+      "community": 23,
+      "norm_label": "inbox_providers",
+      "id": "rejestracja_page_inbox_providers"
+    },
+    {
+      "label": "COMPANY_TYPE_LABELS",
+      "file_type": "code",
+      "source_file": "app/rejestracja/page.tsx",
+      "source_location": "L37",
+      "community": 23,
+      "norm_label": "company_type_labels",
+      "id": "rejestracja_page_company_type_labels"
+    },
+    {
+      "label": "INVITE_STATUS_ROWS",
+      "file_type": "code",
+      "source_file": "app/rejestracja/page.tsx",
+      "source_location": "L46",
+      "community": 23,
+      "norm_label": "invite_status_rows",
+      "id": "rejestracja_page_invite_status_rows"
+    },
+    {
+      "label": "sha256hex()",
+      "file_type": "code",
+      "source_file": "app/rejestracja/page.tsx",
+      "source_location": "L57",
+      "community": 23,
+      "norm_label": "sha256hex()",
+      "id": "rejestracja_page_sha256hex"
+    },
+    {
+      "label": "getInboxProvider()",
+      "file_type": "code",
+      "source_file": "app/rejestracja/page.tsx",
+      "source_location": "L62",
+      "community": 23,
+      "norm_label": "getinboxprovider()",
+      "id": "rejestracja_page_getinboxprovider"
+    },
+    {
+      "label": "getStoredInviteToken()",
+      "file_type": "code",
+      "source_file": "app/rejestracja/page.tsx",
+      "source_location": "L67",
+      "community": 23,
+      "norm_label": "getstoredinvitetoken()",
+      "id": "rejestracja_page_getstoredinvitetoken"
+    },
+    {
+      "label": "persistInviteToken()",
+      "file_type": "code",
+      "source_file": "app/rejestracja/page.tsx",
+      "source_location": "L85",
+      "community": 23,
+      "norm_label": "persistinvitetoken()",
+      "id": "rejestracja_page_persistinvitetoken"
+    },
+    {
+      "label": "clearInviteToken()",
+      "file_type": "code",
+      "source_file": "app/rejestracja/page.tsx",
+      "source_location": "L97",
+      "community": 23,
+      "norm_label": "clearinvitetoken()",
+      "id": "rejestracja_page_clearinvitetoken"
+    },
+    {
+      "label": "GoogleIcon()",
+      "file_type": "code",
+      "source_file": "app/rejestracja/page.tsx",
+      "source_location": "L110",
+      "community": 23,
+      "norm_label": "googleicon()",
+      "id": "rejestracja_page_googleicon"
+    },
+    {
+      "label": "AppleIcon()",
+      "file_type": "code",
+      "source_file": "app/rejestracja/page.tsx",
+      "source_location": "L119",
+      "community": 23,
+      "norm_label": "appleicon()",
+      "id": "rejestracja_page_appleicon"
+    },
+    {
+      "label": "Register()",
+      "file_type": "code",
+      "source_file": "app/rejestracja/page.tsx",
+      "source_location": "L125",
+      "community": 23,
+      "norm_label": "register()",
+      "id": "rejestracja_page_register"
     }
   ],
   "links": [
@@ -17014,6 +17689,17 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "components_header_tsx",
+      "target": "auth_crossdomainauth_clearauthtoken"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "components/Header.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_header_tsx",
       "target": "auth_crossdomainauth_getauthtoken"
     },
     {
@@ -17036,18 +17722,7 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "components_header_tsx",
-      "target": "auth_crossdomainauth_clearauthtoken"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "components/Header.tsx",
-      "source_location": "L6",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_header_tsx",
-      "target": "auth_crossdomainauth_storeauthtoken"
+      "target": "auth_crossdomainauth_restoresessionfromauthtoken"
     },
     {
       "relation": "imports",
@@ -17069,18 +17744,7 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "components_header_tsx",
-      "target": "auth_crossdomainauth_checkandredirecttolocalhost"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "components/Header.tsx",
-      "source_location": "L6",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_header_tsx",
-      "target": "auth_crossdomainauth_restoresessionfromauthtoken"
+      "target": "auth_crossdomainauth_storeauthtoken"
     },
     {
       "relation": "imports_from",
@@ -17145,6 +17809,17 @@
       "confidence_score": 1.0,
       "source": "app_layout_tsx",
       "target": "components_header_tsx"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "components/Header.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_header_tsx",
+      "target": "auth_crossdomainauth_checkandredirecttolocalhost"
     },
     {
       "relation": "contains",
@@ -17368,6 +18043,16 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "components/invites/InviteRegistrationPage.tsx",
+      "source_location": "L42",
+      "weight": 1.0,
+      "source": "components_invites_inviteregistrationpage_tsx",
+      "target": "invites_inviteregistrationpage_access_features",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/invites/InviteRegistrationPage.tsx",
       "source_location": "L41",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -17408,6 +18093,26 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "components/invites/InviteRegistrationPage.tsx",
+      "source_location": "L80",
+      "weight": 1.0,
+      "source": "components_invites_inviteregistrationpage_tsx",
+      "target": "invites_inviteregistrationpage_companyinfocard",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/invites/InviteRegistrationPage.tsx",
+      "source_location": "L141",
+      "weight": 1.0,
+      "source": "components_invites_inviteregistrationpage_tsx",
+      "target": "invites_inviteregistrationpage_mobilecompanysheet",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/invites/InviteRegistrationPage.tsx",
       "source_location": "L71",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -17437,14 +18142,26 @@
       "target": "invites_inviteregistrationpage_getinboxprovider"
     },
     {
-      "relation": "contains",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "components/invites/InviteCompanyCard.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "components_invites_invitecompanycard_tsx",
+      "target": "components_invites_inviteactivationoverlay_tsx",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "components/invites/InviteActivationOverlay.tsx",
-      "source_location": "L6",
+      "source_location": "L5",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "components_invites_inviteactivationoverlay_tsx",
-      "target": "invites_inviteactivationoverlay_company_type_labels"
+      "target": "invites_invitecompanycard_invitecompanycard",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -17455,6 +18172,47 @@
       "confidence_score": 1.0,
       "source": "components_invites_inviteactivationoverlay_tsx",
       "target": "invites_inviteactivationoverlay_fullinvitedata"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/invites/InviteActivationOverlay.tsx",
+      "source_location": "L62",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_invites_inviteactivationoverlay_tsx",
+      "target": "invites_inviteactivationoverlay_props"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/invites/InviteActivationOverlay.tsx",
+      "source_location": "L67",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_invites_inviteactivationoverlay_tsx",
+      "target": "invites_inviteactivationoverlay_inviteactivationoverlay"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L16",
+      "weight": 1.0,
+      "source": "app_rejestracja_registerclient_tsx",
+      "target": "components_invites_inviteactivationoverlay_tsx",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/invites/InviteActivationOverlay.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_invites_inviteactivationoverlay_tsx",
+      "target": "invites_inviteactivationoverlay_company_type_labels"
     },
     {
       "relation": "contains",
@@ -17497,26 +18255,6 @@
       "target": "invites_inviteactivationoverlay_status_rows"
     },
     {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "components/invites/InviteActivationOverlay.tsx",
-      "source_location": "L62",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_invites_inviteactivationoverlay_tsx",
-      "target": "invites_inviteactivationoverlay_props"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "components/invites/InviteActivationOverlay.tsx",
-      "source_location": "L67",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_invites_inviteactivationoverlay_tsx",
-      "target": "invites_inviteactivationoverlay_inviteactivationoverlay"
-    },
-    {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -17526,6 +18264,28 @@
       "confidence_score": 1.0,
       "source": "app_rejestracja_page_tsx",
       "target": "components_invites_inviteactivationoverlay_tsx"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "components/invites/InviteCompanyCard.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "components_invites_invitecompanycard_tsx",
+      "target": "invites_inviteactivationoverlay_fullinvitedata",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L16",
+      "weight": 1.0,
+      "source": "app_rejestracja_registerclient_tsx",
+      "target": "invites_inviteactivationoverlay_fullinvitedata",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -17559,6 +18319,120 @@
       "confidence_score": 1.0,
       "source": "invites_inviteactivationoverlay_inviteactivationoverlay",
       "target": "invites_inviteactivationoverlay_formatcapital"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/invites/InviteCompanyCard.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "components_invites_invitecompanycard_tsx",
+      "target": "invites_invitecompanycard_company_type_labels",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/invites/InviteCompanyCard.tsx",
+      "source_location": "L15",
+      "weight": 1.0,
+      "source": "components_invites_invitecompanycard_tsx",
+      "target": "invites_invitecompanycard_status_rows",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/invites/InviteCompanyCard.tsx",
+      "source_location": "L22",
+      "weight": 1.0,
+      "source": "components_invites_invitecompanycard_tsx",
+      "target": "invites_invitecompanycard_personentry",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/invites/InviteCompanyCard.tsx",
+      "source_location": "L28",
+      "weight": 1.0,
+      "source": "components_invites_invitecompanycard_tsx",
+      "target": "invites_invitecompanycard_parsepersonlist",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/invites/InviteCompanyCard.tsx",
+      "source_location": "L36",
+      "weight": 1.0,
+      "source": "components_invites_invitecompanycard_tsx",
+      "target": "invites_invitecompanycard_formatcapital",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/invites/InviteCompanyCard.tsx",
+      "source_location": "L44",
+      "weight": 1.0,
+      "source": "components_invites_invitecompanycard_tsx",
+      "target": "invites_invitecompanycard_props",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/invites/InviteCompanyCard.tsx",
+      "source_location": "L50",
+      "weight": 1.0,
+      "source": "components_invites_invitecompanycard_tsx",
+      "target": "invites_invitecompanycard_invitecompanycard",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L17",
+      "weight": 1.0,
+      "source": "app_rejestracja_registerclient_tsx",
+      "target": "components_invites_invitecompanycard_tsx",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "components/invites/InviteCompanyCard.tsx",
+      "source_location": "L62",
+      "weight": 1.0,
+      "source": "invites_invitecompanycard_invitecompanycard",
+      "target": "invites_invitecompanycard_parsepersonlist",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "components/invites/InviteCompanyCard.tsx",
+      "source_location": "L69",
+      "weight": 1.0,
+      "source": "invites_invitecompanycard_invitecompanycard",
+      "target": "invites_invitecompanycard_formatcapital",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L17",
+      "weight": 1.0,
+      "source": "app_rejestracja_registerclient_tsx",
+      "target": "invites_invitecompanycard_invitecompanycard",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -18505,6 +19379,123 @@
       "weight": 1.0,
       "source": "wiki_wikiarticlecard_wikiarticlecard",
       "target": "lib_wiki_presentation_formatwikidate"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "components/wiki/WikiCategorySidebar.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "components_wiki_wikicategorysidebar_tsx",
+      "target": "lib_wiki_ts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "components/wiki/WikiCategorySidebar.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "components_wiki_wikicategorysidebar_tsx",
+      "target": "lib_wiki_wikicategory",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/wiki/WikiCategorySidebar.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "components_wiki_wikicategorysidebar_tsx",
+      "target": "wiki_wikicategorysidebar_wikicategorysidebaritem",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/wiki/WikiCategorySidebar.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "components_wiki_wikicategorysidebar_tsx",
+      "target": "wiki_wikicategorysidebar_wikicategorysidebarprops",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/wiki/WikiCategorySidebar.tsx",
+      "source_location": "L18",
+      "weight": 1.0,
+      "source": "components_wiki_wikicategorysidebar_tsx",
+      "target": "wiki_wikicategorysidebar_joinclassnames",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "components/wiki/WikiCategorySidebar.tsx",
+      "source_location": "L22",
+      "weight": 1.0,
+      "source": "components_wiki_wikicategorysidebar_tsx",
+      "target": "wiki_wikicategorysidebar_wikicategorysidebar",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/poradnik/kategoria/[slug]/page.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "app_poradnik_kategoria_slug_page_tsx",
+      "target": "components_wiki_wikicategorysidebar_tsx",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/poradnik/[slug]/page.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "app_poradnik_slug_page_tsx",
+      "target": "components_wiki_wikicategorysidebar_tsx",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "components/wiki/WikiCategorySidebar.tsx",
+      "source_location": "L34",
+      "weight": 1.0,
+      "source": "wiki_wikicategorysidebar_wikicategorysidebar",
+      "target": "wiki_wikicategorysidebar_joinclassnames",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/poradnik/kategoria/[slug]/page.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "app_poradnik_kategoria_slug_page_tsx",
+      "target": "wiki_wikicategorysidebar_wikicategorysidebar",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/poradnik/[slug]/page.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "app_poradnik_slug_page_tsx",
+      "target": "wiki_wikicategorysidebar_wikicategorysidebar",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -19822,6 +20813,16 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/darmowy-generator-faktur/page.tsx",
+      "source_location": "L34",
+      "weight": 1.0,
+      "source": "app_darmowy_generator_faktur_page_tsx",
+      "target": "darmowy_generator_faktur_page_faqitems",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/darmowy-generator-faktur/page.tsx",
       "source_location": "L20",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -19884,6 +20885,17 @@
       "target": "lib_wiki_presentation_getwikipresentationcategory"
     },
     {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/poradnik/page.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "app_poradnik_page_tsx",
+      "target": "lib_wiki_presentation_splitksefarticlesbystage",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/poradnik/page.tsx",
@@ -19926,6 +20938,17 @@
       "target": "lib_wiki_presentation_getfeaturedarticles"
     },
     {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/poradnik/page.tsx",
+      "source_location": "L34",
+      "weight": 1.0,
+      "source": "poradnik_page_poradnikpage",
+      "target": "lib_wiki_presentation_splitksefarticlesbystage"
+    },
+    {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -19935,6 +20958,17 @@
       "confidence_score": 1.0,
       "source": "app_poradnik_kategoria_slug_page_tsx",
       "target": "lib_wiki_ts"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/poradnik/kategoria/[slug]/page.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "app_poradnik_kategoria_slug_page_tsx",
+      "target": "lib_wiki_getwikiarticlesbycategory",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -20001,6 +21035,17 @@
       "confidence_score": 1.0,
       "source": "app_poradnik_kategoria_slug_page_tsx",
       "target": "lib_wiki_presentation_getwikipresentationcategory"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/poradnik/kategoria/[slug]/page.tsx",
+      "source_location": "L13",
+      "weight": 1.0,
+      "source": "app_poradnik_kategoria_slug_page_tsx",
+      "target": "lib_wiki_presentation_splitksefarticlesbystage",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -20070,6 +21115,17 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/poradnik/kategoria/[slug]/page.tsx",
+      "source_location": "L51",
+      "weight": 1.0,
+      "source": "slug_page_wikicategorypage",
+      "target": "lib_wiki_getwikiarticlesbycategory"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/poradnik/kategoria/[slug]/page.tsx",
       "source_location": "L45",
       "weight": 1.0,
       "source": "slug_page_wikicategorypage",
@@ -20092,10 +21148,101 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "app/poradnik/kategoria/[slug]/page.tsx",
+      "source_location": "L61",
+      "weight": 1.0,
+      "source": "slug_page_wikicategorypage",
+      "target": "lib_wiki_presentation_splitksefarticlesbystage"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/poradnik/kategoria/[slug]/page.tsx",
       "source_location": "L50",
       "weight": 1.0,
       "source": "slug_page_wikicategorypage",
       "target": "lib_wiki_presentation_getquicktopics"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/poradnik/deklaracje/page.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "app_poradnik_deklaracje_page_tsx",
+      "target": "deklaracje_page_metadata",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/poradnik/deklaracje/page.tsx",
+      "source_location": "L254",
+      "weight": 1.0,
+      "source": "app_poradnik_deklaracje_page_tsx",
+      "target": "deklaracje_page_declarationcard",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/poradnik/deklaracje/page.tsx",
+      "source_location": "L30",
+      "weight": 1.0,
+      "source": "app_poradnik_deklaracje_page_tsx",
+      "target": "deklaracje_page_jdg_declarations",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/poradnik/deklaracje/page.tsx",
+      "source_location": "L121",
+      "weight": 1.0,
+      "source": "app_poradnik_deklaracje_page_tsx",
+      "target": "deklaracje_page_spolka_declarations",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/poradnik/deklaracje/page.tsx",
+      "source_location": "L212",
+      "weight": 1.0,
+      "source": "app_poradnik_deklaracje_page_tsx",
+      "target": "deklaracje_page_comparisonrow",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/poradnik/deklaracje/page.tsx",
+      "source_location": "L220",
+      "weight": 1.0,
+      "source": "app_poradnik_deklaracje_page_tsx",
+      "target": "deklaracje_page_comparison_table",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/poradnik/deklaracje/page.tsx",
+      "source_location": "L238",
+      "weight": 1.0,
+      "source": "app_poradnik_deklaracje_page_tsx",
+      "target": "deklaracje_page_appliesbadge",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/poradnik/deklaracje/page.tsx",
+      "source_location": "L294",
+      "weight": 1.0,
+      "source": "app_poradnik_deklaracje_page_tsx",
+      "target": "deklaracje_page_deklaracjepage",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -20140,6 +21287,17 @@
       "confidence_score": 1.0,
       "source": "app_poradnik_slug_page_tsx",
       "target": "lib_wiki_getwikiarticle"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/poradnik/[slug]/page.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "app_poradnik_slug_page_tsx",
+      "target": "lib_wiki_getwikiarticlesbycategory",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -20235,6 +21393,17 @@
       "weight": 1.0,
       "source": "app_poradnik_slug_page_tsx_slug_page_generatemetadata",
       "target": "lib_wiki_getwikiarticle"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "app/poradnik/[slug]/page.tsx",
+      "source_location": "L49",
+      "weight": 1.0,
+      "source": "slug_page_wikiarticlepage",
+      "target": "lib_wiki_getwikiarticlesbycategory"
     },
     {
       "relation": "calls",
@@ -21348,6 +22517,47 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "app/rejestracja/page.tsx",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "app_rejestracja_page_tsx",
+      "target": "app_rejestracja_registerclient_tsx",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/rejestracja/page.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "app_rejestracja_page_tsx",
+      "target": "rejestracja_page_searchparamsinput",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/rejestracja/page.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "app_rejestracja_page_tsx",
+      "target": "rejestracja_page_readfirstparam",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/rejestracja/page.tsx",
+      "source_location": "L13",
+      "weight": 1.0,
+      "source": "app_rejestracja_page_tsx",
+      "target": "rejestracja_page_registerpage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/rejestracja/page.tsx",
       "source_location": "L4",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -21634,11 +22844,310 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "app/rejestracja/page.tsx",
-      "source_location": "L442",
+      "source_location": "L19",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "rejestracja_page_register",
-      "target": "rejestracja_page_getinboxprovider"
+      "source": "rejestracja_page_registerpage",
+      "target": "rejestracja_page_readfirstparam",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "app_rejestracja_registerclient_tsx",
+      "target": "lib_supabase_ts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "app_rejestracja_registerclient_tsx",
+      "target": "lib_supabase_supabase",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "app_rejestracja_registerclient_tsx",
+      "target": "lib_auth_crossdomainauth_ts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "app_rejestracja_registerclient_tsx",
+      "target": "auth_crossdomainauth_storeauthtoken",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "app_rejestracja_registerclient_tsx",
+      "target": "auth_crossdomainauth_redirecttoapp",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "app_rejestracja_registerclient_tsx",
+      "target": "lib_auth_inviteonboarding_ts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "app_rejestracja_registerclient_tsx",
+      "target": "auth_inviteonboarding_getinviteonboardingpath",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "app_rejestracja_registerclient_tsx",
+      "target": "lib_auth_welcomeemail_ts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "app_rejestracja_registerclient_tsx",
+      "target": "auth_welcomeemail_setauthfloworigin",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "app_rejestracja_registerclient_tsx",
+      "target": "lib_home_businessprofiles_ts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "app_rejestracja_registerclient_tsx",
+      "target": "home_businessprofiles_listaccessiblehomebusinessprofiles",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "app_rejestracja_registerclient_tsx",
+      "target": "lib_ab_testing_ssg_ts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "app_rejestracja_registerclient_tsx",
+      "target": "lib_ab_testing_ssg_getsessionid",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "app_rejestracja_registerclient_tsx",
+      "target": "lib_ab_testing_ssg_getvariantassignments",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "app_rejestracja_registerclient_tsx",
+      "target": "lib_posthog_inviteattribution_ts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "app_rejestracja_registerclient_tsx",
+      "target": "posthog_inviteattribution_captureinviteevent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "app_rejestracja_registerclient_tsx",
+      "target": "posthog_inviteattribution_identifyinviteduser",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "app_rejestracja_registerclient_tsx",
+      "target": "posthog_inviteattribution_registerinviteattribution",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "app_rejestracja_registerclient_tsx",
+      "target": "rejestracja_registerclient_inbox_providers",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L44",
+      "weight": 1.0,
+      "source": "app_rejestracja_registerclient_tsx",
+      "target": "rejestracja_registerclient_sha256hex",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L49",
+      "weight": 1.0,
+      "source": "app_rejestracja_registerclient_tsx",
+      "target": "rejestracja_registerclient_getinboxprovider",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L54",
+      "weight": 1.0,
+      "source": "app_rejestracja_registerclient_tsx",
+      "target": "rejestracja_registerclient_getstoredinvitetoken",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L72",
+      "weight": 1.0,
+      "source": "app_rejestracja_registerclient_tsx",
+      "target": "rejestracja_registerclient_persistinvitetoken",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L84",
+      "weight": 1.0,
+      "source": "app_rejestracja_registerclient_tsx",
+      "target": "rejestracja_registerclient_clearinvitetoken",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L97",
+      "weight": 1.0,
+      "source": "app_rejestracja_registerclient_tsx",
+      "target": "rejestracja_registerclient_googleicon",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L106",
+      "weight": 1.0,
+      "source": "app_rejestracja_registerclient_tsx",
+      "target": "rejestracja_registerclient_appleicon",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L112",
+      "weight": 1.0,
+      "source": "app_rejestracja_registerclient_tsx",
+      "target": "rejestracja_registerclient_registerclient",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/rejestracja/RegisterClient.tsx",
+      "source_location": "L664",
+      "weight": 1.0,
+      "source": "rejestracja_registerclient_registerclient",
+      "target": "rejestracja_registerclient_getinboxprovider",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -21779,6 +23288,67 @@
       "confidence_score": 1.0,
       "source": "app_dla_ksiegowych_page_tsx",
       "target": "dla_ksiegowych_page_dlaksiegowych"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "app/android/page.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "app_android_page_tsx",
+      "target": "public_android_version_json",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/android/page.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "app_android_page_tsx",
+      "target": "android_page_metadata",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/android/page.tsx",
+      "source_location": "L22",
+      "weight": 1.0,
+      "source": "app_android_page_tsx",
+      "target": "android_page_steps",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/android/page.tsx",
+      "source_location": "L28",
+      "weight": 1.0,
+      "source": "app_android_page_tsx",
+      "target": "android_page_features",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/android/page.tsx",
+      "source_location": "L36",
+      "weight": 1.0,
+      "source": "app_android_page_tsx",
+      "target": "android_page_androidpage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/android/page.tsx",
+      "source_location": "L243",
+      "weight": 1.0,
+      "source": "app_android_page_tsx",
+      "target": "android_page_sha256badge",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -22152,6 +23722,66 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "public/android/version.json",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "public_android_version_json",
+      "target": "android_version_version_code",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "public/android/version.json",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "public_android_version_json",
+      "target": "android_version_version_name",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "public/android/version.json",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "public_android_version_json",
+      "target": "android_version_download_url",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "public/android/version.json",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "public_android_version_json",
+      "target": "android_version_release_notes",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "public/android/version.json",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "public_android_version_json",
+      "target": "android_version_force_update",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "public/android/version.json",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "public_android_version_json",
+      "target": "android_version_released_at",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "lib/supabase-server.ts",
       "source_location": "L5",
       "weight": 1.0,
@@ -22224,6 +23854,16 @@
       "confidence_score": 1.0,
       "source": "lib_wiki_presentation_ts",
       "target": "lib_wiki_wikicategory"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/wiki-presentation.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "lib_wiki_presentation_ts",
+      "target": "lib_wiki_presentation_initial_ksef_registration_slugs",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -22304,6 +23944,37 @@
       "confidence_score": 1.0,
       "source": "lib_wiki_presentation_ts",
       "target": "lib_wiki_presentation_getquicktopics"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/wiki-presentation.ts",
+      "source_location": "L212",
+      "weight": 1.0,
+      "source": "lib_wiki_presentation_ts",
+      "target": "lib_wiki_presentation_isinitialksefregistrationarticle",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/wiki-presentation.ts",
+      "source_location": "L216",
+      "weight": 1.0,
+      "source": "lib_wiki_presentation_ts",
+      "target": "lib_wiki_presentation_splitksefarticlesbystage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "lib/wiki-presentation.ts",
+      "source_location": "L224",
+      "weight": 1.0,
+      "source": "lib_wiki_presentation_splitksefarticlesbystage",
+      "target": "lib_wiki_presentation_isinitialksefregistrationarticle",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -31376,6 +33047,196 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "docs_graph_map_md",
+      "target": "docs_graph_map_ksiegai_next_graph_map",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "docs_graph_map_ksiegai_next_graph_map",
+      "target": "docs_graph_map_1_app_shell_graph",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L33",
+      "weight": 1.0,
+      "source": "docs_graph_map_ksiegai_next_graph_map",
+      "target": "docs_graph_map_2_public_route_surface",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L79",
+      "weight": 1.0,
+      "source": "docs_graph_map_ksiegai_next_graph_map",
+      "target": "docs_graph_map_3_auth_handoff_graph",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L102",
+      "weight": 1.0,
+      "source": "docs_graph_map_ksiegai_next_graph_map",
+      "target": "docs_graph_map_4_poradnik_wiki_graph",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L133",
+      "weight": 1.0,
+      "source": "docs_graph_map_ksiegai_next_graph_map",
+      "target": "docs_graph_map_5_ab_testing_graph",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L155",
+      "weight": 1.0,
+      "source": "docs_graph_map_ksiegai_next_graph_map",
+      "target": "docs_graph_map_6_marketing_composition_graph",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L195",
+      "weight": 1.0,
+      "source": "docs_graph_map_ksiegai_next_graph_map",
+      "target": "docs_graph_map_7_static_export_constraint_graph",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L210",
+      "weight": 1.0,
+      "source": "docs_graph_map_ksiegai_next_graph_map",
+      "target": "docs_graph_map_8_cross_repo_relationship",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L225",
+      "weight": 1.0,
+      "source": "docs_graph_map_ksiegai_next_graph_map",
+      "target": "docs_graph_map_9_start_here_paths_for_agents",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L253",
+      "weight": 1.0,
+      "source": "docs_graph_map_ksiegai_next_graph_map",
+      "target": "docs_graph_map_10_refresh_triggers",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "docs_graph_map_1_app_shell_graph",
+      "target": "docs_graph_map_codeblock_1",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L35",
+      "weight": 1.0,
+      "source": "docs_graph_map_2_public_route_surface",
+      "target": "docs_graph_map_codeblock_2",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L81",
+      "weight": 1.0,
+      "source": "docs_graph_map_3_auth_handoff_graph",
+      "target": "docs_graph_map_codeblock_3",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L104",
+      "weight": 1.0,
+      "source": "docs_graph_map_4_poradnik_wiki_graph",
+      "target": "docs_graph_map_codeblock_4",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L135",
+      "weight": 1.0,
+      "source": "docs_graph_map_5_ab_testing_graph",
+      "target": "docs_graph_map_codeblock_5",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L157",
+      "weight": 1.0,
+      "source": "docs_graph_map_6_marketing_composition_graph",
+      "target": "docs_graph_map_codeblock_6",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L197",
+      "weight": 1.0,
+      "source": "docs_graph_map_7_static_export_constraint_graph",
+      "target": "docs_graph_map_codeblock_7",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/GRAPH_MAP.md",
+      "source_location": "L212",
+      "weight": 1.0,
+      "source": "docs_graph_map_8_cross_repo_relationship",
+      "target": "docs_graph_map_codeblock_8",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "docs/AB_TESTING_SSG.md",
       "source_location": "L1",
       "weight": 1.0,
@@ -37772,8 +39633,19 @@
       "confidence_score": 1.0,
       "source": "supabase_migrations_readme_md",
       "target": "migrations_readme_ksiegai_next_supabase_migrations"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/rejestracja/page.tsx",
+      "source_location": "L442",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "rejestracja_page_register",
+      "target": "rejestracja_page_getinboxprovider"
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "827daaa1c83fcb54b800efd0235de354b20c6efa"
+  "built_at_commit": "5071aa63908f95ef08f9d3a4ef385fdfd0e7c019"
 }

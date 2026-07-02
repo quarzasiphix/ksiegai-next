@@ -14,11 +14,11 @@ export const metadata: Metadata = {
   title: 'Poradnik dla przedsiębiorców | KsięgaI',
   description: 'Praktyczne przewodniki, checklisy i instrukcje dla polskich przedsiębiorców. KSeF, rejestracja spółki, CRBR, e-Doręczenia, podatki – krok po kroku.',
   keywords: 'poradnik przedsiębiorcy, KSeF jak zacząć, rejestracja spółki krok po kroku, CRBR zgłoszenie, e-doręczenia firma, checklist przedsiębiorca',
-  alternates: { canonical: 'https://ksiegai.pl/poradnik' },
+  alternates: { canonical: 'https://www.ksiegai.pl/poradnik/' },
   openGraph: {
     title: 'Poradnik dla przedsiębiorców | KsięgaI',
     description: 'Praktyczne przewodniki i checklisy dla polskich przedsiębiorców.',
-    url: 'https://ksiegai.pl/poradnik',
+    url: 'https://www.ksiegai.pl/poradnik',
     type: 'website',
   },
 };
@@ -43,11 +43,11 @@ export default async function PoradnikPage() {
     '@type': 'CollectionPage',
     name: 'Poradnik dla przedsiębiorców – KsięgaI',
     description: 'Praktyczne przewodniki i checklisy dla polskich przedsiębiorców.',
-    url: 'https://ksiegai.pl/poradnik',
+    url: 'https://www.ksiegai.pl/poradnik',
     publisher: {
       '@type': 'Organization',
       name: 'Tovernet Sp. z o.o.',
-      url: 'https://ksiegai.pl',
+      url: 'https://www.ksiegai.pl',
     },
     numberOfItems: totalArticles,
   };

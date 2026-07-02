@@ -2,10 +2,17 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { supabase } from "../lib/supabase";
-import { getAuthToken, redirectToApp, clearAuthToken, storeAuthToken, storeAndRedirect, checkAndRedirectToLocalhost, restoreSessionFromAuthToken } from "../lib/auth/crossDomainAuth";
-import { saveRememberedProfile, saveRememberedProfileAuthToken } from "../lib/auth/loginProfiles";
-import { User, Crown, LogOut, Sun, Moon, ReceiptText, Building2, ArrowRight } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import {
+  clearAuthToken,
+  getAuthToken,
+  redirectToApp,
+  restoreSessionFromAuthToken,
+  storeAndRedirect,
+  storeAuthToken,
+} from "@/lib/auth/crossDomainAuth";
+import { saveRememberedProfile, saveRememberedProfileAuthToken } from "@/lib/auth/loginProfiles";
+import { ArrowRight, LogOut, ReceiptText, User } from "lucide-react";
 import posthog from "posthog-js";
 
 async function sha256hex(text: string): Promise<string> {
@@ -15,7 +22,6 @@ async function sha256hex(text: string): Promise<string> {
 
 export default function Header() {
   const [user, setUser] = useState<any>(null);
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [inviteToken, setInviteToken] = useState<string | null>(null);
   const [inviteCompany, setInviteCompany] = useState<string | null>(null);
   const [inviteHasAccount, setInviteHasAccount] = useState(false);
@@ -24,30 +30,30 @@ export default function Header() {
     // Check for logout flag from app domain
     const logoutParams = new URLSearchParams(window.location.search);
     const logoutFlag = logoutParams.get('logout');
-    
+
     if (logoutFlag === 'true') {
       console.log("[Header] Logout flag detected from app, clearing session");
       clearAuthToken();
       supabase.auth.signOut({ scope: 'local' });
       setUser(null);
-      
+
       // Clean URL without reload
       window.history.replaceState({}, '', window.location.pathname);
       return;
     }
-    
+
     // Check if this is an OAuth callback with tokens in URL hash
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     const accessToken = hashParams.get('access_token');
     const refreshToken = hashParams.get('refresh_token');
     const expiresIn = hashParams.get('expires_in');
-    
+
     if (accessToken && refreshToken) {
       console.log("[Header] Detected OAuth callback in URL hash, processing...");
-      
+
       // Create session from the tokens
       const expiresAt = expiresIn ? Math.floor(Date.now() / 1000) + parseInt(expiresIn) : undefined;
-      
+
       supabase.auth.setSession({
         access_token: accessToken,
         refresh_token: refreshToken,
@@ -57,7 +63,7 @@ export default function Header() {
           window.location.href = '/logowanie?error=oauth_failed';
           return;
         }
-        
+
         if (data.session) {
           console.log("[Header] OAuth session created successfully:", data.session.user.id);
           saveRememberedProfile(data.session.user, "google");
@@ -67,7 +73,7 @@ export default function Header() {
             expires_at: data.session.expires_at || 0,
             user_id: data.session.user.id,
           });
-          
+
           // Store token for cross-domain access
           storeAuthToken({
             access_token: data.session.access_token,
@@ -75,7 +81,7 @@ export default function Header() {
             expires_at: data.session.expires_at || 0,
             user_id: data.session.user.id,
           });
-          
+
           // Check if we need to redirect back to localhost
           const localhostRedirect = sessionStorage.getItem('localhost_redirect');
           if (localhostRedirect) {
@@ -85,24 +91,24 @@ export default function Header() {
             window.location.href = `http://localhost:${port}/dashboard`;
             return;
           }
-          
+
           // Check URL parameters for localhost redirect
           const urlParams = new URLSearchParams(window.location.search);
           const redirectFrom = urlParams.get('from');
           const localhostPort = urlParams.get('port');
-          
+
           if (redirectFrom === 'localhost' && localhostPort) {
             console.log("[Header] OAuth complete, redirecting back to localhost from URL params:", localhostPort);
             window.location.href = `http://localhost:${localhostPort}/dashboard`;
             return;
           }
-          
+
           // Default: redirect to app dashboard
           console.log("[Header] OAuth complete, redirecting to app dashboard");
           redirectToApp('/');
         }
       });
-      
+
       return; // Don't continue with normal auth flow
     }
 
@@ -124,7 +130,7 @@ export default function Header() {
     const redirectFrom = urlParams.get('from');
     const localhostPort = urlParams.get('port');
     const action = urlParams.get('action');
-    
+
     // Handle Google login action for localhost
     if (action === 'google_login' && redirectFrom === 'localhost' && localhostPort) {
       console.log("[Header] Initiating Google login for localhost:", localhostPort);
@@ -133,7 +139,7 @@ export default function Header() {
         from: 'localhost',
         port: localhostPort
       }));
-      
+
       // Initiate Google OAuth flow
       supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -143,7 +149,7 @@ export default function Header() {
       });
       return;
     }
-    
+
     // Check if we need to redirect back to localhost after login
     if (redirectFrom === 'localhost' && localhostPort && !token) {
       console.log("[Header] Waiting for login to redirect back to localhost:", localhostPort);
@@ -158,7 +164,7 @@ export default function Header() {
     // Listen for auth changes
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       console.log("[Header] Auth state changed:", event, session?.user?.id);
-      
+
       if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session) {
         saveRememberedProfile(session.user, null);
         saveRememberedProfileAuthToken(session.user, {
@@ -174,7 +180,7 @@ export default function Header() {
           expires_at: session.expires_at || 0,
           user_id: session.user.id,
         });
-        
+
         // Check if we need to redirect back to localhost after login
         const localhostRedirect = sessionStorage.getItem('localhost_redirect');
         if (localhostRedirect) {
@@ -185,12 +191,12 @@ export default function Header() {
           window.location.href = localUrl;
           return;
         }
-        
+
         // Check URL parameters for localhost redirect
         const urlParams = new URLSearchParams(window.location.search);
         const redirectFrom = urlParams.get('from');
         const localhostPort = urlParams.get('port');
-        
+
         if (redirectFrom === 'localhost' && localhostPort) {
           console.log("[Header] Login complete, redirecting back to localhost:", localhostPort);
           const localUrl = `http://localhost:${localhostPort}/dashboard`;
@@ -201,7 +207,7 @@ export default function Header() {
         // Clear token on sign out
         clearAuthToken();
       }
-      
+
       setUser(session?.user || null);
     });
 
@@ -303,12 +309,6 @@ export default function Header() {
     redirectToApp('/dashboard');
   };
 
-  const toggleTheme = () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(newTheme);
-    document.documentElement.classList.toggle('dark');
-  };
-
   return (
     <header className="sticky top-0 z-50 border-b border-gray-800 bg-gray-900/80 backdrop-blur-lg">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -336,19 +336,6 @@ export default function Header() {
 
           {/* Right Section */}
           <div className="ml-auto flex min-w-0 items-center gap-2 sm:gap-3 md:gap-4 flex-nowrap justify-end w-auto">
-            {/* Theme Toggle */}
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-full hover:bg-gray-800 transition-colors"
-              aria-label="Toggle theme"
-            >
-              {theme === 'dark' ? (
-                <Sun className="h-5 w-5 text-yellow-400" />
-              ) : (
-                <Moon className="h-5 w-5 text-blue-500" />
-              )}
-            </button>
-
             {/* Auth Section */}
             {user ? (
               <div className="flex items-center gap-2 sm:gap-3 md:gap-4 flex-nowrap justify-end">

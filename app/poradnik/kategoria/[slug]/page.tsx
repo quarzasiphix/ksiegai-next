@@ -35,12 +35,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: `${category.name} | Poradnik KsięgaI`,
     description: category.description || `Poradniki i checklisty KsięgaI dla kategorii ${category.name}.`,
     alternates: {
-      canonical: `https://ksiegai.pl/poradnik/kategoria/${category.slug}`,
+      canonical: `https://www.ksiegai.pl/poradnik/kategoria/${category.slug}/`,
     },
     openGraph: {
       title: `${category.name} | Poradnik KsięgaI`,
       description: category.description || `Poradniki i checklisty KsięgaI dla kategorii ${category.name}.`,
-      url: `https://ksiegai.pl/poradnik/kategoria/${category.slug}`,
+      url: `https://www.ksiegai.pl/poradnik/kategoria/${category.slug}`,
       type: 'website',
       locale: 'pl_PL',
     },
@@ -79,13 +79,13 @@ export default async function WikiCategoryPage({ params }: PageProps) {
         '@type': 'ListItem',
         position: 1,
         name: 'Poradnik',
-        item: 'https://ksiegai.pl/poradnik',
+        item: 'https://www.ksiegai.pl/poradnik',
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: category.name,
-        item: `https://ksiegai.pl/poradnik/kategoria/${category.slug}`,
+        item: `https://www.ksiegai.pl/poradnik/kategoria/${category.slug}`,
       },
     ],
   };

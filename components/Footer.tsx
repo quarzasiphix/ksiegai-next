@@ -104,6 +104,11 @@ export default function Footer() {
                   RODO
                 </Link>
               </li>
+              <li>
+                <Link href="/policies/account-deletion" className="text-gray-400 hover:text-white transition-colors text-sm">
+                  Usuń swoje dane
+                </Link>
+              </li>
             </ul>
           </div>
         </div>
@@ -127,6 +132,9 @@ export default function Footer() {
               </Link>
               <Link href="/regulamin" className="text-gray-400 hover:text-white transition-colors text-sm">
                 Regulamin
+              </Link>
+              <Link href="/policies/account-deletion" className="text-gray-400 hover:text-white transition-colors text-sm">
+                Usuń dane
               </Link>
             </div>
           </div>

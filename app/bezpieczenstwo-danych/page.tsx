@@ -10,12 +10,12 @@ export const metadata: Metadata = {
     "Jak KsięgaI chroni Twoje dane: przenośność, eksport w każdej chwili, szyfrowanie, role dostępu i polityka braku lock-in. Supabase, szyfrowanie TLS, RLS.",
   keywords:
     "bezpieczeństwo danych księgowość, przenośność danych, eksport danych, RODO ksiegowość, szyfrowanie danych firma",
-  alternates: { canonical: "https://ksiegai.pl/bezpieczenstwo-danych" },
+  alternates: { canonical: "https://www.ksiegai.pl/bezpieczenstwo-danych/" },
   openGraph: {
     title: "Bezpieczeństwo danych | KsięgaI",
     description:
       "Przenośność, eksport w każdej chwili, szyfrowanie end-to-end, role dostępu i brak lock-in. Dane Twojej firmy są Twoje.",
-    url: "https://ksiegai.pl/bezpieczenstwo-danych",
+    url: "https://www.ksiegai.pl/bezpieczenstwo-danych",
     type: "website",
     locale: "pl_PL",
   },

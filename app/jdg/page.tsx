@@ -18,12 +18,12 @@ export const metadata: Metadata = {
     "KsięgaI dla jednoosobowej działalności gospodarczej: fakturowanie, płatności Stripe, obsługa KSeF, ewidencja i eksport. Zacznij w 5 minut.",
   keywords:
     "JDG faktury, KSeF JDG, jednoosobowa działalność gospodarcza faktury, program do fakturowania JDG, płatności online JDG",
-  alternates: { canonical: "https://ksiegai.pl/jdg" },
+  alternates: { canonical: "https://www.ksiegai.pl/jdg/" },
   openGraph: {
     title: "KsięgaI dla JDG – faktury, KSeF i płatności",
     description:
       "System fakturowania i obiegu dokumentów dla jednoosobowej działalności. KSeF-ready, płatności Stripe, ewidencja przychodów.",
-    url: "https://ksiegai.pl/jdg",
+    url: "https://www.ksiegai.pl/jdg",
     type: "website",
     locale: "pl_PL",
   },
