@@ -9,10 +9,13 @@ import {
   CheckCircle2,
   ExternalLink,
   Lock,
+  LogOut,
   Mail,
   ShieldCheck,
 } from "lucide-react";
 import posthog from "posthog-js";
+import { storeAuthToken, redirectToApp } from "../../lib/auth/crossDomainAuth";
+import { getInviteOnboardingPath } from "../../lib/auth/inviteOnboarding";
 
 const COMPANY_TYPE_LABELS: Record<string, string> = {
   sp_zoo: "Spółka z o.o.",
@@ -137,6 +140,68 @@ function CompanyInfoCard({ invite }: { invite: InviteData }) {
   );
 }
 
+// ─── Welcome back (already registered + already logged in with matching email) ──
+function WelcomeBackCard({
+  invite,
+  email,
+  claiming,
+  claimError,
+  onContinue,
+  onSignOut,
+}: {
+  invite: InviteData;
+  email: string;
+  claiming: boolean;
+  claimError: string | null;
+  onContinue: () => void;
+  onSignOut: () => void;
+}) {
+  return (
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <div className="rounded-2xl bg-slate-900 border border-slate-800 p-8 text-center shadow-2xl">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-emerald-500/10 mb-5">
+            <CheckCircle2 className="h-7 w-7 text-emerald-400" />
+          </div>
+          <h1 className="text-xl font-semibold text-white mb-2">Witaj ponownie</h1>
+          <p className="text-sm text-slate-400 mb-1">Jesteś zalogowany(-a) jako:</p>
+          <p className="text-sm font-semibold text-white mb-4">{email}</p>
+          <p className="text-sm text-slate-400 mb-6">
+            Dokończ dołączanie do <span className="text-white font-medium">{invite.company_name}</span> — konto już masz, wystarczy potwierdzić dostęp.
+          </p>
+
+          {claimError && (
+            <div className="flex items-start gap-2.5 p-3 mb-4 rounded-xl bg-red-900/20 border border-red-800 text-left">
+              <AlertTriangle className="h-4 w-4 text-red-400 shrink-0 mt-0.5" />
+              <p className="text-sm text-red-400">{claimError}</p>
+            </div>
+          )}
+
+          <button
+            type="button"
+            onClick={onContinue}
+            disabled={claiming}
+            className="inline-flex items-center gap-2 w-full justify-center px-4 py-3.5 rounded-xl bg-blue-600 text-sm font-semibold text-white hover:bg-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mb-3"
+          >
+            {claiming ? "Łączenie z firmą…" : "Przejdź do panelu firmy"}
+            {!claiming && <ArrowRight className="h-4 w-4" />}
+          </button>
+
+          <button
+            type="button"
+            onClick={onSignOut}
+            disabled={claiming}
+            className="inline-flex items-center gap-2 w-full justify-center px-4 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:text-slate-200 transition-colors disabled:opacity-50"
+          >
+            <LogOut className="h-3.5 w-3.5" />
+            To nie ja — wyloguj się
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Mobile bottom sheet overlay ─────────────────────────────────────────────
 function MobileCompanySheet({
   invite,
@@ -206,6 +271,10 @@ export default function InviteRegistrationPage({ token }: InviteRegistrationPage
   const [formError, setFormError] = useState<string | null>(null);
   const [emailSent, setEmailSent] = useState(false);
 
+  const [welcomeBackEmail, setWelcomeBackEmail] = useState<string | null>(null);
+  const [claiming, setClaiming] = useState(false);
+  const [claimError, setClaimError] = useState<string | null>(null);
+
   useEffect(() => {
     if (!token) {
       setLoadError("Brakuje tokenu zaproszenia.");
@@ -245,11 +314,28 @@ export default function InviteRegistrationPage({ token }: InviteRegistrationPage
         }
 
         setInvite(inv);
-        setShowMobileSheet(true);
         posthog.capture("invite_page_opened", {
           invite_id: inv.id,
           company_type: inv.company_type,
         });
+
+        // If the invited email is already registered and there's a live session for
+        // that same email (common when users click the invite link straight from
+        // their inbox on a device where they're still logged in), skip the signup
+        // form entirely and offer a one-click "welcome back" continuation instead.
+        const { data: sessionData } = await supabase.auth.getSession();
+        const sessionEmail = sessionData?.session?.user?.email ?? null;
+        if (cancelled) return;
+
+        if (sessionEmail && sessionEmail.toLowerCase() === inv.recipient_email.toLowerCase()) {
+          setWelcomeBackEmail(sessionEmail);
+          posthog.capture("invite_welcome_back_shown", {
+            invite_id: inv.id,
+            company_type: inv.company_type,
+          });
+        } else {
+          setShowMobileSheet(true);
+        }
       } catch {
         if (!cancelled) {
           setLoadError("Nie udało się załadować zaproszenia. Spróbuj ponownie.");
@@ -327,6 +413,65 @@ export default function InviteRegistrationPage({ token }: InviteRegistrationPage
     }
   };
 
+  const handleWelcomeBackContinue = async () => {
+    if (!invite) return;
+    setClaimError(null);
+    setClaiming(true);
+
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const session = sessionData?.session;
+      if (!session) {
+        setClaimError("Sesja wygasła. Zaloguj się ponownie.");
+        return;
+      }
+
+      const { data: claimData, error: claimErr } = await (supabase.rpc as any)("claim_admin_invite", {
+        p_token_hash: tokenHashRef.current,
+      });
+
+      if (claimErr) {
+        setClaimError(claimErr.message || "Nie udało się dołączyć do firmy. Spróbuj ponownie.");
+        return;
+      }
+
+      const { business_profile_id, company_name } = claimData as {
+        business_profile_id: string;
+        company_name: string;
+      };
+
+      posthog.capture("invite_claimed", {
+        business_profile_id,
+        company_name,
+        invite_id: invite.id,
+        via: "welcome_back",
+      });
+
+      storeAuthToken({
+        access_token: session.access_token,
+        refresh_token: session.refresh_token,
+        expires_at: session.expires_at || 0,
+        user_id: session.user.id,
+      });
+
+      redirectToApp(getInviteOnboardingPath(invite.company_type), {
+        invite: "1",
+        bp: business_profile_id,
+        cn: company_name,
+      });
+    } catch {
+      setClaimError("Wystąpił błąd. Spróbuj ponownie.");
+    } finally {
+      setClaiming(false);
+    }
+  };
+
+  const handleWelcomeBackSignOut = async () => {
+    await supabase.auth.signOut();
+    setWelcomeBackEmail(null);
+    setShowMobileSheet(true);
+  };
+
   // ─── Loading skeleton ────────────────────────────────────────────────────────
   if (loading) {
     return (
@@ -371,6 +516,20 @@ export default function InviteRegistrationPage({ token }: InviteRegistrationPage
           </a>
         </div>
       </div>
+    );
+  }
+
+  // ─── Welcome back (already registered + already logged in, matching email) ──
+  if (welcomeBackEmail) {
+    return (
+      <WelcomeBackCard
+        invite={invite}
+        email={welcomeBackEmail}
+        claiming={claiming}
+        claimError={claimError}
+        onContinue={handleWelcomeBackContinue}
+        onSignOut={handleWelcomeBackSignOut}
+      />
     );
   }
 
