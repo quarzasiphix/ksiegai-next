@@ -12,11 +12,20 @@ const COMPANY_TYPE_LABELS: Record<string, string> = {
   dzialalnosc: "Działalność gospodarcza",
 };
 
-const STATUS_ROWS = [
+const JDG_TYPES = new Set(["jdg", "dzialalnosc"]);
+
+const STATUS_ROWS_SPOLKA = [
   "Dane firmy przygotowane",
   "Checklista po KRS dostępna",
   "Konfiguracja KSeF do aktywacji",
   "Fakturowanie do uruchomienia",
+];
+
+const STATUS_ROWS_JDG = [
+  "Dane działalności przygotowane",
+  "Konfiguracja KSeF do aktywacji",
+  "Fakturowanie do uruchomienia",
+  "Ewidencja przychodów gotowa do startu",
 ];
 
 interface PersonEntry {
@@ -48,6 +57,7 @@ interface Props {
 }
 
 export function InviteCompanyCard({ invite, hideIllustration = false }: Props) {
+  const isJdg = invite.company_type ? JDG_TYPES.has(invite.company_type) : false;
   const companyTypeLabel = invite.company_type
     ? (COMPANY_TYPE_LABELS[invite.company_type] ?? invite.company_type)
     : null;
@@ -75,13 +85,15 @@ export function InviteCompanyCard({ invite, hideIllustration = false }: Props) {
       <div className="px-6 pt-6 pb-5 border-b border-slate-800">
         <span className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-800/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
           <Building2 className="h-3 w-3" />
-          Profil spółki przygotowany
+          {isJdg ? "Profil działalności przygotowany" : "Profil spółki przygotowany"}
         </span>
         <h2 className="mt-4 text-xl font-bold text-white leading-snug">
           Profil <span className="text-blue-400">{invite.company_name}</span> jest przygotowany.
         </h2>
         <p className="mt-2 text-sm text-slate-400 leading-6">
-          Odblokuj dostęp do konfiguracji KSeF, danych spółki, checklisty po KRS i obsługi faktur.
+          {isJdg
+            ? "Odblokuj dostęp do konfiguracji KSeF, danych działalności i obsługi faktur."
+            : "Odblokuj dostęp do konfiguracji KSeF, danych spółki, checklisty po KRS i obsługi faktur."}
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           {companyTypeLabel && (
@@ -110,7 +122,7 @@ export function InviteCompanyCard({ invite, hideIllustration = false }: Props) {
       {/* Checklist rows + optional illustration */}
       <div className="px-6 py-2 border-b border-slate-800 flex items-center gap-4">
         <div className="flex-1 space-y-2.5 py-2">
-          {STATUS_ROWS.map((row) => (
+          {(isJdg ? STATUS_ROWS_JDG : STATUS_ROWS_SPOLKA).map((row) => (
             <div key={row} className="flex items-center gap-3">
               <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
               <span className="text-sm text-slate-300">{row}</span>
