@@ -22,6 +22,7 @@ const staticRoutes: Array<{
   { path: '/spolka-z-oo', changeFrequency: 'weekly', priority: 0.75 },
   { path: '/faktury', changeFrequency: 'weekly', priority: 0.75 },
   { path: '/platnosci-online', changeFrequency: 'weekly', priority: 0.7 },
+  { path: '/stripe-dla-saas', changeFrequency: 'weekly', priority: 0.7 },
   { path: '/bezpieczenstwo-danych', changeFrequency: 'monthly', priority: 0.65 },
   { path: '/poradnik', changeFrequency: 'weekly', priority: 0.7 },
   { path: '/infrastructure', changeFrequency: 'monthly', priority: 0.6 },
