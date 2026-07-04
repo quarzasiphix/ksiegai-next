@@ -85,8 +85,20 @@ function FallbackContent() {
                 <td className="border border-gray-300 dark:border-gray-700 p-3">Art. 6 ust. 1 lit. c (obowiązek prawny)</td>
               </tr>
               <tr>
+                <td className="border border-gray-300 dark:border-gray-700 p-3">Komunikacja e-mail serwisowa (potwierdzenia, alerty, faktury za subskrypcję)</td>
+                <td className="border border-gray-300 dark:border-gray-700 p-3">Art. 6 ust. 1 lit. b (wykonanie umowy)</td>
+              </tr>
+              <tr>
+                <td className="border border-gray-300 dark:border-gray-700 p-3">Komunikacja o planie Premium (odnowienia, zmiany, wygaśnięcie trialu)</td>
+                <td className="border border-gray-300 dark:border-gray-700 p-3">Art. 6 ust. 1 lit. b (wykonanie umowy)</td>
+              </tr>
+              <tr>
+                <td className="border border-gray-300 dark:border-gray-700 p-3">Aktualizacje produktu i powiadomienia o nowych funkcjach</td>
+                <td className="border border-gray-300 dark:border-gray-700 p-3">Art. 6 ust. 1 lit. f (prawnie uzasadniony interes) — można zrezygnować</td>
+              </tr>
+              <tr>
                 <td className="border border-gray-300 dark:border-gray-700 p-3">Marketing i newsletter</td>
-                <td className="border border-gray-300 dark:border-gray-700 p-3">Art. 6 ust. 1 lit. a (zgoda)</td>
+                <td className="border border-gray-300 dark:border-gray-700 p-3">Art. 6 ust. 1 lit. a (zgoda) — można zrezygnować</td>
               </tr>
               <tr>
                 <td className="border border-gray-300 dark:border-gray-700 p-3">Analityka i ulepszanie usług</td>
@@ -102,25 +114,76 @@ function FallbackContent() {
       </section>
 
       <section className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">4. Komu udostępniamy dane</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">4. Komunikacja e-mail i marketing</h2>
+        <div className="space-y-4 text-gray-700 dark:text-gray-300">
+          <p>Używamy Twojego adresu e-mail do następujących celów:</p>
+          <table className="w-full border-collapse border border-gray-300 dark:border-gray-700">
+            <thead>
+              <tr className="bg-gray-100 dark:bg-gray-800">
+                <th className="border border-gray-300 dark:border-gray-700 p-3 text-left">Rodzaj wiadomości</th>
+                <th className="border border-gray-300 dark:border-gray-700 p-3 text-left">Przykłady</th>
+                <th className="border border-gray-300 dark:border-gray-700 p-3 text-left">Podstawa prawna</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="border border-gray-300 dark:border-gray-700 p-3"><strong>Wiadomości serwisowe</strong></td>
+                <td className="border border-gray-300 dark:border-gray-700 p-3">Potwierdzenie rejestracji, reset hasła, potwierdzenie płatności, faktury za subskrypcję, alerty bezpieczeństwa</td>
+                <td className="border border-gray-300 dark:border-gray-700 p-3">Art. 6 ust. 1 lit. b RODO (wykonanie umowy) — nie możesz zrezygnować z tych wiadomości podczas posiadania aktywnego konta</td>
+              </tr>
+              <tr>
+                <td className="border border-gray-300 dark:border-gray-700 p-3"><strong>Komunikacja o planie Premium</strong></td>
+                <td className="border border-gray-300 dark:border-gray-700 p-3">Informacje o subskrypcji, odnowienia, zmiany planu, wygaśnięcie trialu, przypomnienia o płatności</td>
+                <td className="border border-gray-300 dark:border-gray-700 p-3">Art. 6 ust. 1 lit. b RODO (wykonanie umowy)</td>
+              </tr>
+              <tr>
+                <td className="border border-gray-300 dark:border-gray-700 p-3"><strong>Aktualizacje produktu</strong></td>
+                <td className="border border-gray-300 dark:border-gray-700 p-3">Nowe funkcje, zmiany w aplikacji, ważne informacje o KSeF i przepisach podatkowych</td>
+                <td className="border border-gray-300 dark:border-gray-700 p-3">Art. 6 ust. 1 lit. f RODO (prawnie uzasadniony interes) — możesz zrezygnować w dowolnym momencie</td>
+              </tr>
+              <tr>
+                <td className="border border-gray-300 dark:border-gray-700 p-3"><strong>Newsletter i marketing</strong></td>
+                <td className="border border-gray-300 dark:border-gray-700 p-3">Porady księgowe, artykuły, oferty specjalne, informacje o nowych planach</td>
+                <td className="border border-gray-300 dark:border-gray-700 p-3">Art. 6 ust. 1 lit. a RODO (zgoda) — możesz zrezygnować w dowolnym momencie</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-6 mb-3">4.1. Jak zrezygnować z komunikacji marketingowej</h3>
+          <ul className="list-disc pl-6 space-y-2">
+            <li>Kliknij link <strong>„Zrezygnuj z subskrypcji"</strong> (unsubscribe) na dole każdej wiadomości marketingowej lub newslettera</li>
+            <li>Wyślij e-mail na <a href="mailto:kontakt@ksiegai.pl?subject=Rezygnacja%20z%20komunikacji%20marketingowej" className="text-blue-600 hover:underline">kontakt@ksiegai.pl</a> z tytułem: <em>„Rezygnacja z komunikacji marketingowej"</em></li>
+            <li>Zaktualizuj preferencje powiadomień w ustawieniach konta</li>
+          </ul>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Rezygnacja dotyczy wyłącznie komunikacji marketingowej. Wiadomości serwisowe i transakcyjne
+            (np. faktury, alerty bezpieczeństwa, potwierdzenia płatności) będą nadal wysyłane, ponieważ
+            są niezbędne do świadczenia usługi.
+          </p>
+        </div>
+      </section>
+
+      <section className="mb-8">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">5. Komu udostępniamy dane</h2>
         <div className="space-y-4 text-gray-700 dark:text-gray-300">
           <p>Twoje dane mogą być udostępniane następującym kategoriom odbiorców:</p>
 
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-6 mb-3">4.1. Dostawcy usług technicznych</h3>
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-6 mb-3">5.1. Dostawcy usług technicznych</h3>
           <ul className="list-disc pl-6 space-y-2">
-            <li><strong>Supabase, Inc.</strong> (USA) - hosting bazy danych i uwierzytelnianie</li>
-            <li><strong>Vercel, Inc.</strong> (USA) - hosting aplikacji</li>
-            <li><strong>Stripe, Inc.</strong> (USA) - przetwarzanie płatności</li>
-            <li><strong>PostHog, Inc.</strong> (UE/USA) - analityka produktu i strony, statystyki użycia, pomiar działań w aplikacji i serwisie marketingowym</li>
+            <li><strong>Supabase, Inc.</strong> (USA) — hosting bazy danych i uwierzytelnianie</li>
+            <li><strong>Vercel, Inc.</strong> (USA) — hosting aplikacji webowej</li>
+            <li><strong>Stripe, Inc.</strong> (USA) — przetwarzanie płatności kartą i subskrypcji</li>
+            <li><strong>PostHog, Inc.</strong> (UE/USA) — analityka produktu i strony, statystyki użycia, pomiar działań w aplikacji i serwisie marketingowym</li>
+            <li><strong>Google LLC / Firebase</strong> (USA) — analityka aplikacji mobilnej (Firebase Analytics), raporty o awariach (Crashlytics), diagnostyka</li>
           </ul>
 
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-6 mb-3">4.2. Organy publiczne</h3>
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-6 mb-3">5.2. Organy publiczne</h3>
           <ul className="list-disc pl-6 space-y-2">
             <li>Urząd Skarbowy (w zakresie wymaganym przepisami prawa)</li>
             <li>Inne organy państwowe (na podstawie przepisów prawa)</li>
           </ul>
 
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-6 mb-3">4.3. Przekazywanie danych poza EOG</h3>
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-6 mb-3">5.3. Przekazywanie danych poza EOG</h3>
           <p>
             Twoje dane są przechowywane na serwerach w USA (Supabase, Stripe, Vercel).
             Przekazywanie danych odbywa się na podstawie:
@@ -134,7 +197,7 @@ function FallbackContent() {
       </section>
 
       <section className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">5. Jak długo przechowujemy dane</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">6. Jak długo przechowujemy dane</h2>
         <div className="space-y-4 text-gray-700 dark:text-gray-300">
           <ul className="list-disc pl-6 space-y-2">
             <li><strong>Dane konta:</strong> Do momentu usunięcia konta lub wycofania zgody</li>
@@ -147,32 +210,37 @@ function FallbackContent() {
       </section>
 
       <section className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">6. Twoje prawa</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">7. Twoje prawa</h2>
         <div className="space-y-4 text-gray-700 dark:text-gray-300">
           <p>Zgodnie z RODO, przysługują Ci następujące prawa:</p>
 
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-6 mb-3">6.1. Prawo dostępu do danych</h3>
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-6 mb-3">7.1. Prawo dostępu do danych</h3>
           <p>Możesz uzyskać informację, jakie dane o Tobie przetwarzamy oraz kopię tych danych.</p>
 
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-6 mb-3">6.2. Prawo do sprostowania</h3>
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-6 mb-3">7.2. Prawo do sprostowania</h3>
           <p>Możesz poprawić swoje dane w ustawieniach konta lub kontaktując się z nami.</p>
 
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-6 mb-3">6.3. Prawo do usunięcia ("prawo do bycia zapomnianym")</h3>
-          <p>Możesz żądać usunięcia swoich danych, chyba że musimy je zachować z powodów prawnych (np. faktury).</p>
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-6 mb-3">7.3. Prawo do usunięcia ("prawo do bycia zapomnianym")</h3>
+          <p>
+            Możesz żądać usunięcia swoich danych, chyba że musimy je zachować z powodów prawnych (np. faktury).
+            Usunięcie konta możesz zainicjować samodzielnie w aplikacji (<em>Ustawienia → Profil → Strefa niebezpieczna</em>)
+            lub przez{" "}
+            <a href="/policies/account-deletion" className="text-blue-600 hover:underline">stronę usunięcia konta</a>.
+          </p>
 
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-6 mb-3">6.4. Prawo do ograniczenia przetwarzania</h3>
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-6 mb-3">7.4. Prawo do ograniczenia przetwarzania</h3>
           <p>Możesz żądać ograniczenia przetwarzania Twoich danych w określonych sytuacjach.</p>
 
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-6 mb-3">6.5. Prawo do przenoszenia danych</h3>
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-6 mb-3">7.5. Prawo do przenoszenia danych</h3>
           <p>Możesz otrzymać swoje dane w formacie CSV/JSON i przenieść je do innego dostawcy.</p>
 
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-6 mb-3">6.6. Prawo do sprzeciwu</h3>
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-6 mb-3">7.6. Prawo do sprzeciwu</h3>
           <p>Możesz sprzeciwić się przetwarzaniu danych w celach marketingowych lub na podstawie prawnie uzasadnionego interesu.</p>
 
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-6 mb-3">6.7. Prawo do wycofania zgody</h3>
-          <p>Jeśli przetwarzanie odbywa się na podstawie zgody, możesz ją wycofać w każdym momencie.</p>
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-6 mb-3">7.7. Prawo do wycofania zgody</h3>
+          <p>Jeśli przetwarzanie odbywa się na podstawie zgody, możesz ją wycofać w każdym momencie, w tym zrezygnować z newslettera lub komunikacji marketingowej.</p>
 
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-6 mb-3">6.8. Prawo do wniesienia skargi</h3>
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-6 mb-3">7.8. Prawo do wniesienia skargi</h3>
           <p>
             Masz prawo wnieść skargę do Prezesa Urzędu Ochrony Danych Osobowych (PUODO),
             jeśli uważasz, że przetwarzanie Twoich danych narusza RODO.
@@ -181,7 +249,7 @@ function FallbackContent() {
       </section>
 
       <section className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">7. Bezpieczeństwo danych</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">8. Bezpieczeństwo danych</h2>
         <div className="space-y-4 text-gray-700 dark:text-gray-300">
           <p>Stosujemy odpowiednie środki techniczne i organizacyjne w celu ochrony Twoich danych:</p>
           <ul className="list-disc pl-6 space-y-2">
@@ -196,18 +264,18 @@ function FallbackContent() {
       </section>
 
       <section className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">8. Pliki cookies</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">9. Pliki cookies</h2>
         <div className="space-y-4 text-gray-700 dark:text-gray-300">
           <p>Nasza platforma używa plików cookies w następujących celach:</p>
 
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-6 mb-3">8.1. Cookies niezbędne</h3>
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-6 mb-3">9.1. Cookies niezbędne</h3>
           <ul className="list-disc pl-6 space-y-2">
             <li>Sesja użytkownika (logowanie)</li>
             <li>Token uwierzytelniający</li>
             <li>Preferencje językowe</li>
           </ul>
 
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-6 mb-3">8.2. Cookies analityczne (opcjonalne)</h3>
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-6 mb-3">9.2. Cookies analityczne (opcjonalne)</h3>
           <ul className="list-disc pl-6 space-y-2">
             <li>Analiza ruchu na stronie i w aplikacji przez PostHog</li>
             <li>Statystyki korzystania z funkcji i kluczowych działań produktowych (np. utworzenie faktury, dodanie firmy, połączenie KSeF)</li>
@@ -222,7 +290,7 @@ function FallbackContent() {
       </section>
 
       <section className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">9. Zmiany w polityce prywatności</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">10. Zmiany w polityce prywatności</h2>
         <div className="space-y-4 text-gray-700 dark:text-gray-300">
           <p>
             Możemy okresowo aktualizować niniejszą Politykę prywatności. O istotnych zmianach poinformujemy
@@ -235,7 +303,7 @@ function FallbackContent() {
       </section>
 
       <section className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">10. Kontakt</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">11. Kontakt</h2>
         <div className="space-y-4 text-gray-700 dark:text-gray-300">
           <p>W sprawach dotyczących ochrony danych osobowych, skontaktuj się z nami:</p>
           <ul className="list-disc pl-6 space-y-2">
