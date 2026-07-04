@@ -46,10 +46,10 @@ export default function DlaKsiegowych() {
                 Dla księgowych i biur rachunkowych
               </div>
               <h1 className="mb-6 text-4xl font-semibold leading-tight tracking-tight md:text-5xl">
-                Obsługuj więcej firm bez zwiększania liczby godzin.
+                Każdy klient to osobny profil firmy. Jedno konto, jeden proces.
               </h1>
               <p className="mb-4 text-xl text-blue-100">
-                System wykonuje pracę operacyjną: wczytuje dokumenty, dekretuje standardy i pilnuje terminów.
+                System wykonuje pracę operacyjną: wczytuje dokumenty, dekretuje standardy i pilnuje terminów KSeF.
               </p>
               <p className="mb-4 text-lg text-blue-200">
                 Ty zatwierdzasz wyjątki — każda decyzja ma ślad audytu.
@@ -93,16 +93,16 @@ export default function DlaKsiegowych() {
           </div>
           <div className="grid gap-6 md:grid-cols-3 mb-12">
             <div className="text-center">
-              <div className="mb-2 text-lg font-bold text-blue-600">Większość dokumentów</div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">automatycznie po krótkim okresie uczenia</p>
+              <div className="mb-2 text-lg font-bold text-blue-600">Standardowe dokumenty</div>
+              <p className="text-sm text-gray-600 dark:text-gray-400">dekretowane automatycznie po krótkim okresie ustawienia reguł</p>
             </div>
             <div className="text-center">
-              <div className="mb-2 text-lg font-bold text-green-600">Szybkie wsparcie</div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">dedykowane dla biór rachunkowych</p>
+              <div className="mb-2 text-lg font-bold text-green-600">Kolejka wyjątków</div>
+              <p className="text-sm text-gray-600 dark:text-gray-400">niestandardowe przypadki trafiają do Ciebie, nie giną w mailach</p>
             </div>
             <div className="text-center">
-              <div className="mb-2 text-lg font-bold text-purple-600">Integracje</div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">bankowe i ERP gotowe od ręki</p>
+              <div className="mb-2 text-lg font-bold text-purple-600">KSeF wbudowany</div>
+              <p className="text-sm text-gray-600 dark:text-gray-400">walidacje, wysyłka i archiwum bez osobnego narzędzia</p>
             </div>
           </div>
           <div className="grid gap-6 md:grid-cols-3">
@@ -293,19 +293,19 @@ export default function DlaKsiegowych() {
           <div className="grid gap-8 md:grid-cols-2">
             <div className="rounded-2xl border border-gray-200 bg-white p-8 dark:border-gray-800 dark:bg-gray-900">
               <div className="mb-2 text-xs font-bold text-blue-600 uppercase tracking-wide">Największa wartość</div>
-              <h3 className="mb-4 text-2xl font-semibold text-gray-900 dark:text-white">Więcej firm w jednym uporządkowanym procesie</h3>
+              <h3 className="mb-4 text-2xl font-semibold text-gray-900 dark:text-white">Każdy klient jako osobny profil firmy, na jednym koncie</h3>
               <ul className="space-y-3 text-gray-600 dark:text-gray-400">
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-500" />
-                  <span>Jeden interfejs, wiele podmiotów — przełączasz się między klientami bez logowania na różne konta</span>
+                  <span>Zakładasz osobny profil firmy dla każdego klienta i przełączasz się między nimi z poziomu jednego konta</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-500" />
-                  <span>Każdy klient ma tę samą strukturę danych — nie uczysz się od nowa przy każdym zleceniu</span>
+                  <span>Każdy profil ma tę samą strukturę danych — nie uczysz się od nowa przy każdym zleceniu</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-500" />
-                  <span>Centralne archiwum dokumentów z pełnotekstowym wyszukiwaniem — znajdziesz fakturę w 3 sekundy, nie w 30 minut</span>
+                  <span>Centralne archiwum dokumentów z pełnotekstowym wyszukiwaniem — znajdziesz fakturę bez przeszukiwania folderów</span>
                 </li>
               </ul>
             </div>
@@ -362,7 +362,7 @@ export default function DlaKsiegowych() {
                 </li>
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-500" />
-                  <span>Role i uprawnienia — asystent wprowadza, księgowy zatwierdza, właściciel widzi raporty</span>
+                  <span>Role i uprawnienia w ramach konta — kto wprowadza, kto zatwierdza, kto widzi raporty</span>
                 </li>
               </ul>
             </div>
@@ -386,7 +386,7 @@ export default function DlaKsiegowych() {
                   <span className="text-lg font-bold text-blue-600 dark:text-blue-400">1</span>
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Podłącz 1 klienta (pilotaż)</h3>
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Załóż profil dla 1 klienta (pilotaż)</h3>
                   <p className="text-gray-600 dark:text-gray-400">Wybierz jednego klienta o standardowej strukturze. Importujesz dane i widzisz, jak system dekretuje.</p>
                 </div>
               </div>
@@ -395,8 +395,8 @@ export default function DlaKsiegowych() {
                   <span className="text-lg font-bold text-green-600 dark:text-green-400">2</span>
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Ustal standardy dekretacji + role (15 min)</h3>
-                  <p className="text-gray-600 dark:text-gray-400">Konfigurujesz, kto wprowadza, kto zatwierdza. System uczy się Twoich preferencji.</p>
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Ustal standardy dekretacji (15 min)</h3>
+                  <p className="text-gray-600 dark:text-gray-400">Konfigurujesz zasady kategoryzacji dokumentów. System uczy się Twoich preferencji dla tego klienta.</p>
                 </div>
               </div>
               <div className="flex items-start gap-4">
@@ -405,26 +405,29 @@ export default function DlaKsiegowych() {
                 </div>
                 <div>
                   <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">System prowadzi proces, Ty zatwierdzasz wyjątki</h3>
-                  <p className="text-gray-600 dark:text-gray-400">Większość operacji dzieje się automatycznie. Ty sprawdzasz kolejkę wyjątków i zatwierdzasz.</p>
+                  <p className="text-gray-600 dark:text-gray-400">Większość operacji dzieje się automatycznie. Ty sprawdzasz kolejkę wyjątków i zatwierdzasz. Kolejnego klienta dodajesz jako nowy profil, kiedy jesteś gotowy.</p>
                 </div>
               </div>
             </div>
             <div className="mt-8 p-6 bg-blue-50 dark:bg-blue-900/10 rounded-xl border border-blue-200 dark:border-blue-800/30">
-              <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Model pracy dla biur</h4>
+              <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Jak to wygląda dziś</h4>
               <div className="grid gap-3 md:grid-cols-3 text-sm text-gray-700 dark:text-gray-300">
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
-                  <span><strong>Asystent</strong> wprowadza dokumenty</span>
+                  <span>Każdy klient = osobny <strong>profil firmy</strong> na Twoim koncie</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
-                  <span><strong>Księgowy</strong> zatwierdza i dekretuje</span>
+                  <span><strong>Ty</strong> zatwierdzasz i dekretujesz w każdym profilu</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
                   <span><strong>Audit log:</strong> kto, co, kiedy, dlaczego</span>
                 </div>
               </div>
+              <p className="mt-4 text-xs text-gray-500 dark:text-gray-400">
+                Delegowany dostęp klienta do własnego profilu (np. właściciel firmy podglądający swoje raporty przez oddzielne konto) jest w przygotowaniu — zapytaj o status przy wdrożeniu Enterprise.
+              </p>
             </div>
           </div>
         </div>

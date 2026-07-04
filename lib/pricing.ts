@@ -6,8 +6,8 @@ export const PUBLIC_PRICING = {
   spolkaStandard: {
     name: "Spółka Standard",
     monthlyPricePln: 89,
-    annualPricePln: 999,
-    annualSavingsPln: 69,
+    annualPricePln: 890,
+    annualSavingsPln: 178,
   },
 } as const;
 

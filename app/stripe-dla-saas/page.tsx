@@ -10,6 +10,7 @@ import {
   Scale,
   AlertTriangle,
   Clock,
+  Sparkles,
 } from "lucide-react";
 import { TrackedLink } from "@/components/analytics/TrackedLink";
 import { PageAnalytics } from "@/components/analytics/PageAnalytics";
@@ -149,18 +150,27 @@ export default function StripeDlaSaasPage() {
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[
-                { icon: CreditCard, title: "Sprzedaż Stripe", desc: "Import sprzedaży i przypisanie jej do faktury, aplikacji lub sprzedaży online.", color: "text-violet-600 dark:text-violet-400", bg: "bg-violet-100 dark:bg-violet-900/30" },
-                { icon: Calculator, title: "Prowizje Stripe", desc: "Zbiorcze rozliczenie prowizji za okres zamiast ręcznego rozbijania każdej opłaty.", color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-100 dark:bg-blue-900/30" },
-                { icon: FileText, title: "VAT od importu usług", desc: "Wylicza VAT od prowizji Stripe i pokazuje obowiązek zależnie od statusu firmy — VAT-9M albo JPK_V7.", color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-100 dark:bg-amber-900/30" },
-                { icon: Landmark, title: "Wypłaty i bank", desc: "Dopasowanie wypłaty Stripe do transakcji bankowej i kontrola salda rozrachunkowego.", color: "text-green-600 dark:text-green-400", bg: "bg-green-100 dark:bg-green-900/30" },
-              ].map(({ icon: Icon, title, desc, color, bg }) => (
-                <div key={title} className="bg-white dark:bg-gray-950 rounded-2xl p-5 border border-gray-200 dark:border-gray-800">
+                { icon: CreditCard, title: "Sprzedaż Stripe", desc: "Import sprzedaży i przypisanie jej do faktury, aplikacji lub sprzedaży online.", color: "text-violet-600 dark:text-violet-400", bg: "bg-violet-100 dark:bg-violet-900/30", href: "/stripe-dla-saas/sprzedaz" },
+                { icon: Calculator, title: "Prowizje Stripe", desc: "Zbiorcze rozliczenie prowizji za okres zamiast ręcznego rozbijania każdej opłaty.", color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-100 dark:bg-blue-900/30", href: "/stripe-dla-saas/prowizje" },
+                { icon: FileText, title: "VAT od importu usług", desc: "Wylicza VAT od prowizji Stripe i pokazuje obowiązek zależnie od statusu firmy — VAT-9M albo JPK_V7.", color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-100 dark:bg-amber-900/30", href: "/stripe-dla-saas/vat" },
+                { icon: Landmark, title: "Wypłaty i bank", desc: "Dopasowanie wypłaty Stripe do transakcji bankowej i kontrola salda rozrachunkowego.", color: "text-green-600 dark:text-green-400", bg: "bg-green-100 dark:bg-green-900/30", href: "/stripe-dla-saas/wyplaty" },
+              ].map(({ icon: Icon, title, desc, color, bg, href }) => (
+                <TrackedLink
+                  key={title}
+                  href={href}
+                  event="cta_clicked"
+                  eventProps={{ page: "stripe-dla-saas", cta_id: "solution_card", text: title, destination: href }}
+                  className="group bg-white dark:bg-gray-950 rounded-2xl p-5 border border-gray-200 dark:border-gray-800 hover:border-violet-400 dark:hover:border-violet-600 hover:shadow-lg transition-all"
+                >
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${bg}`}>
                     <Icon className={`h-5 w-5 ${color}`} />
                   </div>
-                  <h3 className="text-base font-bold text-gray-900 dark:text-white mb-2">{title}</h3>
+                  <h3 className="text-base font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-1.5">
+                    {title}
+                    <ArrowRight className="h-3.5 w-3.5 text-gray-400 group-hover:text-violet-500 group-hover:translate-x-0.5 transition-all" />
+                  </h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400">{desc}</p>
-                </div>
+                </TrackedLink>
               ))}
             </div>
           </div>
@@ -222,68 +232,118 @@ export default function StripeDlaSaasPage() {
               <h2 className="text-xl sm:text-2xl font-bold text-white">Tak wygląda rozliczenie prowizji i wypłat w ksiegai</h2>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {/* Fee accounting summary card */}
-              <div className="rounded-[24px] border border-white/10 bg-slate-900 p-5">
-                <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-4">
-                  <span className="flex items-center gap-2 text-xs font-mono text-slate-500">
-                    <FileText className="h-3.5 w-3.5" /> podsumowanie prowizji stripe
-                  </span>
-                  <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-emerald-400/10 text-emerald-300">
-                    <CheckCircle2 className="h-3 w-3" /> Zgodny
-                  </span>
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+              {/* Fee accounting queue card — modeled on the real "Prowizje Stripe do zaksięgowania" queue item */}
+              <div className="lg:col-span-2 rounded-[24px] border border-white/10 bg-slate-900 overflow-hidden">
+                <div className="flex items-center gap-2 px-5 py-3 bg-violet-950/50 border-b border-violet-500/20">
+                  <FileText className="h-3.5 w-3.5 text-violet-300" />
+                  <span className="text-xs font-semibold text-violet-300 uppercase tracking-wide">Prowizje Stripe do zaksięgowania</span>
+                  <span className="ml-auto inline-flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full bg-violet-500 text-white text-[10px] font-bold">1</span>
                 </div>
-                <div className="grid grid-cols-2 gap-3 mb-4">
-                  <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-                    <p className="text-xs text-slate-400">Prowizje łącznie</p>
-                    <p className="text-lg font-semibold text-white mt-1 tabular-nums">412,80 zł</p>
-                    <p className="text-xs text-slate-500">63 pozycje</p>
+                <div className="p-5">
+                  <div className="flex items-center justify-between gap-3 mb-4">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold text-white">Czerwiec 2026</span>
+                      <span className="text-xs text-slate-500">klepsydra</span>
+                      <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-white/10 text-slate-300">Szkic</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <span className="text-xs font-semibold px-3 py-1.5 rounded-full bg-violet-600 text-white">Zaksięguj</span>
+                      <span className="text-xs font-medium px-3 py-1.5 rounded-full border border-white/15 text-slate-300">Szczegóły</span>
+                    </div>
                   </div>
-                  <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-                    <p className="text-xs text-slate-400">VAT-RC (23%)</p>
-                    <p className="text-lg font-semibold text-amber-300 mt-1 tabular-nums">94,94 zł</p>
-                    <p className="text-xs text-slate-500">409-01 / 222-01</p>
+                  <div className="grid grid-cols-2 gap-3 mb-4">
+                    <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                      <p className="text-xs text-slate-400">Prowizje</p>
+                      <p className="text-lg font-semibold text-white mt-1 tabular-nums">412,80 zł</p>
+                      <p className="text-xs text-slate-500">63 pozycje</p>
+                    </div>
+                    <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                      <p className="text-xs text-slate-400">VAT-RC (23%)</p>
+                      <p className="text-lg font-semibold text-amber-300 mt-1 tabular-nums">94,94 zł</p>
+                      <p className="text-xs text-slate-500">409-01 / 222-01</p>
+                    </div>
                   </div>
-                </div>
-                <div className="rounded-lg border border-white/10 bg-black/30 p-3 font-mono text-[11px] leading-relaxed text-slate-300">
-                  <p className="mb-1 font-sans text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Propozycja dekretu</p>
-                  <p>Wn 402-02  412,80 zł  Prowizje operatorów płatności</p>
-                  <p>Wn 409-01   94,94 zł  VAT z importu usług (RC)</p>
-                  <p>Ma 249-01  412,80 zł  Stripe — konto rozliczeniowe</p>
-                  <p>Ma 222-01   94,94 zł  VAT do zapłaty (VAT-9M / JPK_V7)</p>
-                </div>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <span className="text-xs font-semibold px-3 py-1.5 rounded-full bg-violet-600 text-white">Zaksięguj prowizje</span>
-                  <span className="text-xs font-medium px-3 py-1.5 rounded-full border border-white/15 text-slate-300">Dopasuj fakturę Stripe</span>
+                  <div className="rounded-lg border border-white/10 bg-black/30 p-3 font-mono text-[11px] leading-relaxed text-slate-300">
+                    <p className="mb-1 font-sans text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Propozycja dekretu</p>
+                    <p>Wn 402-02  412,80 zł  Prowizje operatorów płatności</p>
+                    <p>Wn 409-01   94,94 zł  VAT z importu usług (RC)</p>
+                    <p>Ma 249-01  412,80 zł  Stripe — konto rozliczeniowe</p>
+                    <p>Ma 222-01   94,94 zł  VAT do zapłaty (VAT-9M / JPK_V7)</p>
+                  </div>
+                  <p className="text-[11px] text-slate-500 mt-3">
+                    Po zaksięgowaniu pozycja znika z kolejki. Nowe opłaty Stripe za ten sam okres spowodują ponowne pojawienie się pozycji.
+                  </p>
                 </div>
               </div>
 
-              {/* Payout reconciliation table */}
-              <div className="rounded-[24px] border border-white/10 bg-slate-900 p-5">
-                <div className="flex items-center gap-2 pb-3 border-b border-white/10 mb-4">
-                  <Link2 className="h-3.5 w-3.5 text-slate-500" />
-                  <span className="text-xs font-mono text-slate-500">wypłaty — dopasowanie do banku</span>
+              {/* Payout reconciliation table — modeled 1:1 on StripePayoutReconciliationPanel */}
+              <div className="lg:col-span-3 rounded-[24px] border border-white/10 bg-slate-900 overflow-hidden">
+                <div className="flex flex-wrap items-center gap-2 px-4 py-2.5 bg-white/[0.03] border-b border-white/10">
+                  <span className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md border border-white/15 text-xs text-slate-300">
+                    <Link2 className="h-3 w-3" /> Dopasuj z bankiem
+                    <span className="inline-flex items-center justify-center h-4 min-w-4 px-1 rounded-full bg-violet-500 text-white text-[10px] font-bold">2</span>
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md border border-amber-500/40 text-xs text-amber-300">
+                    <Sparkles className="h-3 w-3" /> Klasyfikuj RC/VAT-9M
+                  </span>
                 </div>
-                <div className="space-y-2">
-                  {[
-                    { id: "po_1N8k…c2df", amount: "1 284,00 zł", status: "Dopasowany", ok: "emerald" },
-                    { id: "po_1N8j…a91b", amount: "962,40 zł", status: "Dopasowany", ok: "emerald" },
-                    { id: "po_1N8h…f10e", amount: "1 502,10 zł", status: "Oczekuje", ok: "amber" },
-                  ].map((row) => (
-                    <div key={row.id} className="flex items-center justify-between rounded-xl bg-white/5 border border-white/10 px-3 py-2.5">
-                      <div>
-                        <p className="text-xs font-mono text-slate-400">{row.id}</p>
-                        <p className="text-xs text-slate-500">Kwota: {row.amount}</p>
-                      </div>
-                      <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${row.ok === "emerald" ? "bg-emerald-400/10 text-emerald-300" : "bg-amber-400/10 text-amber-300"}`}>
-                        {row.status}
-                      </span>
-                    </div>
-                  ))}
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="border-b border-white/10 text-left text-slate-500">
+                        <th className="py-2 pl-4 pr-3 font-medium">Data wpływu</th>
+                        <th className="py-2 pr-3 font-medium">ID wypłaty</th>
+                        <th className="py-2 pr-3 font-medium">Dopasowanie</th>
+                        <th className="py-2 pr-3 text-right font-medium">Kwota</th>
+                        <th className="py-2 pr-4 font-medium" />
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5">
+                      {[
+                        { date: "28.06.2026", id: "po_1N8k…c2df", amount: "1 284,00 zł", status: "matched" },
+                        { date: "21.06.2026", id: "po_1N8j…a91b", amount: "962,40 zł", status: "manual_confirmed" },
+                        { date: "14.06.2026", id: "po_1N8h…f10e", amount: "1 502,10 zł", status: "awaiting" },
+                      ].map((row) => (
+                        <tr key={row.id}>
+                          <td className="py-2.5 pl-4 pr-3 tabular-nums text-slate-400">{row.date}</td>
+                          <td className="py-2.5 pr-3 font-mono text-slate-400">{row.id}</td>
+                          <td className="py-2.5 pr-3">
+                            {row.status === "matched" && (
+                              <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-emerald-400/10 text-emerald-300">
+                                <CheckCircle2 className="h-3 w-3" /> Dopasowany
+                              </span>
+                            )}
+                            {row.status === "manual_confirmed" && (
+                              <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-sky-400/10 text-sky-300">
+                                <CheckCircle2 className="h-3 w-3" /> Potwierdzony
+                              </span>
+                            )}
+                            {row.status === "awaiting" && (
+                              <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-white/10 text-slate-400">
+                                <Clock className="h-3 w-3" /> Oczekuje
+                              </span>
+                            )}
+                          </td>
+                          <td className="py-2.5 pr-3 text-right tabular-nums font-medium text-white">{row.amount}</td>
+                          <td className="py-2.5 pr-4 text-right">
+                            {row.status === "awaiting" ? (
+                              <div className="flex items-center justify-end gap-1">
+                                <span className="text-[11px] text-violet-400">Dopasuj</span>
+                                <span className="text-[11px] text-slate-500 border border-white/15 rounded px-1.5 py-0.5">Ręcznie</span>
+                              </div>
+                            ) : (
+                              <span className="text-[11px] text-emerald-400">Wn 130 / Ma 249-01 ✓</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
-                <p className="text-[11px] text-slate-500 mt-4">
+                <p className="text-[11px] text-slate-500 px-4 py-3 border-t border-white/10">
                   Dopasowanie łączy wypłatę Stripe z transakcją w wyciągu bankowym (kwota + data ±4 dni).
-                  Różnice trafiają do ręcznego potwierdzenia, nie znikają.
+                  Potwierdź ręcznie, gdy transakcja bankowa ma inną datę lub rozbicie walutowe.
                 </p>
               </div>
             </div>
@@ -420,6 +480,31 @@ export default function StripeDlaSaasPage() {
               albo JPK_V7, zależnie od statusu VAT firmy) i dopasowaniu wypłat, nie automatyczna
               księgowość bez sprawdzania.
             </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Cross-sell to /stripe (Express, accept invoice payments) */}
+      <section className="py-12 sm:py-16 bg-white dark:bg-gray-950">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="max-w-3xl mx-auto rounded-2xl border-2 border-blue-500/30 bg-blue-50 dark:bg-blue-900/10 p-6 sm:p-8 text-center">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
+              Chcesz też przyjmować płatności za faktury od swoich klientów?
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 max-w-xl mx-auto">
+              To osobna funkcja — Stripe Connect Express w ksiegai pozwala klientom płacić Twoje
+              faktury online (BLIK, karta, Google Pay, Apple Pay), niezależnie od importu Twojego
+              głównego konta Stripe. Możesz połączyć jedno, drugie albo obydwa.
+            </p>
+            <TrackedLink
+              href="/stripe"
+              event="cta_clicked"
+              eventProps={{ page: "stripe-dla-saas", cta_id: "cross_sell_express", text: "Zobacz płatności za faktury →", destination: "/stripe" }}
+              className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-2xl font-semibold transition-all text-sm"
+            >
+              Zobacz płatności za faktury
+              <ArrowRight className="h-4 w-4" />
+            </TrackedLink>
           </div>
         </div>
       </section>

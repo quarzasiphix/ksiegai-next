@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { CheckCircle2, Crown, Zap, Shield, Building, Calculator, CreditCard, Star } from "lucide-react";
+import { CheckCircle2, Crown, Zap, Shield, Building, Calculator, CreditCard, FileCheck } from "lucide-react";
 import Link from "next/link";
 import { PUBLIC_PRICING, formatPln, formatPlnAnnual } from "../../lib/pricing";
 import { TrackedLink } from "@/components/analytics/TrackedLink";
@@ -30,10 +30,11 @@ const plans = [
     cadence: "miesiąc",
     icon: Calculator,
     features: [
-      "Faktury + ewidencja przychodów",
-      "Import banku: CSV teraz, integracje bankowe w przygotowaniu",
+      "Faktury + ewidencja przychodów, bez limitu dokumentów",
+      "Import banku z pliku CSV (integracje bankowe w przygotowaniu)",
       "Obsługa KSeF: walidacje, archiwum i workflow wysyłki",
-      "Zestawienia VAT/PIT do eksportu (jeśli dotyczy)",
+      "Eksport JPK_V7K i zestawień PIT",
+      "Bez limitu użytkowników w Twojej firmie",
     ],
     cta: { label: "Rozpocznij 7-dniowy trial", href: "/rejestracja" },
     highlight: false,
@@ -51,23 +52,23 @@ const plans = [
       "Płatności online przez Stripe i monitoring rozliczeń faktur",
       "JPK_V7M i CIT-8: przygotowanie + eksport + walidacje",
       "Repozytorium uchwał, majątku i amortyzacji",
-      "Priorytetowe wsparcie (SLA do 4h w dni robocze)",
       "Rejestr ryzyk i kontrola płynności",
+      "Bez limitu użytkowników w Twojej firmie",
     ],
     cta: { label: "Rozpocznij 7-dniowy trial", href: "/rejestracja" },
     highlight: true,
   },
   {
     name: "Enterprise",
-    tagline: "Dla grup kapitałowych, banków i fintechów",
+    tagline: "Dla grup kapitałowych i wielopodmiotowych biur rachunkowych",
     price: "Wycena indywidualna",
     cadence: "",
     icon: Building,
     features: [
-      "Wdrożenie on-prem / VPC",
-      "Wsparcie compliance i bezpieczeństwa (dedykowany opiekun wdrożenia)",
-      "Integracje na zamówienie (ERP, BI)",
-      "Plan dla biór rachunkowych: multi-klient + role + SLA (wycena)",
+      "Wdrożenie dopasowane do wielu podmiotów / spółek",
+      "Dedykowany opiekun wdrożenia",
+      "Integracje i eksporty na zamówienie",
+      "Indywidualne ustalenia SLA i wsparcia",
     ],
     cta: { label: "Porozmawiajmy", href: "mailto:kontakt@ksiegai.pl" },
     highlight: false,
@@ -75,33 +76,33 @@ const plans = [
 ];
 
 const comparison = [
-  { label: "Limit dokumentów", jdg: "Bez limitu", standard: "Bez limitu + segmentacja spółek", enterprise: "Bez limitu, multi-brand" },
-  { label: "Deklaracje podatkowe", jdg: "PIT, JPK_V7K", standard: "JPK_V7M, CIT-8, VAT-UE", enterprise: "Pełny pakiet + raporty custom" },
-  { label: "Zespoły / uprawnienia", jdg: "1 użytkownik", standard: "Do 10 użytkowników", enterprise: "Dowolna liczba + SSO" },
-  { label: "Wsparcie", jdg: "Standard (24h)", standard: "Priorytet (4h)", enterprise: "Dedykowany opiekun (1h)" },
-  { label: "Governance", jdg: "Checklista JDG", standard: "Repozytorium uchwał", enterprise: "Audyt i risk management" },
+  { label: "Limit dokumentów", jdg: "Bez limitu", standard: "Bez limitu", enterprise: "Bez limitu, wiele podmiotów" },
+  { label: "Użytkownicy w firmie", jdg: "Bez limitu", standard: "Bez limitu", enterprise: "Bez limitu + ustalenia indywidualne" },
+  { label: "Deklaracje podatkowe", jdg: "PIT, JPK_V7K", standard: "JPK_V7M, CIT-8", enterprise: "Pełny pakiet + raporty na zamówienie" },
+  { label: "Płatności online", jdg: "—", standard: "Stripe (karta, BLIK, Google Pay)", enterprise: "Stripe + ustalenia indywidualne" },
+  { label: "Governance", jdg: "Checklista JDG", standard: "Repozytorium uchwał, majątku i ryzyk", enterprise: "Governance dla grupy kapitałowej" },
 ];
 
 const proofPoints = [
   {
     icon: Zap,
-    title: "Pełna automatyzacja",
-    copy: "Importy bankowe, rozpoznawanie dokumentów i KSeF-ready walidacje działają w tle – księgowy tylko akceptuje wyjątki.",
+    title: "System przygotowuje, Ty zatwierdzasz",
+    copy: "Dekretacja, dopasowanie transakcji bankowych i przygotowanie deklaracji dzieją się automatycznie — Ty sprawdzasz wynik zamiast wpisywać dane ręcznie.",
   },
   {
     icon: Shield,
-    title: "Zgodność i bezpieczeństwo",
-    copy: "Szyfrowanie danych, role użytkowników i ślad audytowy. Zawsze wiesz: kto, co, kiedy i dlaczego zatwierdził.",
+    title: "Ślad audytowy na każdej operacji",
+    copy: "Role użytkowników i historia zmian z datą, autorem i kontekstem. Zawsze wiadomo, kto co zatwierdził i kiedy.",
   },
   {
     icon: CreditCard,
-    title: "Model subskrypcyjny",
-    copy: "Stała opłata miesięczna zamiast prowizji od dokumentów. Budżetujesz odpowiedzialność.",
+    title: "Stała opłata, nie prowizja",
+    copy: "Miesięczna subskrypcja zamiast prowizji od liczby dokumentów czy transakcji — koszt jest przewidywalny niezależnie od tego, ile fakturujesz.",
   },
   {
-    icon: Star,
-    title: "Wsparcie ekspertów",
-    copy: "Workflow konsultowany z księgowymi. System wspiera proces — nie świadczy usług księgowych ani doradztwa podatkowego.",
+    icon: FileCheck,
+    title: "KSeF od pierwszego dnia",
+    copy: "Walidacje, wysyłka i archiwum faktur ustrukturyzowanych zgodnie ze schemą KSeF — gotowe zanim wysyłka stanie się obowiązkowa.",
   },
 ];
 
@@ -116,11 +117,15 @@ const faqs = [
   },
   {
     q: "Czy KsięgaI obsługuje KSeF i płatności online?",
-    a: "Tak. KsięgaI wspiera obieg dokumentów pod KSeF, a płatności online dla faktur są obsługiwane przez Stripe.",
+    a: "Tak. KsięgaI wspiera pełny obieg dokumentów pod KSeF (walidacje, wysyłka, archiwum), a płatności online dla faktur są obsługiwane przez Stripe (karta, BLIK, Google Pay).",
+  },
+  {
+    q: "Czy jest limit użytkowników?",
+    a: "Nie. Każdy plan obejmuje dowolną liczbę osób pracujących na koncie Twojej firmy — nie płacisz za dodatkowe stanowiska.",
   },
   {
     q: "Jak wygląda wdrożenie Enterprise?",
-    a: "Rozpoczynamy od warsztatów bezpieczeństwa i mapy procesów. Następnie wdrażamy system w Twojej infrastrukturze albo w dedykowanej chmurze KsięgaI.",
+    a: "Zaczynamy od rozmowy o Twojej strukturze podmiotów i potrzebach integracyjnych, żeby ustalić wycenę i zakres dopasowany do Twojej organizacji.",
   },
 ];
 
@@ -150,67 +155,7 @@ export default function Pricing() {
       </div>
 
       {/* Hero */}
-      <section className="pt-20 pb-16">
-        <div className="mx-auto w-full max-w-6xl px-6">
-          <div className="rounded-3xl bg-gray-900/95 px-6 py-12 text-white shadow-2xl shadow-blue-900/20 md:px-12">
-            <div className="flex flex-wrap items-center justify-between gap-10">
-              <div className="max-w-xl space-y-6">
-                <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-5 py-2 text-sm font-semibold text-blue-50">
-                  <Crown className="h-4 w-4 text-amber-300" />
-                  Cennik, który rośnie razem z Twoją odpowiedzialnością
-                </div>
-                <h1 className="text-4xl font-semibold leading-tight tracking-tight md:text-5xl">
-                  Nie płacisz za faktury.<br className="hidden md:block" /> Płacisz za spokój akcjonariuszy.
-                </h1>
-                <p className="text-lg text-blue-100">
-                  KsięgaI automatyzuje dokumenty i podatki, ale przede wszystkim pilnuje governance. Wybierz plan, który
-                  pokrywa Twoje ryzyko regulacyjne – od JDG po grupy kapitałowe.
-                </p>
-                <p className="text-base text-blue-200 mt-4">
-                  Płacisz za workflow: kolejka wyjątków, walidacje, role użytkowników i ślad audytowy — czyli kontrolę procesu.
-                </p>
-                <p className="text-base text-blue-200 mt-2">
-                  <strong>Dla JDG</strong> — prosty start. <strong>Dla spółek</strong> — pełna odpowiedzialność. <strong>Dla grup</strong> — kontrola na poziomie zarządu.
-                </p>
-                <div className="flex flex-wrap gap-4">
-                  <TrackedLink
-                    href="/rejestracja"
-                    event="cta_clicked"
-                    eventProps={{ page: "cennik", cta_id: "hero_primary", text: "Przetestuj 7 dni za darmo", destination: "/rejestracja" }}
-                    className="inline-flex items-center justify-center rounded-2xl bg-white px-6 py-3 text-base font-semibold text-gray-900 transition hover:-translate-y-0.5 hover:bg-blue-50"
-                  >
-                    Przetestuj 7 dni za darmo
-                  </TrackedLink>
-                  <a
-                    href="#comparison"
-                    className="inline-flex items-center justify-center rounded-2xl border border-white/30 px-6 py-3 text-base font-semibold text-white/90 transition hover:border-white hover:text-white"
-                  >
-                    Porównaj plany
-                  </a>
-                </div>
-              </div>
-              <div className="flex flex-col gap-6 rounded-2xl border border-white/10 bg-white/5 p-6 text-left text-sm text-blue-50 md:w-80">
-                <div>
-                  <p className="text-4xl font-semibold">87%</p>
-                  <p className="text-blue-200">dokumentów rozliczonych automatycznie</p>
-                  <p className="text-xs text-blue-300 mt-1">po pierwszych 14 dniach użytkowania</p>
-                </div>
-                <div>
-                  <p className="text-4xl font-semibold">4 h</p>
-                  <p className="text-blue-200">czas reakcji</p>
-                  <p className="text-xs text-blue-300 mt-1">dla klientów z planem Spółka / Enterprise</p>
-                </div>
-                <div>
-                  <p className="text-4xl font-semibold">12+</p>
-                  <p className="text-blue-200">integracji</p>
-                  <p className="text-xs text-blue-300 mt-1">banki, ERP, eksport danych</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
+  
       {/* Plans */}
       <section className="py-16">
         <div className="mx-auto w-full max-w-6xl px-6">
@@ -331,7 +276,7 @@ export default function Pricing() {
         <div className="mx-auto w-full max-w-6xl px-6">
           <div className="mb-12 text-center">
             <p className="text-sm font-semibold text-blue-600 mb-2">Dlaczego KsięgaI?</p>
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Technologia + ludzie = spokój</h2>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Co faktycznie robi system za Ciebie</h2>
           </div>
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {proofPoints.map((point) => {

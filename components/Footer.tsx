@@ -46,6 +46,16 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/stripe" className="text-gray-400 hover:text-white transition-colors text-sm">
+                  Płatności online (Stripe)
+                </Link>
+              </li>
+              <li>
+                <Link href="/stripe-dla-saas" className="text-gray-400 hover:text-white transition-colors text-sm">
+                  Stripe dla SaaS
+                </Link>
+              </li>
+              <li>
                 <Link href="/premium" className="text-gray-400 hover:text-white transition-colors text-sm">
                   Dla spółek
                 </Link>

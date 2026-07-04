@@ -314,8 +314,9 @@ export default function Header() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-nowrap items-center justify-between gap-2 sm:gap-4 py-3 min-w-0">
           {/* Logo */}
-          <Link href="/" className="text-lg sm:text-xl font-bold text-white hover:text-blue-400 transition-colors">
-            KsięgaI
+          <Link href="/" className="flex items-center gap-2 text-lg sm:text-xl font-bold text-white hover:text-blue-400 transition-colors">
+            <img src="/icon-192.png" alt="" className="h-7 w-7 rounded-md sm:h-8 sm:w-8" />
+            Ksiegai
           </Link>
 
           {/* Navigation */}
@@ -323,8 +324,8 @@ export default function Header() {
             <a href="/#funkcje" className="text-gray-300 hover:text-white transition-colors text-sm lg:text-base">
               Funkcje
             </a>
-            <Link href="/premium" className="text-gray-300 hover:text-white transition-colors text-sm lg:text-base">
-              Premium
+            <Link href="/ksef" className="text-gray-300 hover:text-white transition-colors text-sm lg:text-base">
+              KSeF
             </Link>
             <Link href="/cennik" className="text-gray-300 hover:text-white transition-colors text-sm lg:text-base">
               Cennik
