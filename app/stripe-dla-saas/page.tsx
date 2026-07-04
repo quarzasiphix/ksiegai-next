@@ -15,16 +15,16 @@ import { TrackedLink } from "@/components/analytics/TrackedLink";
 import { PageAnalytics } from "@/components/analytics/PageAnalytics";
 
 export const metadata: Metadata = {
-  title: "Stripe dla SaaS w polskiej firmie | KsięgaI – prowizje, VAT-9M, wypłaty",
+  title: "Stripe dla SaaS w polskiej firmie | KsięgaI – prowizje, VAT od importu usług, wypłaty",
   description:
-    "ksiegai importuje sprzedaż ze Stripe, rozbija prowizje, wylicza VAT-9M od importu usług i pomaga dopasować wypłaty Stripe do rachunku bankowego.",
+    "ksiegai importuje sprzedaż ze Stripe, rozbija prowizje, wylicza VAT od importu usług Stripe (VAT-9M lub JPK_V7 zależnie od statusu firmy) i pomaga dopasować wypłaty Stripe do rachunku bankowego.",
   keywords:
-    "Stripe księgowość, Stripe VAT-9M, Stripe prowizje księgowanie, Stripe SaaS Polska, rozliczenie Stripe, import usług Stripe VAT, dopasowanie wypłat Stripe",
+    "Stripe księgowość, Stripe VAT-9M, Stripe import usług VAT, Stripe prowizje księgowanie, Stripe SaaS Polska, rozliczenie Stripe, dopasowanie wypłat Stripe",
   alternates: { canonical: "https://www.ksiegai.pl/stripe-dla-saas/" },
   openGraph: {
     title: "Stripe dla SaaS w polskiej firmie | KsięgaI",
     description:
-      "Sprzedaż, prowizje, VAT-9M i wypłaty Stripe w jednym miejscu — przygotowane do księgowania, nie zgadywane.",
+      "Sprzedaż, prowizje, VAT od importu usług i wypłaty Stripe w jednym miejscu — przygotowane do księgowania, nie zgadywane.",
     url: "https://www.ksiegai.pl/stripe-dla-saas",
     type: "website",
     locale: "pl_PL",
@@ -52,11 +52,12 @@ export default function StripeDlaSaasPage() {
               <span className="text-violet-300 text-sm font-semibold">Stripe dla SaaS</span>
             </div>
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-5 leading-tight">
-              Rozlicz Stripe w polskiej firmie bez ręcznego liczenia prowizji i VAT-9M
+              Rozlicz Stripe w polskiej firmie bez ręcznego liczenia prowizji i VAT od importu usług
             </h1>
             <p className="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto mb-8">
-              ksiegai importuje sprzedaż ze Stripe, rozbija prowizje, wylicza VAT-9M od importu usług
-              i pomaga dopasować wypłaty Stripe do rachunku bankowego.
+              ksiegai importuje sprzedaż ze Stripe, rozbija prowizje, wylicza VAT od importu usług Stripe
+              i pomaga przygotować rozliczenie — VAT-9M dla firm zwolnionych z VAT albo ujęcie w JPK_V7
+              dla czynnych podatników VAT — a także dopasować wypłaty Stripe do rachunku bankowego.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center mb-12">
               <TrackedLink
@@ -80,7 +81,7 @@ export default function StripeDlaSaasPage() {
 
             {/* Flow */}
             <div className="flex flex-wrap items-center justify-center gap-2 text-xs sm:text-sm text-gray-400 mb-10">
-              {["Klient płaci 100 zł", "Stripe pobiera prowizję", "ksiegai tworzy rozliczenie", "VAT-9M na liście zadań", "wypłata dopasowana do banku", "saldo Stripe = 0"].map((step, i, arr) => (
+              {["Klient płaci 100 zł", "Stripe pobiera prowizję", "ksiegai tworzy rozliczenie", "VAT od importu usług na liście zadań", "wypłata dopasowana do banku", "saldo Stripe = 0"].map((step, i, arr) => (
                 <span key={step} className="flex items-center gap-2">
                   <span className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-gray-200">{step}</span>
                   {i < arr.length - 1 && <ArrowRight className="h-3.5 w-3.5 text-gray-600" />}
@@ -94,10 +95,14 @@ export default function StripeDlaSaasPage() {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between"><span className="text-slate-400">Sprzedaż brutto</span><span className="text-white font-medium tabular-nums">100,00 zł</span></div>
                 <div className="flex justify-between"><span className="text-slate-400">Prowizje Stripe</span><span className="text-white font-medium tabular-nums">4,00 zł</span></div>
-                <div className="flex justify-between"><span className="text-slate-400">VAT-9M od prowizji</span><span className="text-amber-300 font-medium tabular-nums">0,92 zł</span></div>
+                <div className="flex justify-between"><span className="text-slate-400">VAT od importu usług</span><span className="text-amber-300 font-medium tabular-nums">0,92 zł</span></div>
                 <div className="flex justify-between"><span className="text-slate-400">Wypłata na bank</span><span className="text-white font-medium tabular-nums">96,00 zł</span></div>
               </div>
-              <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between">
+              <div className="mt-3 pt-3 border-t border-white/10 space-y-1">
+                <p className="text-[11px] text-slate-400">Dla VAT zwolnionych: <span className="text-slate-200 font-medium">VAT-9M</span></p>
+                <p className="text-[11px] text-slate-400">Dla VAT czynnych: <span className="text-slate-200 font-medium">rozliczenie w JPK_V7</span></p>
+              </div>
+              <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between">
                 <span className="text-xs text-slate-400">Status</span>
                 <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium bg-sky-100 text-sky-800 dark:bg-sky-900/40 dark:text-sky-300">
                   <FileText className="h-3 w-3" />
@@ -120,7 +125,7 @@ export default function StripeDlaSaasPage() {
               {[
                 "wypłata Stripe nie jest przychodem",
                 "prowizja Stripe to koszt zagranicznej usługi",
-                "VAT-9M trzeba policzyć od prowizji",
+                "VAT od importu usług trzeba policzyć od prowizji",
                 "bank pokazuje tylko kwotę po potrąceniach",
                 "faktura Stripe przychodzi później i trzeba ją dopasować",
                 "księgowa potrzebuje pełnego śladu, nie tylko przelewu z banku",
@@ -146,7 +151,7 @@ export default function StripeDlaSaasPage() {
               {[
                 { icon: CreditCard, title: "Sprzedaż Stripe", desc: "Import sprzedaży i przypisanie jej do faktury, aplikacji lub sprzedaży online.", color: "text-violet-600 dark:text-violet-400", bg: "bg-violet-100 dark:bg-violet-900/30" },
                 { icon: Calculator, title: "Prowizje Stripe", desc: "Zbiorcze rozliczenie prowizji za okres zamiast ręcznego rozbijania każdej opłaty.", color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-100 dark:bg-blue-900/30" },
-                { icon: FileText, title: "VAT-9M / import usług", desc: "Automatyczne wyliczenie VAT od prowizji Stripe i pokazanie obowiązku na liście zadań.", color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-100 dark:bg-amber-900/30" },
+                { icon: FileText, title: "VAT od importu usług", desc: "Wylicza VAT od prowizji Stripe i pokazuje obowiązek zależnie od statusu firmy — VAT-9M albo JPK_V7.", color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-100 dark:bg-amber-900/30" },
                 { icon: Landmark, title: "Wypłaty i bank", desc: "Dopasowanie wypłaty Stripe do transakcji bankowej i kontrola salda rozrachunkowego.", color: "text-green-600 dark:text-green-400", bg: "bg-green-100 dark:bg-green-900/30" },
               ].map(({ icon: Icon, title, desc, color, bg }) => (
                 <div key={title} className="bg-white dark:bg-gray-950 rounded-2xl p-5 border border-gray-200 dark:border-gray-800">
@@ -162,8 +167,26 @@ export default function StripeDlaSaasPage() {
         </div>
       </section>
 
+      {/* VAT-9M vs JPK_V7 explainer */}
+      <section className="py-12 sm:py-16 bg-white dark:bg-gray-950 border-t border-gray-200 dark:border-gray-800">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="max-w-2xl mx-auto text-center">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-4">
+              VAT-9M czy JPK_V7? To zależy od statusu VAT.
+            </h2>
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+              Jeżeli firma korzysta ze zwolnienia z VAT i nie składa standardowych deklaracji VAT,
+              prowizje Stripe mogą oznaczać obowiązek rozliczenia VAT od importu usług przez VAT-9M.
+              Jeżeli firma jest czynnym podatnikiem VAT, taki VAT zwykle trafia do standardowego
+              rozliczenia VAT/JPK_V7. ksiegai pokazuje obowiązek według statusu firmy, zamiast
+              traktować każdy przypadek tak samo.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* How it works */}
-      <section id="jak-to-dziala" className="py-12 sm:py-16 bg-white dark:bg-gray-950 scroll-mt-16">
+      <section id="jak-to-dziala" className="py-12 sm:py-16 bg-gray-50 dark:bg-gray-900 scroll-mt-16">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center">
@@ -227,7 +250,7 @@ export default function StripeDlaSaasPage() {
                   <p>Wn 402-02  412,80 zł  Prowizje operatorów płatności</p>
                   <p>Wn 409-01   94,94 zł  VAT z importu usług (RC)</p>
                   <p>Ma 249-01  412,80 zł  Stripe — konto rozliczeniowe</p>
-                  <p>Ma 222-01   94,94 zł  VAT-9M do zapłaty</p>
+                  <p>Ma 222-01   94,94 zł  VAT do zapłaty (VAT-9M / JPK_V7)</p>
                 </div>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <span className="text-xs font-semibold px-3 py-1.5 rounded-full bg-violet-600 text-white">Zaksięguj prowizje</span>
@@ -283,7 +306,7 @@ export default function StripeDlaSaasPage() {
                   <li>Widać tylko przelew od Stripe: 96 zł</li>
                   <li>Brak informacji o sprzedaży brutto</li>
                   <li>Brak prowizji</li>
-                  <li>Brak VAT-9M</li>
+                  <li>Brak VAT od importu usług</li>
                   <li>Brak kontroli salda Stripe</li>
                 </ul>
               </div>
@@ -292,7 +315,7 @@ export default function StripeDlaSaasPage() {
                 <ul className="space-y-2.5 text-sm text-gray-800 dark:text-gray-200">
                   <li>Sprzedaż klienta: 100 zł</li>
                   <li>Prowizja Stripe: 4 zł</li>
-                  <li>VAT-9M: 0,92 zł</li>
+                  <li>VAT od importu usług: 0,92 zł</li>
                   <li>Wypłata bankowa: 96 zł</li>
                   <li>Saldo Stripe po rozliczeniu: 0 zł</li>
                 </ul>
@@ -332,7 +355,8 @@ export default function StripeDlaSaasPage() {
                 {[
                   "Sprzedaż Stripe zaimportowana",
                   "Prowizje Stripe rozliczone",
-                  "VAT-9M wyliczony",
+                  "VAT od importu usług wyliczony",
+                  "VAT-9M lub JPK_V7 wskazane zależnie od statusu VAT firmy",
                   "Wypłata dopasowana do banku",
                   "Saldo Stripe sprawdzone",
                   "Faktura Stripe dołączona lub oczekiwana",
@@ -392,8 +416,9 @@ export default function StripeDlaSaasPage() {
           <div className="max-w-3xl mx-auto">
             <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
               ksiegai przygotowuje rozliczenia Stripe do księgowania — sprawdzenie i zaksięgowanie
-              pozycji potwierdza księgowość. To pomoc w rozliczeniu VAT-9M i dopasowaniu wypłat,
-              nie automatyczna księgowość bez sprawdzania.
+              pozycji potwierdza księgowość. To pomoc w rozliczeniu VAT od prowizji Stripe (VAT-9M
+              albo JPK_V7, zależnie od statusu VAT firmy) i dopasowaniu wypłat, nie automatyczna
+              księgowość bez sprawdzania.
             </p>
           </div>
         </div>
@@ -406,7 +431,7 @@ export default function StripeDlaSaasPage() {
             Używasz Stripe w polskiej firmie?
           </h2>
           <p className="text-violet-100 mb-8 max-w-md mx-auto">
-            Podłącz Stripe do ksiegai i zobacz sprzedaż, prowizje, VAT-9M oraz wypłaty w jednym miejscu.
+            Podłącz Stripe do ksiegai i zobacz sprzedaż, prowizje, VAT od importu usług oraz wypłaty w jednym miejscu.
           </p>
           <TrackedLink
             href="/rejestracja"
