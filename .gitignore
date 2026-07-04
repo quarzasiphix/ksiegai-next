@@ -42,3 +42,6 @@ wrangler.toml
 .env.local
 .env.development
 .env.copy.local
+
+# Regenerable graphify knowledge-graph artifacts — large, churn every session
+graphify-out/
