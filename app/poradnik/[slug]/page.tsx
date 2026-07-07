@@ -200,7 +200,7 @@ export default async function WikiArticlePage({ params }: PageProps) {
           <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[260px_minmax(0,760px)_320px] xl:grid-cols-[260px_minmax(0,820px)_340px]">
             <WikiCategorySidebar items={categorySidebarItems} activeCategorySlug={article.category.slug} />
 
-            <article className="rounded-[32px] border border-black/10 bg-white/92 p-6 shadow-[0_28px_90px_-60px_rgba(15,23,42,0.42)] dark:border-white/10 dark:bg-white/[0.04] md:p-10">
+            <article className="min-w-0 rounded-[32px] border border-black/10 bg-white/92 p-6 shadow-[0_28px_90px_-60px_rgba(15,23,42,0.42)] dark:border-white/10 dark:bg-white/[0.04] md:p-10">
               {article.purpose ? (
                 <div className="mb-10 rounded-[24px] border border-sky-200/70 bg-sky-50/80 p-5 text-sm leading-7 text-slate-700 dark:border-sky-400/20 dark:bg-sky-400/10 dark:text-slate-200">
                   <div className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-700 dark:text-sky-300">

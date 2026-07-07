@@ -32,7 +32,7 @@ export function WikiCategorySidebar({
   return (
     <>
       <div className={joinClassNames(
-        'sticky top-0 z-20 -mx-4 border-b border-black/5 bg-white/92 px-4 py-3 backdrop-blur dark:border-white/10 dark:bg-slate-950/88',
+        'sticky top-0 z-20 -mx-4 min-w-0 border-b border-black/5 bg-white/92 px-4 py-3 backdrop-blur dark:border-white/10 dark:bg-slate-950/88',
         isRail ? 'lg:hidden' : 'md:hidden'
       )}>
         <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
