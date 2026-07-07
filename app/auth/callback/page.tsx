@@ -19,6 +19,7 @@ import {
   identifyInvitedUser,
   registerInviteAttribution,
 } from "../../../lib/posthog/inviteAttribution";
+import { clearAnonInvoiceId } from "../../../lib/invoice-tools/anonInvoiceClaim";
 
 export default function AuthCallback() {
   const [pendingLoginLabel, setPendingLoginLabel] = useState<string | null>(null);
@@ -70,6 +71,7 @@ export default function AuthCallback() {
         const localhostPort = urlParams.get('port');
         const regParam = urlParams.get('reg'); // 'password' | 'magic_link' | 'invite'
         const inviteHash = urlParams.get('inv'); // SHA-256 hash of invite token (reg=invite only)
+        const anonInvoiceId = urlParams.get('av'); // free-invoice-generator submission_id (self-serve claim)
 
         // ── Invite claim flow ─────────────────────────────────────────────────
         if (regParam === 'invite' && inviteHash) {
@@ -133,8 +135,13 @@ export default function AuthCallback() {
               campaign_source: campaign_source ?? null,
             });
 
-            // Attach invite metadata to the auth user for future queries
-            void supabase.auth.updateUser({
+            // Attach invite metadata to the auth user for future queries.
+            // Awaited: the cross-domain redirect right below bridges the
+            // session to app.ksiegai.pl immediately, and OnboardingSpzoo/Jdg
+            // read this metadata via getInviteResumeContext(user) on first
+            // render there — if this write hadn't landed yet, that context
+            // came back null and the invite-continuation UI didn't show.
+            const { error: updateUserError } = await supabase.auth.updateUser({
               data: {
                 invite_id,
                 invite_company_name: company_name,
@@ -145,6 +152,10 @@ export default function AuthCallback() {
                 invite_business_profile_id: business_profile_id,
               },
             });
+            if (updateUserError) {
+              console.error('[AuthCallback] Failed to attach invite metadata:', updateUserError);
+              posthog.captureException(updateUserError);
+            }
 
             // Clear the raw token and cached company from localStorage — invite consumed
             localStorage.removeItem('pending_invite_token');
@@ -163,6 +174,71 @@ export default function AuthCallback() {
             return;
           } catch (err) {
             console.error('[AuthCallback] Unexpected invite claim error:', err);
+            storeAuthToken({
+              access_token: session.access_token,
+              refresh_token: session.refresh_token,
+              expires_at: session.expires_at || 0,
+              user_id: session.user.id,
+            });
+            redirectToApp('/onboard');
+            return;
+          }
+        }
+
+        // ── Free-invoice-generator "claim your company" flow ──────────────────
+        if (anonInvoiceId) {
+          posthog.capture('free_invoice_claim_email_confirmed', { submission_id_prefix: anonInvoiceId.slice(0, 8) });
+          try {
+            const { data: claimData, error: claimError } = await (supabase.rpc as any)('claim_anonymous_invoice', {
+              p_submission_id: anonInvoiceId,
+            });
+            const token = {
+              access_token: session.access_token,
+              refresh_token: session.refresh_token,
+              expires_at: session.expires_at || 0,
+              user_id: session.user.id,
+            };
+            storeAuthToken(token);
+            if (claimError) {
+              console.error('[AuthCallback] Anonymous invoice claim failed:', claimError);
+              posthog.captureException(claimError);
+              redirectToApp('/onboard');
+              return;
+            }
+            const { business_profile_id, company_name, company_type } = claimData as {
+              business_profile_id: string;
+              company_name: string;
+              company_type: string;
+            };
+
+            posthog.capture('free_invoice_claimed', { business_profile_id, company_name, company_type });
+
+            // Same three user_metadata keys the admin-invite flow sets — ksef-ai's
+            // onboarding-resume logic (getInviteResumeContext) reads these generically,
+            // regardless of whether the origin was an admin invite or a self-serve claim.
+            const { error: updateUserError } = await supabase.auth.updateUser({
+              data: {
+                invite_business_profile_id: business_profile_id,
+                invite_company_name: company_name,
+                invite_company_type: company_type,
+              },
+            });
+            if (updateUserError) {
+              console.error('[AuthCallback] Failed to attach anon-invoice claim metadata:', updateUserError);
+              posthog.captureException(updateUserError);
+            }
+
+            clearAnonInvoiceId();
+
+            const dest = getInviteOnboardingPath(company_type);
+            if (redirectFrom === 'localhost' && localhostPort) {
+              window.location.href = `http://localhost:${localhostPort}${dest}?invite=1&bp=${business_profile_id}&cn=${encodeURIComponent(company_name)}`;
+            } else {
+              redirectToApp(dest, { invite: '1', bp: business_profile_id, cn: company_name });
+            }
+            return;
+          } catch (err) {
+            console.error('[AuthCallback] Unexpected anon-invoice claim error:', err);
             storeAuthToken({
               access_token: session.access_token,
               refresh_token: session.refresh_token,

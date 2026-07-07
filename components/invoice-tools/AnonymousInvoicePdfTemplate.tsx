@@ -8,6 +8,7 @@ import {
 
 type AnonymousInvoicePdfTemplateProps = {
   draft: AnonymousInvoiceDraft;
+  isReverseCharge?: boolean;
 };
 
 const styles: Record<string, React.CSSProperties> = {
@@ -201,8 +202,8 @@ function renderPartyLines(party: AnonymousInvoiceDraft["seller"]) {
   ].filter(Boolean);
 }
 
-export default function AnonymousInvoicePdfTemplate({ draft }: AnonymousInvoicePdfTemplateProps) {
-  const totals = getInvoiceTotals(draft.items);
+export default function AnonymousInvoicePdfTemplate({ draft, isReverseCharge = false }: AnonymousInvoicePdfTemplateProps) {
+  const totals = getInvoiceTotals(draft.items, isReverseCharge);
 
   return (
     <div style={styles.page}>
@@ -273,7 +274,7 @@ export default function AnonymousInvoicePdfTemplate({ draft }: AnonymousInvoiceP
         </thead>
         <tbody>
           {draft.items.map((item, index) => {
-            const itemTotals = getItemTotals(item);
+            const itemTotals = getItemTotals(item, isReverseCharge);
             return (
               <tr key={item.id}>
                 <td style={styles.td}>{index + 1}</td>
@@ -282,7 +283,7 @@ export default function AnonymousInvoicePdfTemplate({ draft }: AnonymousInvoiceP
                   {item.quantity.toFixed(2)} {item.unit}
                 </td>
                 <td style={{ ...styles.td, ...styles.textRight }}>{formatCurrency(item.unitPrice)}</td>
-                <td style={{ ...styles.td, ...styles.textRight }}>{item.vatRate}%</td>
+                <td style={{ ...styles.td, ...styles.textRight }}>{isReverseCharge ? "OO" : `${item.vatRate}%`}</td>
                 <td style={{ ...styles.td, ...styles.textRight }}>{formatCurrency(itemTotals.net)}</td>
                 <td style={{ ...styles.td, ...styles.textRight }}>{formatCurrency(itemTotals.gross)}</td>
               </tr>
@@ -305,17 +306,22 @@ export default function AnonymousInvoicePdfTemplate({ draft }: AnonymousInvoiceP
           </div>
           <div style={styles.summaryRow}>
             <span>Razem VAT</span>
-            <span>{formatCurrency(totals.vat)}</span>
+            <span>{isReverseCharge ? "odwrotne obciążenie" : formatCurrency(totals.vat)}</span>
           </div>
           <div style={styles.summaryTotal}>
             <span>Do zapłaty</span>
             <span>{formatCurrency(totals.gross)}</span>
           </div>
+          {isReverseCharge && (
+            <p style={{ ...styles.partyText, margin: "10px 0 0", fontSize: "12px" }}>
+              Odwrotne obciążenie — podatek VAT rozlicza nabywca (reverse charge, VAT to be accounted for by the recipient).
+            </p>
+          )}
         </div>
       </div>
 
       <div style={styles.footer}>
-        Dokument wygenerowany w KsięgaI bez zakładania konta. Po rejestracji dla tego samego NIP-u odzyskasz tę
+        Dokument wygenerowany w ksiegai.pl bez zakładania konta. Po rejestracji dla tego samego NIP-u odzyskasz tę
         fakturę w historii dokumentów.
       </div>
     </div>

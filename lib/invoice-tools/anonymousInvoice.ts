@@ -1,3 +1,5 @@
+import { supabase } from "../supabase";
+
 export type InvoicePartyDraft = {
   name: string;
   taxId: string;
@@ -5,6 +7,8 @@ export type InvoicePartyDraft = {
   postalCode: string;
   city: string;
   email: string;
+  isForeignVat?: boolean;
+  vatCountryCode?: string;
 };
 
 export type InvoiceItemDraft = {
@@ -34,7 +38,7 @@ export type InvoiceTotals = {
   gross: number;
 };
 
-export type TaxIdLookupSource = "mf_vat";
+export type TaxIdLookupSource = "mf_vat" | "vies";
 
 export type TaxIdLookupResult = {
   name: string;
@@ -91,6 +95,24 @@ export const getDefaultInvoiceDraft = (): AnonymousInvoiceDraft => {
 
 export const sanitizeTaxId = (taxId: string) => taxId.replace(/\D/g, "");
 
+/** True when the raw input looks like a foreign VAT-UE number (2-letter country prefix), not a bare Polish NIP. */
+export const isForeignVatFormat = (raw: string) => /^[A-Za-z]{2}/.test(raw.trim());
+
+/** Format-aware: keeps the country prefix for foreign VAT-UE numbers, strips to digits for domestic NIP. */
+export const sanitizeVatOrTaxId = (raw: string) => {
+  if (isForeignVatFormat(raw)) {
+    return raw.trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
+  }
+  return sanitizeTaxId(raw);
+};
+
+export const parseForeignVatId = (raw: string): { countryCode: string; vatNumber: string } | null => {
+  const cleaned = sanitizeVatOrTaxId(raw);
+  const match = cleaned.match(/^([A-Z]{2})([A-Z0-9]+)$/);
+  if (!match) return null;
+  return { countryCode: match[1], vatNumber: match[2] };
+};
+
 export const formatCurrency = (value: number) =>
   new Intl.NumberFormat("pl-PL", {
     style: "currency",
@@ -104,20 +126,20 @@ export const formatTaxId = (taxId: string) => {
   return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6, 8)}-${digits.slice(8)}`;
 };
 
-export const getItemTotals = (item: InvoiceItemDraft): InvoiceTotals => {
+export const getItemTotals = (item: InvoiceItemDraft, isReverseCharge = false): InvoiceTotals => {
   const quantity = Number.isFinite(item.quantity) ? item.quantity : 0;
   const unitPrice = Number.isFinite(item.unitPrice) ? item.unitPrice : 0;
-  const vatRate = Number.isFinite(item.vatRate) ? item.vatRate : DEFAULT_VAT_RATE;
+  const vatRate = isReverseCharge ? 0 : Number.isFinite(item.vatRate) ? item.vatRate : DEFAULT_VAT_RATE;
   const net = roundCurrency(quantity * unitPrice);
   const vat = roundCurrency((net * vatRate) / 100);
   const gross = roundCurrency(net + vat);
   return { net, vat, gross };
 };
 
-export const getInvoiceTotals = (items: InvoiceItemDraft[]): InvoiceTotals =>
+export const getInvoiceTotals = (items: InvoiceItemDraft[], isReverseCharge = false): InvoiceTotals =>
   items.reduce<InvoiceTotals>(
     (accumulator, item) => {
-      const itemTotals = getItemTotals(item);
+      const itemTotals = getItemTotals(item, isReverseCharge);
       return {
         net: roundCurrency(accumulator.net + itemTotals.net),
         vat: roundCurrency(accumulator.vat + itemTotals.vat),
@@ -267,6 +289,34 @@ export const fetchCompanyByTaxId = async (taxId: string): Promise<TaxIdLookupRes
   throw new Error(
     "Nie znaleziono firmy w wykazie VAT MF. Jeśli wpis nie wraca z rejestru, uzupełnij dane ręcznie i wystaw fakturę dalej bez blokady.",
   );
+};
+
+export const fetchCompanyByVatId = async (countryCode: string, vatNumber: string): Promise<TaxIdLookupResult> => {
+  const { data, error } = await supabase.functions.invoke("verify-vies-vat", {
+    body: { countryCode, vatNumber },
+  });
+
+  if (error) {
+    throw new Error("Nie udało się połączyć z VIES. Spróbuj ponownie albo wpisz dane ręcznie.");
+  }
+
+  if (data?.valid !== true) {
+    throw new Error(
+      data?.error === "unavailable"
+        ? "VIES jest chwilowo niedostępny. Wpisz dane firmy ręcznie."
+        : "Ten numer VAT-UE nie jest aktywny w VIES. Sprawdź numer albo wpisz dane ręcznie.",
+    );
+  }
+
+  return {
+    name: data.name ?? `${countryCode}${vatNumber}`,
+    taxId: `${countryCode}${vatNumber}`,
+    street: data.address ?? "",
+    postalCode: "",
+    city: "",
+    source: "vies",
+    sourceLabel: "VIES",
+  };
 };
 
 export const buildInvoiceFilename = (invoiceNumber: string) => {

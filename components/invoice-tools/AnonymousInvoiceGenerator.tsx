@@ -11,6 +11,7 @@ import {
   Download,
   Loader2,
   ReceiptText,
+  Smartphone,
   XCircle,
   Save,
   ShieldCheck,
@@ -21,13 +22,17 @@ import {
   clearStoredSeller,
   createEmptyItem,
   fetchCompanyByTaxId,
+  fetchCompanyByVatId,
   formatCurrency,
   formatTaxId,
   getDefaultInvoiceDraft,
   getInvoiceTotals,
   getItemTotals,
+  isForeignVatFormat,
   isInvoiceDraftValid,
   loadStoredSeller,
+  parseForeignVatId,
+  sanitizeVatOrTaxId,
   saveSellerToStorage,
   sanitizeTaxId,
   type AnonymousInvoiceDraft,
@@ -35,10 +40,30 @@ import {
   type InvoicePartyDraft,
 } from "../../lib/invoice-tools/anonymousInvoice";
 import { persistAnonymousInvoiceDraft } from "../../lib/invoice-tools/persistence";
-import { downloadAnonymousInvoicePdf } from "../../lib/invoice-tools/pdf";
+import { blobToBase64, generateAnonymousInvoicePdfBlob, triggerPdfBlobDownload } from "../../lib/invoice-tools/pdf";
+import { addToInvoiceHistory, getInvoiceHistoryIds } from "../../lib/invoice-tools/history";
+import { supabase } from "../../lib/supabase";
+import posthog from "posthog-js";
+import AnonymousInvoicePdfPreview from "./AnonymousInvoicePdfPreview";
 
 type PartyKey = "seller" | "buyer";
 type LookupFeedbackState = "idle" | "loading" | "success" | "error";
+
+type PostGenerationState = {
+  submissionId: string;
+  pdfBlob: Blob;
+  krsMatchName: string | null;
+};
+
+type HistoryEntry = {
+  submissionId: string;
+  invoiceNumber: string;
+  sellerName: string;
+  buyerName: string;
+  totalGross: number | null;
+  createdAt: string;
+  pdfSignedUrl: string | null;
+};
 
 export default function AnonymousInvoiceGenerator() {
   const [draft, setDraft] = useState<AnonymousInvoiceDraft>(() => getDefaultInvoiceDraft());
@@ -54,8 +79,9 @@ export default function AnonymousInvoiceGenerator() {
     buyer: "idle",
   });
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
-  const [showSignupPrompt, setShowSignupPrompt] = useState(false);
+  const [postGenState, setPostGenState] = useState<PostGenerationState | null>(null);
   const [lastSaveStatus, setLastSaveStatus] = useState<"saved" | "save_failed" | null>(null);
+  const [historyEntries, setHistoryEntries] = useState<HistoryEntry[]>([]);
   const [sellerSource, setSellerSource] = useState<"manual" | "stored_profile" | "lookup_success">("manual");
   const [collapsedCards, setCollapsedCards] = useState<Record<PartyKey, boolean>>({
     seller: false,
@@ -81,39 +107,83 @@ export default function AnonymousInvoiceGenerator() {
   }, []);
 
   useEffect(() => {
-    const normalizedTaxId = sanitizeTaxId(draft.seller.taxId);
-    if (normalizedTaxId.length < 10) {
+    const ids = getInvoiceHistoryIds().slice(0, 5);
+    if (ids.length === 0) return;
+
+    void (async () => {
+      const entries = await Promise.all(
+        ids.map(async (submissionId) => {
+          try {
+            const { data, error } = await supabase.functions.invoke("get-anonymous-invoice-summary", {
+              body: { submissionId },
+            });
+            if (error || !data?.success) return null;
+            return {
+              submissionId,
+              invoiceNumber: data.invoiceNumber,
+              sellerName: data.sellerName,
+              buyerName: data.buyerName,
+              totalGross: data.totalGross,
+              createdAt: data.createdAt,
+              pdfSignedUrl: data.pdfSignedUrl,
+            } as HistoryEntry;
+          } catch {
+            return null;
+          }
+        }),
+      );
+      setHistoryEntries(entries.filter((entry): entry is HistoryEntry => entry !== null));
+    })();
+  }, []);
+
+  const isSellerForeign = useMemo(() => isForeignVatFormat(draft.seller.taxId), [draft.seller.taxId]);
+  const isBuyerForeign = useMemo(() => isForeignVatFormat(draft.buyer.taxId), [draft.buyer.taxId]);
+
+  useEffect(() => {
+    const raw = draft.seller.taxId;
+    const normalized = sanitizeVatOrTaxId(raw);
+    const ready = isSellerForeign ? normalized.length >= 8 : normalized.length === 10;
+    if (!ready) {
       lastAutoLookupRef.current.seller = "";
       return;
     }
 
-    if (lookupState.loading || lastAutoLookupRef.current.seller === normalizedTaxId) {
+    if (lookupState.loading || lastAutoLookupRef.current.seller === normalized) {
       return;
     }
 
-    lastAutoLookupRef.current.seller = normalizedTaxId;
+    lastAutoLookupRef.current.seller = normalized;
     void handleLookup("seller");
-  }, [draft.seller.taxId, lookupState.loading]);
+  }, [draft.seller.taxId, isSellerForeign, lookupState.loading]);
 
   useEffect(() => {
-    const normalizedTaxId = sanitizeTaxId(draft.buyer.taxId);
-    if (normalizedTaxId.length < 10) {
+    const raw = draft.buyer.taxId;
+    const normalized = sanitizeVatOrTaxId(raw);
+    const ready = isBuyerForeign ? normalized.length >= 8 : normalized.length === 10;
+    if (!ready) {
       lastAutoLookupRef.current.buyer = "";
       return;
     }
 
-    if (lookupState.loading || lastAutoLookupRef.current.buyer === normalizedTaxId) {
+    if (lookupState.loading || lastAutoLookupRef.current.buyer === normalized) {
       return;
     }
 
-    lastAutoLookupRef.current.buyer = normalizedTaxId;
+    lastAutoLookupRef.current.buyer = normalized;
     void handleLookup("buyer");
-  }, [draft.buyer.taxId, lookupState.loading]);
+  }, [draft.buyer.taxId, isBuyerForeign, lookupState.loading]);
 
-  const totals = useMemo(() => getInvoiceTotals(draft.items), [draft.items]);
-  const canGeneratePdf = useMemo(() => isInvoiceDraftValid(draft), [draft]);
   const sellerTaxId = useMemo(() => sanitizeTaxId(draft.seller.taxId), [draft.seller.taxId]);
-  const hasStoredSellerData = useMemo(() => Object.values(draft.seller).some((value) => value.trim().length > 0), [draft.seller]);
+  const isReverseCharge = useMemo(
+    () => !isSellerForeign && sellerTaxId.length === 10 && Boolean(draft.buyer.isForeignVat) && draft.buyer.vatCountryCode !== "PL",
+    [isSellerForeign, sellerTaxId, draft.buyer.isForeignVat, draft.buyer.vatCountryCode],
+  );
+  const totals = useMemo(() => getInvoiceTotals(draft.items, isReverseCharge), [draft.items, isReverseCharge]);
+  const canGeneratePdf = useMemo(() => isInvoiceDraftValid(draft), [draft]);
+  const hasStoredSellerData = useMemo(
+    () => [draft.seller.name, draft.seller.taxId, draft.seller.street, draft.seller.postalCode, draft.seller.city, draft.seller.email].some((value) => value.trim().length > 0),
+    [draft.seller],
+  );
   const sellerLooksReady = useMemo(
     () => Boolean(draft.seller.name.trim() && sellerTaxId.length === 10 && draft.seller.street.trim() && draft.seller.postalCode.trim() && draft.seller.city.trim()),
     [draft.seller, sellerTaxId],
@@ -151,12 +221,14 @@ export default function AnonymousInvoiceGenerator() {
   }, [sellerLooksReady, buyerLooksReady]);
 
   const updateParty = (partyKey: PartyKey, field: keyof InvoicePartyDraft, value: string) => {
-    const nextValue = field === "taxId" ? sanitizeTaxId(value) : value;
+    const nextValue = field === "taxId" ? sanitizeVatOrTaxId(value) : value;
 
     if (field === "taxId") {
+      const isForeign = isForeignVatFormat(nextValue);
+      const ready = isForeign ? nextValue.length >= 8 : nextValue.length === 10;
       setLookupFeedback((current) => ({
         ...current,
-        [partyKey]: sanitizeTaxId(nextValue).length < 10 ? "idle" : current[partyKey],
+        [partyKey]: ready ? current[partyKey] : "idle",
       }));
     }
 
@@ -165,6 +237,7 @@ export default function AnonymousInvoiceGenerator() {
       [partyKey]: {
         ...currentDraft[partyKey],
         [field]: nextValue,
+        ...(field === "taxId" ? { isForeignVat: undefined, vatCountryCode: undefined } : {}),
       },
     }));
   };
@@ -204,8 +277,20 @@ export default function AnonymousInvoiceGenerator() {
     setLookupFeedback((current) => ({ ...current, [partyKey]: "loading" }));
     setLookupState({ party: partyKey, loading: true });
 
+    const raw = draft[partyKey].taxId;
+    const foreignVat = isForeignVatFormat(raw);
+
     try {
-      const result = await fetchCompanyByTaxId(draft[partyKey].taxId);
+      const result = foreignVat
+        ? await (() => {
+            const parsed = parseForeignVatId(raw);
+            if (!parsed) throw new Error("Nieprawidłowy format numeru VAT-UE.");
+            return fetchCompanyByVatId(parsed.countryCode, parsed.vatNumber);
+          })()
+        : await fetchCompanyByTaxId(raw);
+
+      const parsedForeign = foreignVat ? parseForeignVatId(raw) : null;
+
       setDraft((currentDraft) => ({
         ...currentDraft,
         [partyKey]: {
@@ -215,6 +300,8 @@ export default function AnonymousInvoiceGenerator() {
           street: result.street,
           postalCode: result.postalCode,
           city: result.city,
+          isForeignVat: foreignVat,
+          vatCountryCode: parsedForeign?.countryCode,
         },
       }));
       if (partyKey === "seller") {
@@ -223,7 +310,13 @@ export default function AnonymousInvoiceGenerator() {
       setLookupFeedback((current) => ({ ...current, [partyKey]: "success" }));
     } catch (error) {
       setLookupFeedback((current) => ({ ...current, [partyKey]: "error" }));
-      setMessage(error instanceof Error ? error.message : "Nie udało się pobrać danych z rejestru VAT MF.");
+      setMessage(
+        error instanceof Error
+          ? error.message
+          : foreignVat
+            ? "Nie udało się zweryfikować numeru VAT-UE w VIES."
+            : "Nie udało się pobrać danych z rejestru VAT MF.",
+      );
     } finally {
       setLookupState({ party: null, loading: false });
     }
@@ -256,16 +349,25 @@ export default function AnonymousInvoiceGenerator() {
     const validLeadEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedLeadEmail);
 
     try {
+      const pdfBlob = await generateAnonymousInvoicePdfBlob(draft, isReverseCharge);
+      triggerPdfBlobDownload(pdfBlob, draft.invoiceNumber);
+
+      const wantsValidNewsletter = wantsNewsletter && validLeadEmail;
+      let submissionId: string | null = null;
       try {
-        await persistAnonymousInvoiceDraft(
+        const pdfBase64 = await blobToBase64(pdfBlob);
+        const result = await persistAnonymousInvoiceDraft(
           draft,
-          wantsNewsletter && validLeadEmail
+          wantsValidNewsletter
             ? {
                 email: normalizedLeadEmail,
                 wantsNewsletter: true,
               }
             : undefined,
+          pdfBase64,
+          isReverseCharge,
         );
+        submissionId = result.submissionId;
         setLastSaveStatus("saved");
       } catch (error) {
         saveStatus = "save_failed";
@@ -273,25 +375,43 @@ export default function AnonymousInvoiceGenerator() {
         console.error("Anonymous invoice persistence failed:", error);
       }
 
-      await downloadAnonymousInvoicePdf(draft);
-      setShowSignupPrompt(true);
-      setMessage(
-        saveStatus === "saved"
-          ? wantsNewsletter && !validLeadEmail
-            ? "Faktura została pobrana jako PDF i zapisana pod NIP-em sprzedawcy. Newsletter nie został włączony, bo adres email jest niepoprawny."
-            : wantsNewsletter
-              ? "Faktura została pobrana jako PDF, zapisana pod NIP-em sprzedawcy i połączona z Twoim emailem do newslettera."
-              : "Faktura została pobrana jako PDF i zapisana pod NIP-em sprzedawcy. Po rejestracji odzyskasz ją w KsięgaI."
-          : "Faktura została pobrana jako PDF, ale tej próby nie udało się zapisać do późniejszego odzyskania. Jeśli chcesz mieć ją w historii po rejestracji, spróbuj wygenerować ją ponownie.",
-      );
+      posthog.capture("free_invoice_generated", {
+        seller_nip: sellerTaxId,
+        seller_name: draft.seller.name,
+        buyer_nip: buyerTaxId,
+        buyer_name: draft.buyer.name,
+        invoice_total_gross: totals.gross,
+        invoice_total_net: totals.net,
+        items_count: draft.items.length,
+        items_summary: draft.items.map((item) => item.name).filter(Boolean).join(", "),
+        lead_email_provided: wantsValidNewsletter,
+        is_reverse_charge: isReverseCharge,
+        save_status: saveStatus,
+      });
+      if (wantsValidNewsletter) {
+        posthog.capture("free_invoice_newsletter_opted_in", {
+          email: normalizedLeadEmail,
+          seller_nip: sellerTaxId,
+        });
+      }
+
+      if (submissionId) {
+        addToInvoiceHistory(submissionId);
+        let krsMatchName: string | null = null;
+        try {
+          const { data } = await (supabase.rpc as any)("lookup_anonymous_invoice", { p_submission_id: submissionId });
+          krsMatchName = (data as { krs_match?: { name?: string } } | null)?.krs_match?.name ?? null;
+        } catch {
+          // best-effort personalization only — not fatal
+        }
+        setPostGenState({ submissionId, pdfBlob, krsMatchName });
+      } else {
+        setMessage(
+          "Faktura została pobrana jako PDF, ale tej próby nie udało się zapisać do późniejszego odzyskania. Jeśli chcesz mieć ją w historii po rejestracji, spróbuj wygenerować ją ponownie.",
+        );
+      }
     } catch (error) {
-      setMessage(
-        saveStatus === "saved"
-          ? "Faktura została zapisana pod NIP-em sprzedawcy, ale nie udało się wygenerować PDF. Spróbuj pobrać ją ponownie za chwilę."
-          : error instanceof Error
-            ? error.message
-            : "Nie udało się wygenerować PDF.",
-      );
+      setMessage(error instanceof Error ? error.message : "Nie udało się wygenerować PDF.");
     } finally {
       setIsGeneratingPdf(false);
     }
@@ -358,6 +478,50 @@ export default function AnonymousInvoiceGenerator() {
 
       <section className="bg-slate-50 dark:bg-slate-950">
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+          {historyEntries.length > 0 && (
+            <div className="mb-8 rounded-3xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+              <p className="text-sm font-semibold text-slate-900 dark:text-slate-50">Twoje poprzednie faktury</p>
+              <div className="mt-3 space-y-2">
+                {historyEntries.map((entry) => (
+                  <div
+                    key={entry.submissionId}
+                    className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm dark:border-slate-800 dark:bg-slate-950/60"
+                  >
+                    <div className="min-w-0">
+                      <span className="font-medium text-slate-900 dark:text-slate-50">{entry.invoiceNumber}</span>
+                      <span className="ml-2 text-slate-500 dark:text-slate-400">
+                        {entry.sellerName} → {entry.buyerName}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3 shrink-0">
+                      {entry.totalGross !== null && (
+                        <span className="text-slate-600 dark:text-slate-300">{formatCurrency(entry.totalGross)}</span>
+                      )}
+                      {entry.pdfSignedUrl && (
+                        <a
+                          href={entry.pdfSignedUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-blue-600 hover:underline dark:text-blue-400"
+                        >
+                          <Download className="h-3.5 w-3.5" />
+                          PDF
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <Link
+                href="/android"
+                className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
+              >
+                <Smartphone className="h-4 w-4" />
+                Pobierz aplikację KsięgaI, żeby mieć faktury zawsze pod ręką
+              </Link>
+            </div>
+          )}
+
           {message && (
             <div className="mb-8 rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900 dark:border-blue-900/60 dark:bg-blue-950/50 dark:text-blue-100">
               {message}
@@ -445,9 +609,16 @@ export default function AnonymousInvoiceGenerator() {
                   </button>
                 </div>
 
+                {isReverseCharge && (
+                  <div className="mt-4 rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-100">
+                    Odwrotne obciążenie — nabywca ma zagraniczny numer VAT-UE. Na fakturze VAT będzie pokazany jako 0%
+                    (VAT rozlicza nabywca).
+                  </div>
+                )}
+
                 <div className="mt-6 space-y-4">
                   {draft.items.map((item, index) => {
-                    const itemTotals = getItemTotals(item);
+                    const itemTotals = getItemTotals(item, isReverseCharge);
 
                     return (
                       <div key={item.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950/70">
@@ -513,7 +684,7 @@ export default function AnonymousInvoiceGenerator() {
                     </div>
                     <div className="flex items-center justify-between">
                       <span>VAT</span>
-                      <span>{formatCurrency(totals.vat)}</span>
+                      <span>{isReverseCharge ? "odwrotne obciążenie" : formatCurrency(totals.vat)}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span>Sprzedawca</span>
@@ -589,38 +760,60 @@ export default function AnonymousInvoiceGenerator() {
         </div>
       </section>
 
-      {showSignupPrompt && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 px-4">
+      {postGenState && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 px-4 py-8 overflow-y-auto">
           <div className="w-full max-w-xl rounded-3xl bg-white p-8 shadow-2xl dark:bg-slate-900">
             <div className="flex items-center gap-3 text-blue-600 dark:text-blue-400">
               <CheckCircle2 className="h-8 w-8" />
               <p className="text-sm font-semibold uppercase tracking-[0.24em]">Faktura gotowa</p>
             </div>
             <h3 className="mt-5 text-3xl font-semibold text-slate-950 dark:text-slate-50">
-              {lastSaveStatus === "saved" ? "Twoja faktura już czeka w KsięgaI" : "Chcesz zarządzać fakturami po rejestracji?"}
+              Twoje konto czeka na Ciebie w KsięgaI, {postGenState.krsMatchName ?? draft.seller.name}
             </h3>
             <p className="mt-4 text-base leading-7 text-slate-600 dark:text-slate-400">
-              {lastSaveStatus === "saved"
-                ? "Załóż konto dla tego samego NIP-u, a wcześniej wygenerowane faktury pojawią się od razu w historii. Od razu wejdziesz też do księgowości, listy klientów i Inboxu dokumentów bez ponownego wpisywania firmy."
-                : "Załóż konto później, aby zarządzać historią faktur, klientami, księgowością i Inboxem dokumentów w jednym miejscu. Jeśli teraz potrzebujesz tylko jednego PDF, po prostu zamknij to okno."}
+              Zapisz tę fakturę, kontrahenta i numerację w darmowym koncie KsięgaI. Nie zaczynaj następnej faktury od
+              zera.
             </p>
+            {isReverseCharge && (
+              <p className="mt-3 text-sm text-amber-700 dark:text-amber-300">
+                Faktura wystawiona z odwrotnym obciążeniem — bez polskiego VAT, rozlicza go nabywca.
+              </p>
+            )}
+            {lastSaveStatus === "save_failed" && (
+              <p className="mt-3 text-sm text-rose-600 dark:text-rose-400">
+                Uwaga: tej faktury nie udało się zapisać do historii — PDF masz już pobrany, ale spróbuj wygenerować
+                ją ponownie, jeśli chcesz mieć ją też w koncie po rejestracji.
+              </p>
+            )}
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-6">
+              <AnonymousInvoicePdfPreview pdfBlob={postGenState.pdfBlob} />
+            </div>
+
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <Link
-                href={`/rejestracja${sellerTaxId ? `?generatorNip=${sellerTaxId}` : ""}`}
-                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-950 px-5 py-3.5 text-base font-semibold text-white transition hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-500"
+                href={`/rejestracja?av=${postGenState.submissionId}`}
+                className="inline-flex flex-1 items-center justify-center gap-2 rounded-2xl bg-slate-950 px-5 py-3.5 text-base font-semibold text-white transition hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-500"
               >
                 Załóż konto i odblokuj księgowość + Inbox
                 <ArrowRight className="h-5 w-5" />
               </Link>
               <button
                 type="button"
-                onClick={() => setShowSignupPrompt(false)}
-                className="rounded-2xl border border-slate-300 px-5 py-3.5 text-base font-medium text-slate-700 transition hover:border-slate-400 hover:text-slate-950 dark:border-slate-700 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:text-slate-50"
+                onClick={() => triggerPdfBlobDownload(postGenState.pdfBlob, draft.invoiceNumber)}
+                className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-300 px-5 py-3.5 text-base font-medium text-slate-700 transition hover:border-slate-400 hover:text-slate-950 dark:border-slate-700 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:text-slate-50"
               >
-                Zostań przy darmowym generatorze
+                <Download className="h-4 w-4" />
+                Pobierz PDF ponownie
               </button>
             </div>
+            <button
+              type="button"
+              onClick={() => setPostGenState(null)}
+              className="mt-3 w-full text-center text-sm font-medium text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
+            >
+              Zostań przy darmowym generatorze
+            </button>
           </div>
         </div>
       )}
@@ -703,12 +896,12 @@ function PartyCard({
           }`}>
             <div className="mt-4">
               <label className="block">
-                <span className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">NIP</span>
+                <span className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">NIP / VAT UE</span>
                 <input
                   type="text"
                   value={party.taxId}
                   onChange={(event) => onChange("taxId", event.target.value)}
-                  placeholder="1234567890"
+                  placeholder="1234567890 lub DE123456789"
                   className={`w-full rounded-2xl border-2 bg-white px-4 py-4 text-xl font-semibold tracking-[0.16em] text-slate-950 outline-none transition dark:bg-slate-900 dark:text-slate-50 ${
                     isComplete
                       ? "border-emerald-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 dark:border-emerald-700 dark:focus:border-emerald-500 dark:focus:ring-emerald-950"

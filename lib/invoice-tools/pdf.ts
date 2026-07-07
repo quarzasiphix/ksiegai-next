@@ -8,23 +8,44 @@ import AnonymousInvoicePdfTemplate from "../../components/invoice-tools/Anonymou
 const PAGE_WIDTH = 794;
 const PAGE_HEIGHT = 1123;
 
-export const downloadAnonymousInvoicePdf = async (draft: AnonymousInvoiceDraft) => {
-  const canvas = await renderInvoiceCanvas(draft);
+export const generateAnonymousInvoicePdfBlob = async (
+  draft: AnonymousInvoiceDraft,
+  isReverseCharge = false,
+): Promise<Blob> => {
+  const canvas = await renderInvoiceCanvas(draft, isReverseCharge);
   const jpegBlob = await canvasToJpegBlob(canvas);
-  const pdfBlob = await createPdfFromJpeg(jpegBlob, canvas.width, canvas.height);
+  return createPdfFromJpeg(jpegBlob, canvas.width, canvas.height);
+};
+
+export const triggerPdfBlobDownload = (pdfBlob: Blob, invoiceNumber: string) => {
   const url = URL.createObjectURL(pdfBlob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = buildInvoiceFilename(draft.invoiceNumber);
+  link.download = buildInvoiceFilename(invoiceNumber);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
   window.setTimeout(() => URL.revokeObjectURL(url), 300);
 };
 
-const renderInvoiceCanvas = async (draft: AnonymousInvoiceDraft) => {
+export const downloadAnonymousInvoicePdf = async (draft: AnonymousInvoiceDraft, isReverseCharge = false) => {
+  const pdfBlob = await generateAnonymousInvoicePdfBlob(draft, isReverseCharge);
+  triggerPdfBlobDownload(pdfBlob, draft.invoiceNumber);
+};
+
+export const blobToBase64 = async (blob: Blob): Promise<string> => {
+  const bytes = new Uint8Array(await blob.arrayBuffer());
+  const chunkSize = 0x8000;
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+  }
+  return btoa(binary);
+};
+
+const renderInvoiceCanvas = async (draft: AnonymousInvoiceDraft, isReverseCharge: boolean) => {
   const { renderToStaticMarkup } = await import("react-dom/server");
-  const markup = renderToStaticMarkup(React.createElement(AnonymousInvoicePdfTemplate, { draft }));
+  const markup = renderToStaticMarkup(React.createElement(AnonymousInvoicePdfTemplate, { draft, isReverseCharge }));
   const dataUrl = buildSvgDataUrl(markup, PAGE_WIDTH, PAGE_HEIGHT);
   const image = await loadImage(dataUrl);
 

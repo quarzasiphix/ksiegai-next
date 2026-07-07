@@ -1,5 +1,5 @@
 import { supabase } from "../supabase";
-import { getInvoiceTotals, sanitizeTaxId, type AnonymousInvoiceDraft } from "./anonymousInvoice";
+import { getInvoiceTotals, sanitizeVatOrTaxId, type AnonymousInvoiceDraft } from "./anonymousInvoice";
 
 const ANONYMOUS_INVOICE_SOURCE = "anonymous_generator";
 
@@ -8,9 +8,14 @@ type AnonymousLeadPayload = {
   wantsNewsletter: boolean;
 };
 
-export async function persistAnonymousInvoiceDraft(draft: AnonymousInvoiceDraft, lead?: AnonymousLeadPayload) {
+export async function persistAnonymousInvoiceDraft(
+  draft: AnonymousInvoiceDraft,
+  lead?: AnonymousLeadPayload,
+  pdfBase64?: string,
+  isReverseCharge = false,
+) {
   const submissionId = crypto.randomUUID();
-  const totals = getInvoiceTotals(draft.items);
+  const totals = getInvoiceTotals(draft.items, isReverseCharge);
 
   const { data, error } = await supabase.functions.invoke("store-anonymous-invoice", {
     body: {
@@ -18,11 +23,11 @@ export async function persistAnonymousInvoiceDraft(draft: AnonymousInvoiceDraft,
       submissionId,
       seller: {
         ...draft.seller,
-        taxId: sanitizeTaxId(draft.seller.taxId),
+        taxId: sanitizeVatOrTaxId(draft.seller.taxId),
       },
       buyer: {
         ...draft.buyer,
-        taxId: sanitizeTaxId(draft.buyer.taxId),
+        taxId: sanitizeVatOrTaxId(draft.buyer.taxId),
       },
       invoiceNumber: draft.invoiceNumber,
       issueDate: draft.issueDate,
@@ -40,6 +45,8 @@ export async function persistAnonymousInvoiceDraft(draft: AnonymousInvoiceDraft,
       totals,
       leadEmail: lead?.email,
       wantsNewsletter: lead?.wantsNewsletter ?? false,
+      pdfBase64,
+      isReverseCharge,
     },
   });
 
@@ -47,5 +54,5 @@ export async function persistAnonymousInvoiceDraft(draft: AnonymousInvoiceDraft,
     throw new Error(error.message || "Nie udało się zapisać faktury do późniejszego odzyskania.");
   }
 
-  return data as { id: string; success: boolean; reused: boolean };
+  return { ...(data as { id: string; success: boolean; reused: boolean }), submissionId };
 }

@@ -16,6 +16,7 @@ import {
 import { Mail, Lock, ExternalLink, UserRoundCheck } from "lucide-react";
 import InviteActivationOverlay, { type FullInviteData } from "../../components/invites/InviteActivationOverlay";
 import { InviteCompanyCard } from "../../components/invites/InviteCompanyCard";
+import { getStoredAnonInvoiceId, persistAnonInvoiceId } from "../../lib/invoice-tools/anonInvoiceClaim";
 
 const INBOX_PROVIDERS: Record<string, { name: string; url: string }> = {
   "gmail.com":      { name: "Gmail",         url: "https://mail.google.com" },
@@ -117,6 +118,12 @@ export default function RegisterClient({
 }) {
   const searchParams = useSearchParams();
   const inviteToken = searchParams?.get("invite") ?? initialInviteToken ?? null;
+  const avParam = searchParams?.get("av") ?? null;
+  const [anonInvoiceId, setAnonInvoiceId] = useState<string | null>(null);
+  const [anonInvoiceData, setAnonInvoiceData] = useState<{
+    sellerName: string;
+    krsMatchName: string | null;
+  } | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
@@ -212,6 +219,31 @@ export default function RegisterClient({
 
   useEffect(() => { setVariantAssignments(getVariantAssignments()); }, []);
   useEffect(() => { setIsApplePlatform(/Mac|iPhone|iPad|iPod/i.test(navigator.userAgent)); }, []);
+
+  // Free-invoice-generator "claim your company" flow — only when there's no real admin invite.
+  useEffect(() => {
+    if (inviteToken) return;
+    const id = avParam || getStoredAnonInvoiceId();
+    if (!id) return;
+
+    persistAnonInvoiceId(id);
+    setAnonInvoiceId(id);
+    if (avParam) {
+      const clean = new URL(window.location.href);
+      clean.searchParams.delete("av");
+      window.history.replaceState({}, "", clean.toString());
+    }
+
+    void (async () => {
+      const { data } = await (supabase.rpc as any)("lookup_anonymous_invoice", { p_submission_id: id });
+      if (data?.found) {
+        setAnonInvoiceData({
+          sellerName: data.seller_name,
+          krsMatchName: data.krs_match?.name ?? null,
+        });
+      }
+    })();
+  }, [avParam, inviteToken]);
 
   useEffect(() => {
     const urlToken = inviteToken;
@@ -525,7 +557,9 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
     const { error: err } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback?reg=password` },
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback?reg=password${anonInvoiceId ? `&av=${anonInvoiceId}` : ""}`,
+      },
     });
     setLoading(false);
 
@@ -554,7 +588,9 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
     awaitingEmailConfirm.current = true;
     regMethod.current = "magic_link";
     const pendingToken = getStoredInviteToken();
-    const inviteParam = pendingToken ? `reg=invite&inv=${await sha256hex(pendingToken)}` : `reg=magic_link`;
+    const inviteParam = pendingToken
+      ? `reg=invite&inv=${await sha256hex(pendingToken)}`
+      : `reg=magic_link${anonInvoiceId ? `&av=${anonInvoiceId}` : ""}`;
     if (pendingToken) {
       captureInviteEvent("invite_registration_started", {
         method: "magic_link",
@@ -583,7 +619,9 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
     setLoading(true);
     const { error: err } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback?reg=${regMethod.current}` },
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback?reg=${regMethod.current}${anonInvoiceId ? `&av=${anonInvoiceId}` : ""}`,
+      },
     });
     setLoading(false);
     if (err) setError("Nie udało się wysłać linku. Spróbuj ponownie.");
@@ -596,7 +634,7 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
       const hash = await sha256hex(pendingToken);
       return `${window.location.origin}/auth/callback?reg=invite&inv=${hash}`;
     }
-    return `${window.location.origin}/auth/callback`;
+    return `${window.location.origin}/auth/callback${anonInvoiceId ? `?av=${anonInvoiceId}` : ""}`;
   };
 
   const handleGoogle = async () => {
@@ -1193,9 +1231,13 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-7">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Zacznij za darmo</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            {anonInvoiceData ? "Twoje konto czeka na Ciebie" : "Zacznij za darmo"}
+          </h1>
           <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            Bez karty płatniczej &nbsp;·&nbsp; Faktury od razu &nbsp;·&nbsp; Zgodne z KSeF
+            {anonInvoiceData
+              ? `Dokończ profil ${anonInvoiceData.krsMatchName ?? anonInvoiceData.sellerName} — dane z Twojej ostatniej faktury już czekają.`
+              : "Bez karty płatniczej  ·  Faktury od razu  ·  Zgodne z KSeF"}
           </p>
         </div>
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-7 space-y-4">
