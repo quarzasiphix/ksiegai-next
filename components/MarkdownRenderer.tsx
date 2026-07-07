@@ -95,6 +95,64 @@ export function MarkdownRenderer({ content }: { content: string }) {
       continue;
     }
 
+    // Table: | Header | Header |  followed by |---|---| separator
+    if (
+      line.trim().startsWith('|') &&
+      i + 1 < lines.length &&
+      /^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$/.test(lines[i + 1])
+    ) {
+      const parseRow = (row: string) =>
+        row
+          .trim()
+          .replace(/^\|/, '')
+          .replace(/\|$/, '')
+          .split('|')
+          .map((cell) => cell.trim());
+
+      const headerCells = parseRow(line);
+      i += 2; // skip header + separator
+
+      const bodyRows: string[][] = [];
+      while (i < lines.length && lines[i].trim().startsWith('|')) {
+        bodyRows.push(parseRow(lines[i]));
+        i++;
+      }
+
+      elements.push(
+        <div
+          key={keyCounter++}
+          className="mb-6 overflow-x-auto rounded-2xl border border-black/10 dark:border-white/10"
+        >
+          <table className="w-full min-w-[480px] border-collapse text-left text-[15px]">
+            <thead>
+              <tr className="bg-black/[0.03] dark:bg-white/[0.04]">
+                {headerCells.map((cell, idx) => (
+                  <th
+                    key={idx}
+                    className="border-b border-black/10 px-4 py-3 font-semibold text-slate-900 dark:border-white/10 dark:text-white"
+                  >
+                    {parseInline(cell)}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {bodyRows.map((row, rowIdx) => (
+                <tr key={rowIdx} className="border-b border-black/5 last:border-0 dark:border-white/5">
+                  {row.map((cell, cellIdx) => (
+                    <td key={cellIdx} className="px-4 py-3 align-top text-slate-700 dark:text-slate-300">
+                      {parseInline(cell)}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+      continue;
+    }
+
     // Blockquote: > Text
     if (line.startsWith('> ')) {
       elements.push(

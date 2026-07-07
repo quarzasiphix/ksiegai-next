@@ -261,19 +261,29 @@ Wejdź na [podatki.gov.pl](https://www.podatki.gov.pl/e-urzad-skarbowy/) i zalog
 
 Po zalogowaniu w prawym górnym rogu (lub w menu) poszukaj opcji **„Przełącz podmiot"** lub **„Działaj jako"**. Powinna pojawić się lista podmiotów powiązanych z Twoim PESEL.
 
-### 3. Spółka nie pojawia się na liście?
+### 3. Spółka nie pojawia się na liście? — dla świeżo zarejestrowanej spółki licz się z wizytą w urzędzie
 
-To częsty problem po świeżej rejestracji. Powody:
+To częsty, wręcz standardowy problem po świeżej rejestracji (szczególnie przez S24 lub PRS). Automatyczne powiązanie KRS/NIP z PESEL reprezentanta bywa niedokończone i samo czekanie często nic nie zmienia.
 
-- **Za wcześnie** — powiązanie KRS/NIP z PESEL reprezentanta jest synchronizowane z baz danych; może minąć od kilku do kilkunastu dni po rejestracji w KRS.
+W praktyce pierwsza osoba uprawniona do reprezentacji **musi zwykle stawić się osobiście w placówce właściwego Urzędu Skarbowego** i złożyć tam papierowy wniosek o nadanie sobie dostępu do konta organizacji dla nowo zarejestrowanej spółki. Zabierz ze sobą:
+
+- odpis / wypis z KRS,
+- dokument tożsamości,
+- NIP spółki.
+
+Inne możliwe powody braku spółki na liście, jeśli wizyta w US nie jest jeszcze potrzebna:
+
+- **Za wcześnie** — powiązanie bywa zsynchronizowane po kilku dniach od rejestracji, zanim trzeba iść do urzędu.
 - **Błąd w KRS** — jeśli Twój PESEL jest wpisany błędnie w KRS, system nie powiąże Cię ze spółką. Wymaga to sprostowania w KRS.
 - **Kilka NIP** — jeśli spółka zmieniała NIP (np. po przekształceniu), może być zarejestrowana pod starym numerem.
 
-Jeśli powiązanie nie pojawia się przez ponad 2 tygodnie od nadania NIP — zgłoś się do właściwego Urzędu Skarbowego z wypisem z KRS.
-
 ### 4. Uaktywnij konto organizacji
 
-Po wybraniu spółki z listy system może poprosić o dodatkowe potwierdzenie tożsamości. Po przejściu aktywacji masz pełny dostęp do konta organizacji: historia deklaracji, JPK, KSeF, pełnomocnictwa.
+Po wizycie w urzędzie (albo po pojawieniu się spółki na liście automatycznie) system może poprosić o dodatkowe potwierdzenie tożsamości przy wyborze podmiotu. Po przejściu aktywacji masz pełny dostęp do konta organizacji: historia deklaracji, JPK, KSeF, pełnomocnictwa. Dopiero z tego poziomu składasz **ZAW-FA** (start KSeF) i nadajesz sobie dalsze pełnomocnictwa.
+
+## NIP-8 nie musi czekać na konto organizacji
+
+Konto organizacji bywa najwolniejszym elementem całej ścieżki. Na złożenie **NIP-8** nie trzeba czekać: możesz nadać sobie **UPL-1** (pełnomocnictwo do podpisywania deklaracji elektronicznych) i złożyć NIP-8 od razu, równolegle do załatwiania konta organizacji. Konto organizacji i ZAW-FA (potrzebne do KSeF) dogrywasz osobno, w swoim tempie.
 
 ## Jak nadać dostęp biuru rachunkowemu
 
@@ -294,8 +304,9 @@ Każdy członek zarządu uprawniony do samodzielnej reprezentacji może mieć w�
     checklist: [
       'Zaloguj się do e-US profilem zaufanym lub e-dowodem.',
       'Kliknij „Przełącz podmiot" i sprawdź czy spółka jest na liście.',
-      'Jeśli nie ma spółki — poczekaj min. 2 tygodnie od rejestracji KRS/NIP.',
+      'Jeśli nie ma spółki — licz się z wizytą w placówce US z wypisem z KRS, żeby złożyć papierowy wniosek o dostęp.',
       'Aktywuj konto organizacji dla spółki (NIP firmy).',
+      'Jeśli potrzebujesz złożyć NIP-8 od razu — nadaj sobie UPL-1 i nie czekaj na konto organizacji.',
       'Zweryfikuj dostęp do zakładki JPK i historii deklaracji spółki.',
       'Złóż lub przyjmij UPL-1 dla biura rachunkowego.',
       'Przejdź do portalu KSeF i skonfiguruj uprawnienia do fakturowania.',
@@ -312,7 +323,11 @@ Każdy członek zarządu uprawniony do samodzielnej reprezentacji może mieć w�
     faq: [
       {
         question: 'Ile czasu czekać na pojawienie się spółki na liście podmiotów?',
-        answer: 'Zazwyczaj od kilku dni do 2 tygodni po nadaniu NIP. Jeśli po 2 tygodniach nadal nie widać — skontaktuj się z właściwym US z wypisem z KRS.',
+        answer: 'Dla świeżo zarejestrowanej spółki zwykle nie warto tylko czekać — najczęściej trzeba stawić się osobiście w placówce właściwego US z wypisem z KRS i złożyć papierowy wniosek o dostęp do konta organizacji.',
+      },
+      {
+        question: 'Czy muszę mieć konto organizacji, żeby złożyć NIP-8?',
+        answer: 'Nie. NIP-8 można złożyć od razu po nadaniu sobie UPL-1, bez czekania na aktywację konta organizacji. Konto organizacji i ZAW-FA do KSeF można załatwić osobno, później.',
       },
       {
         question: 'Czy każdy członek zarządu musi zakładać konto organizacji osobno?',
@@ -350,6 +365,10 @@ Każdy członek zarządu uprawniony do samodzielnej reprezentacji może mieć w�
 NIP-8 to zgłoszenie uzupełniające danych podmiotu wpisanego do KRS. Sam wpis do KRS i nadanie NIP nie przekazują wszystkich informacji potrzebnych urzędowi skarbowemu i ZUS.
 
 W praktyce NIP-8 służy do dopięcia danych operacyjnych spółki po rejestracji.
+
+## Gdzie złożyć NIP-8
+
+NIP-8 składa się elektronicznie w **e-Urzędzie Skarbowym** (podatki.gov.pl). Do wysyłki potrzebne jest konto organizacji spółki w e-US — jeśli go jeszcze nie masz, załóż je najpierw.
 
 ## Kiedy złożyć NIP-8
 
@@ -398,6 +417,7 @@ NIP-8 często pojawia się obok innych kroków po rejestracji spółki:
 Jeżeli dane kontaktowe, adresowe albo rachunkowe są nieaktualne, kolejne kroki robią się bardziej chaotyczne.`,
     checklist: [
       'Upewnij się, że spółka ma już wpis do KRS i nadany NIP.',
+      'Załóż konto organizacji w e-Urzędzie Skarbowym, jeśli jeszcze go nie masz.',
       'Przygotuj numery rachunków bankowych spółki.',
       'Spisz aktualne adresy i dane kontaktowe spółki.',
       'Ustal, jakie dane o księgowości i przechowywaniu dokumentów trzeba uzupełnić.',
@@ -416,6 +436,10 @@ Jeżeli dane kontaktowe, adresowe albo rachunkowe są nieaktualne, kolejne kroki
       {
         question: 'Czy NIP-8 składa się przed wpisem do KRS?',
         answer: 'Nie. To zgłoszenie uzupełniające dla podmiotu już wpisanego do KRS, po uzyskaniu numeru NIP.',
+      },
+      {
+        question: 'Gdzie złożyć NIP-8?',
+        answer: 'Elektronicznie przez e-Urząd Skarbowy (podatki.gov.pl), z konta organizacji spółki.',
       },
       {
         question: 'Czy rachunek bankowy spółki zgłasza się właśnie przez NIP-8?',
@@ -902,7 +926,7 @@ Samo to, że ktoś jest w KRS, nie oznacza jeszcze automatycznego wejścia do po
 ## Właściwa kolejność kroków
 
 1. Osoba z KRS loguje się do e-Urzędu Skarbowego.
-2. Przełącza się na **konto organizacji** spółki.
+2. Przełącza się na [konto organizacji](/poradnik/konto-organizacji-e-urzad-skarbowy-spolka) spółki.
 3. Z poziomu konta organizacji składa **ZAW-FA** dla siebie albo dla osoby, która ma rozpocząć pracę z KSeF.
 4. Dopiero po skutecznym ZAW-FA możliwe jest pierwsze logowanie do portalu KSeF w imieniu spółki.
 5. Po wejściu do KSeF można wygenerować token dla aplikacji (np. KsięgaI) i nadać dalsze uprawnienia innym osobom albo biuru rachunkowemu.
@@ -2426,7 +2450,7 @@ Jeśli chcesz dać komuś stałe szerokie uprawnienia do działania w imieniu sp
     ],
     related_actions: [
       { label: 'Rejestruj uchwały w KsięgaI', href: '/rejestracja' },
-      { label: 'Przeczytaj o KSH art. 210', href: '/poradnik/uchwaly-decyzje/ksh-art-210-pelnomocnik-umowy-z-czlonkami-zarzadu' },
+      { label: 'Przeczytaj o KSH art. 210', href: '/poradnik/ksh-art-210-pelnomocnik-umowy-z-czlonkami-zarzadu' },
     ],
     faq: [
       {
@@ -2561,8 +2585,8 @@ Gdy przychodzi audyt, nie szukasz dokumentów w mailach — filtrujesz decyzje p
     ],
     related_actions: [
       { label: 'Zarządzaj uchwałami w KsięgaI', href: '/rejestracja' },
-      { label: 'KSH art. 210 — dlaczego pełnomocnik jest kluczowy', href: '/poradnik/uchwaly-decyzje/ksh-art-210-pelnomocnik-umowy-z-czlonkami-zarzadu' },
-      { label: 'Pełnomocnik w sp. z o.o. — kiedy i jak', href: '/poradnik/uchwaly-decyzje/pelnomocnik-spolka-zoo-kiedy-i-jak-powolac' },
+      { label: 'KSH art. 210 — dlaczego pełnomocnik jest kluczowy', href: '/poradnik/ksh-art-210-pelnomocnik-umowy-z-czlonkami-zarzadu' },
+      { label: 'Pełnomocnik w sp. z o.o. — kiedy i jak', href: '/poradnik/pelnomocnik-spolka-zoo-kiedy-i-jak-powolac' },
     ],
     faq: [
       {
@@ -2653,7 +2677,7 @@ Przy kwotach poniżej progów dokumentacyjnych dla cen transferowych ryzyko jest
 - sposób wypłaty (przelew na konto spółki)
 - podpisy obu stron
 
-> **Ważne:** jeśli pożyczkodawcą jest wspólnik będący jednocześnie **członkiem zarządu**, do podpisania umowy po stronie spółki potrzebny jest **pełnomocnik powołany uchwałą wspólników** (KSH art. 210). Zarząd nie może sam ze sobą zawierać umów. [Przeczytaj więcej o KSH art. 210 →](/poradnik/uchwaly-decyzje/ksh-art-210-pelnomocnik-umowy-z-czlonkami-zarzadu)
+> **Ważne:** jeśli pożyczkodawcą jest wspólnik będący jednocześnie **członkiem zarządu**, do podpisania umowy po stronie spółki potrzebny jest **pełnomocnik powołany uchwałą wspólników** (KSH art. 210). Zarząd nie może sam ze sobą zawierać umów. [Przeczytaj więcej o KSH art. 210 →](/poradnik/ksh-art-210-pelnomocnik-umowy-z-czlonkami-zarzadu)
 
 ## Dopłaty do spółki (art. 177–179 KSH)
 
@@ -2714,8 +2738,8 @@ Pożyczka wspólnika jest najczęściej wybierana przez małe spółki z o.o. ze
     ],
     related_actions: [
       { label: 'Zarządzaj finansami spółki w KsięgaI', href: '/rejestracja' },
-      { label: 'KSH art. 210 — pełnomocnik do umów z zarządem', href: '/poradnik/uchwaly-decyzje/ksh-art-210-pelnomocnik-umowy-z-czlonkami-zarzadu' },
-      { label: 'Jak wyprowadzić zysk ze spółki', href: '/poradnik/finanse-spolki/jak-wyprowadzic-zysk-ze-spolki-zoo-dywidenda-wynajem-b2b' },
+      { label: 'KSH art. 210 — pełnomocnik do umów z zarządem', href: '/poradnik/ksh-art-210-pelnomocnik-umowy-z-czlonkami-zarzadu' },
+      { label: 'Jak wyprowadzić zysk ze spółki', href: '/poradnik/jak-wyprowadzic-zysk-ze-spolki-zoo-dywidenda-wynajem-b2b' },
     ],
     faq: [
       {
@@ -2807,7 +2831,7 @@ To jedna z najtańszych podatkowo metod wypłaty, jeśli masz coś, co spółka 
 ### Na co uważać
 
 - Czynsz musi być **rynkowy** — transakcja z podmiotem powiązanym może być kwestionowana przez US, jeśli czynsz odbiega od stawek rynkowych
-- Przy umowie najmu z samym sobą jako zarządem: **art. 210 KSH** — spółka musi mieć pełnomocnika powołanego uchwałą ZW do podpisania umowy ([szczegóły tutaj](/poradnik/uchwaly-decyzje/ksh-art-210-pelnomocnik-umowy-z-czlonkami-zarzadu))
+- Przy umowie najmu z samym sobą jako zarządem: **art. 210 KSH** — spółka musi mieć pełnomocnika powołanego uchwałą ZW do podpisania umowy ([szczegóły tutaj](/poradnik/ksh-art-210-pelnomocnik-umowy-z-czlonkami-zarzadu))
 - Samochód wynajmowany spółce: spółka może odliczyć 75% VAT i zaliczać czynsz w koszty (przy użytku mieszanym — szczegóły zależą od sposobu użytkowania)
 
 ## Wynagrodzenie za zarządzanie spółką
@@ -2897,8 +2921,8 @@ Nie ma jednej optymalnej metody. Właściciele spółek często łączą kilka �
     ],
     related_actions: [
       { label: 'Zarządzaj finansami spółki w KsięgaI', href: '/rejestracja' },
-      { label: 'Jak finansować spółkę — pożyczka wspólnika i dopłaty', href: '/poradnik/finanse-spolki/finansowanie-spolki-pozyczka-wspolnika-doplaty-kapital' },
-      { label: 'KSH art. 210 — pełnomocnik do umów z zarządem', href: '/poradnik/uchwaly-decyzje/ksh-art-210-pelnomocnik-umowy-z-czlonkami-zarzadu' },
+      { label: 'Jak finansować spółkę — pożyczka wspólnika i dopłaty', href: '/poradnik/finansowanie-spolki-pozyczka-wspolnika-doplaty-kapital' },
+      { label: 'KSH art. 210 — pełnomocnik do umów z zarządem', href: '/poradnik/ksh-art-210-pelnomocnik-umowy-z-czlonkami-zarzadu' },
     ],
     faq: [
       {

@@ -251,6 +251,28 @@ export default async function WikiArticlePage({ params }: PageProps) {
             </article>
 
             <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
+              {article.official_links.length ? (
+                <section className="relative rounded-[28px] p-[1px] bg-[linear-gradient(135deg,rgba(255,255,255,0.9),rgba(148,163,184,0.5),rgba(255,255,255,0.9))] shadow-[0_0_28px_-6px_rgba(255,255,255,0.65)] dark:bg-[linear-gradient(135deg,rgba(255,255,255,0.35),rgba(100,116,139,0.35),rgba(255,255,255,0.25))] dark:shadow-[0_0_28px_-6px_rgba(255,255,255,0.18)]">
+                  <div className="rounded-[27px] border border-black/10 bg-white/88 p-6 shadow-[0_24px_80px_-54px_rgba(15,23,42,0.35)] dark:border-white/10 dark:bg-white/[0.04]">
+                    <h2 className="mb-4 text-lg font-semibold">Oficjalne linki</h2>
+                    <div className="space-y-3">
+                      {article.official_links.map((link) => (
+                        <a
+                          key={`${link.href}-${link.label}`}
+                          href={link.href}
+                          target={link.external ? '_blank' : undefined}
+                          rel={link.external ? 'noopener noreferrer' : undefined}
+                          className="flex items-center justify-between gap-3 rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm transition-colors hover:border-sky-500/30 hover:bg-sky-50/60 dark:border-white/10 dark:bg-white/[0.03] dark:hover:bg-white/[0.05]"
+                        >
+                          <span className="text-slate-700 dark:text-slate-200">{link.label}</span>
+                          <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                </section>
+              ) : null}
+
               {article.checklist.length ? (
                 <section className="rounded-[28px] border border-black/10 bg-white/88 p-6 shadow-[0_24px_80px_-54px_rgba(15,23,42,0.35)] dark:border-white/10 dark:bg-white/[0.04]">
                   <div className="mb-4 flex items-center gap-2">
@@ -263,26 +285,6 @@ export default async function WikiArticlePage({ params }: PageProps) {
                         <CheckCircle2 className="mt-1 h-4 w-4 flex-shrink-0 text-emerald-600 dark:text-emerald-400" />
                         <span className="text-slate-700 dark:text-slate-200">{item}</span>
                       </div>
-                    ))}
-                  </div>
-                </section>
-              ) : null}
-
-              {article.official_links.length ? (
-                <section className="rounded-[28px] border border-black/10 bg-white/88 p-6 shadow-[0_24px_80px_-54px_rgba(15,23,42,0.35)] dark:border-white/10 dark:bg-white/[0.04]">
-                  <h2 className="mb-4 text-lg font-semibold">Oficjalne linki</h2>
-                  <div className="space-y-3">
-                    {article.official_links.map((link) => (
-                      <a
-                        key={`${link.href}-${link.label}`}
-                        href={link.href}
-                        target={link.external ? '_blank' : undefined}
-                        rel={link.external ? 'noopener noreferrer' : undefined}
-                        className="flex items-center justify-between gap-3 rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm transition-colors hover:border-sky-500/30 hover:bg-sky-50/60 dark:border-white/10 dark:bg-white/[0.03] dark:hover:bg-white/[0.05]"
-                      >
-                        <span className="text-slate-700 dark:text-slate-200">{link.label}</span>
-                        <ExternalLink className="h-4 w-4 text-muted-foreground" />
-                      </a>
                     ))}
                   </div>
                 </section>
