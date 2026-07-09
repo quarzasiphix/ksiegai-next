@@ -30,10 +30,9 @@ const plans = [
     cadence: "miesiąc",
     icon: Calculator,
     features: [
-      "Faktury + ewidencja przychodów, bez limitu dokumentów",
       "Import banku z pliku CSV (integracje bankowe w przygotowaniu)",
-      "Obsługa KSeF: walidacje, archiwum i workflow wysyłki",
-      "Eksport JPK_V7K i zestawień PIT",
+      "Rozliczenia VAT, JPK_V7K, PIT i składki ZUS",
+      "Dodawanie zespołu i zarządzanie dostępem",
       "Bez limitu użytkowników w Twojej firmie",
     ],
     cta: { label: "Rozpocznij 7-dniowy trial", href: "/rejestracja" },
@@ -78,7 +77,7 @@ const plans = [
 const comparison = [
   { label: "Limit dokumentów", jdg: "Bez limitu", standard: "Bez limitu", enterprise: "Bez limitu, wiele podmiotów" },
   { label: "Użytkownicy w firmie", jdg: "Bez limitu", standard: "Bez limitu", enterprise: "Bez limitu + ustalenia indywidualne" },
-  { label: "Deklaracje podatkowe", jdg: "PIT, JPK_V7K", standard: "JPK_V7M, CIT-8", enterprise: "Pełny pakiet + raporty na zamówienie" },
+  { label: "Deklaracje podatkowe", jdg: "VAT, PIT, JPK_V7K, ZUS", standard: "JPK_V7M, CIT-8", enterprise: "Pełny pakiet + raporty na zamówienie" },
   { label: "Płatności online", jdg: "—", standard: "Stripe (karta, BLIK, Google Pay)", enterprise: "Stripe + ustalenia indywidualne" },
   { label: "Governance", jdg: "Checklista JDG", standard: "Repozytorium uchwał, majątku i ryzyk", enterprise: "Governance dla grupy kapitałowej" },
 ];
