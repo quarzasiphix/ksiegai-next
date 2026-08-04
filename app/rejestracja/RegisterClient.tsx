@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 import { storeAuthToken, redirectToApp } from "../../lib/auth/crossDomainAuth";
@@ -8,6 +8,7 @@ import { getInviteOnboardingPath } from "../../lib/auth/inviteOnboarding";
 import { setAuthFlowOrigin } from "../../lib/auth/welcomeEmail";
 import { listAccessibleHomeBusinessProfiles } from "../../lib/home/businessProfiles";
 import { getSessionId, getVariantAssignments } from "../../lib/ab-testing-ssg";
+import { publicApiAction, gatewayFetch } from "../../lib/gateway";
 import {
   captureInviteEvent,
   identifyInvitedUser,
@@ -134,6 +135,14 @@ export default function RegisterClient({
   const awaitingEmailConfirm = useRef(false);
   const suppressSignedInRedirect = useRef(false);
   const regMethod = useRef<"password" | "magic_link">("password");
+  // Native `autoFocus` also scrollIntoView()s the field — on the invite
+  // two-column layout that can jump the page past its top on load (the left
+  // company-details column is often taller than the viewport). Focus without
+  // the scroll instead. useCallback keeps the ref identity stable across
+  // re-renders so React only calls it on actual mount, not every render.
+  const focusWithoutScroll = useCallback((el: HTMLInputElement | null) => {
+    el?.focus({ preventScroll: true });
+  }, []);
   const [useMagicLink, setUseMagicLink] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
   const [sessionId] = useState(() => getSessionId());
@@ -262,7 +271,9 @@ export default function RegisterClient({
     }
     sha256hex(token).then(async (hash) => {
       tokenHashRef.current = hash;
-      const { data } = await (supabase.rpc as any)("lookup_admin_invite", { p_token_hash: hash });
+      const data = await publicApiAction<{ invite: any }>("invite.lookup", { tokenHash: hash })
+        .then((result) => result.invite)
+        .catch(() => null);
       if (data?.is_valid) {
         registerInviteAttribution({
           invite_token_hash: hash,
@@ -343,7 +354,7 @@ export default function RegisterClient({
 
       if (event === "SIGNED_IN" && session && !awaitingEmailConfirm.current) {
         posthog.identify(session.user.id, { email: session.user.email });
-        void trackConversion(session.user.id);
+        void trackConversion(session.user.id, session.access_token);
         storeAuthToken({
           access_token: session.access_token,
           refresh_token: session.refresh_token,
@@ -377,26 +388,29 @@ export default function RegisterClient({
     })();
   }, []);
 
-  const trackConversion = async (userId: string) => {
+  const trackConversion = async (userId: string, accessToken: string) => {
     try {
       const key = `ab_registration_conversion_sent:${sessionId}:${userId}`;
       if (typeof window !== "undefined" && localStorage.getItem(key) === "1") return;
       const method = useMagicLink ? "magic_link" : "password";
-      const { error } = await (supabase.rpc as any)("track_registration_conversion", {
-        p_session_id: sessionId,
-        p_registration_method: method,
-      });
-      if (error) {
+      let converted = false;
+      try {
+        const result = await publicApiAction<{ success: boolean }>(
+          "abTest.trackConversion",
+          { session_id: sessionId, registration_method: method },
+          accessToken,
+        );
+        converted = result.success;
+      } catch (err) {
+        console.error("Error tracking registration conversion:", err);
+      }
+      if (!converted) {
         for (const [testId, variantId] of Object.entries(variantAssignments || {})) {
-          await fetch("/api/ab-track", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              test_id: testId, variant_id: variantId, session_id: sessionId,
-              event_type: "signup", event_name: "registration_completed",
-              event_metadata: { registration_method: method, user_id: userId },
-              page_path: "/rejestracja",
-            }),
+          await publicApiAction("abTest.track", {
+            test_id: testId, variant_id: variantId, session_id: sessionId,
+            event_type: "signup", event_name: "registration_completed",
+            event_metadata: { registration_method: method, user_id: userId },
+            page_path: "/rejestracja",
           });
         }
       }
@@ -442,17 +456,21 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
           method: "password",
           page: "/rejestracja",
         });
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-        const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-        const res = await fetch(`${supabaseUrl}/functions/v1/register-invited-user`, {
+        type RegisterInvitedUserResult = {
+          error?: string;
+          access_token?: string;
+          refresh_token?: string;
+          expires_at?: number;
+          user_id?: string;
+          user_email?: string;
+          user_created_at?: string;
+        };
+        const result = await gatewayFetch<RegisterInvitedUserResult>("/v1/public/invite/register", {
           method: "POST",
-          headers: { "Content-Type": "application/json", "apikey": anonKey },
           body: JSON.stringify({ email, password, token_hash: tokenHash }),
-        });
-        const result = await res.json();
+        }).catch((gatewayError): RegisterInvitedUserResult => ({ error: gatewayError?.message ?? "Registration failed" }));
 
-        if (!res.ok || result.error) {
+        if (result.error) {
           const msg = (result.error ?? "").toLowerCase();
           if (msg.includes("already") || msg.includes("exists")) {
             window.location.href = "/logowanie";
@@ -465,28 +483,38 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
 
         suppressSignedInRedirect.current = true;
         await supabase.auth.setSession({
-          access_token: result.access_token,
-          refresh_token: result.refresh_token,
+          access_token: result.access_token!,
+          refresh_token: result.refresh_token!,
         });
 
-        identifyInvitedUser(result.user_id, result.user_email);
+        identifyInvitedUser(result.user_id!, result.user_email);
         posthog.capture("register_password_signup", { invite: true });
-        await trackConversion(result.user_id);
+        await trackConversion(result.user_id!, result.access_token!);
 
         storeAuthToken({
-          access_token: result.access_token,
-          refresh_token: result.refresh_token,
+          access_token: result.access_token!,
+          refresh_token: result.refresh_token!,
           expires_at: result.expires_at || 0,
-          user_id: result.user_id,
+          user_id: result.user_id!,
         });
 
-        const { data: claimData, error: claimError } = await (supabase.rpc as any)("claim_admin_invite", {
-          p_token_hash: tokenHash,
-        });
+        // A failure here (network hiccup, gateway cold start, etc.) still leaves
+        // the account created and signed in above — falls through to the
+        // generic /onboard below rather than losing the session. The retry
+        // path lives in /logowanie: pending_invite_token stays in localStorage
+        // (not cleared below) so both the SIGNED_IN listener and "Kontynuuj do
+        // aplikacji" on that page attempt this same claim again before
+        // defaulting to /dashboard.
+        const claimData = await publicApiAction<{ claim: any }>("invite.claim", { tokenHash }, result.access_token!)
+          .then((r) => r.claim)
+          .catch((claimError) => {
+            console.error("[Register] invite.claim failed (account was still created):", claimError);
+            return null;
+          });
 
-        if (!claimError && claimData) {
+        if (claimData) {
           const { business_profile_id, company_name, invite_id, campaign_source } = claimData;
-          identifyInvitedUser(result.user_id, result.user_email, {
+          identifyInvitedUser(result.user_id!, result.user_email, {
             invited: true,
             invite_id,
             invite_company_name: company_name,
@@ -927,7 +955,7 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
                   required
                   autoComplete="new-password"
                   placeholder="Hasło"
-                  autoFocus
+                  ref={focusWithoutScroll}
                   className="w-full pl-9 pr-4 py-3.5 border-0 focus:outline-none focus:ring-0 text-sm bg-transparent text-gray-900 dark:text-white placeholder:text-gray-400"
                 />
               </div>
@@ -945,7 +973,7 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
                 onChange={(e) => setPasswordConfirm(e.target.value)}
                 required
                 autoComplete="new-password"
-                autoFocus
+                ref={focusWithoutScroll}
                 placeholder="Powtórz hasło"
                 className="w-full pl-9 pr-4 py-3.5 rounded-xl border-2 border-blue-400 dark:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-0 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder:text-gray-400"
               />

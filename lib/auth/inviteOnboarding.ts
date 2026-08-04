@@ -5,5 +5,13 @@ export function getInviteOnboardingPath(companyType?: string | null): string {
     return "/onboard/jdg";
   }
 
+  if (normalized === "stowarzyszenie") {
+    return "/onboard/stowarzyszenie";
+  }
+
+  if (normalized === "fundacja") {
+    return "/onboard/fundacja";
+  }
+
   return "/onboard/spolka";
 }

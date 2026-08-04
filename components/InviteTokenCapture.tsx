@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import posthog from "posthog-js";
-import { supabase } from "@/lib/supabase";
+import { publicApiAction } from "@/lib/gateway";
 
 const COOKIE_NAME = "ksiegai_invite_token";
 const STORAGE_KEY = "ksiegai_invite_token";
@@ -49,8 +49,10 @@ export function InviteTokenCapture() {
 
     void (async () => {
       const tokenHash = await sha256hex(token);
-      const { data, error } = await (supabase.rpc as any)("lookup_admin_invite", { p_token_hash: tokenHash });
-      if (error || !data?.is_valid || data?.status === "claimed") {
+      const data = await publicApiAction<{ invite: any }>("invite.lookup", { tokenHash })
+        .then((result) => result.invite)
+        .catch(() => null);
+      if (!data?.is_valid || data?.status === "claimed") {
         sessionStorage.removeItem(OVERLAY_TRIGGER_KEY);
         return;
       }

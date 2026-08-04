@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { publicApiAction } from "@/lib/gateway";
 import {
   clearAuthToken,
   getAuthToken,
@@ -242,9 +243,11 @@ export default function Header() {
     if (cachedCompany) setInviteCompany(cachedCompany);
 
     sha256hex(token).then(async (hash) => {
-      const { data, error } = await (supabase.rpc as any)("lookup_admin_invite", { p_token_hash: hash });
-      if (error) {
-        // Network/RPC error — don't clear a potentially valid token, just skip
+      const data = await publicApiAction<{ invite: any }>("invite.lookup", { tokenHash: hash })
+        .then((result) => result.invite)
+        .catch(() => undefined);
+      if (data === undefined) {
+        // Network/gateway error — don't clear a potentially valid token, just skip
         return;
       }
       if (data?.is_valid && data?.company_name) {

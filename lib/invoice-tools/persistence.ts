@@ -1,4 +1,4 @@
-import { supabase } from "../supabase";
+import { publicApiAction } from "../gateway";
 import { getInvoiceTotals, sanitizeVatOrTaxId, type AnonymousInvoiceDraft } from "./anonymousInvoice";
 
 const ANONYMOUS_INVOICE_SOURCE = "anonymous_generator";
@@ -17,8 +17,9 @@ export async function persistAnonymousInvoiceDraft(
   const submissionId = crypto.randomUUID();
   const totals = getInvoiceTotals(draft.items, isReverseCharge);
 
-  const { data, error } = await supabase.functions.invoke("store-anonymous-invoice", {
-    body: {
+  let data: { id: string; success: boolean; reused: boolean };
+  try {
+    data = await publicApiAction<{ id: string; success: boolean; reused: boolean }>("anonymousInvoice.create", {
       source: ANONYMOUS_INVOICE_SOURCE,
       submissionId,
       seller: {
@@ -47,12 +48,12 @@ export async function persistAnonymousInvoiceDraft(
       wantsNewsletter: lead?.wantsNewsletter ?? false,
       pdfBase64,
       isReverseCharge,
-    },
-  });
-
-  if (error) {
-    throw new Error(error.message || "Nie udało się zapisać faktury do późniejszego odzyskania.");
+    });
+  } catch (error) {
+    throw new Error(
+      (error instanceof Error && error.message) || "Nie udało się zapisać faktury do późniejszego odzyskania.",
+    );
   }
 
-  return { ...(data as { id: string; success: boolean; reused: boolean }), submissionId };
+  return { ...data, submissionId };
 }

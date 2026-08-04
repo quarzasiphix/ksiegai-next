@@ -43,6 +43,7 @@ import { persistAnonymousInvoiceDraft } from "../../lib/invoice-tools/persistenc
 import { blobToBase64, generateAnonymousInvoicePdfBlob, triggerPdfBlobDownload } from "../../lib/invoice-tools/pdf";
 import { addToInvoiceHistory, getInvoiceHistoryIds } from "../../lib/invoice-tools/history";
 import { supabase } from "../../lib/supabase";
+import { publicApiAction } from "../../lib/gateway";
 import posthog from "posthog-js";
 import AnonymousInvoicePdfPreview from "./AnonymousInvoicePdfPreview";
 
@@ -114,10 +115,16 @@ export default function AnonymousInvoiceGenerator() {
       const entries = await Promise.all(
         ids.map(async (submissionId) => {
           try {
-            const { data, error } = await supabase.functions.invoke("get-anonymous-invoice-summary", {
-              body: { submissionId },
-            });
-            if (error || !data?.success) return null;
+            const data = await publicApiAction<{
+              success: boolean;
+              invoiceNumber: string;
+              sellerName: string;
+              buyerName: string;
+              totalGross: number | null;
+              createdAt: string;
+              pdfSignedUrl: string | null;
+            }>("anonymousInvoice.getSummary", { submissionId });
+            if (!data?.success) return null;
             return {
               submissionId,
               invoiceNumber: data.invoiceNumber,

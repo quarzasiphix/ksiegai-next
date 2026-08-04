@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "../../../lib/supabase";
+import { publicApiAction } from "../../../lib/gateway";
 import { storeAuthToken, redirectToApp } from "../../../lib/auth/crossDomainAuth";
 import { getInviteOnboardingPath } from "../../../lib/auth/inviteOnboarding";
 import { consumeAuthFlowOrigin, sendWelcomeEmailIfNewUser } from "../../../lib/auth/welcomeEmail";
@@ -75,7 +76,9 @@ export default function AuthCallback() {
 
         // ── Invite claim flow ─────────────────────────────────────────────────
         if (regParam === 'invite' && inviteHash) {
-          const { data: inviteLookup } = await (supabase.rpc as any)('lookup_admin_invite', { p_token_hash: inviteHash });
+          const inviteLookup = await publicApiAction<{ invite: any }>('invite.lookup', { tokenHash: inviteHash })
+            .then((result) => result.invite)
+            .catch(() => null);
           registerInviteAttribution({
             invite_token_hash: inviteHash,
             invite_token_prefix: inviteHash.slice(0, 12),
@@ -86,9 +89,14 @@ export default function AuthCallback() {
           });
           posthog.capture('invite_email_confirmed', { invite_hash_prefix: inviteHash.slice(0, 8) });
           try {
-            const { data: claimData, error: claimError } = await (supabase.rpc as any)('claim_admin_invite', {
-              p_token_hash: inviteHash,
-            });
+            let claimData: unknown = null;
+            let claimError: unknown = null;
+            try {
+              const result = await publicApiAction<{ claim: any }>('invite.claim', { tokenHash: inviteHash }, session.access_token);
+              claimData = result.claim;
+            } catch (err) {
+              claimError = err;
+            }
             const token = {
               access_token: session.access_token,
               refresh_token: session.refresh_token,
@@ -96,7 +104,7 @@ export default function AuthCallback() {
               user_id: session.user.id,
             };
             storeAuthToken(token);
-            if (claimError) {
+            if (claimError || !claimData) {
               console.error('[AuthCallback] Invite claim failed:', claimError);
               posthog.captureException(claimError);
               redirectToApp('/onboard');

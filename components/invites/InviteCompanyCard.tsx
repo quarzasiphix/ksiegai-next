@@ -10,12 +10,23 @@ const COMPANY_TYPE_LABELS: Record<string, string> = {
   sp_jawna: "Spółka jawna",
   sp_komandytowa: "Spółka komandytowa",
   dzialalnosc: "Działalność gospodarcza",
+  stowarzyszenie: "Stowarzyszenie",
+  fundacja: "Fundacja",
 };
 
 const JDG_TYPES = new Set(["jdg", "dzialalnosc"]);
+// Both KRS-S-register, board-based, no-capital types — same status copy.
+const STOWARZYSZENIE_TYPES = new Set(["stowarzyszenie", "fundacja"]);
 
 const STATUS_ROWS_SPOLKA = [
   "Dane firmy przygotowane",
+  "Checklista po KRS dostępna",
+  "Konfiguracja KSeF do aktywacji",
+  "Fakturowanie do uruchomienia",
+];
+
+const STATUS_ROWS_STOWARZYSZENIE = [
+  "Dane organizacji przygotowane",
   "Checklista po KRS dostępna",
   "Konfiguracja KSeF do aktywacji",
   "Fakturowanie do uruchomienia",
@@ -34,11 +45,29 @@ interface PersonEntry {
   share?: string;
 }
 
+/** board_members rows carry `position: "management" | "supervisory"` (see
+ * admin-ksiegai's InviteBoardMember) — "supervisory" covers whatever the
+ * real KRS organ is (Rada Nadzorcza for sp_zoo/S.A., Komisja Rewizyjna for
+ * stowarzyszenie/fundacja). The real KRS organ name isn't preserved this
+ * far down the pipe, so it's shown generically as "Organ nadzoru" rather
+ * than guessed. */
+interface BoardPersonEntry extends PersonEntry {
+  position?: "management" | "supervisory";
+}
+
 function parsePersonList(raw: unknown): PersonEntry[] {
   if (!Array.isArray(raw)) return [];
   return raw.filter(
     (x): x is PersonEntry =>
       typeof x === "object" && x !== null && typeof (x as PersonEntry).name === "string",
+  );
+}
+
+function parseBoardList(raw: unknown): BoardPersonEntry[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.filter(
+    (x): x is BoardPersonEntry =>
+      typeof x === "object" && x !== null && typeof (x as BoardPersonEntry).name === "string",
   );
 }
 
@@ -58,6 +87,7 @@ interface Props {
 
 export function InviteCompanyCard({ invite, hideIllustration = false }: Props) {
   const isJdg = invite.company_type ? JDG_TYPES.has(invite.company_type) : false;
+  const isStowarzyszenie = invite.company_type ? STOWARZYSZENIE_TYPES.has(invite.company_type) : false;
   const companyTypeLabel = invite.company_type
     ? (COMPANY_TYPE_LABELS[invite.company_type] ?? invite.company_type)
     : null;
@@ -69,12 +99,18 @@ export function InviteCompanyCard({ invite, hideIllustration = false }: Props) {
     .filter(Boolean)
     .join(", ");
 
-  const board = parsePersonList(invite.board_members);
-  const shareholders = parsePersonList(invite.shareholders);
-  const capital = invite.share_capital;
+  const board = parseBoardList(invite.board_members);
+  const zarzad = board.filter((m) => m.position !== "supervisory");
+  const oversight = board.filter((m) => m.position === "supervisory");
+  // Udziałowcy/kapitał zakładowy are spółka-only concepts — a stowarzyszenie
+  // or fundacja has no shareholders, so these never apply regardless of
+  // whether the underlying arrays happen to be empty.
+  const shareholders = isStowarzyszenie ? [] : parsePersonList(invite.shareholders);
+  const capital = isStowarzyszenie ? null : invite.share_capital;
 
   const cells = [
-    board.length ? { label: "Zarząd", value: board.map((m) => m.name).join(", ") } : null,
+    zarzad.length ? { label: "Zarząd", value: zarzad.map((m) => m.name).join(", ") } : null,
+    oversight.length ? { label: "Organ nadzoru", value: oversight.map((m) => m.name).join(", ") } : null,
     shareholders.length ? { label: "Wspólnicy", value: shareholders.map((s) => s.name).join(", ") } : null,
     capital !== null && capital !== undefined ? { label: "Kapitał", value: formatCapital(capital) } : null,
   ].filter(Boolean) as { label: string; value: string }[];
@@ -85,7 +121,11 @@ export function InviteCompanyCard({ invite, hideIllustration = false }: Props) {
       <div className="px-6 pt-6 pb-5 border-b border-slate-800">
         <span className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-800/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
           <Building2 className="h-3 w-3" />
-          {isJdg ? "Profil działalności przygotowany" : "Profil spółki przygotowany"}
+          {isJdg
+            ? "Profil działalności przygotowany"
+            : isStowarzyszenie
+              ? "Profil organizacji przygotowany"
+              : "Profil spółki przygotowany"}
         </span>
         <h2 className="mt-4 text-xl font-bold text-white leading-snug">
           Profil <span className="text-blue-400">{invite.company_name}</span> jest przygotowany.
@@ -93,7 +133,9 @@ export function InviteCompanyCard({ invite, hideIllustration = false }: Props) {
         <p className="mt-2 text-sm text-slate-400 leading-6">
           {isJdg
             ? "Odblokuj dostęp do konfiguracji KSeF, danych działalności i obsługi faktur."
-            : "Odblokuj dostęp do konfiguracji KSeF, danych spółki, checklisty po KRS i obsługi faktur."}
+            : isStowarzyszenie
+              ? "Odblokuj dostęp do konfiguracji KSeF, danych organizacji, checklisty po KRS i obsługi faktur."
+              : "Odblokuj dostęp do konfiguracji KSeF, danych spółki, checklisty po KRS i obsługi faktur."}
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           {companyTypeLabel && (
@@ -122,7 +164,7 @@ export function InviteCompanyCard({ invite, hideIllustration = false }: Props) {
       {/* Checklist rows + optional illustration */}
       <div className="px-6 py-2 border-b border-slate-800 flex items-center gap-4">
         <div className="flex-1 space-y-2.5 py-2">
-          {(isJdg ? STATUS_ROWS_JDG : STATUS_ROWS_SPOLKA).map((row) => (
+          {(isJdg ? STATUS_ROWS_JDG : isStowarzyszenie ? STATUS_ROWS_STOWARZYSZENIE : STATUS_ROWS_SPOLKA).map((row) => (
             <div key={row} className="flex items-center gap-3">
               <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
               <span className="text-sm text-slate-300">{row}</span>

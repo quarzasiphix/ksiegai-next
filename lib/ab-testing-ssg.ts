@@ -1,6 +1,6 @@
 'use client';
 
-import { supabase } from "./supabase-client";
+import { publicApiAction } from "./gateway";
 
 /**
  * A/B Testing for Static Site Generation (SSG)
@@ -176,20 +176,17 @@ function selectVariantByWeight(variants: ABTestVariant[]): ABTestVariant {
 }
 
 /**
- * Load A/B tests — Supabase (live, admin-managed) with static JSON fallback.
+ * Load A/B tests — gateway (live, admin-managed) with static JSON fallback.
  */
 export async function loadABTests(): Promise<Record<string, ABTest>> {
-  // Try live tests from Supabase first (RLS: status = 'active' readable by anon)
+  // Try live tests from the gateway first (public-api's abTest.getActiveTests)
   try {
-    const { data, error } = await (supabase as any)
-      .from('ab_test_definitions')
-      .select('id, test_key, name, page_path, traffic_allocation, variants, primary_goal, secondary_goals')
-      .eq('status', 'active');
+    const { tests: data } = await publicApiAction<{ tests: ABTest[] }>('abTest.getActiveTests');
 
-    if (!error && data && (data as any[]).length > 0) {
+    if (data && data.length > 0) {
       const tests: Record<string, ABTest> = {};
-      for (const row of (data as any[])) {
-        tests[row.page_path] = row as ABTest;
+      for (const row of data) {
+        tests[row.page_path] = row;
       }
       if (typeof window !== 'undefined') {
         (window as any).__AB_TESTS_CACHE = tests;
@@ -339,36 +336,17 @@ async function trackAssignment(testId: string, variantId: string, sessionId: str
     return;
   }
   try {
-    const { data: existing, error: fetchError } = await supabase
-      .from('ab_test_assignments')
-      .select('id')
-      .eq('test_id', testId)
-      .eq('session_id', sessionId)
-      .maybeSingle();
-
-    if (existing && !fetchError) {
-      return;
-    }
-
-    const { data: assignment, error: assignmentError } = await supabase
-      .from('ab_test_assignments')
-      .insert({
-        test_id: testId,
-        session_id: sessionId,
-        variant_id: variantId,
-        user_agent: navigator.userAgent,
-        referrer: document.referrer,
-        utm_source: getUtmParam('utm_source'),
-        utm_medium: getUtmParam('utm_medium'),
-        utm_campaign: getUtmParam('utm_campaign'),
-        assigned_at: new Date().toISOString(),
-      } as any) // Type assertion to bypass TypeScript issues
-      .select()
-      .single();
-
-    if (assignmentError) {
-      console.error('Failed to track assignment:', assignmentError);
-    }
+    await publicApiAction('abTest.track', {
+      test_id: testId,
+      variant_id: variantId,
+      session_id: sessionId,
+      event_type: 'assignment',
+      user_agent: navigator.userAgent,
+      referrer: document.referrer,
+      utm_source: getUtmParam('utm_source'),
+      utm_medium: getUtmParam('utm_medium'),
+      utm_campaign: getUtmParam('utm_campaign'),
+    });
   } catch (err) {
     console.error('Failed to track assignment:', err);
   }
@@ -382,32 +360,14 @@ export async function trackPageView(testId: string, variantId: string, pagePath:
     console.debug('[ABTest][debug] Skipping page view tracking');
     return;
   }
-  const sessionId = getSessionId();
-  
   try {
-    // Get assignment ID first
-    const { data: assignment, error: assignmentError } = await supabase
-      .from('ab_test_assignments')
-      .select('id')
-      .eq('test_id', testId)
-      .eq('session_id', sessionId)
-      .maybeSingle() as any; // Type assertion to bypass TypeScript issues
-
-    if (assignmentError) {
-      console.error('Failed to look up assignment for page view:', assignmentError);
-      return;
-    }
-
-    if (assignment) {
-      await supabase.from('ab_test_events').insert({
-        test_id: testId,
-        assignment_id: assignment.id,
-        variant_id: variantId,
-        event_type: 'page_view',
-        page_path: pagePath,
-        created_at: new Date().toISOString(),
-      } as any); // Type assertion to bypass TypeScript issues
-    }
+    await publicApiAction('abTest.track', {
+      test_id: testId,
+      variant_id: variantId,
+      session_id: getSessionId(),
+      event_type: 'page_view',
+      page_path: pagePath,
+    });
   } catch (err) {
     console.error('Failed to track page view:', err);
   }
@@ -426,43 +386,17 @@ export async function trackConversion(testKey: string, eventName: string, value?
   const variantId = getCookie(cookieName);
   
   if (!variantId) return;
-  
+
   try {
-    const { supabase } = await import('./supabase');
-
-    // Get test ID from test_key
-    const { data: test } = await supabase
-      .from('ab_test_definitions')
-      .select('id')
-      .eq('test_key', testKey)
-      .single() as any; // Type assertion to bypass TypeScript issues
-    if (!test) return;
-
-    // Get assignment ID
-    const { data: assignment, error: assignmentError } = await supabase
-      .from('ab_test_assignments')
-      .select('id')
-      .eq('test_id', test.id)
-      .eq('session_id', sessionId)
-      .maybeSingle() as any; // Type assertion to bypass TypeScript issues
-
-    if (assignmentError) {
-      console.error('Failed to look up assignment for conversion:', assignmentError);
-      return;
-    }
-
-    if (assignment) {
-      await supabase.from('ab_test_events').insert({
-        test_id: test.id,
-        assignment_id: assignment.id,
-        variant_id: variantId,
-        event_type: 'conversion',
-        event_name: eventName,
-        event_value: value,
-        event_metadata: metadata,
-        created_at: new Date().toISOString(),
-      } as any); // Type assertion to bypass TypeScript issues
-    }
+    await publicApiAction('abTest.track', {
+      test_key: testKey,
+      variant_id: variantId,
+      session_id: sessionId,
+      event_type: 'conversion',
+      event_name: eventName,
+      event_value: value,
+      event_metadata: metadata,
+    });
   } catch (err) {
     console.error('Failed to track conversion:', err);
   }
@@ -486,53 +420,16 @@ export async function trackEvent(
   const variantId = getCookie(cookieName);
   
   if (!variantId) return;
-  
+
   try {
-    const { supabase } = await import('./supabase');
-
-    // Get test ID from test_key
-    const { data: test } = await supabase
-      .from('ab_test_definitions')
-      .select('id')
-      .eq('test_key', testKey)
-      .single() as any; // Type assertion to bypass TypeScript issues
-
-    if (!test) return;
-
-    // Get assignment ID
-    const { data: assignment, error: assignmentError } = await supabase
-      .from('ab_test_assignments')
-      .select('id')
-      .eq('test_id', test.id)
-      .eq('session_id', sessionId)
-      .maybeSingle() as any; // Type assertion to bypass TypeScript issues
-
-    if (assignmentError) {
-      console.error('Failed to look up assignment for event tracking:', assignmentError);
-      return;
-    }
-
-    if (assignment) {
-      const eventData: any = {
-        test_id: test.id,
-        assignment_id: assignment.id,
-        variant_id: variantId,
-        event_type: eventType,
-        event_name: eventName,
-        event_metadata: metadata,
-        created_at: new Date().toISOString(),
-      };
-
-      // Extract time_on_page and scroll_depth if present
-      if (metadata?.time_on_page !== undefined) {
-        eventData.time_on_page = metadata.time_on_page;
-      }
-      if (metadata?.scroll_depth !== undefined) {
-        eventData.scroll_depth = metadata.scroll_depth;
-      }
-
-      await supabase.from('ab_test_events').insert(eventData as any); // Type assertion to bypass TypeScript issues
-    }
+    await publicApiAction('abTest.track', {
+      test_key: testKey,
+      variant_id: variantId,
+      session_id: sessionId,
+      event_type: eventType,
+      event_name: eventName,
+      event_metadata: metadata,
+    });
   } catch (err) {
     console.error('Failed to track event:', err);
   }

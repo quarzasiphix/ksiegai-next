@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
+import { publicApiAction } from "../../lib/gateway";
 import {
   redirectToApp,
   restoreSessionFromAuthToken,
@@ -133,6 +134,71 @@ export default function Login() {
     return sessionProfile;
   };
 
+  // Shared by the SIGNED_IN listener and the "Kontynuuj do aplikacji" button
+  // on the "Witaj ponownie" card — both land an already-authenticated user
+  // here and both need to claim a leftover pending_invite_token (left behind
+  // when /rejestracja's own claim attempt failed, e.g. after a transient
+  // network hiccup — the account still gets created there even when the
+  // claim step itself throws) before defaulting to /dashboard. Previously
+  // only the SIGNED_IN listener did this, gated behind hadPendingAttempt —
+  // "Kontynuuj do aplikacji" just called storeAndRedirect(...) straight to
+  // /dashboard with no invite awareness at all, silently skipping onboarding
+  // for anyone whose claim never went through on the first try.
+  // Returns true if it claimed the invite and redirected — callers should
+  // fall back to their own default redirect only when this returns false.
+  const tryClaimPendingInviteAndRedirect = async (
+    session: NonNullable<Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"]>,
+  ): Promise<boolean> => {
+    const pendingToken = localStorage.getItem('pending_invite_token');
+    if (!pendingToken) return false;
+
+    storeAuthToken({
+      access_token: session.access_token,
+      refresh_token: session.refresh_token,
+      expires_at: session.expires_at || 0,
+      user_id: session.user.id,
+    });
+
+    const tokenHash = await sha256hex(pendingToken);
+    const claimData = await publicApiAction<{ claim: any }>("invite.claim", { tokenHash }, session.access_token)
+      .then((result) => result.claim)
+      .catch(() => null);
+    if (!claimData) return false;
+
+    const { business_profile_id, company_name, invite_id, campaign_source } = claimData;
+    identifyInvitedUser(session.user.id, session.user.email, {
+      invited: true, invite_id, invite_company_name: company_name,
+      invite_business_profile_id: business_profile_id,
+      ...(campaign_source ? { invite_campaign_source: campaign_source } : {}),
+    });
+    posthog.capture('invite_claimed', { business_profile_id, company_name, invite_id, via: 'login' });
+    captureInviteEvent('business_activated', {
+      business_profile_id,
+      company_name,
+      invite_id,
+      via: 'login',
+    });
+    void supabase.auth.updateUser({
+      data: {
+        invite_id,
+        invite_company_name: company_name,
+        invite_campaign_source: campaign_source ?? null,
+        invite_token_hash: tokenHash,
+        invite_recipient_email: inviteEmail ?? session.user.email ?? null,
+        invite_company_type: inviteCompanyType,
+        invite_business_profile_id: business_profile_id,
+      },
+    });
+    localStorage.removeItem('pending_invite_token');
+    localStorage.removeItem('pending_invite_company');
+    redirectToApp(getInviteOnboardingPath(inviteCompanyType), {
+      invite: "1",
+      bp: business_profile_id,
+      cn: company_name,
+    });
+    return true;
+  };
+
   const resumeSessionIfPossible = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (session) {
@@ -217,8 +283,10 @@ export default function Login() {
       setInviteCompany(cached);
     }
     sha256hex(token).then(async (hash) => {
-      const { data, error } = await (supabase.rpc as any)("lookup_admin_invite", { p_token_hash: hash });
-      if (!error && data?.is_valid) {
+      const data = await publicApiAction<{ invite: any }>("invite.lookup", { tokenHash: hash })
+        .then((result) => result.invite)
+        .catch(() => null);
+      if (data?.is_valid) {
         registerInviteAttribution({
           invite_token_hash: hash,
           invite_token_prefix: token.slice(0, 12),
@@ -285,49 +353,8 @@ export default function Login() {
           setActiveSessionProfile(sessionProfile);
         }
         if (hadPendingAttempt && event === 'SIGNED_IN') {
-          // Check for a pending invite and claim it before redirecting
-          const pendingToken = localStorage.getItem('pending_invite_token');
-          if (pendingToken) {
-            const tokenHash = await sha256hex(pendingToken);
-            const { data: claimData, error: claimError } = await (supabase.rpc as any)('claim_admin_invite', {
-              p_token_hash: tokenHash,
-            });
-            if (!claimError && claimData) {
-              const { business_profile_id, company_name, invite_id, campaign_source } = claimData;
-              identifyInvitedUser(session.user.id, session.user.email, {
-                invited: true, invite_id, invite_company_name: company_name,
-                invite_business_profile_id: business_profile_id,
-                ...(campaign_source ? { invite_campaign_source: campaign_source } : {}),
-              });
-              posthog.capture('invite_claimed', { business_profile_id, company_name, invite_id, via: 'login' });
-              captureInviteEvent('business_activated', {
-                business_profile_id,
-                company_name,
-                invite_id,
-                via: 'login',
-              });
-              void supabase.auth.updateUser({
-                data: {
-                  invite_id,
-                  invite_company_name: company_name,
-                  invite_campaign_source: campaign_source ?? null,
-                  invite_token_hash: tokenHash,
-                  invite_recipient_email: inviteEmail ?? session.user.email ?? null,
-                  invite_company_type: inviteCompanyType,
-                  invite_business_profile_id: business_profile_id,
-                },
-              });
-              localStorage.removeItem('pending_invite_token');
-              localStorage.removeItem('pending_invite_company');
-              redirectToApp(getInviteOnboardingPath(inviteCompanyType), {
-                invite: "1",
-                bp: business_profile_id,
-                cn: company_name,
-              });
-              return;
-            }
-          }
-          redirectToApp('/dashboard');
+          const claimed = await tryClaimPendingInviteAndRedirect(session);
+          if (!claimed) redirectToApp('/dashboard');
         }
       } else if (event === 'SIGNED_OUT' && isMounted) {
         setActiveSessionProfile(null);
@@ -713,12 +740,15 @@ export default function Login() {
                             onClick={async () => {
                               const { data: { session } } = await supabase.auth.getSession();
                               if (session) {
-                                storeAndRedirect({
-                                  access_token: session.access_token,
-                                  refresh_token: session.refresh_token,
-                                  expires_at: session.expires_at || 0,
-                                  user_id: session.user.id,
-                                });
+                                const claimed = await tryClaimPendingInviteAndRedirect(session);
+                                if (!claimed) {
+                                  storeAndRedirect({
+                                    access_token: session.access_token,
+                                    refresh_token: session.refresh_token,
+                                    expires_at: session.expires_at || 0,
+                                    user_id: session.user.id,
+                                  });
+                                }
                               } else {
                                 setActiveSessionProfile(null);
                               }

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "../../lib/supabase";
+import { publicApiAction } from "../../lib/gateway";
 import {
   AlertTriangle,
   ArrowRight,
@@ -24,6 +25,8 @@ const COMPANY_TYPE_LABELS: Record<string, string> = {
   sp_jawna: "Spółka jawna",
   sp_komandytowa: "Spółka komandytowa",
   dzialalnosc: "Działalność gospodarcza",
+  stowarzyszenie: "Stowarzyszenie",
+  fundacja: "Fundacja",
 };
 
 const INBOX_PROVIDERS: Record<string, { name: string; url: string }> = {
@@ -290,13 +293,13 @@ export default function InviteRegistrationPage({ token }: InviteRegistrationPage
         if (cancelled) return;
         tokenHashRef.current = hash;
 
-        const { data, error } = await (supabase.rpc as any)("lookup_admin_invite", {
-          p_token_hash: hash,
-        });
+        const data = await publicApiAction<{ invite: any }>("invite.lookup", { tokenHash: hash })
+          .then((result) => result.invite)
+          .catch(() => null);
 
         if (cancelled) return;
 
-        if (error || !data) {
+        if (!data) {
           setLoadError("Zaproszenie nie zostało znalezione lub wygasło.");
           return;
         }
@@ -426,12 +429,17 @@ export default function InviteRegistrationPage({ token }: InviteRegistrationPage
         return;
       }
 
-      const { data: claimData, error: claimErr } = await (supabase.rpc as any)("claim_admin_invite", {
-        p_token_hash: tokenHashRef.current,
-      });
+      let claimData: unknown = null;
+      let claimErr: unknown = null;
+      try {
+        const result = await publicApiAction<{ claim: any }>("invite.claim", { tokenHash: tokenHashRef.current }, session.access_token);
+        claimData = result.claim;
+      } catch (err) {
+        claimErr = err;
+      }
 
-      if (claimErr) {
-        setClaimError(claimErr.message || "Nie udało się dołączyć do firmy. Spróbuj ponownie.");
+      if (claimErr || !claimData) {
+        setClaimError(claimErr instanceof Error ? claimErr.message : "Nie udało się dołączyć do firmy. Spróbuj ponownie.");
         return;
       }
 

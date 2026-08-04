@@ -1,4 +1,4 @@
-import { supabase } from "../supabase";
+import { publicApiAction } from "../gateway";
 
 export type InvoicePartyDraft = {
   name: string;
@@ -292,11 +292,15 @@ export const fetchCompanyByTaxId = async (taxId: string): Promise<TaxIdLookupRes
 };
 
 export const fetchCompanyByVatId = async (countryCode: string, vatNumber: string): Promise<TaxIdLookupResult> => {
-  const { data, error } = await supabase.functions.invoke("verify-vies-vat", {
-    body: { countryCode, vatNumber },
-  });
-
-  if (error) {
+  let data: { valid: boolean | null; name?: string | null; address?: string | null; error?: string };
+  try {
+    data = await publicApiAction<{
+      valid: boolean | null;
+      name?: string | null;
+      address?: string | null;
+      error?: string;
+    }>("vat.verify", { countryCode, vatNumber });
+  } catch {
     throw new Error("Nie udało się połączyć z VIES. Spróbuj ponownie albo wpisz dane ręcznie.");
   }
 
