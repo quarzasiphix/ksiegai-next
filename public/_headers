@@ -1,0 +1,8 @@
+# Cloudflare Workers/Pages static-asset headers (this file is copied as-is
+# into the static export output). app.ksiegai.pl fetches this manifest
+# cross-origin (useAndroidVersionStatus.ts) to check for Android app
+# updates — without this header the browser blocks the response with a CORS
+# error, even though the request itself succeeds server-side.
+/android/version.json
+  Access-Control-Allow-Origin: https://app.ksiegai.pl
+  Access-Control-Allow-Methods: GET
