@@ -487,8 +487,16 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
           refresh_token: result.refresh_token!,
         });
 
-        identifyInvitedUser(result.user_id!, result.user_email);
-        posthog.capture("register_password_signup", { invite: true });
+        // Telemetry only — must never block the actual registration flow
+        // below it. A PostHog hiccup here previously fell straight into the
+        // generic "Nie udało się dokończyć rejestracji" error even though
+        // the account/session were already good.
+        try {
+          identifyInvitedUser(result.user_id!, result.user_email);
+          posthog.capture("register_password_signup", { invite: true });
+        } catch (telemetryError) {
+          console.error("[Register] telemetry failed (non-fatal):", telemetryError);
+        }
         await trackConversion(result.user_id!, result.access_token!);
 
         storeAuthToken({
@@ -514,47 +522,64 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
 
         if (claimData) {
           const { business_profile_id, company_name, invite_id, campaign_source } = claimData;
-          identifyInvitedUser(result.user_id!, result.user_email, {
-            invited: true,
-            invite_id,
-            invite_company_name: company_name,
-            invite_business_profile_id: business_profile_id,
-            ...(campaign_source ? { invite_campaign_source: campaign_source } : {}),
-          });
-          // Store the registration session so admin can link to it from the invite page
-          const registrationSessionId = (posthog as any)?.get_session_id?.();
-          if (registrationSessionId) {
-            void (supabase.rpc as any)("update_posthog_session", { p_session_id: registrationSessionId }).catch(() => {});
-          }
-          posthog.capture("invite_claimed", { business_profile_id, company_name, invite_id });
-          captureInviteEvent("business_activated", {
-            business_profile_id,
-            company_name,
-            invite_id,
-          });
-          void supabase.auth.updateUser({
-            data: {
+
+          // Telemetry + best-effort metadata writes — none of this may block
+          // the redirect below. The claim already succeeded (that's the part
+          // that actually matters: business profile exists, invite marked
+          // claimed); losing an analytics event or a metadata write must
+          // never turn a successful registration into a shown error.
+          try {
+            identifyInvitedUser(result.user_id!, result.user_email, {
+              invited: true,
               invite_id,
               invite_company_name: company_name,
-              invite_campaign_source: campaign_source ?? null,
-              invite_token_hash: tokenHash,
-              invite_recipient_email: inviteData.recipient_email ?? result.user_email ?? null,
-              invite_company_type: inviteData.company_type ?? null,
               invite_business_profile_id: business_profile_id,
-            },
-          });
+              ...(campaign_source ? { invite_campaign_source: campaign_source } : {}),
+            });
+            // Store the registration session so admin can link to it from the invite page
+            const registrationSessionId = (posthog as any)?.get_session_id?.();
+            if (registrationSessionId) {
+              void (supabase.rpc as any)("update_posthog_session", { p_session_id: registrationSessionId }).catch(() => {});
+            }
+            posthog.capture("invite_claimed", { business_profile_id, company_name, invite_id });
+            captureInviteEvent("business_activated", {
+              business_profile_id,
+              company_name,
+              invite_id,
+            });
+            captureInviteEvent("invite_registration_completed", {
+              method: "password",
+              business_profile_id,
+              company_name,
+              invite_id,
+            });
+            captureInviteEvent("invite_onboarding_started", {
+              business_profile_id,
+              company_name,
+              invite_id,
+            });
+          } catch (telemetryError) {
+            console.error("[Register] post-claim telemetry failed (non-fatal):", telemetryError);
+          }
+
+          try {
+            await supabase.auth.updateUser({
+              data: {
+                invite_id,
+                invite_company_name: company_name,
+                invite_campaign_source: campaign_source ?? null,
+                invite_token_hash: tokenHash,
+                invite_recipient_email: inviteData.recipient_email ?? result.user_email ?? null,
+                invite_company_type: inviteData.company_type ?? null,
+                invite_business_profile_id: business_profile_id,
+              },
+            });
+          } catch (updateUserError) {
+            console.error("[Register] updateUser metadata failed (non-fatal):", updateUserError);
+          }
+
           clearInviteToken();
-          captureInviteEvent("invite_registration_completed", {
-            method: "password",
-            business_profile_id,
-            company_name,
-            invite_id,
-          });
-          captureInviteEvent("invite_onboarding_started", {
-            business_profile_id,
-            company_name,
-            invite_id,
-          });
+
           if (typeof window !== "undefined" && "PasswordCredential" in window) {
             try {
               const cred = new (window as any).PasswordCredential({ id: email, password });
