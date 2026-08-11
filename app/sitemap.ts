@@ -18,6 +18,7 @@ const staticRoutes: Array<{
   { path: '/jak-to-dziala', changeFrequency: 'weekly', priority: 0.7 },
   { path: '/dla-ksiegowych', changeFrequency: 'weekly', priority: 0.7 },
   { path: '/ksef', changeFrequency: 'weekly', priority: 0.75 },
+  { path: '/mcp', changeFrequency: 'weekly', priority: 0.65 },
   { path: '/jdg', changeFrequency: 'weekly', priority: 0.75 },
   { path: '/spolka-z-oo', changeFrequency: 'weekly', priority: 0.75 },
   { path: '/faktury', changeFrequency: 'weekly', priority: 0.75 },

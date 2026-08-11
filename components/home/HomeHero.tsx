@@ -5,6 +5,7 @@ import { useABTestSSG } from "../../hooks/useABTestSSG";
 import Link from "next/link";
 import {
   ArrowRight,
+  Bot,
   Building2,
   CheckCircle2,
   Clock3,
@@ -83,6 +84,14 @@ const LoggedOutHero = ({ onAnonymousPrimaryCtaClick }: HomeHeroProps) => {
   <section className="relative border-b border-gray-800 bg-gray-950 py-10 sm:py-14 md:py-20">
     <div className="container mx-auto px-4 py-6 sm:px-6 sm:py-8 md:px-4 md:py-10">
       <div className="mx-auto max-w-4xl text-center">
+        <Link
+          href="/mcp"
+          className="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-900/30 border border-purple-500/30 hover:border-purple-400/50 mb-3 animate-fade-in text-xs sm:text-sm font-medium text-purple-300 transition-colors"
+        >
+          <Bot className="h-3.5 w-3.5" />
+          Nowość: połącz AI z księgowością (MCP)
+          <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
+        </Link>
         <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-blue-900/40 border border-blue-500/30 mb-6 sm:mb-8 animate-fade-in">
           <span className="text-blue-300 text-xs sm:text-sm font-semibold">
             {badge}
