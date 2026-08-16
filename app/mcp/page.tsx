@@ -226,8 +226,9 @@ export default function McpPage() {
               <p className="text-xs uppercase tracking-widest text-purple-400 mb-2 font-semibold">Instrukcja</p>
               <h2 className="text-2xl sm:text-3xl font-bold text-white">Podłączenie agenta AI</h2>
               <p className="text-gray-400 mt-3 max-w-xl mx-auto text-sm">
-                MCP jest w becie i dziś przeznaczone dla użytkowników technicznych. Jednoklikowe
-                generowanie tokenu w Ustawieniach jest w budowie — poniżej aktualny sposób.
+                MCP jest w becie. Podłączenie działa przez OAuth — dodajesz serwer w kliencie AI,
+                otwiera się przeglądarka, logujesz się do KsięgaI i zatwierdzasz dostęp. Bez
+                kopiowania tokenów.
               </p>
             </div>
 
@@ -235,36 +236,8 @@ export default function McpPage() {
               {/* Step 1 */}
               <li className="flex gap-4">
                 <span className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-600 text-white text-sm font-bold flex items-center justify-center">1</span>
-                <div className="flex-1">
-                  <h3 className="text-white font-semibold mb-1">Zaloguj się do KsięgaI</h3>
-                  <p className="text-sm text-gray-400">
-                    Zaloguj się na <Link href="/logowanie" className="text-purple-400 hover:text-purple-300 underline">app.ksiegai.pl</Link> w przeglądarce, na koncie firmy, którą ma obsługiwać agent.
-                  </p>
-                </div>
-              </li>
-
-              {/* Step 2 */}
-              <li className="flex gap-4">
-                <span className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-600 text-white text-sm font-bold flex items-center justify-center">2</span>
-                <div className="flex-1">
-                  <h3 className="text-white font-semibold mb-1">Pobierz token dostępu</h3>
-                  <p className="text-sm text-gray-400 mb-3">
-                    Otwórz narzędzia deweloperskie przeglądarki (F12) → zakładka
-                    <span className="text-gray-300"> Application/Storage → Local Storage → app.ksiegai.pl</span>,
-                    znajdź klucz zaczynający się od <code className="text-purple-300 font-mono text-xs">sb-</code>
-                    i skopiuj pole <code className="text-purple-300 font-mono text-xs">access_token</code>.
-                  </p>
-                  <p className="text-xs text-amber-400/90 bg-amber-900/20 border border-amber-500/20 rounded-lg px-3 py-2">
-                    Token wygasa po ok. godzinie — w becie odśwież go, gdy agent zacznie dostawać błąd 401.
-                  </p>
-                </div>
-              </li>
-
-              {/* Step 3 */}
-              <li className="flex gap-4">
-                <span className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-600 text-white text-sm font-bold flex items-center justify-center">3</span>
                 <div className="flex-1 w-full min-w-0">
-                  <h3 className="text-white font-semibold mb-1">Skonfiguruj klienta MCP</h3>
+                  <h3 className="text-white font-semibold mb-1">Dodaj serwer w kliencie MCP</h3>
                   <p className="text-sm text-gray-400 mb-3">Serwer: <code className="text-purple-300 font-mono text-xs">https://mcp.ksiegai.pl/mcp</code></p>
 
                   <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold mb-2">Claude Code</p>
@@ -274,26 +247,20 @@ export default function McpPage() {
                       <span className="text-xs font-mono">terminal</span>
                     </div>
                     <pre className="text-xs font-mono text-emerald-300 whitespace-pre">{`claude mcp add --transport http ksiegai \\
-  https://mcp.ksiegai.pl/mcp \\
-  --header "Authorization: Bearer <TWÓJ_TOKEN>"`}</pre>
+  https://mcp.ksiegai.pl/mcp
+claude mcp login ksiegai`}</pre>
                   </div>
 
                   <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold mb-2">Claude Desktop / inni klienci MCP</p>
                   <p className="text-xs text-gray-400 mb-2">
-                    Klienci bez natywnej obsługi nagłówków HTTP łączą się przez most{" "}
-                    <code className="text-purple-300 font-mono">mcp-remote</code>:
+                    Dodaj zdalny serwer HTTP pod tym adresem — klient sam wykryje OAuth i otworzy
+                    przeglądarkę do logowania:
                   </p>
                   <div className="rounded-xl border border-white/10 bg-black/40 p-4 overflow-x-auto">
                     <pre className="text-xs font-mono text-emerald-300 whitespace-pre">{`{
   "mcpServers": {
     "ksiegai": {
-      "command": "npx",
-      "args": [
-        "mcp-remote",
-        "https://mcp.ksiegai.pl/mcp",
-        "--header",
-        "Authorization:Bearer <TWÓJ_TOKEN>"
-      ]
+      "url": "https://mcp.ksiegai.pl/mcp"
     }
   }
 }`}</pre>
@@ -301,9 +268,24 @@ export default function McpPage() {
                 </div>
               </li>
 
-              {/* Step 4 */}
+              {/* Step 2 */}
               <li className="flex gap-4">
-                <span className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-600 text-white text-sm font-bold flex items-center justify-center">4</span>
+                <span className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-600 text-white text-sm font-bold flex items-center justify-center">2</span>
+                <div className="flex-1">
+                  <h3 className="text-white font-semibold mb-1">Zaloguj się i zatwierdź</h3>
+                  <p className="text-sm text-gray-400">
+                    W otwartej przeglądarce zaloguj się do{" "}
+                    <Link href="/logowanie" className="text-purple-400 hover:text-purple-300 underline">app.ksiegai.pl</Link>,
+                    wybierz firmę i poziom dostępu dla agenta, zatwierdź. Token odświeża się sam —
+                    nic nie trzeba kopiować ani wygaśnięcia pilnować ręcznie. Dostęp możesz cofnąć
+                    w każdej chwili w Ustawieniach.
+                  </p>
+                </div>
+              </li>
+
+              {/* Step 3 */}
+              <li className="flex gap-4">
+                <span className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-600 text-white text-sm font-bold flex items-center justify-center">3</span>
                 <div className="flex-1">
                   <h3 className="text-white font-semibold mb-1">Wypróbuj</h3>
                   <p className="text-sm text-gray-400">
@@ -338,8 +320,8 @@ export default function McpPage() {
                   a: "Tak — MCP to otwarty standard. Każdy klient obsługujący transport HTTP (bezpośrednio lub przez mcp-remote) może się połączyć.",
                 },
                 {
-                  q: "Dlaczego token trzeba pobierać ręcznie?",
-                  a: "MCP jest w becie. Panel z jednoklikowym generowaniem i odwoływaniem tokenów dostępu w Ustawieniach jest w budowie.",
+                  q: "Czy muszę ręcznie kopiować i odświeżać token?",
+                  a: "Nie. Podłączenie idzie przez OAuth — logujesz się raz w przeglądarce i zatwierdzasz dostęp, klient AI sam odświeża token w tle. Możesz też w każdej chwili odwołać połączenie w Ustawieniach.",
                 },
               ].map(({ q, a }) => (
                 <div key={q} className="bg-gray-50 dark:bg-gray-900 rounded-xl p-5 border border-gray-200 dark:border-gray-800">

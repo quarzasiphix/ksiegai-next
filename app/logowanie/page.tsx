@@ -37,6 +37,39 @@ import {
   registerInviteAttribution,
 } from "../../lib/posthog/inviteAttribution";
 
+// `returnTo` arrives from /auth/login (itself reached from ksef-ai's
+// buildLoginUrl/redirectToLogin — see domainHelpers.ts's "After login,
+// Next.js redirects back to returnTo URL" contract, which this page didn't
+// actually implement until now) or directly from ksiegai-mcp's OAuth
+// /authorize handler bouncing through McpAuthorize.tsx's own route guard.
+// Only ever trust it as a redirect target if it points at a domain we
+// control — otherwise this would be an open redirect.
+function getValidatedReturnTo(rawValue: string | null): string | null {
+  if (!rawValue) return null;
+  try {
+    const url = new URL(rawValue);
+    const host = url.hostname;
+    const isKsiegaiDomain = host === "ksiegai.pl" || host.endsWith(".ksiegai.pl");
+    const isLocalDev = host === "localhost" || host === "127.0.0.1";
+    if (!isKsiegaiDomain && !isLocalDev) return null;
+    return url.toString();
+  } catch {
+    return null;
+  }
+}
+
+// MCP's OAuth consent screen (McpAuthorize.tsx) is the one returnTo target
+// worth personalizing the login copy for — see McpAuthorize.tsx / oauth.ts
+// in ksiegai-mcp for the flow this is the entry point of.
+function isMcpAuthorizeReturnTo(url: string | null): boolean {
+  if (!url) return false;
+  try {
+    return new URL(url).pathname.includes("/settings/ai-mcp/authorize");
+  } catch {
+    return false;
+  }
+}
+
 async function sha256hex(text: string): Promise<string> {
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
   return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
@@ -76,6 +109,7 @@ export default function Login() {
   const [inviteCompany, setInviteCompany] = useState<string | null>(null);
   const [inviteEmail, setInviteEmail] = useState<string | null>(null);
   const [inviteCompanyType, setInviteCompanyType] = useState<string | null>(null);
+  const [returnToUrl, setReturnToUrl] = useState<string | null>(null);
 
   const refreshRememberedProfiles = () => {
     const profiles = loadRememberedProfiles();
@@ -254,12 +288,7 @@ export default function Login() {
     }
 
     await applyAuthenticatedSession(session);
-    storeAndRedirect({
-      access_token: session.access_token,
-      refresh_token: session.refresh_token,
-      expires_at: session.expires_at || 0,
-      user_id: session.user.id,
-    });
+    redirectAfterLogin(session);
     setLoading(false);
     return true;
   };
@@ -267,6 +296,37 @@ export default function Login() {
   useEffect(() => {
     setIsApplePlatform(/Mac|iPhone|iPad|iPod/i.test(navigator.userAgent));
   }, []);
+
+  useEffect(() => {
+    const raw = new URLSearchParams(window.location.search).get("returnTo");
+    setReturnToUrl(getValidatedReturnTo(raw));
+  }, []);
+
+  // Centralizes the "where does a successful login send the user" decision —
+  // previously every call site below just hardcoded '/dashboard' via
+  // redirectToApp/storeAndRedirect's own default, silently dropping
+  // returnTo (including the MCP OAuth authorize continuation) even though
+  // domainHelpers.ts's buildLoginUrl already documented "after login,
+  // redirects back to returnTo URL" as the contract.
+  const redirectAfterLogin = (session: {
+    access_token: string;
+    refresh_token: string;
+    expires_at?: number | null;
+    user: { id: string };
+  }) => {
+    const token = {
+      access_token: session.access_token,
+      refresh_token: session.refresh_token,
+      expires_at: session.expires_at || 0,
+      user_id: session.user.id,
+    };
+    if (returnToUrl) {
+      storeAuthToken(token);
+      window.location.href = returnToUrl;
+      return;
+    }
+    storeAndRedirect(token);
+  };
 
   useEffect(() => {
     const urlToken = new URLSearchParams(window.location.search).get("invite");
@@ -354,7 +414,7 @@ export default function Login() {
         }
         if (hadPendingAttempt && event === 'SIGNED_IN') {
           const claimed = await tryClaimPendingInviteAndRedirect(session);
-          if (!claimed) redirectToApp('/dashboard');
+          if (!claimed) redirectAfterLogin(session);
         }
       } else if (event === 'SIGNED_OUT' && isMounted) {
         setActiveSessionProfile(null);
@@ -539,12 +599,7 @@ export default function Login() {
     if (activeSessionProfile?.email === profile.email) {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        storeAndRedirect({
-          access_token: session.access_token,
-          refresh_token: session.refresh_token,
-          expires_at: session.expires_at || 0,
-          user_id: session.user.id,
-        });
+        redirectAfterLogin(session);
         return;
       }
     }
@@ -687,6 +742,18 @@ export default function Login() {
                     Zaloguj się, żeby zaakceptować zaproszenie.
                   </p>
                 </>
+              ) : isMcpAuthorizeReturnTo(returnToUrl) ? (
+                <>
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-50 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-700 mb-4">
+                    <span className="text-sm font-semibold text-purple-900 dark:text-purple-200">Autoryzacja agenta AI</span>
+                  </div>
+                  <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
+                    Zaloguj się, aby autoryzować MCP
+                  </h1>
+                  <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
+                    Po zalogowaniu wybierzesz firmę i poziom dostępu dla swojego agenta AI.
+                  </p>
+                </>
               ) : (
                 <>
                   <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
@@ -742,12 +809,7 @@ export default function Login() {
                               if (session) {
                                 const claimed = await tryClaimPendingInviteAndRedirect(session);
                                 if (!claimed) {
-                                  storeAndRedirect({
-                                    access_token: session.access_token,
-                                    refresh_token: session.refresh_token,
-                                    expires_at: session.expires_at || 0,
-                                    user_id: session.user.id,
-                                  });
+                                  redirectAfterLogin(session);
                                 }
                               } else {
                                 setActiveSessionProfile(null);
