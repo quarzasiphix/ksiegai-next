@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { captureInviteEvent } from "@/lib/posthog/inviteAttribution";
-
-const STORAGE_KEY = "ksiegai_invite_token";
+import { getStoredInviteToken, markInviteOpened, persistInviteToken } from "@/lib/auth/inviteTracking";
 
 type Variant = "inline" | "sidebar";
 type Position = "mid" | "end";
@@ -17,12 +17,24 @@ interface Props {
 }
 
 export function KsefInviteCTA({ variant = "inline", position = "end", articleSlug }: Props) {
+  const searchParams = useSearchParams();
   const [hasInvite, setHasInvite] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    setHasInvite(Boolean(localStorage.getItem(STORAGE_KEY)));
+    // First-touch case: a recipient clicked one of this article's links
+    // straight from the invite email (never visited /rejestracja first), so
+    // there's nothing in localStorage yet — only the URL carries the token.
+    // Persist it (same storage/cookie shape /rejestracja uses) and mark the
+    // invite opened server-side. See lib/auth/inviteTracking.ts header.
+    const urlToken = searchParams?.get("invite") ?? null;
+    if (urlToken) {
+      persistInviteToken(urlToken);
+      void markInviteOpened(urlToken);
+    }
+    setHasInvite(Boolean(urlToken || getStoredInviteToken()));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (!mounted) return null;

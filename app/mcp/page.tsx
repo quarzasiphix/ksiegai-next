@@ -7,6 +7,7 @@ import {
   Landmark,
   FileText,
   Calculator,
+  ClipboardList,
   ShieldCheck,
   Eye,
   Lock,
@@ -61,6 +62,19 @@ const tools = [
     items: [
       { name: "get_chart_of_accounts", desc: "Plan kont firmy — aktywne konta i ich grupy." },
       { name: "get_balance_sheet", desc: "Salda kont na dany dzień lub okres — baza pod analizę i raporty." },
+      { name: "draft_journal_entry", desc: "Ręczny zapis księgowy (korekta, naliczenie itp.) — zawsze jako wersja robocza, nigdy automatycznie zaksięgowany." },
+      { name: "preview_journal_entry_posting → post_journal_entry", desc: "Agent najpierw przygotowuje podgląd zapisu, dopiero potem może go zaksięgować — ten sam mechanizm co przy transakcjach bankowych." },
+    ],
+  },
+  {
+    group: "Kolejka i raporty",
+    icon: ClipboardList,
+    iconClass: "text-rose-600 dark:text-rose-400",
+    bgClass: "bg-rose-100 dark:bg-rose-900/30",
+    items: [
+      { name: "get_posting_queue", desc: "Faktury, transakcje bankowe i umowy czekające na zaksięgowanie, z proponowaną dekretacją." },
+      { name: "get_period_report", desc: "Rzeczywisty rachunek zysków i strat za wybrany miesiąc, liczony z zaksięgowanych zapisów." },
+      { name: "list_journal_entries", desc: "Księga główna — zapisy księgowe (robocze i zaksięgowane), z filtrowaniem po dacie i statusie." },
     ],
   },
   {
@@ -70,8 +84,9 @@ const tools = [
     bgClass: "bg-amber-100 dark:bg-amber-900/30",
     items: [
       { name: "list_bank_accounts / list_bank_transactions", desc: "Rachunki firmowe i historia transakcji." },
-      { name: "import_bank_statement", desc: "Import wyciągu bankowego, który agent przetworzył." },
+      { name: "import_bank_statement", desc: "Import wyciągu bankowego, który agent sam odczytał (obraz/PDF/CSV) i przetworzył — bez OCR po stronie serwera." },
       { name: "classify_bank_transaction", desc: "Propozycja klasyfikacji transakcji — trafia jako „do weryfikacji”." },
+      { name: "update_bank_transaction / delete_bank_transaction", desc: "Poprawka lub usunięcie transakcji (np. błędny import, duplikat) — zablokowane, gdy transakcja jest już zaksięgowana." },
       { name: "preview_bank_transaction_posting → post_bank_transaction", desc: "Agent najpierw przygotowuje podgląd księgowania, dopiero potem może je zaksięgować — patrz sekcja bezpieczeństwa." },
     ],
   },
