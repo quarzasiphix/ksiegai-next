@@ -13,6 +13,7 @@ import {
   Lock,
   Terminal,
   CheckCircle2,
+  FolderOpen,
 } from "lucide-react";
 import { TrackedLink } from "@/components/analytics/TrackedLink";
 import { PageAnalytics } from "@/components/analytics/PageAnalytics";
@@ -50,8 +51,18 @@ const tools = [
     iconClass: "text-purple-600 dark:text-purple-400",
     bgClass: "bg-purple-100 dark:bg-purple-900/30",
     items: [
-      { name: "list_invoices", desc: "Odczyt wystawionych i otrzymanych faktur w wybranym okresie." },
+      { name: "list_invoices", desc: "Odczyt wystawionych i otrzymanych faktur — pełne dane (pozycje, kwoty, VAT), filtrowane po okresie lub po NIP kontrahenta." },
       { name: "add_expense_invoice", desc: "Dodanie faktury kosztowej (np. z e-maila lub skanu, który agent sam odczytał) — trafia do weryfikacji." },
+    ],
+  },
+  {
+    group: "Dokumenty",
+    icon: FolderOpen,
+    iconClass: "text-cyan-600 dark:text-cyan-400",
+    bgClass: "bg-cyan-100 dark:bg-cyan-900/30",
+    items: [
+      { name: "list_company_documents / get_company_document", desc: "Przegląd dokumentów firmowych (umowy, uchwały, licencje, sprawozdania) i bezpieczny link do pobrania pliku." },
+      { name: "upload_company_document", desc: "Dodanie dokumentu, który agent już posiada jako plik (np. podpisana umowa) wraz z metadanymi." },
     ],
   },
   {
