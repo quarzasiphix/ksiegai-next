@@ -14,6 +14,9 @@ import {
   Terminal,
   CheckCircle2,
   FolderOpen,
+  Check,
+  ChevronDown,
+  Globe,
 } from "lucide-react";
 import { TrackedLink } from "@/components/analytics/TrackedLink";
 import { PageAnalytics } from "@/components/analytics/PageAnalytics";
@@ -271,14 +274,94 @@ claude mcp login ksiegai`}</pre>
               {/* Step 2 */}
               <li className="flex gap-4">
                 <span className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-600 text-white text-sm font-bold flex items-center justify-center">2</span>
-                <div className="flex-1">
+                <div className="flex-1 w-full min-w-0">
                   <h3 className="text-white font-semibold mb-1">Zaloguj się i zatwierdź</h3>
-                  <p className="text-sm text-gray-400">
+                  <p className="text-sm text-gray-400 mb-5">
                     W otwartej przeglądarce zaloguj się do{" "}
                     <Link href="/logowanie" className="text-purple-400 hover:text-purple-300 underline">app.ksiegai.pl</Link>,
-                    wybierz firmę i poziom dostępu dla agenta, zatwierdź. Token odświeża się sam —
-                    nic nie trzeba kopiować ani wygaśnięcia pilnować ręcznie. Dostęp możesz cofnąć
-                    w każdej chwili w Ustawieniach.
+                    wybierz firmy i poziom dostępu dla agenta — osobno dla każdej firmy, jeśli masz
+                    ich więcej — i zatwierdź. Token odświeża się sam — nic nie trzeba kopiować ani
+                    wygaśnięcia pilnować ręcznie. Dostęp możesz cofnąć w każdej chwili w Ustawieniach.
+                  </p>
+
+                  {/* Mock: the actual /settings/ai-mcp/authorize consent screen */}
+                  <div className="rounded-2xl border border-white/10 bg-black/30 overflow-hidden shadow-2xl">
+                    <div className="flex items-center gap-2 px-4 py-2.5 border-b border-white/10 bg-white/[0.03]">
+                      <span className="w-2.5 h-2.5 rounded-full bg-red-500/70" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-yellow-500/70" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-green-500/70" />
+                      <div className="flex-1 flex justify-center">
+                        <div className="flex items-center gap-1.5 bg-black/30 rounded-md px-3 py-1 text-[11px] text-gray-400 font-mono">
+                          <Globe className="h-3 w-3" />
+                          app.ksiegai.pl/settings/ai-mcp/authorize
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-4 sm:p-6 bg-gray-50">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Bot className="h-4 w-4 text-purple-600" />
+                        <h4 className="text-base font-bold text-gray-900">Autoryzuj „Claude Code”</h4>
+                      </div>
+                      <p className="text-xs text-gray-500 mb-4">
+                        Ten agent AI chce połączyć się z Twoją księgowością w KsięgaI.
+                      </p>
+
+                      <div className="bg-white rounded-xl border border-gray-200 p-4 space-y-4">
+                        <div>
+                          <label className="text-[11px] font-medium text-gray-500 mb-1 block">Nazwa połączenia</label>
+                          <div className="text-sm text-gray-900 border border-gray-200 rounded-lg px-3 py-2 bg-gray-50">Claude Code</div>
+                        </div>
+
+                        <div>
+                          <label className="text-[11px] font-medium text-gray-500 mb-1.5 block">Firmy i poziom dostępu</label>
+                          <div className="space-y-2">
+                            {[
+                              { name: "Moja Firma Sp. z o.o.", tier: "Pełny dostęp", checked: true },
+                              { name: "ABC Consulting Kowalski", tier: "Tylko odczyt", checked: true },
+                              { name: "XYZ Trading Sp. z o.o.", tier: null, checked: false },
+                            ].map((row) => (
+                              <div
+                                key={row.name}
+                                className={`flex items-center gap-3 rounded-lg border px-3 py-2 ${row.checked ? "border-gray-200" : "border-gray-100"}`}
+                              >
+                                <span
+                                  className={`w-4 h-4 rounded flex items-center justify-center flex-shrink-0 ${
+                                    row.checked ? "bg-blue-600" : "border border-gray-300"
+                                  }`}
+                                >
+                                  {row.checked && <Check className="h-3 w-3 text-white" />}
+                                </span>
+                                <span className={`flex-1 text-sm truncate ${row.checked ? "text-gray-900" : "text-gray-400"}`}>
+                                  {row.name}
+                                </span>
+                                {row.tier && (
+                                  <span className="flex items-center gap-1 text-xs text-gray-700 border border-gray-200 rounded-md px-2 py-1 flex-shrink-0">
+                                    {row.tier}
+                                    <ChevronDown className="h-3 w-3 text-gray-400" />
+                                  </span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-[11px] font-medium text-gray-500 mb-1 block">Wygaśnięcie</label>
+                          <div className="flex items-center justify-between text-sm text-gray-900 border border-gray-200 rounded-lg px-3 py-2 bg-gray-50">
+                            90 dni
+                            <ChevronDown className="h-3.5 w-3.5 text-gray-400" />
+                          </div>
+                        </div>
+
+                        <div className="w-full text-center bg-blue-600 text-white text-sm font-semibold rounded-lg py-2.5">
+                          Autoryzuj „Claude Code”
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2.5">
+                    Podgląd prawdziwego ekranu z Ustawień — dokładna treść zależy od liczby Twoich firm.
                   </p>
                 </div>
               </li>
