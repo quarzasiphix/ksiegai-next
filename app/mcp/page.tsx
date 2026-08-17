@@ -75,6 +75,9 @@ const tools = [
     bgClass: "bg-emerald-100 dark:bg-emerald-900/30",
     items: [
       { name: "get_chart_of_accounts", desc: "Plan kont firmy — aktywne konta i ich grupy." },
+      { name: "setup_chart_of_accounts", desc: "Zakłada startowy plan kont dla nowej firmy — bezpieczne do wywołania wielokrotnie, nic nie nadpisuje istniejącego planu." },
+      { name: "create_chart_account / update_chart_account", desc: "Dodanie nowego konta księgowego lub edycja istniejącego (nazwa, typ, stawka VAT) — również reaktywacja wcześniej wyłączonego konta." },
+      { name: "deactivate_chart_account", desc: "Wyłączenie konta z użycia — zablokowane, jeśli konto ma jeszcze niezaksięgowane zapisy robocze." },
       { name: "get_balance_sheet", desc: "Salda kont na dany dzień lub okres — baza pod analizę i raporty." },
       { name: "draft_journal_entry", desc: "Ręczny zapis księgowy (korekta, naliczenie itp.) — zawsze jako wersja robocza, nigdy automatycznie zaksięgowany." },
       { name: "preview_journal_entry_posting → post_journal_entry", desc: "Agent najpierw przygotowuje podgląd zapisu, dopiero potem może go zaksięgować — ten sam mechanizm co przy transakcjach bankowych." },

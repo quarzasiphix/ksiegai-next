@@ -92,6 +92,11 @@ export default function Footer() {
                   Governance
                 </Link>
               </li>
+              <li>
+                <Link href="/mcp" className="text-gray-400 hover:text-white transition-colors text-sm">
+                  MCP (AI)
+                </Link>
+              </li>
             </ul>
           </div>
 
