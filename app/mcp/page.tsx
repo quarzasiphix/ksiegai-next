@@ -17,6 +17,9 @@ import {
   Check,
   ChevronDown,
   Globe,
+  Gavel,
+  FileSignature,
+  ListChecks,
 } from "lucide-react";
 import { TrackedLink } from "@/components/analytics/TrackedLink";
 import { PageAnalytics } from "@/components/analytics/PageAnalytics";
@@ -105,6 +108,42 @@ const tools = [
       { name: "classify_bank_transaction", desc: "Propozycja klasyfikacji transakcji — trafia jako „do weryfikacji”." },
       { name: "update_bank_transaction / delete_bank_transaction", desc: "Poprawka lub usunięcie transakcji (np. błędny import, duplikat) — zablokowane, gdy transakcja jest już zaksięgowana." },
       { name: "preview_bank_transaction_posting → post_bank_transaction", desc: "Agent najpierw przygotowuje podgląd księgowania, dopiero potem może je zaksięgować — patrz sekcja bezpieczeństwa." },
+    ],
+  },
+  {
+    group: "Uchwały i decyzje",
+    icon: Gavel,
+    iconClass: "text-indigo-600 dark:text-indigo-400",
+    bgClass: "bg-indigo-100 dark:bg-indigo-900/30",
+    items: [
+      { name: "list_resolutions / get_resolution", desc: "Uchwały wspólników i zarządu — treść, głosy, status kworum." },
+      { name: "list_decisions / get_decision", desc: "Decyzje (mandaty/upoważnienia) stojące za każdą umową, fakturą czy wydatkiem." },
+      { name: "get_authority_chain", desc: "Pełny łańcuch upoważnienia dla umowy/faktury/wydatku — czy istnieje właściwa decyzja i uchwała." },
+      { name: "check_ksh_compliance_for_loan", desc: "Sprawdzenie pożyczki od wspólnika/członka zarządu pod kątem KSH art. 15, 210 §1 i 230 — czy spółka może być reprezentowana przez tę samą osobę po obu stronach umowy." },
+      { name: "create_resolution", desc: "Przygotowanie uchwały (np. powołanie pełnomocnika z art. 210 KSH) — zawsze jako wersja robocza, wymaga realnego głosowania w aplikacji." },
+      { name: "create_decision", desc: "Przygotowanie decyzji/mandatu — zawsze jako wersja robocza." },
+      { name: "pause_decision → resume_decision", desc: "Wstrzymanie aktywnej decyzji, jeśli agent podejrzewa problem (np. brak wymaganego pełnomocnictwa) — odwracalne, bez utraty historii." },
+    ],
+  },
+  {
+    group: "Umowy",
+    icon: FileSignature,
+    iconClass: "text-orange-600 dark:text-orange-400",
+    bgClass: "bg-orange-100 dark:bg-orange-900/30",
+    items: [
+      { name: "list_contracts / get_contract", desc: "Wszystkie umowy firmy — dowolnego typu (najem, pożyczka, B2B, umowa o pracę, NDA i inne)." },
+      { name: "create_contract / update_contract", desc: "Utworzenie lub edycja umowy dowolnego typu — zawsze jako wersja robocza; jeśli dotyczy członka zarządu, agent dostaje przypomnienie o sprawdzeniu zgodności z KSH art. 210." },
+    ],
+  },
+  {
+    group: "Zgodność (compliance)",
+    icon: ListChecks,
+    iconClass: "text-teal-600 dark:text-teal-400",
+    bgClass: "bg-teal-100 dark:bg-teal-900/30",
+    items: [
+      { name: "list_checklist_tasks", desc: "Zaległe obowiązki formalne firmy — CRBR, konto w e-Urzędzie Skarbowym, ZAW-FA, e-Doręczenia, aktywacja KSeF i inne terminy związane z formą prawną." },
+      { name: "list_checklist_rules", desc: "Definicje reguł, z których generowane są zadania — dla jakich form/reżimów podatkowych obowiązują." },
+      { name: "update_checklist_task_status", desc: "Oznaczenie zadania jako wykonane/zablokowane/nie dotyczy." },
     ],
   },
 ];
