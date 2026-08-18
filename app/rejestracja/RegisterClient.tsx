@@ -476,6 +476,63 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
 
     setLoading(true);
     setAuthFlowOrigin("register");
+
+    // ── Team-member invited user — auto-confirm, no verify screen ─────────────
+    // Same reasoning as the company-invite branch right below: clicking the
+    // invite link (emailed to this exact address) already proved ownership
+    // of the email — a second "confirm your email" step would be asking for
+    // the same proof twice. register-invited-team-member (ksef-ai) creates
+    // the account with email_confirm:true instead of the regular
+    // supabase.auth.signUp() verification flow used further down.
+    if (teamInviteData && teamInviteToken) {
+      try {
+        type RegisterTeamInviteResult = {
+          error?: string;
+          access_token?: string;
+          refresh_token?: string;
+          expires_at?: number;
+          user_id?: string;
+        };
+        const result = await gatewayFetch<RegisterTeamInviteResult>("/v1/public/team-invite/register", {
+          method: "POST",
+          body: JSON.stringify({ email, password, token: teamInviteToken }),
+        }).catch((gatewayError): RegisterTeamInviteResult => ({ error: gatewayError?.message ?? "Registration failed" }));
+
+        if (result.error) {
+          const msg = (result.error ?? "").toLowerCase();
+          if (msg.includes("already") || msg.includes("exists")) {
+            window.location.href = `/logowanie?team_invite=${encodeURIComponent(teamInviteToken)}`;
+            return;
+          }
+          setError(result.error ?? "Nie udało się założyć konta. Spróbuj ponownie.");
+          setLoading(false);
+          return;
+        }
+
+        suppressSignedInRedirect.current = true;
+        await supabase.auth.setSession({
+          access_token: result.access_token!,
+          refresh_token: result.refresh_token!,
+        });
+        storeAuthToken({
+          access_token: result.access_token!,
+          refresh_token: result.refresh_token!,
+          expires_at: result.expires_at || 0,
+          user_id: result.user_id!,
+        });
+        localStorage.removeItem("pending_team_invite_token");
+        posthog.capture("register_password_signup", { team_invite: true });
+        window.location.href = `https://app.ksiegai.pl/invite/accept?token=${encodeURIComponent(teamInviteToken)}`;
+        return;
+      } catch (err) {
+        console.error("[Register] invited team-member registration failed:", err);
+        suppressSignedInRedirect.current = false;
+        setError("Nie udało się dokończyć rejestracji. Spróbuj ponownie.");
+        setLoading(false);
+        return;
+      }
+    }
+
     const pendingToken = getStoredInviteToken();
 
     // ── Invited user — auto-confirm, no verify screen ─────────────────────────
