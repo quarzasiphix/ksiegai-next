@@ -109,6 +109,7 @@ export default function Login() {
   const [inviteCompany, setInviteCompany] = useState<string | null>(null);
   const [inviteEmail, setInviteEmail] = useState<string | null>(null);
   const [inviteCompanyType, setInviteCompanyType] = useState<string | null>(null);
+  const [teamInviteInfo, setTeamInviteInfo] = useState<{ companyName: string | null; role: string } | null>(null);
   const [returnToUrl, setReturnToUrl] = useState<string | null>(null);
 
   const refreshRememberedProfiles = () => {
@@ -320,6 +321,16 @@ export default function Login() {
       expires_at: session.expires_at || 0,
       user_id: session.user.id,
     };
+    // Team invite (company_invitations) takes priority over returnTo — see
+    // /invite's own comment (ksiegai-next) and auth/callback/page.tsx's
+    // matching check for the register-path equivalent of this same hop.
+    const pendingTeamInviteToken = localStorage.getItem("pending_team_invite_token");
+    if (pendingTeamInviteToken) {
+      localStorage.removeItem("pending_team_invite_token");
+      storeAuthToken(token);
+      window.location.href = `https://app.ksiegai.pl/invite/accept?token=${encodeURIComponent(pendingTeamInviteToken)}`;
+      return;
+    }
     if (returnToUrl) {
       storeAuthToken(token);
       window.location.href = returnToUrl;
@@ -370,6 +381,36 @@ export default function Login() {
         }
       }
     });
+  }, []);
+
+  // Team-member invite (company_invitations) — arrives here from /invite's
+  // splitter once it already confirmed the recipient has an account.
+  // Persisted to localStorage so redirectAfterLogin (above) can send the
+  // user straight to app.ksiegai.pl/invite/accept once authenticated,
+  // instead of the normal dashboard/returnTo destination.
+  useEffect(() => {
+    const urlToken = new URLSearchParams(window.location.search).get("team_invite");
+    const token = urlToken || localStorage.getItem("pending_team_invite_token");
+    if (!token) return;
+    localStorage.setItem("pending_team_invite_token", token);
+    if (urlToken) {
+      const clean = new URL(window.location.href);
+      clean.searchParams.delete("team_invite");
+      window.history.replaceState({}, "", clean.toString());
+    }
+    publicApiAction<{ invite: { is_valid: boolean; company_name: string | null; role: string; recipient_email: string } | null }>(
+      "teamInvite.lookup",
+      { token },
+    )
+      .then((result) => result.invite)
+      .catch(() => null)
+      .then((data) => {
+        if (!data?.is_valid) return;
+        setTeamInviteInfo({ companyName: data.company_name, role: data.role });
+        if (data.recipient_email) {
+          setEmail((prev) => (prev === "" ? data.recipient_email : prev));
+        }
+      });
   }, []);
 
   useEffect(() => {
@@ -727,7 +768,19 @@ export default function Login() {
         ) : (
           <>
             <div className="text-center mb-8 animate-fade-in">
-              {inviteCompany ? (
+              {teamInviteInfo ? (
+                <>
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 mb-4">
+                    <span className="text-sm font-semibold text-blue-900 dark:text-blue-100">Zaproszenie do zespołu</span>
+                  </div>
+                  <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
+                    Zaloguj się, aby dołączyć{teamInviteInfo.companyName ? ` do ${teamInviteInfo.companyName}` : ""}
+                  </h1>
+                  <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
+                    Zaakceptujesz zaproszenie od razu po zalogowaniu.
+                  </p>
+                </>
+              ) : inviteCompany ? (
                 <>
                   <div className="inline-flex items-center gap-3 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-2xl px-5 py-3 mb-4">
                     <div className="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center shrink-0">

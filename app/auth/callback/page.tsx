@@ -74,6 +74,30 @@ export default function AuthCallback() {
         const inviteHash = urlParams.get('inv'); // SHA-256 hash of invite token (reg=invite only)
         const anonInvoiceId = urlParams.get('av'); // free-invoice-generator submission_id (self-serve claim)
 
+        // ── Team invite flow ──────────────────────────────────────────────────
+        // Persisted by /invite (via /rejestracja or /logowanie) before the
+        // user ever left this domain, since email verification round-trips
+        // through the inbox — not carried as a URL param at all, so nothing
+        // here needs threading through emailRedirectTo. Checked before the
+        // company-invite branch below since the two are mutually exclusive
+        // in practice (a session isn't usually mid-way through both at once)
+        // and this one has nothing else to claim server-side — the actual
+        // join happens on app.ksiegai.pl/invite/accept (AcceptTeamInvite),
+        // which now runs with an authenticated session instead of bouncing
+        // back through the generic cross-domain login redirect.
+        const pendingTeamInviteToken = localStorage.getItem('pending_team_invite_token');
+        if (pendingTeamInviteToken) {
+          localStorage.removeItem('pending_team_invite_token');
+          storeAuthToken({
+            access_token: session.access_token,
+            refresh_token: session.refresh_token,
+            expires_at: session.expires_at || 0,
+            user_id: session.user.id,
+          });
+          window.location.href = `https://app.ksiegai.pl/invite/accept?token=${encodeURIComponent(pendingTeamInviteToken)}`;
+          return;
+        }
+
         // ── Invite claim flow ─────────────────────────────────────────────────
         if (regParam === 'invite' && inviteHash) {
           const inviteLookup = await publicApiAction<{ invite: any }>('invite.lookup', { tokenHash: inviteHash })

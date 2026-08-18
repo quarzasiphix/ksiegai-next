@@ -119,7 +119,12 @@ export default function RegisterClient({
 }) {
   const searchParams = useSearchParams();
   const inviteToken = searchParams?.get("invite") ?? initialInviteToken ?? null;
+  const teamInviteToken = searchParams?.get("team_invite") ?? null;
   const avParam = searchParams?.get("av") ?? null;
+  const [teamInviteData, setTeamInviteData] = useState<{
+    companyName: string | null;
+    role: string;
+  } | null>(null);
   const [anonInvoiceId, setAnonInvoiceId] = useState<string | null>(null);
   const [anonInvoiceData, setAnonInvoiceData] = useState<{
     sellerName: string;
@@ -253,6 +258,38 @@ export default function RegisterClient({
       }
     })();
   }, [avParam, inviteToken]);
+
+  // Team-member invite (company_invitations, distinct from the
+  // admin_company_invites flow below) — arrives here via /invite's splitter
+  // after it already confirmed the recipient has no account yet. Persisted
+  // to localStorage (not threaded through emailRedirectTo) so
+  // /auth/callback can pick it up after the email-verification round trip
+  // — see that file's own comment for why. Standard signUp/magic-link/OAuth
+  // paths below are otherwise untouched; this only changes the hero copy
+  // and prefills the email.
+  useEffect(() => {
+    if (!teamInviteToken) return;
+    localStorage.setItem("pending_team_invite_token", teamInviteToken);
+
+    void (async () => {
+      const invite = await publicApiAction<{ invite: { is_valid: boolean; company_name: string | null; role: string; recipient_email: string; recipient_has_account: boolean } | null }>(
+        "teamInvite.lookup",
+        { token: teamInviteToken },
+      )
+        .then((result) => result.invite)
+        .catch(() => null);
+
+      if (!invite || !invite.is_valid) return;
+
+      if (invite.recipient_has_account) {
+        window.location.href = `/logowanie?team_invite=${encodeURIComponent(teamInviteToken)}`;
+        return;
+      }
+
+      setTeamInviteData({ companyName: invite.company_name, role: invite.role });
+      setEmail((prev) => (prev === "" ? invite.recipient_email : prev));
+    })();
+  }, [teamInviteToken]);
 
   useEffect(() => {
     const urlToken = inviteToken;
@@ -1284,13 +1321,22 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-7">
+          {teamInviteData && (
+            <div className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-full px-4 py-1.5 mb-3 text-xs font-semibold text-blue-700 dark:text-blue-300">
+              Zaproszenie do zespołu
+            </div>
+          )}
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            {anonInvoiceData ? "Twoje konto czeka na Ciebie" : "Zacznij za darmo"}
+            {teamInviteData
+              ? `Witaj — jesteś zaproszony${teamInviteData.companyName ? ` do ${teamInviteData.companyName}` : ""}`
+              : anonInvoiceData ? "Twoje konto czeka na Ciebie" : "Zacznij za darmo"}
           </h1>
           <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            {anonInvoiceData
-              ? `Dokończ profil ${anonInvoiceData.krsMatchName ?? anonInvoiceData.sellerName} — dane z Twojej ostatniej faktury już czekają.`
-              : "Bez karty płatniczej  ·  Faktury od razu  ·  Zgodne z KSeF"}
+            {teamInviteData
+              ? "Załóż konto, aby dołączyć do zespołu i zaakceptować zaproszenie."
+              : anonInvoiceData
+                ? `Dokończ profil ${anonInvoiceData.krsMatchName ?? anonInvoiceData.sellerName} — dane z Twojej ostatniej faktury już czekają.`
+                : "Bez karty płatniczej  ·  Faktury od razu  ·  Zgodne z KSeF"}
           </p>
         </div>
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-7 space-y-4">
