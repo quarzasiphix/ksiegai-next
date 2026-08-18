@@ -5,11 +5,11 @@ import { PUBLIC_PRICING, formatPlnMonthly, formatPlnMonthlyShort } from "../../l
 
 export const metadata: Metadata = {
   title: "Premium - Pełna automatyzacja księgowości | KsięgaI",
-  description: "KSeF, JPK, integracje bankowe i AI — wszystko, czego potrzebujesz do profesjonalnej księgowości w jednym systemie. Dla przedsiębiorców i księgowych, którzy chcą więcej niż podstawy.",
-  keywords: "księgowość premium, KSeF automatyzacja, JPK-V7M, księgowość dla spółek, księgowość z AI, integracje bankowe, księgowość dla księgowych",
+  description: "JPK, CIT-8, integracje bankowe i AI — pełna automatyzacja księgowości w jednym systemie. Połączenie z KSeF jest bezpłatne na zawsze w każdym planie. Dla przedsiębiorców i księgowych, którzy chcą więcej niż podstawy.",
+  keywords: "księgowość premium, JPK-V7M, CIT-8, księgowość dla spółek, księgowość z AI, integracje bankowe, księgowość dla księgowych",
   openGraph: {
     title: "Premium - Pełna automatyzacja i kontrola | KsięgaI",
-    description: "Infrastruktura finansowa dla rosnących firm. KSeF, JPK, AI i integracje bankowe w jednym systemie.",
+    description: "Infrastruktura finansowa dla rosnących firm. JPK, CIT-8, AI i integracje bankowe w jednym systemie — KSeF jest bezpłatny na zawsze.",
     url: "https://www.ksiegai.pl/premium",
   },
   alternates: {
@@ -32,8 +32,11 @@ export default function Premium() {
               Pełna automatyzacja.<br />Pełna kontrola.
             </h1>
             <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
-              KSeF, JPK, integracje bankowe i AI — wszystko, czego potrzebujesz<br />
+              JPK, CIT-8, integracje bankowe i AI — wszystko, czego potrzebujesz<br />
               do profesjonalnej księgowości w jednym systemie.
+            </p>
+            <p className="text-sm text-amber-300/80 mb-2">
+              Połączenie z KSeF jest bezpłatne na zawsze — w każdym planie, nie tylko Premium.
             </p>
             <p className="text-base text-gray-400 italic mb-8">
               Zbudowane w oparciu o polskie prawo podatkowe i realne procesy księgowe.<br />
@@ -77,18 +80,14 @@ export default function Premium() {
                 <div className="w-14 h-14 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-4">
                   <Building className="h-7 w-7 text-blue-600 dark:text-blue-400" />
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">KSeF & podatki</h3>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">Podatki i deklaracje</h3>
                 <p className="text-gray-600 dark:text-gray-400 mb-4">
-                  Struktura danych, walidacje i workflow gotowe pod KSeF. Deklaracje przygotowywane automatycznie — Ty zatwierdzasz przed eksportem / wysyłką (jeśli dotyczy).
+                  Deklaracje przygotowywane automatycznie — Ty zatwierdzasz przed eksportem / wysyłką (jeśli dotyczy).
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-500 italic mb-4">
-                  KSeF-ready: pełna zgodność struktury danych i workflow. Funkcje wysyłki i integracje zależą od dostępności oraz wersji środowisk MF.
+                  Połączenie z KSeF (walidacja, wysyłka, odbiór i archiwum faktur) jest bezpłatne na zawsze w każdym planie — nie jest częścią Premium.
                 </p>
                 <ul className="space-y-2 text-gray-600 dark:text-gray-400">
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span>Workflow wysłania do KSeF + walidacje (KSeF-ready)</span>
-                  </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
                     <span>JPK: przygotowanie + eksport + walidacje</span>
@@ -100,6 +99,10 @@ export default function Premium() {
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
                     <span>Automatyczne przygotowanie deklaracji VAT do weryfikacji</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                    <span>CIT-8: przygotowanie i eksport</span>
                   </li>
                 </ul>
               </div>

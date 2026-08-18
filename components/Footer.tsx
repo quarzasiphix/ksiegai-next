@@ -65,6 +65,16 @@ export default function Footer() {
                   Poradnik
                 </Link>
               </li>
+              <li>
+                <a
+                  href="https://ksef.support"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-400 hover:text-white transition-colors text-sm"
+                >
+                  KSeF bez paniki (przewodnik)
+                </a>
+              </li>
             </ul>
           </div>
 

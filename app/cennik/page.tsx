@@ -8,7 +8,7 @@ import { PageAnalytics } from "@/components/analytics/PageAnalytics";
 export const metadata: Metadata = {
   title: "Cennik KsięgaI | Nowoczesna księgowość JDG i spółek z o.o.",
   description:
-    `Transparentny cennik KsięgaI. Plan dla JDG od ${formatPln(PUBLIC_PRICING.jdg.monthlyPricePln)}, pakiet Spółka Standard z pełną automatyzacją KSeF i płatnościami online Stripe (${formatPln(PUBLIC_PRICING.spolkaStandard.monthlyPricePln)}) oraz rozwiązania Enterprise.`,
+    `Transparentny cennik KsięgaI. Połączenie z KSeF jest bezpłatne na zawsze w planie Start. Plan JDG od ${formatPln(PUBLIC_PRICING.jdg.monthlyPricePln)}, Spółka Standard z governance i płatnościami Stripe (${formatPln(PUBLIC_PRICING.spolkaStandard.monthlyPricePln)}) oraz rozwiązania Enterprise.`,
   alternates: {
     canonical: "https://www.ksiegai.pl/cennik/",
   },
@@ -23,6 +23,21 @@ export const metadata: Metadata = {
 };
 
 const plans = [
+  {
+    name: PUBLIC_PRICING.start.name,
+    tagline: "Połączenie z KSeF, bezpłatnie na zawsze",
+    price: formatPln(PUBLIC_PRICING.start.monthlyPricePln),
+    cadence: "",
+    icon: FileCheck,
+    features: [
+      "Walidacja, wysyłka i archiwum faktur ustrukturyzowanych w KSeF",
+      "Odbiór faktur zakupowych z KSeF",
+      "Podstawowe fakturowanie i rejestr dokumentów",
+      "Bez karty płatniczej, bez limitu czasowego",
+    ],
+    cta: { label: "Załóż darmowe konto", href: "/rejestracja" },
+    highlight: false,
+  },
   {
     name: PUBLIC_PRICING.jdg.name,
     tagline: "Dla jednoosobowych działalności w trybie lean",
@@ -75,11 +90,12 @@ const plans = [
 ];
 
 const comparison = [
-  { label: "Limit dokumentów", jdg: "Bez limitu", standard: "Bez limitu", enterprise: "Bez limitu, wiele podmiotów" },
-  { label: "Użytkownicy w firmie", jdg: "Bez limitu", standard: "Bez limitu", enterprise: "Bez limitu + ustalenia indywidualne" },
-  { label: "Deklaracje podatkowe", jdg: "VAT, PIT, JPK_V7K, ZUS", standard: "JPK_V7M, CIT-8", enterprise: "Pełny pakiet + raporty na zamówienie" },
-  { label: "Płatności online", jdg: "—", standard: "Stripe (karta, BLIK, Google Pay)", enterprise: "Stripe + ustalenia indywidualne" },
-  { label: "Governance", jdg: "Checklista JDG", standard: "Repozytorium uchwał, majątku i ryzyk", enterprise: "Governance dla grupy kapitałowej" },
+  { label: "Połączenie z KSeF (wysyłka, odbiór, archiwum)", start: "✓ Bezpłatnie", jdg: "✓", standard: "✓", enterprise: "✓" },
+  { label: "Limit dokumentów", start: "Bez limitu", jdg: "Bez limitu", standard: "Bez limitu", enterprise: "Bez limitu, wiele podmiotów" },
+  { label: "Użytkownicy w firmie", start: "Bez limitu", jdg: "Bez limitu", standard: "Bez limitu", enterprise: "Bez limitu + ustalenia indywidualne" },
+  { label: "Deklaracje podatkowe", start: "—", jdg: "VAT, PIT, JPK_V7K, ZUS", standard: "JPK_V7M, CIT-8", enterprise: "Pełny pakiet + raporty na zamówienie" },
+  { label: "Płatności online", start: "—", jdg: "—", standard: "Stripe (karta, BLIK, Google Pay)", enterprise: "Stripe + ustalenia indywidualne" },
+  { label: "Governance", start: "—", jdg: "Checklista JDG", standard: "Repozytorium uchwał, majątku i ryzyk", enterprise: "Governance dla grupy kapitałowej" },
 ];
 
 const proofPoints = [
@@ -100,8 +116,8 @@ const proofPoints = [
   },
   {
     icon: FileCheck,
-    title: "KSeF od pierwszego dnia",
-    copy: "Walidacje, wysyłka i archiwum faktur ustrukturyzowanych zgodnie ze schemą KSeF — gotowe zanim wysyłka stanie się obowiązkowa.",
+    title: "KSeF od pierwszego dnia, bezpłatnie",
+    copy: "Walidacje, wysyłka i archiwum faktur ustrukturyzowanych zgodnie ze schemą KSeF — bezpłatne na zawsze, gotowe zanim wysyłka stanie się obowiązkowa.",
   },
 ];
 
@@ -115,8 +131,8 @@ const faqs = [
     a: "Nie. Trial trwa 7 dni i obejmuje pełny zakres funkcji Spółka Standard. Po zakończeniu wybierasz plan albo eksportujesz swoje dane.",
   },
   {
-    q: "Czy KsięgaI obsługuje KSeF i płatności online?",
-    a: "Tak. KsięgaI wspiera pełny obieg dokumentów pod KSeF (walidacje, wysyłka, archiwum), a płatności online dla faktur są obsługiwane przez Stripe (karta, BLIK, Google Pay).",
+    q: "Czy połączenie z KSeF jest płatne?",
+    a: "Nie. Połączenie z KSeF — walidacja, wysyłka, odbiór i archiwum faktur — jest bezpłatne na zawsze, w planie Start. Płatne plany (JDG, Spółka Standard) dodają deklaracje podatkowe, governance i płatności online przez Stripe (karta, BLIK, Google Pay).",
   },
   {
     q: "Czy jest limit użytkowników?",
@@ -158,7 +174,7 @@ export default function Pricing() {
       {/* Plans */}
       <section className="py-16">
         <div className="mx-auto w-full max-w-6xl px-6">
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
             {plans.map((plan) => {
               const Icon = plan.icon;
               return (
@@ -249,6 +265,7 @@ export default function Pricing() {
                 <thead>
                   <tr className="text-gray-500 dark:text-gray-300">
                     <th className="py-3 pr-4 font-semibold">Obszar</th>
+                    <th className="py-3 px-4 font-semibold">Start (bezpłatny)</th>
                     <th className="py-3 px-4 font-semibold">JDG Start</th>
                     <th className="py-3 px-4 font-semibold">Spółka Standard</th>
                     <th className="py-3 px-4 font-semibold">Enterprise</th>
@@ -258,6 +275,7 @@ export default function Pricing() {
                   {comparison.map((row) => (
                     <tr key={row.label}>
                       <td className="py-4 pr-4 font-semibold">{row.label}</td>
+                      <td className="py-4 px-4">{row.start}</td>
                       <td className="py-4 px-4">{row.jdg}</td>
                       <td className="py-4 px-4">{row.standard}</td>
                       <td className="py-4 px-4">{row.enterprise}</td>

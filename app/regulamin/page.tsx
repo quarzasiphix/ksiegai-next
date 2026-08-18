@@ -27,6 +27,7 @@ function FallbackContent() {
           <li><strong>Konto</strong> – indywidualne konto Użytkownika w Platformie, umożliwiające korzystanie z Usług.</li>
           <li><strong>Usługi</strong> – funkcjonalności Platformy dostępne dla Użytkowników, w tym fakturowanie, księgowość, integracja z KSeF, generowanie raportów.</li>
           <li><strong>Subskrypcja</strong> – odpłatny dostęp do Usług Premium na określony okres czasu.</li>
+          <li><strong>Plan Start</strong> – bezpłatny plan obejmujący połączenie z KSeF (walidacja, wysyłka, odbiór i archiwum faktur ustrukturyzowanych) na czas nieokreślony, bez konieczności podania danych karty płatniczej.</li>
           <li><strong>Plan JDG</strong> – pakiet usług dla jednoosobowych działalności gospodarczych w cenie {formatPlnMonthly(PUBLIC_PRICING.jdg.monthlyPricePln)}.</li>
           <li><strong>Plan Spółka Standard</strong> – pakiet usług dla spółek z o.o. w cenie {formatPlnMonthly(PUBLIC_PRICING.spolkaStandard.monthlyPricePln)} lub {formatPlnAnnual(PUBLIC_PRICING.spolkaStandard.annualPricePln)}.</li>
         </ol>
@@ -77,6 +78,7 @@ function FallbackContent() {
           <li>Płatności za Subskrypcję są przetwarzane przez Stripe, Inc.</li>
           <li>Dostępne Plany:
             <ul className="list-disc pl-6 mt-2">
+              <li><strong>Plan Start:</strong> bezpłatny, bez limitu czasowego — obejmuje połączenie z KSeF</li>
               <li><strong>Plan JDG:</strong> {formatPlnMonthly(PUBLIC_PRICING.jdg.monthlyPricePln)}, rozliczany miesięcznie</li>
               <li><strong>Plan Spółka Standard:</strong> {formatPlnMonthly(PUBLIC_PRICING.spolkaStandard.monthlyPricePln)} lub {formatPlnAnnual(PUBLIC_PRICING.spolkaStandard.annualPricePln)}</li>
               <li><strong>Plan Enterprise:</strong> wycena indywidualna</li>

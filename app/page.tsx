@@ -442,9 +442,12 @@ export default function Home() {
                   <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-4">
                     Gotowy na obowiązkowy KSeF
                   </h2>
-                  <p className="text-gray-600 dark:text-gray-400 mb-6">
+                  <p className="text-gray-600 dark:text-gray-400 mb-3">
                     KsięgaI przygotowuje dane, waliduje dokumenty i prowadzi ślad uzgodnień — tak, żebyś
                     na wejście obowiązkowego KSeF był gotowy bez paniki.
+                  </p>
+                  <p className="text-sm text-blue-600 dark:text-blue-400 font-semibold mb-6">
+                    Połączenie z KSeF jest bezpłatne na zawsze.
                   </p>
                   <div className="flex flex-col gap-3">
                     <Link
@@ -634,6 +637,7 @@ export default function Home() {
                   </h3>
                   <ul className="space-y-2 mb-6">
                     {[
+                      "Połączenie z KSeF — wysyłka, odbiór, archiwum",
                       "Rejestr wpływów dokumentów",
                       "Uzgodnienia przy dokumencie",
                       "Eksport danych",
@@ -660,12 +664,12 @@ export default function Home() {
                     </span>
                   </div>
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                    KSeF, automatyzacja i kontrola
+                    JPK, automatyzacja i kontrola
                   </h3>
                   <ul className="space-y-2 mb-6">
                     {[
                       "Workflow zatwierdzania + role",
-                      "KSeF-ready + JPK + walidacje",
+                      "JPK i CIT-8 + walidacje",
                       "Integracja bankowa + auto-dopasowanie",
                       "Rozrachunki i płatności",
                     ].map((f) => (

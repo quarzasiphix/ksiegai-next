@@ -44,9 +44,12 @@ export default function KsefPage() {
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold text-white mb-5 leading-tight">
               Gotowy na obowiązkowy KSeF
             </h1>
-            <p className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto mb-8">
+            <p className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto mb-3">
               KsięgaI przygotowuje dane, waliduje dokumenty i prowadzi ślad uzgodnień — tak, żebyś
               wchodził w obowiązkowy KSeF z pełnym porządkiem, nie w panice.
+            </p>
+            <p className="text-sm text-blue-300/90 max-w-2xl mx-auto mb-8">
+              Połączenie z KSeF jest bezpłatne na zawsze — bez karty, bez limitu czasowego.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <TrackedLink
@@ -67,6 +70,14 @@ export default function KsefPage() {
                 Poradnik KSeF krok po kroku
               </TrackedLink>
             </div>
+            <a
+              href="https://ksef.support"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 inline-block text-sm text-gray-400 hover:text-white underline"
+            >
+              Więcej o KSeF: niezależny przewodnik ksef.support
+            </a>
           </div>
         </div>
       </section>

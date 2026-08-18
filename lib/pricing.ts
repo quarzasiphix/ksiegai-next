@@ -1,4 +1,8 @@
 export const PUBLIC_PRICING = {
+  start: {
+    name: "Start",
+    monthlyPricePln: 0,
+  },
   jdg: {
     name: "JDG Start",
     monthlyPricePln: 49,
