@@ -5174,6 +5174,92 @@ KsięgaI pilnuje obiegu dokumentów przez cały rok. Biuro rachunkowe mające ko
     category: fallbackWikiCategories[9],
   },
 
+  // ─── Obsługa i pomoc KSeF — statusy, błędy, problemy ────────────────────────
+  {
+    id: 'fallback-ksef-obsluga-pomoc',
+    slug: 'obsluga-ksef-status-i-najczestsze-problemy',
+    title: 'Obsługa KSeF — statusy faktur, błędy i jak rozwiązać najczęstsze problemy',
+    excerpt: 'Dokument "oczekuje na zatwierdzenie", faktura nie trafia do KSeF, token nie działa — co te komunikaty oznaczają i co z nimi zrobić.',
+    summary: 'Praktyczny przewodnik po obsłudze KSeF: co oznaczają statusy dokumentów, najczęstsze błędy przy wysyłce faktur i gdzie szukać pomocy, kiedy coś nie działa.',
+    purpose: 'Osoby, które już korzystają z KSeF, częściej szukają pomocy przy konkretnym problemie niż ogólnego wprowadzenia. Ten poradnik odpowiada wprost na te pytania.',
+    body_markdown: `## Co oznaczają statusy dokumentu w KSeF
+
+Po wysłaniu faktury do KSeF dokument przechodzi przez kilka stanów, zanim uzyska numer KSeF:
+
+- **Oczekuje na przetworzenie** — dokument dotarł do systemu, ale nie został jeszcze zweryfikowany. Zwykle trwa to kilka sekund do kilku minut.
+- **Dokument oczekuje na zatwierdzenie przez KSeF** — trwa walidacja struktury i danych. Jeśli ten status utrzymuje się długo (ponad kilkanaście minut), zwykle oznacza to duże obciążenie systemu MF, nie błąd po Twojej stronie. Nie wysyłaj faktury ponownie — poczekaj i sprawdź status później, żeby uniknąć duplikatu.
+- **Przyjęty / nadany numer KSeF** — dokument przeszedł walidację, ma nadany numer KSeF i jest uznawany za wystawiony.
+- **Odrzucony** — dokument nie przeszedł walidacji. System podaje kod błędu i opis — najczęściej dotyczy to niezgodności NIP, błędnej sumy kontrolnej lub nieprawidłowego formatu pola.
+
+## Najczęstsze problemy i jak je rozwiązać
+
+**Faktura nie trafia do KSeF mimo wysyłki**
+Sprawdź najpierw status połączenia firmy z KSeF w ustawieniach — token mógł wygasnąć albo zostać unieważniony w portalu KSeF. Wygasły token trzeba wygenerować ponownie i podmienić w aplikacji.
+
+**Dokument odrzucony — błąd walidacji**
+Kod błędu w komunikacie wskazuje konkretne pole. Najczęstsze przyczyny: NIP nabywcy niezgodny z formatem, brak wymaganego elementu faktury (np. daty sprzedaży), błędna waluta lub duplikat numeru faktury już wysłanego wcześniej.
+
+**Token przestał działać**
+Tokeny KSeF mają termin ważności i mogą zostać cofnięte ręcznie w portalu. Jeśli aplikacja zgłasza błąd autoryzacji, wygeneruj nowy token zgodnie z [instrukcją podłączenia firmy](/poradnik/jak-zdobyc-token-ksef-i-podlaczyc-firme) i zaktualizuj go w ustawieniach.
+
+**Faktura wysłana dwa razy (duplikat)**
+Jeśli ponowiłeś wysyłkę w trakcie długiego statusu "oczekuje na zatwierdzenie", KSeF może odrzucić drugą próbę jako duplikat numeru — to prawidłowe zachowanie, nie błąd. Sprawdź numer KSeF pierwszej wysyłki zamiast wysyłać fakturę po raz trzeci.
+
+**Środowisko testowe vs produkcyjne**
+KSeF ma osobne środowisko testowe (dla próbnych wysyłek) i produkcyjne. Token z jednego środowiska nie działa w drugim — to najczęstsza przyczyna komunikatu "nieprawidłowy token" przy pierwszym podłączeniu.
+
+## Gdzie szukać pomocy poza aplikacją
+
+- **Infolinia Krajowej Informacji Skarbowej** — pytania o przepisy i obowiązki związane z KSeF.
+- **Portal podatki.gov.pl / KSeF** — status techniczny systemu, komunikaty o awariach i planowanych przerwach.
+- **Wsparcie KsięgaI** — jeśli problem dotyczy samej integracji (token, wysyłka, statusy w aplikacji), napisz do wsparcia z numerem faktury i zrzutem ekranu błędu.
+
+## Kiedy problem nie leży po Twojej stronie
+
+W okresach szczytowego obciążenia (np. koniec miesiąca) KSeF bywa wolniejszy niż zwykle, a status "oczekuje na zatwierdzenie" może utrzymywać się dłużej niż normalnie. To ograniczenie systemu MF — sprawdzaj komunikaty o dostępności na portalu KSeF zamiast zakładać błąd po stronie własnej faktury.`,
+    checklist: [
+      'Sprawdź status dokumentu, zanim wyślesz go ponownie.',
+      'Przy odrzuceniu — odczytaj kod błędu i sprawdź konkretne pole faktury.',
+      'Przy błędzie autoryzacji — sprawdź ważność tokena i wygeneruj nowy, jeśli trzeba.',
+      'Nie mieszaj tokenów ze środowiska testowego i produkcyjnego.',
+      'Długi status "oczekuje na zatwierdzenie" zwykle oznacza obciążenie systemu MF, nie błąd Twojej faktury.',
+    ],
+    official_links: [
+      { label: 'Portal KSeF', href: 'https://ksef.podatki.gov.pl/', external: true },
+      { label: 'Komunikaty i dostępność KSeF', href: 'https://www.podatki.gov.pl/ksef/', external: true },
+      { label: 'Krajowa Informacja Skarbowa', href: 'https://www.podatki.gov.pl/kontakt/', external: true },
+    ],
+    related_actions: [
+      { label: 'Jak zdobyć token KSeF — instrukcja', href: '/poradnik/jak-zdobyc-token-ksef-i-podlaczyc-firme' },
+      { label: 'KSeF dla JDG — jak zacząć', href: '/poradnik/ksef-dla-jdg-jak-zaczac' },
+      { label: 'KSeF dla spółki z o.o. — dostęp', href: '/poradnik/ksef-spolka-z-oo-kto-moze-nadac-dostep' },
+      { label: 'Faktury w KsięgaI', href: '/faktury' },
+    ],
+    faq: [
+      {
+        question: 'Co oznacza "dokument oczekuje na zatwierdzenie przez KSeF"?',
+        answer: 'Dokument dotarł do systemu i jest w trakcie walidacji. Zwykle trwa to krótko, ale w okresach dużego obciążenia MF może się wydłużyć do kilkunastu minut lub dłużej. Nie wysyłaj faktury ponownie w tym czasie — poczekaj na zmianę statusu.',
+      },
+      {
+        question: 'Gdzie uzyskam pomoc, jeśli KSeF odrzuca moją fakturę?',
+        answer: 'Kod błędu przy odrzuceniu wskazuje konkretne pole faktury do poprawy. Jeśli problem dotyczy integracji z KsięgaI (nie samej treści faktury), napisz do wsparcia aplikacji z numerem dokumentu i treścią błędu.',
+      },
+      {
+        question: 'Dlaczego mój token KSeF przestał działać?',
+        answer: 'Tokeny mają termin ważności i można je cofnąć ręcznie w portalu KSeF. Jeśli logowanie się nie powiedzie, wygeneruj nowy token i podmień go w ustawieniach aplikacji.',
+      },
+      {
+        question: 'Czy problemy z KSeF zawsze wynikają z błędu w mojej fakturze?',
+        answer: 'Nie. Część problemów (długi czas przetwarzania, chwilowa niedostępność) wynika z obciążenia systemu Ministerstwa Finansów, nie z treści faktury. Sprawdź komunikaty o dostępności na portalu KSeF, zanim zaczniesz szukać błędu we własnych danych.',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 50,
+    published_at: '2026-08-18T00:00:00.000Z',
+    updated_at: '2026-08-18T00:00:00.000Z',
+    category: fallbackWikiCategories[0],
+  },
+
   // ─── TODO: kolejne artykuły do dodania ──────────────────────────────────────
   // Poniżej lista planowanych artykułów — do zaimplementowania w kolejności priorytetu.
   //
