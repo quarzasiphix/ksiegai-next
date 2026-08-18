@@ -11,6 +11,7 @@ import {
   AlertTriangle,
   Clock,
   Sparkles,
+  Bot,
 } from "lucide-react";
 import { TrackedLink } from "@/components/analytics/TrackedLink";
 import { PageAnalytics } from "@/components/analytics/PageAnalytics";
@@ -348,6 +349,50 @@ export default function StripeDlaSaasPage() {
               </div>
             </div>
             <p className="text-center text-xs text-slate-600 mt-4 italic">Dane demonstracyjne — widok oparty o moduł Stripe w ksiegai.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* MCP / AI agent */}
+      <section className="py-12 sm:py-16 bg-gray-950 border-y border-gray-800">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="max-w-3xl mx-auto text-center">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-900/40 border border-violet-500/30 mb-6">
+              <Bot className="h-4 w-4 text-violet-400" />
+              <span className="text-violet-300 text-sm font-semibold">Nowość: MCP</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">
+              Podłącz agenta AI, żeby sam ogarniał rozliczenie Stripe
+            </h2>
+            <p className="text-gray-300 mb-8 max-w-2xl mx-auto">
+              ksiegai udostępnia serwer MCP — Twój agent AI (Claude, Claude Code i inne) może pobrać
+              świeże dane bezpośrednio z API Stripe, przejrzeć prowizje, wypłaty i rozliczenia, dopasować
+              wypłatę Stripe do transakcji bankowej, sprawdzić które faktury zostały opłacone przez
+              Stripe — i przygotować zapis księgowy do zatwierdzenia. Każde księgowanie nadal wymaga
+              Twojej zgody.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl mx-auto mb-8 text-left">
+              {[
+                "Import prowizji i wypłat prosto z API Stripe",
+                "Dopasowanie wypłaty Stripe do wyciągu bankowego",
+                "Dopasowanie płatności Stripe do faktury w ksiegai",
+                "Przygotowanie zapisu księgowego wg gotowego dekretu",
+              ].map((item) => (
+                <div key={item} className="flex items-start gap-2.5 text-sm text-gray-300">
+                  <CheckCircle2 className="h-4 w-4 text-violet-400 flex-shrink-0 mt-0.5" />
+                  {item}
+                </div>
+              ))}
+            </div>
+            <TrackedLink
+              href="/mcp"
+              event="cta_clicked"
+              eventProps={{ page: "stripe-dla-saas", cta_id: "mcp_cross_sell", text: "Zobacz jak połączyć AI z ksiegai", destination: "/mcp" }}
+              className="inline-flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-500 text-white px-6 py-3 rounded-2xl font-semibold transition-all text-sm"
+            >
+              Zobacz jak połączyć AI z ksiegai
+              <ArrowRight className="h-4 w-4" />
+            </TrackedLink>
           </div>
         </div>
       </section>

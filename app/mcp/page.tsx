@@ -20,6 +20,7 @@ import {
   Gavel,
   FileSignature,
   ListChecks,
+  CreditCard,
 } from "lucide-react";
 import { TrackedLink } from "@/components/analytics/TrackedLink";
 import { PageAnalytics } from "@/components/analytics/PageAnalytics";
@@ -144,6 +145,23 @@ const tools = [
       { name: "list_checklist_tasks", desc: "Zaległe obowiązki formalne firmy — CRBR, konto w e-Urzędzie Skarbowym, ZAW-FA, e-Doręczenia, aktywacja KSeF i inne terminy związane z formą prawną." },
       { name: "list_checklist_rules", desc: "Definicje reguł, z których generowane są zadania — dla jakich form/reżimów podatkowych obowiązują." },
       { name: "update_checklist_task_status", desc: "Oznaczenie zadania jako wykonane/zablokowane/nie dotyczy." },
+    ],
+  },
+  {
+    group: "Stripe",
+    icon: CreditCard,
+    iconClass: "text-violet-600 dark:text-violet-400",
+    bgClass: "bg-violet-100 dark:bg-violet-900/30",
+    items: [
+      { name: "list_payment_provider_accounts", desc: "Podłączone konta płatnicze (Stripe i inne) — bez danych dostępowych." },
+      { name: "import_stripe_fees / import_stripe_payouts", desc: "Pobranie świeżych danych bezpośrednio z API Stripe za dany miesiąc — prowizje i wypłaty, bezpiecznie do wielokrotnego uruchomienia." },
+      { name: "list_stripe_fee_summaries / list_stripe_fee_items", desc: "Miesięczne zestawienia prowizji Stripe i poszczególne pozycje." },
+      { name: "get_stripe_period_settlement", desc: "Pełne rozliczenie okresu: sprzedaż brutto, zwroty, prowizje, VAT odwrotne obciążenie, oczekiwana wypłata." },
+      { name: "list_stripe_payouts / list_stripe_payout_items", desc: "Wypłaty Stripe na konto bankowe i ich składowe." },
+      { name: "list_stripe_invoice_payments", desc: "Dopasowanie płatności Stripe do faktury w KsięgaI — które faktury zostały opłacone przez Stripe." },
+      { name: "match_stripe_payout_to_bank_transaction", desc: "Automatyczne dopasowanie wypłaty Stripe do transakcji bankowej (data ±4 dni, zgodna kwota)." },
+      { name: "confirm_stripe_payout", desc: "Ręczne potwierdzenie wypłaty Stripe, z lub bez dopasowanej transakcji bankowej." },
+      { name: "link_stripe_settlement_journal_entry / link_stripe_fee_summary_journal_entry", desc: "Po zaksięgowaniu (draft_journal_entry + post_journal_entry) — powiązanie zapisu księgowego z rozliczeniem Stripe, żeby nie pojawiało się już w kolejce do zaksięgowania." },
     ],
   },
 ];
