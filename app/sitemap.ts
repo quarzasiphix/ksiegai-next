@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next'
 import { getWikiArticlesByCategory } from '@/lib/wiki';
+import { mcpCategories } from '@/lib/mcpTools';
 
 const baseUrl = 'https://www.ksiegai.pl';
 const staticLastModified = new Date('2026-05-18T00:00:00+02:00');
@@ -37,6 +38,13 @@ const staticRoutes: Array<{
   { path: '/polityka-zwrotow', changeFrequency: 'monthly', priority: 0.5 },
 ];
 
+const mcpCategoryEntries = mcpCategories.map((category) => ({
+  url: `${baseUrl}/mcp/${category.slug}/`,
+  lastModified: staticLastModified,
+  changeFrequency: 'weekly' as const,
+  priority: 0.55,
+}));
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const groupedArticles = await getWikiArticlesByCategory();
   const wikiEntries = groupedArticles.flatMap(({ category, articles }) => {
@@ -69,5 +77,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: route.priority,
     })),
     ...wikiEntries,
+    ...mcpCategoryEntries,
   ]
 }

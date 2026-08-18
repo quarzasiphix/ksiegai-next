@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   title: "KsięgaI - Księgowość, która nie kradnie Twojego czasu | Tovernet",
   description: "Automatyzacja faktur, podatków i KSeF dla polskich przedsiębiorców. Pełna zgodność z KSeF, JPK i polskimi przepisami. Proste w użyciu, zaawansowane dla księgowych i power-userów.",
   keywords: "księgowość online, faktury KSeF, JPK-V7M, automatyczna księgowość, księgowość dla JDG, księgowość dla spółek, polski program księgowy, Tovernet, księgowość w chmurze",
-  authors: [{ name: "Tovernet Sp. z o.o.", url: "https://tovernet.com" }],
+  authors: [{ name: "Tovernet Sp. z o.o.", url: "https://tovernet.online" }],
   creator: "Tovernet Sp. z o.o.",
   publisher: "Tovernet Sp. z o.o.",
   robots: {
