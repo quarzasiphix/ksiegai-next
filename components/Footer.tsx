@@ -1,6 +1,22 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useRef } from "react";
 
 export default function Footer() {
+  const tovernetMountRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const mount = tovernetMountRef.current;
+    if (!mount || mount.querySelector("script")) return;
+
+    const script = document.createElement("script");
+    script.src = "https://tovernet.online/embed/footer-strip.js";
+    script.async = true;
+    script.dataset.client = "ksiegai";
+    mount.appendChild(script);
+  }, []);
+
   return (
     <footer className="bg-gray-900 border-t border-gray-800">
       <div className="container mx-auto px-6 md:px-4 py-12">
@@ -176,6 +192,9 @@ export default function Footer() {
           </div>
         </div>
       </div>
+
+      {/* Tovernet Strip (embedded from tovernet.online, edit centrally there) */}
+      <div ref={tovernetMountRef} />
     </footer>
   );
 }
