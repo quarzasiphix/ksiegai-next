@@ -125,14 +125,9 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <a
-                  href="https://tovernet.online/pl/projekty/ksiegai/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-400 hover:text-white transition-colors text-sm"
-                >
+                <Link href="/tovernet" className="text-gray-400 hover:text-white transition-colors text-sm">
                   Tovernet — deweloper i dystrybutor
-                </a>
+                </Link>
               </li>
             </ul>
           </div>

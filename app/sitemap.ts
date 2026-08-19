@@ -32,6 +32,7 @@ const staticRoutes: Array<{
   { path: '/poradnik', changeFrequency: 'weekly', priority: 0.7 },
   { path: '/infrastructure', changeFrequency: 'monthly', priority: 0.6 },
   { path: '/governance', changeFrequency: 'monthly', priority: 0.6 },
+  { path: '/tovernet', changeFrequency: 'monthly', priority: 0.4 },
   { path: '/regulamin', changeFrequency: 'monthly', priority: 0.5 },
   { path: '/polityka-prywatnosci', changeFrequency: 'monthly', priority: 0.5 },
   { path: '/rodo', changeFrequency: 'monthly', priority: 0.5 },
