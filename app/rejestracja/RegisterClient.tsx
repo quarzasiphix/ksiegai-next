@@ -823,7 +823,17 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
     const redirectTo = await buildOAuthCallbackUrl();
     const { error: err } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo },
+      options: {
+        redirectTo,
+        // For an invite, pre-fill Google's account chooser with the exact
+        // invited address so the user doesn't accidentally pick a different
+        // Google account than the one the invite was sent to — a mismatch
+        // makes claim_admin_invite reject with "Email mismatch" server-side,
+        // which used to silently strand the user on a claim-less session.
+        ...(inviteData?.recipient_email
+          ? { queryParams: { login_hint: inviteData.recipient_email } }
+          : {}),
+      },
     });
     if (err) { setError("Nie udało się zalogować przez Google."); setLoading(false); }
   };

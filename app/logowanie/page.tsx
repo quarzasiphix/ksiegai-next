@@ -582,6 +582,10 @@ export default function Login() {
         provider: 'google',
         options: {
           redirectTo: buildAuthCallbackUrl(returnToUrlRef.current, inviteQuery),
+          // Same reasoning as /rejestracja's handleGoogle — pin Google's
+          // account chooser to the invited address when one is known, so a
+          // wrong-account pick can't silently strand the user post-OAuth.
+          ...(pendingToken && inviteEmail ? { queryParams: { login_hint: inviteEmail } } : {}),
         },
       });
 
