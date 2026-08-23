@@ -7,6 +7,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { PostHogProvider } from "@/components/PostHogProvider";
 import { InviteTokenCapture } from "@/components/InviteTokenCapture";
+import { PoradnikRevisitTracker } from "@/components/PoradnikRevisitTracker";
 import { InviteWelcomeOverlay } from "@/components/InviteWelcomeOverlay";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -100,7 +101,7 @@ export default function RootLayout({
   `;
 
   return (
-    <html lang="pl" className="dark" style={{ colorScheme: "dark" }}>
+    <html lang="pl" className="dark" data-theme="dark" style={{ colorScheme: "dark" }}>
       <head>
         <Script
           id="force-dark-mode"
@@ -175,6 +176,7 @@ export default function RootLayout({
           <Suspense fallback={null}>
             <InviteTokenCapture />
             <InviteWelcomeOverlay />
+            <PoradnikRevisitTracker />
           </Suspense>
           {gtmId && (
             <Script

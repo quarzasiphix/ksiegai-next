@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import posthog from "posthog-js";
 import { publicApiAction } from "@/lib/gateway";
+import { registerInviteAttribution } from "@/lib/posthog/inviteAttribution";
 
 const COOKIE_NAME = "ksiegai_invite_token";
 const STORAGE_KEY = "ksiegai_invite_token";
@@ -52,6 +53,34 @@ export function InviteTokenCapture() {
       const data = await publicApiAction<{ invite: any }>("invite.lookup", { tokenHash })
         .then((result) => result.invite)
         .catch(() => null);
+
+      if (data?.recipient_email) {
+        // Attaches the invite's email to THIS anonymous PostHog person (no
+        // identify — that stays reserved for real login/signup) so any
+        // pre-registration behavior (reading a poradnik article from the
+        // invite email's links, browsing pricing, etc.) is already on a
+        // person record carrying the email. registerInviteAttribution sets
+        // session super-properties so every event fired from here on
+        // (including on completely unrelated pages, e.g. a blog article)
+        // carries invite_recipient_email/invite_company_name until the user
+        // either registers (identifyInvitedUser merges this anonymous
+        // session into their real distinct_id) or the token is replaced.
+        posthog.setPersonProperties({
+          email: data.recipient_email,
+          invite_recipient_email: data.recipient_email,
+          invite_company_name: data.company_name ?? null,
+          invite_company_type: data.company_type ?? null,
+        });
+        registerInviteAttribution({
+          invite_token_hash: tokenHash,
+          invite_token_prefix: token.slice(0, 8),
+          invite_company_name: data.company_name ?? null,
+          invite_recipient_email: data.recipient_email ?? null,
+          invite_recipient_name: data.recipient_name ?? null,
+          invite_company_type: data.company_type ?? null,
+        });
+      }
+
       if (!data?.is_valid || data?.status === "claimed") {
         sessionStorage.removeItem(OVERLAY_TRIGGER_KEY);
         return;

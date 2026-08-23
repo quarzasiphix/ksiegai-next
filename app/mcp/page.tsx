@@ -308,6 +308,26 @@ claude mcp login ksiegai`}</pre>
                   </p>
                 </div>
               </li>
+
+              {/* Step 4 */}
+              <li className="flex gap-4">
+                <span className="flex-shrink-0 w-8 h-8 rounded-full bg-white/10 text-white text-sm font-bold flex items-center justify-center">4</span>
+                <div className="flex-1">
+                  <h3 className="text-white font-semibold mb-1 flex items-center gap-2">
+                    Zainstaluj Skill (opcjonalnie, zalecane)
+                  </h3>
+                  <p className="text-sm text-gray-400">
+                    Dla Claude: dodatkowy plik <code className="text-purple-300 font-mono text-xs">SKILL.md</code>{" "}
+                    opisujący cały zestaw narzędzi, poziomy uprawnień, wzorzec podglądu przed zaksięgowaniem, typowe
+                    scenariusze pracy — i uczciwie, które części integracji są sprawdzone w boju, a które dopiero co
+                    powstały. Napisz do{" "}
+                    <a href="mailto:kontakt@ksiegai.pl" className="text-purple-400 hover:text-purple-300 underline">
+                      kontakt@ksiegai.pl
+                    </a>
+                    , żeby go dostać.
+                  </p>
+                </div>
+              </li>
             </ol>
           </div>
         </div>

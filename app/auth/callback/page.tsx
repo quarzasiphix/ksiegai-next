@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../../lib/supabase";
 import { publicApiAction } from "../../../lib/gateway";
-import { storeAuthToken, redirectToApp } from "../../../lib/auth/crossDomainAuth";
+import { storeAuthToken, redirectToApp, getValidatedReturnTo } from "../../../lib/auth/crossDomainAuth";
 import { getInviteOnboardingPath } from "../../../lib/auth/inviteOnboarding";
 import { consumeAuthFlowOrigin, sendWelcomeEmailIfNewUser } from "../../../lib/auth/welcomeEmail";
 import {
@@ -73,6 +73,11 @@ export default function AuthCallback() {
         const regParam = urlParams.get('reg'); // 'password' | 'magic_link' | 'invite'
         const inviteHash = urlParams.get('inv'); // SHA-256 hash of invite token (reg=invite only)
         const anonInvoiceId = urlParams.get('av'); // free-invoice-generator submission_id (self-serve claim)
+        // Set by buildAuthCallbackUrl in /logowanie for magic-link/Google/Apple
+        // logins (e.g. the MCP OAuth authorize continuation) - checked below,
+        // after the invite/anon-invoice claim flows (which have their own,
+        // higher-priority destinations) but before the generic default.
+        const returnTo = getValidatedReturnTo(urlParams.get('returnTo'));
 
         // ── Team invite flow ──────────────────────────────────────────────────
         // Persisted by /invite (via /rejestracja or /logowanie) before the
@@ -299,6 +304,16 @@ export default function AuthCallback() {
           expires_at: session.expires_at || 0,
           user_id: session.user.id,
         });
+
+        // Honor returnTo (e.g. the MCP OAuth authorize continuation) ahead of
+        // the generic/localhost-dev-convenience destinations below - it's
+        // already a complete, validated absolute URL (including localhost
+        // targets, if that's what getValidatedReturnTo resolved), crafted by
+        // whatever flow sent the user here, so it fully supersedes them.
+        if (returnTo) {
+          window.location.href = returnTo;
+          return;
+        }
 
         // Check if we need to redirect back to localhost
         const localhostRedirect = sessionStorage.getItem('localhost_redirect');

@@ -69,6 +69,14 @@ export default function KsefPage() {
               >
                 Poradnik KSeF krok po kroku
               </TrackedLink>
+              <TrackedLink
+                href="/ksef-asysta"
+                event="cta_clicked"
+                eventProps={{ page: "ksef", cta_id: "hero_assist", text: "Potrzebujesz pomocy? Umów asystę", destination: "/ksef-asysta" }}
+                className="inline-flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-500 text-white px-8 py-3.5 rounded-2xl font-semibold transition-all text-sm shadow-xl"
+              >
+                Potrzebujesz pomocy? Umów asystę
+              </TrackedLink>
             </div>
             <a
               href="https://ksef.support"

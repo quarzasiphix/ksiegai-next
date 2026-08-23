@@ -106,12 +106,6 @@ const GoogleIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const AppleIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.46 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701z"/>
-  </svg>
-);
-
 export default function RegisterClient({
   initialInviteToken = null,
 }: {
@@ -149,10 +143,10 @@ export default function RegisterClient({
     el?.focus({ preventScroll: true });
   }, []);
   const [useMagicLink, setUseMagicLink] = useState(false);
+  const [showInvitePasswordField, setShowInvitePasswordField] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
   const [sessionId] = useState(() => getSessionId());
   const [variantAssignments, setVariantAssignments] = useState<Record<string, string>>({});
-  const [isApplePlatform, setIsApplePlatform] = useState(false);
   const [inviteData, setInviteData] = useState<FullInviteData | null>(null);
   const [inviteStep, setInviteStep] = useState<"loading" | "form" | "none">(
     inviteToken ? "loading" : "none"
@@ -232,7 +226,6 @@ export default function RegisterClient({
   };
 
   useEffect(() => { setVariantAssignments(getVariantAssignments()); }, []);
-  useEffect(() => { setIsApplePlatform(/Mac|iPhone|iPad|iPod/i.test(navigator.userAgent)); }, []);
 
   // Free-invoice-generator "claim your company" flow — only when there's no real admin invite.
   useEffect(() => {
@@ -463,6 +456,12 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
     if (!email) { setError("Podaj adres e-mail"); return; }
     if (password.length < 6) { setError("Hasło musi mieć co najmniej 6 znaków"); return; }
 
+    // Regular self-serve signups and team invites (which share this
+    // standard auth card's confirm-field UI) get a confirm step since
+    // there's no other proof they typed the password correctly. Company
+    // invites no longer reach this function at all — see
+    // handleInviteContinue, which skips password entry entirely since
+    // clicking the invite link already proved email ownership.
     if (!showConfirm) {
       setShowConfirm(true);
       return;
@@ -533,171 +532,6 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
       }
     }
 
-    const pendingToken = getStoredInviteToken();
-
-    // ── Invited user — auto-confirm, no verify screen ─────────────────────────
-    if (inviteData && pendingToken) {
-      try {
-        const tokenHash = await sha256hex(pendingToken);
-        captureInviteEvent("invite_registration_started", {
-          method: "password",
-          page: "/rejestracja",
-        });
-        captureInviteEvent("invite_registration_method_selected_password", {
-          page: "/rejestracja",
-        });
-        captureInviteEvent("invite_password_submitted", {
-          method: "password",
-          page: "/rejestracja",
-        });
-        type RegisterInvitedUserResult = {
-          error?: string;
-          access_token?: string;
-          refresh_token?: string;
-          expires_at?: number;
-          user_id?: string;
-          user_email?: string;
-          user_created_at?: string;
-        };
-        const result = await gatewayFetch<RegisterInvitedUserResult>("/v1/public/invite/register", {
-          method: "POST",
-          body: JSON.stringify({ email, password, token_hash: tokenHash }),
-        }).catch((gatewayError): RegisterInvitedUserResult => ({ error: gatewayError?.message ?? "Registration failed" }));
-
-        if (result.error) {
-          const msg = (result.error ?? "").toLowerCase();
-          if (msg.includes("already") || msg.includes("exists")) {
-            window.location.href = "/logowanie";
-            return;
-          }
-          setError(result.error ?? "Nie udało się założyć konta. Spróbuj ponownie.");
-          setLoading(false);
-          return;
-        }
-
-        suppressSignedInRedirect.current = true;
-        await supabase.auth.setSession({
-          access_token: result.access_token!,
-          refresh_token: result.refresh_token!,
-        });
-
-        // Telemetry only — must never block the actual registration flow
-        // below it. A PostHog hiccup here previously fell straight into the
-        // generic "Nie udało się dokończyć rejestracji" error even though
-        // the account/session were already good.
-        try {
-          identifyInvitedUser(result.user_id!, result.user_email);
-          posthog.capture("register_password_signup", { invite: true });
-        } catch (telemetryError) {
-          console.error("[Register] telemetry failed (non-fatal):", telemetryError);
-        }
-        await trackConversion(result.user_id!, result.access_token!);
-
-        storeAuthToken({
-          access_token: result.access_token!,
-          refresh_token: result.refresh_token!,
-          expires_at: result.expires_at || 0,
-          user_id: result.user_id!,
-        });
-
-        // A failure here (network hiccup, gateway cold start, etc.) still leaves
-        // the account created and signed in above — falls through to the
-        // generic /onboard below rather than losing the session. The retry
-        // path lives in /logowanie: pending_invite_token stays in localStorage
-        // (not cleared below) so both the SIGNED_IN listener and "Kontynuuj do
-        // aplikacji" on that page attempt this same claim again before
-        // defaulting to /dashboard.
-        const claimData = await publicApiAction<{ claim: any }>("invite.claim", { tokenHash }, result.access_token!)
-          .then((r) => r.claim)
-          .catch((claimError) => {
-            console.error("[Register] invite.claim failed (account was still created):", claimError);
-            return null;
-          });
-
-        if (claimData) {
-          const { business_profile_id, company_name, invite_id, campaign_source } = claimData;
-
-          // Telemetry + best-effort metadata writes — none of this may block
-          // the redirect below. The claim already succeeded (that's the part
-          // that actually matters: business profile exists, invite marked
-          // claimed); losing an analytics event or a metadata write must
-          // never turn a successful registration into a shown error.
-          try {
-            identifyInvitedUser(result.user_id!, result.user_email, {
-              invited: true,
-              invite_id,
-              invite_company_name: company_name,
-              invite_business_profile_id: business_profile_id,
-              ...(campaign_source ? { invite_campaign_source: campaign_source } : {}),
-            });
-            // Store the registration session so admin can link to it from the invite page
-            const registrationSessionId = (posthog as any)?.get_session_id?.();
-            if (registrationSessionId) {
-              void (supabase.rpc as any)("update_posthog_session", { p_session_id: registrationSessionId }).catch(() => {});
-            }
-            posthog.capture("invite_claimed", { business_profile_id, company_name, invite_id });
-            captureInviteEvent("business_activated", {
-              business_profile_id,
-              company_name,
-              invite_id,
-            });
-            captureInviteEvent("invite_registration_completed", {
-              method: "password",
-              business_profile_id,
-              company_name,
-              invite_id,
-            });
-            captureInviteEvent("invite_onboarding_started", {
-              business_profile_id,
-              company_name,
-              invite_id,
-            });
-          } catch (telemetryError) {
-            console.error("[Register] post-claim telemetry failed (non-fatal):", telemetryError);
-          }
-
-          try {
-            await supabase.auth.updateUser({
-              data: {
-                invite_id,
-                invite_company_name: company_name,
-                invite_campaign_source: campaign_source ?? null,
-                invite_token_hash: tokenHash,
-                invite_recipient_email: inviteData.recipient_email ?? result.user_email ?? null,
-                invite_company_type: inviteData.company_type ?? null,
-                invite_business_profile_id: business_profile_id,
-              },
-            });
-          } catch (updateUserError) {
-            console.error("[Register] updateUser metadata failed (non-fatal):", updateUserError);
-          }
-
-          clearInviteToken();
-
-          if (typeof window !== "undefined" && "PasswordCredential" in window) {
-            try {
-              const cred = new (window as any).PasswordCredential({ id: email, password });
-              await navigator.credentials.store(cred);
-            } catch { /* browser may decline silently */ }
-          }
-          redirectToApp(getInviteOnboardingPath(inviteData.company_type), {
-            invite: "1",
-            bp: business_profile_id,
-            cn: company_name,
-          });
-        } else {
-          redirectToApp("/onboard");
-        }
-        return;
-      } catch (err) {
-        console.error("[Register] invited password registration failed:", err);
-        suppressSignedInRedirect.current = false;
-        setError("Nie udało się dokończyć rejestracji. Spróbuj ponownie.");
-        setLoading(false);
-        return;
-      }
-    }
-
     // ── Regular (non-invited) registration — email verification required ──────
     awaitingEmailConfirm.current = true;
     regMethod.current = "password";
@@ -723,6 +557,200 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
 
     posthog.capture("register_password_signup");
     setConfirmed(email);
+  };
+
+  // Company-invited users already proved ownership of this exact email by
+  // clicking the invite link — no password step at all, no email
+  // round-trip. One click creates the account server-side (random
+  // never-surfaced password internally) and signs them straight in.
+  const handleInviteContinue = async () => {
+    if (!inviteData) return;
+    setError(null);
+
+    // The password field is opt-in (collapsed by default) — only validate
+    // it when the user actually opened it and typed something. A single
+    // field, no confirm: the whole point is skipping the retype friction.
+    const wantsOwnPassword = showInvitePasswordField && password.length > 0;
+    if (wantsOwnPassword && password.length < 6) {
+      setError("Hasło musi mieć co najmniej 6 znaków");
+      return;
+    }
+
+    const pendingToken = getStoredInviteToken();
+    if (!pendingToken) {
+      setError("Brak tokenu zaproszenia. Otwórz link z e-maila ponownie.");
+      return;
+    }
+
+    setLoading(true);
+    setAuthFlowOrigin("register");
+
+    try {
+      const tokenHash = await sha256hex(pendingToken);
+      captureInviteEvent("invite_registration_started", {
+        method: wantsOwnPassword ? "password" : "passwordless",
+        page: "/rejestracja",
+      });
+      captureInviteEvent(
+        wantsOwnPassword ? "invite_registration_method_selected_password" : "invite_registration_method_selected_passwordless",
+        { page: "/rejestracja" },
+      );
+
+      type RegisterInvitedUserResult = {
+        error?: string;
+        access_token?: string;
+        refresh_token?: string;
+        expires_at?: number;
+        user_id?: string;
+        user_email?: string;
+        user_created_at?: string;
+      };
+      const result = await gatewayFetch<RegisterInvitedUserResult>("/v1/public/invite/register", {
+        method: "POST",
+        body: JSON.stringify(
+          wantsOwnPassword ? { email, password, token_hash: tokenHash } : { email, token_hash: tokenHash },
+        ),
+      }).catch((gatewayError): RegisterInvitedUserResult => ({ error: gatewayError?.message ?? "Registration failed" }));
+
+      if (result.error) {
+        const msg = (result.error ?? "").toLowerCase();
+        if (msg.includes("already") || msg.includes("exists")) {
+          window.location.href = "/logowanie";
+          return;
+        }
+        setError(result.error ?? "Nie udało się aktywować dostępu. Spróbuj ponownie.");
+        setLoading(false);
+        return;
+      }
+
+      suppressSignedInRedirect.current = true;
+      await supabase.auth.setSession({
+        access_token: result.access_token!,
+        refresh_token: result.refresh_token!,
+      });
+
+      // Telemetry only — must never block the actual registration flow
+      // below it. A PostHog hiccup here previously fell straight into the
+      // generic error even though the account/session were already good.
+      try {
+        identifyInvitedUser(result.user_id!, result.user_email);
+        posthog.capture(wantsOwnPassword ? "register_password_signup" : "register_passwordless_signup", { invite: true });
+      } catch (telemetryError) {
+        console.error("[Register] telemetry failed (non-fatal):", telemetryError);
+      }
+      await trackConversion(result.user_id!, result.access_token!);
+
+      storeAuthToken({
+        access_token: result.access_token!,
+        refresh_token: result.refresh_token!,
+        expires_at: result.expires_at || 0,
+        user_id: result.user_id!,
+      });
+
+      // A failure here (network hiccup, gateway cold start, etc.) still leaves
+      // the account created and signed in above — falls through to the
+      // generic /onboard below rather than losing the session. The retry
+      // path lives in /logowanie: pending_invite_token stays in localStorage
+      // (not cleared below) so both the SIGNED_IN listener and "Kontynuuj do
+      // aplikacji" on that page attempt this same claim again before
+      // defaulting to /dashboard.
+      const claimData = await publicApiAction<{ claim: any }>("invite.claim", { tokenHash }, result.access_token!)
+        .then((r) => r.claim)
+        .catch((claimError) => {
+          console.error("[Register] invite.claim failed (account was still created):", claimError);
+          return null;
+        });
+
+      if (claimData) {
+        const { business_profile_id, company_name, invite_id, campaign_source } = claimData;
+
+        // Telemetry + best-effort metadata writes — none of this may block
+        // the redirect below. The claim already succeeded (that's the part
+        // that actually matters: business profile exists, invite marked
+        // claimed); losing an analytics event or a metadata write must
+        // never turn a successful registration into a shown error.
+        try {
+          identifyInvitedUser(result.user_id!, result.user_email, {
+            invited: true,
+            invite_id,
+            invite_company_name: company_name,
+            invite_business_profile_id: business_profile_id,
+            ...(campaign_source ? { invite_campaign_source: campaign_source } : {}),
+          });
+          const registrationSessionId = (posthog as any)?.get_session_id?.();
+          if (registrationSessionId) {
+            void Promise.resolve((supabase.rpc as any)("update_posthog_session", { p_session_id: registrationSessionId })).catch(() => {});
+          }
+          posthog.capture("invite_claimed", { business_profile_id, company_name, invite_id });
+          captureInviteEvent("business_activated", {
+            business_profile_id,
+            company_name,
+            invite_id,
+          });
+          captureInviteEvent("invite_registration_completed", {
+            method: wantsOwnPassword ? "password" : "passwordless",
+            business_profile_id,
+            company_name,
+            invite_id,
+          });
+          captureInviteEvent("invite_onboarding_started", {
+            business_profile_id,
+            company_name,
+            invite_id,
+          });
+        } catch (telemetryError) {
+          console.error("[Register] post-claim telemetry failed (non-fatal):", telemetryError);
+        }
+
+        try {
+          await supabase.auth.updateUser({
+            data: {
+              invite_id,
+              invite_company_name: company_name,
+              invite_campaign_source: campaign_source ?? null,
+              invite_token_hash: tokenHash,
+              invite_recipient_email: inviteData.recipient_email ?? result.user_email ?? null,
+              invite_company_type: inviteData.company_type ?? null,
+              invite_business_profile_id: business_profile_id,
+            },
+          });
+        } catch (updateUserError) {
+          console.error("[Register] updateUser metadata failed (non-fatal):", updateUserError);
+        }
+
+        clearInviteToken();
+
+        if (wantsOwnPassword && typeof window !== "undefined" && "PasswordCredential" in window) {
+          try {
+            const cred = new (window as any).PasswordCredential({ id: email, password });
+            await navigator.credentials.store(cred);
+          } catch { /* browser may decline silently */ }
+        }
+
+        // Leads from the KSeF-assist cold-outreach funnel (ksef.support /
+        // ksiegai.pl SEO page) aren't here to set up a company end-to-end —
+        // they clicked through wanting to buy the paid "Asysta przy
+        // aktywacji KSeF" call. Skip the normal onboarding wizard entirely
+        // and land them straight on ksef-ai's existing assist offer page for
+        // the business profile claim_admin_invite just auto-provisioned.
+        if (campaign_source === "ksef_assist_funnel") {
+          redirectToApp("/ksef/asysta", { business: business_profile_id });
+        } else {
+          redirectToApp(getInviteOnboardingPath(inviteData.company_type), {
+            invite: "1",
+            bp: business_profile_id,
+            cn: company_name,
+          });
+        }
+      } else {
+        redirectToApp("/onboard");
+      }
+    } catch (err) {
+      console.error("[Register] invited passwordless registration failed:", err);
+      suppressSignedInRedirect.current = false;
+      setError("Nie udało się dokończyć aktywacji. Spróbuj ponownie.");
+      setLoading(false);
+    }
   };
 
   const handleMagicLink = async (e: React.FormEvent) => {
@@ -798,19 +826,6 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
       options: { redirectTo },
     });
     if (err) { setError("Nie udało się zalogować przez Google."); setLoading(false); }
-  };
-
-  const handleApple = async () => {
-    posthog.capture("register_apple_clicked");
-    setError(null);
-    setLoading(true);
-    setAuthFlowOrigin("register");
-    const redirectTo = await buildOAuthCallbackUrl();
-    const { error: err } = await supabase.auth.signInWithOAuth({
-      provider: "apple",
-      options: { redirectTo },
-    });
-    if (err) { setError("Nie udało się zalogować przez Apple."); setLoading(false); }
   };
 
   // ─── Invite loading skeleton ─────────────────────────────────────────────────
@@ -995,22 +1010,9 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
         Kontynuuj z Google
       </button>
 
-      {isApplePlatform && (
-        <button
-          onClick={handleApple}
-          disabled={loading}
-          className="w-full flex items-center justify-center gap-3 bg-black hover:bg-gray-900 dark:bg-white dark:hover:bg-gray-100 text-white dark:text-black font-semibold py-3.5 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <AppleIcon className="h-5 w-5 shrink-0" />
-          Kontynuuj przez Apple
-        </button>
-      )}
-
       <div className="flex items-center gap-3">
         <div className="flex-1 border-t border-gray-200 dark:border-gray-700" />
-        <span className="text-xs text-gray-400 dark:text-gray-500">
-          {useMagicLink ? "lub wyślij link na ten adres" : "lub ustaw hasło"}
-        </span>
+        <span className="text-xs text-gray-400 dark:text-gray-500">lub</span>
         <div className="flex-1 border-t border-gray-200 dark:border-gray-700" />
       </div>
 
@@ -1027,129 +1029,66 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
         <Lock className="h-4 w-4 text-gray-300 dark:text-gray-600 shrink-0" />
       </div>
 
-      {!useMagicLink ? (
-        <form onSubmit={handlePasswordRegister} className="space-y-3">
-          {/* Hidden email field so browsers associate the password with the right account */}
-          <input
-            type="email"
-            name="email"
-            autoComplete="username"
-            value={email}
-            readOnly
-            tabIndex={-1}
-            aria-hidden="true"
-            style={{ position: "absolute", width: 0, height: 0, opacity: 0, pointerEvents: "none" }}
-          />
+      {/* Clicking the invite link already proved email ownership — one big
+          button activates the account immediately, no password needed.
+          The password field is opt-in and collapsed by default (single
+          field, no confirm retype) for anyone who wants one right away
+          instead of setting it later in settings. */}
+      <div className="space-y-3">
+        {!showInvitePasswordField ? (
+          <p className="text-center text-xs text-gray-400 dark:text-gray-500">
+            <button
+              type="button"
+              onClick={() => { setShowInvitePasswordField(true); setError(null); }}
+              className="text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              Ustaw własne hasło (opcjonalnie)
+            </button>
+          </p>
+        ) : (
           <div className="space-y-1.5">
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              Ustaw hasło, żeby odblokować dostęp i skonfigurować KSeF.
-            </p>
-            <style>{`
-              @keyframes pw-border-shimmer {
-                0%   { background-position: 0% 50%; }
-                50%  { background-position: 100% 50%; }
-                100% { background-position: 0% 50%; }
-              }
-              .pw-gradient-border {
-                background: linear-gradient(270deg, #1d4ed8, #3b82f6, #60a5fa, #3b82f6, #1d4ed8);
-                background-size: 300% 300%;
-                animation: pw-border-shimmer 3s ease infinite;
-                padding: 2px;
-                border-radius: 13px;
-              }
-            `}</style>
-            <div className="pw-gradient-border">
-              <div className="relative rounded-[11px] overflow-hidden bg-white dark:bg-gray-700">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-400 z-10" />
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    if (showConfirm) { setShowConfirm(false); setPasswordConfirm(""); }
-                  }}
-                  onBlur={() => { if (password.length >= 6) setShowConfirm(true); }}
-                  required
-                  autoComplete="new-password"
-                  placeholder="Hasło"
-                  ref={focusWithoutScroll}
-                  className="w-full pl-9 pr-4 py-3.5 border-0 focus:outline-none focus:ring-0 text-sm bg-transparent text-gray-900 dark:text-white placeholder:text-gray-400"
-                />
-              </div>
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-gray-500 dark:text-gray-400">Hasło (opcjonalne)</p>
+              <button
+                type="button"
+                onClick={() => { setShowInvitePasswordField(false); setPassword(""); setError(null); }}
+                className="text-xs text-gray-400 dark:text-gray-500 hover:underline"
+              >
+                Anuluj
+              </button>
             </div>
-          </div>
-
-          {showConfirm && (
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-400" />
+            <div className="relative rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-700">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 z-10" />
               <input
-                id="password-confirm"
-                name="password-confirm"
+                id="invite-password"
+                name="password"
                 type="password"
-                value={passwordConfirm}
-                onChange={(e) => setPasswordConfirm(e.target.value)}
-                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 autoComplete="new-password"
+                placeholder="Hasło"
                 ref={focusWithoutScroll}
-                placeholder="Powtórz hasło"
-                className="w-full pl-9 pr-4 py-3.5 rounded-xl border-2 border-blue-400 dark:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-0 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder:text-gray-400"
+                className="w-full pl-9 pr-4 py-3.5 border-0 focus:outline-none focus:ring-0 text-sm bg-transparent text-gray-900 dark:text-white placeholder:text-gray-400"
               />
             </div>
-          )}
+          </div>
+        )}
 
-          {error && (
-            <p className="text-red-500 text-sm bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
-              {error}
-            </p>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? "Aktywowanie…" : "Odblokuj dostęp"}
-          </button>
-
-          <p className="text-center text-xs text-gray-400 dark:text-gray-500">
-            <button
-              type="button"
-              onClick={() => { setUseMagicLink(true); setError(null); }}
-              className="text-blue-600 dark:text-blue-400 hover:underline"
-            >
-              Wyślij link zamiast hasła
-            </button>
+        {error && (
+          <p className="text-red-500 text-sm bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
+            {error}
           </p>
-        </form>
-      ) : (
-        <form onSubmit={handleMagicLink} className="space-y-3">
-          {error && (
-            <p className="text-red-500 text-sm bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
-              {error}
-            </p>
-          )}
+        )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? "Wysyłanie…" : "Wyślij link logowania"}
-          </button>
-
-          <p className="text-center text-xs text-gray-400 dark:text-gray-500">
-            <button
-              type="button"
-              onClick={() => { setUseMagicLink(false); setError(null); }}
-              className="text-blue-600 dark:text-blue-400 hover:underline"
-            >
-              Wróć do rejestracji hasłem
-            </button>
-          </p>
-        </form>
-      )}
+        <button
+          type="button"
+          onClick={handleInviteContinue}
+          disabled={loading}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading ? "Aktywowanie…" : "Kontynuuj"}
+        </button>
+      </div>
 
       <p className="text-center text-xs text-gray-400 dark:text-gray-500 pt-1">
         Rejestrując się, akceptujesz{" "}
@@ -1172,17 +1111,6 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
         <GoogleIcon className="h-5 w-5 shrink-0" />
         Kontynuuj przez Google
       </button>
-
-      {isApplePlatform && (
-        <button
-          onClick={handleApple}
-          disabled={loading}
-          className="w-full flex items-center justify-center gap-3 bg-black hover:bg-gray-900 dark:bg-white dark:hover:bg-gray-100 text-white dark:text-black font-semibold py-3.5 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <AppleIcon className="h-5 w-5 shrink-0" />
-          Kontynuuj przez Apple
-        </button>
-      )}
 
       {/* Divider */}
       <div className="flex items-center gap-3">

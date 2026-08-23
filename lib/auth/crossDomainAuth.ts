@@ -7,6 +7,25 @@ const COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
 const HANDOFF_ATTRIBUTION_KEY = 'ksiegai_handoff_attribution';
 const HANDOFF_UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'] as const;
 
+// Shared open-redirect guard for the `returnTo` param used by both
+// /logowanie (post-login redirect) and /auth/callback (post-OAuth/magic-link
+// redirect) — kept in one place so the two pages can't drift apart on what
+// counts as a safe redirect target. Only ever trust `returnTo` as a
+// redirect target if it points at a domain we control.
+export function getValidatedReturnTo(rawValue: string | null): string | null {
+  if (!rawValue) return null;
+  try {
+    const url = new URL(rawValue);
+    const host = url.hostname;
+    const isKsiegaiDomain = host === "ksiegai.pl" || host.endsWith(".ksiegai.pl");
+    const isLocalDev = host === "localhost" || host === "127.0.0.1";
+    if (!isKsiegaiDomain && !isLocalDev) return null;
+    return url.toString();
+  } catch {
+    return null;
+  }
+}
+
 export interface AuthToken {
   access_token: string;
   refresh_token: string;

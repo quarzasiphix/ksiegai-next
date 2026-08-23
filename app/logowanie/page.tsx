@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "../../lib/supabase";
 import { publicApiAction } from "../../lib/gateway";
 import {
@@ -8,6 +8,7 @@ import {
   restoreSessionFromAuthToken,
   storeAuthToken,
   storeAndRedirect,
+  getValidatedReturnTo,
 } from "../../lib/auth/crossDomainAuth";
 import { getInviteOnboardingPath } from "../../lib/auth/inviteOnboarding";
 import { setAuthFlowOrigin } from "../../lib/auth/welcomeEmail";
@@ -39,24 +40,11 @@ import {
 
 // `returnTo` arrives from /auth/login (itself reached from ksef-ai's
 // buildLoginUrl/redirectToLogin — see domainHelpers.ts's "After login,
-// Next.js redirects back to returnTo URL" contract, which this page didn't
-// actually implement until now) or directly from ksiegai-mcp's OAuth
-// /authorize handler bouncing through McpAuthorize.tsx's own route guard.
-// Only ever trust it as a redirect target if it points at a domain we
-// control — otherwise this would be an open redirect.
-function getValidatedReturnTo(rawValue: string | null): string | null {
-  if (!rawValue) return null;
-  try {
-    const url = new URL(rawValue);
-    const host = url.hostname;
-    const isKsiegaiDomain = host === "ksiegai.pl" || host.endsWith(".ksiegai.pl");
-    const isLocalDev = host === "localhost" || host === "127.0.0.1";
-    if (!isKsiegaiDomain && !isLocalDev) return null;
-    return url.toString();
-  } catch {
-    return null;
-  }
-}
+// Next.js redirects back to returnTo URL" contract) or directly from
+// ksiegai-mcp's OAuth /authorize handler bouncing through McpAuthorize.tsx's
+// own route guard. getValidatedReturnTo now lives in crossDomainAuth.ts,
+// shared with /auth/callback/page.tsx (magic-link/Google/Apple logins land
+// there instead of here, and need the same open-redirect guard).
 
 // MCP's OAuth consent screen (McpAuthorize.tsx) is the one returnTo target
 // worth personalizing the login copy for — see McpAuthorize.tsx / oauth.ts
@@ -68,6 +56,22 @@ function isMcpAuthorizeReturnTo(url: string | null): boolean {
   } catch {
     return false;
   }
+}
+
+// Magic-link/Google/Apple logins land on /auth/callback (a different page
+// from this one, no shared React state) rather than re-running this page's
+// own SIGNED_IN handling — so returnTo has to be carried forward as a query
+// param instead of read from local state/ref. Previously these 4 call sites
+// built `/auth/callback${inviteQuery}` with no returnTo at all, silently
+// dropping it (a second, independent instance of the same "MCP connect only
+// works if already logged in" bug fixed via returnToUrlRef above — this one
+// affects every login method except password). auth/callback/page.tsx must
+// read and honor this the same way this page's redirectAfterLogin does.
+function buildAuthCallbackUrl(returnTo: string | null, extraQuery: string): string {
+  const params = new URLSearchParams(extraQuery.startsWith("?") ? extraQuery.slice(1) : extraQuery);
+  if (returnTo) params.set("returnTo", returnTo);
+  const qs = params.toString();
+  return `${window.location.origin}/auth/callback${qs ? `?${qs}` : ""}`;
 }
 
 async function sha256hex(text: string): Promise<string> {
@@ -85,13 +89,6 @@ const GoogleIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-// Apple Icon Component
-const AppleIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.46 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701z"/>
-  </svg>
-);
-
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -105,12 +102,20 @@ export default function Login() {
   const [pendingLoginAttempt, setPendingLoginAttemptState] = useState<PendingLoginAttempt | null>(null);
   const [activeSessionProfile, setActiveSessionProfile] = useState<RememberedLoginProfile | null>(null);
   const [selectedSavedPasswordProfile, setSelectedSavedPasswordProfile] = useState<RememberedLoginProfile | null>(null);
-  const [isApplePlatform, setIsApplePlatform] = useState(false);
   const [inviteCompany, setInviteCompany] = useState<string | null>(null);
   const [inviteEmail, setInviteEmail] = useState<string | null>(null);
   const [inviteCompanyType, setInviteCompanyType] = useState<string | null>(null);
   const [teamInviteInfo, setTeamInviteInfo] = useState<{ companyName: string | null; role: string } | null>(null);
   const [returnToUrl, setReturnToUrl] = useState<string | null>(null);
+  // Mirrors returnToUrl for redirectAfterLogin's use inside the mount-once
+  // onAuthStateChange listener below (registered in a `[]`-deps effect, so
+  // its closure permanently sees returnToUrl's value from the FIRST render
+  // — null, since the effect that computes it hasn't set state yet at that
+  // point). A ref is always current regardless of which render's closure
+  // reads it, so redirectAfterLogin reads this instead of the state
+  // variable directly. Was the real bug behind "MCP connect works only if
+  // already logged in" — see queue.md's T-418 log.
+  const returnToUrlRef = useRef<string | null>(null);
 
   const refreshRememberedProfiles = () => {
     const profiles = loadRememberedProfiles();
@@ -295,12 +300,10 @@ export default function Login() {
   };
 
   useEffect(() => {
-    setIsApplePlatform(/Mac|iPhone|iPad|iPod/i.test(navigator.userAgent));
-  }, []);
-
-  useEffect(() => {
     const raw = new URLSearchParams(window.location.search).get("returnTo");
-    setReturnToUrl(getValidatedReturnTo(raw));
+    const validated = getValidatedReturnTo(raw);
+    returnToUrlRef.current = validated;
+    setReturnToUrl(validated);
   }, []);
 
   // Centralizes the "where does a successful login send the user" decision —
@@ -331,9 +334,9 @@ export default function Login() {
       window.location.href = `https://app.ksiegai.pl/invite/accept?token=${encodeURIComponent(pendingTeamInviteToken)}`;
       return;
     }
-    if (returnToUrl) {
+    if (returnToUrlRef.current) {
       storeAuthToken(token);
-      window.location.href = returnToUrl;
+      window.location.href = returnToUrlRef.current;
       return;
     }
     storeAndRedirect(token);
@@ -500,7 +503,7 @@ export default function Login() {
     const { error } = await supabase.auth.signInWithOtp({
       email: nextEmail,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        emailRedirectTo: buildAuthCallbackUrl(returnToUrlRef.current, ""),
       },
     });
     setLoading(false);
@@ -578,7 +581,7 @@ export default function Login() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback${inviteQuery}`,
+          redirectTo: buildAuthCallbackUrl(returnToUrlRef.current, inviteQuery),
         },
       });
 
@@ -587,39 +590,6 @@ export default function Login() {
       clearPendingLoginAttempt();
       setPendingLoginAttemptState(null);
       setError("Nie udało się zalogować przez Google. Spróbuj ponownie.");
-      setLoading(false);
-    }
-  };
-
-  const handleAppleSignIn = async () => {
-    posthog.capture('login_apple_clicked');
-    setError(null);
-    setLoading(true);
-    setAuthFlowOrigin("login");
-    const resolvedEmail = selectedSavedPasswordProfile?.email || email;
-    const selectedProfile =
-      selectedSavedPasswordProfile ||
-      rememberedProfiles.find((profile) => profile.email === resolvedEmail.trim().toLowerCase());
-    const pendingAttempt = createPendingLoginAttempt({
-      email: resolvedEmail,
-      displayName: selectedProfile?.displayName || "konto Apple",
-      method: "apple",
-    });
-    setPendingAttempt(pendingAttempt);
-    try {
-      const pendingToken = localStorage.getItem('pending_invite_token');
-      const inviteQuery = pendingToken ? `?reg=invite&inv=${await sha256hex(pendingToken)}` : '';
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'apple',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback${inviteQuery}`,
-        },
-      });
-      if (error) throw error;
-    } catch (err) {
-      clearPendingLoginAttempt();
-      setPendingLoginAttemptState(null);
-      setError("Nie udało się zalogować przez Apple. Spróbuj ponownie.");
       setLoading(false);
     }
   };
@@ -666,7 +636,7 @@ export default function Login() {
         const { error } = await supabase.auth.signInWithOAuth({
           provider,
           options: {
-            redirectTo: `${window.location.origin}/auth/callback`,
+            redirectTo: buildAuthCallbackUrl(returnToUrlRef.current, ""),
           },
         });
 
@@ -963,17 +933,6 @@ export default function Login() {
                   <GoogleIcon className="h-5 w-5" />
                   Zaloguj przez Google
                 </button>
-
-                {isApplePlatform && (
-                  <button
-                    onClick={handleAppleSignIn}
-                    disabled={loading}
-                    className="w-full bg-black hover:bg-gray-900 dark:bg-white dark:hover:bg-gray-100 text-white dark:text-black text-lg px-10 py-4 h-auto shadow-xl hover:shadow-2xl transition-all rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
-                  >
-                    <AppleIcon className="h-5 w-5" />
-                    Zaloguj przez Apple
-                  </button>
-                )}
 
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
