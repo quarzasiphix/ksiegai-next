@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { CheckCircle2, Crown, Zap, Shield, Building, Calculator, CreditCard, FileCheck } from "lucide-react";
+import { CheckCircle2, Crown, Zap, Shield, Building, Calculator, CreditCard, FileCheck, Smartphone, Bell, FileText, ArrowUpCircle } from "lucide-react";
 import Link from "next/link";
 import { PUBLIC_PRICING, formatPln, formatPlnAnnual } from "../../lib/pricing";
 import { TrackedLink } from "@/components/analytics/TrackedLink";
@@ -30,10 +30,11 @@ const plans = [
     cadence: "",
     icon: FileCheck,
     features: [
-      "Walidacja, wysyłka i archiwum faktur ustrukturyzowanych w KSeF",
+      "Walidacja, wysyłka i archiwum faktur ustrukturyzowanych w KSeF — bez limitu",
       "Odbiór faktur zakupowych z KSeF",
+      "Aplikacja mobilna i powiadomienia push o nowych fakturach",
       "Podstawowe fakturowanie i rejestr dokumentów",
-      "Bez karty płatniczej, bez limitu czasowego",
+      "Bez karty płatniczej, bez terminu ważności",
     ],
     cta: { label: "Załóż darmowe konto", href: "/rejestracja" },
     highlight: false,
@@ -48,9 +49,9 @@ const plans = [
       "Import banku z pliku CSV (integracje bankowe w przygotowaniu)",
       "Rozliczenia VAT, JPK_V7K, PIT i składki ZUS",
       "Dodawanie zespołu i zarządzanie dostępem",
-      "Bez limitu użytkowników w Twojej firmie",
+      "14 dni pełnego dostępu, zanim zapłacisz",
     ],
-    cta: { label: "Rozpocznij 7-dniowy trial", href: "/rejestracja" },
+    cta: { label: "Rozpocznij 14-dniowy trial", href: "/rejestracja" },
     highlight: false,
   },
   {
@@ -65,11 +66,11 @@ const plans = [
       "Wszystko z JDG + workflow zatwierdzania (wyjątki + audyt)",
       "Płatności online przez Stripe i monitoring rozliczeń faktur",
       "JPK_V7M i CIT-8: przygotowanie + eksport + walidacje",
-      "Repozytorium uchwał, majątku i amortyzacji",
+      "Łańcuch autoryzacji i ślad audytowy dla każdej decyzji spółki",
+      "Magazyn: stany, dokumenty PZ/WZ i wycena zapasów",
       "Rejestr ryzyk i kontrola płynności",
-      "Bez limitu użytkowników w Twojej firmie",
     ],
-    cta: { label: "Rozpocznij 7-dniowy trial", href: "/rejestracja" },
+    cta: { label: "Rozpocznij 14-dniowy trial", href: "/rejestracja" },
     highlight: true,
   },
   {
@@ -92,10 +93,13 @@ const plans = [
 const comparison = [
   { label: "Połączenie z KSeF (wysyłka, odbiór, archiwum)", start: "✓ Bezpłatnie", jdg: "✓", standard: "✓", enterprise: "✓" },
   { label: "Limit dokumentów", start: "Bez limitu", jdg: "Bez limitu", standard: "Bez limitu", enterprise: "Bez limitu, wiele podmiotów" },
+  { label: "Aplikacja mobilna (Android/iOS)", start: "✓", jdg: "✓", standard: "✓", enterprise: "✓" },
+  { label: "Powiadomienia push o nowych fakturach", start: "✓", jdg: "✓", standard: "✓", enterprise: "✓" },
   { label: "Użytkownicy w firmie", start: "Bez limitu", jdg: "Bez limitu", standard: "Bez limitu", enterprise: "Bez limitu + ustalenia indywidualne" },
   { label: "Deklaracje podatkowe", start: "—", jdg: "VAT, PIT, JPK_V7K, ZUS", standard: "JPK_V7M, CIT-8", enterprise: "Pełny pakiet + raporty na zamówienie" },
   { label: "Płatności online", start: "—", jdg: "—", standard: "Stripe (karta, BLIK, Google Pay)", enterprise: "Stripe + ustalenia indywidualne" },
-  { label: "Governance", start: "—", jdg: "Checklista JDG", standard: "Repozytorium uchwał, majątku i ryzyk", enterprise: "Governance dla grupy kapitałowej" },
+  { label: "Governance", start: "—", jdg: "Checklista JDG", standard: "Łańcuch autoryzacji i ślad audytowy decyzji", enterprise: "Governance dla grupy kapitałowej" },
+  { label: "Magazyn", start: "—", jdg: "—", standard: "Stany, PZ/WZ, wycena zapasów", enterprise: "Magazyn wielomagazynowy" },
 ];
 
 const proofPoints = [
@@ -128,11 +132,15 @@ const faqs = [
   },
   {
     q: "Czy potrzebuję karty kredytowej, aby rozpocząć trial?",
-    a: "Nie. Trial trwa 7 dni i obejmuje pełny zakres funkcji Spółka Standard. Po zakończeniu wybierasz plan albo eksportujesz swoje dane.",
+    a: "Nie. Trial trwa 14 dni i obejmuje pełny zakres funkcji Spółka Standard. Po zakończeniu wybierasz plan albo zostajesz na darmowym planie Start — Twoje dane nigdzie nie znikają.",
   },
   {
     q: "Czy połączenie z KSeF jest płatne?",
-    a: "Nie. Połączenie z KSeF — walidacja, wysyłka, odbiór i archiwum faktur — jest bezpłatne na zawsze, w planie Start. Płatne plany (JDG, Spółka Standard) dodają deklaracje podatkowe, governance i płatności online przez Stripe (karta, BLIK, Google Pay).",
+    a: "Nie. Połączenie z KSeF — walidacja, wysyłka, odbiór i archiwum faktur — jest bezpłatne na zawsze, bez limitu dokumentów, w planie Start. To samo dotyczy aplikacji mobilnej i powiadomień push. Płatne plany (JDG, Spółka Standard) dodają deklaracje podatkowe, governance i płatności online przez Stripe (karta, BLIK, Google Pay).",
+  },
+  {
+    q: "Czy muszę zakładać konto, żeby wystawić fakturę?",
+    a: "Nie. Nasz darmowy generator faktur pozwala wystawić i pobrać fakturę PDF bez rejestracji — przyda się na szybko. Do wysyłki i odbioru faktur przez KSeF, ich archiwizacji i historii potrzebujesz już darmowego konta w planie Start.",
   },
   {
     q: "Czy jest limit użytkowników?",
@@ -170,7 +178,61 @@ export default function Pricing() {
       </div>
 
       {/* Hero */}
-  
+      <section className="pt-20 pb-4">
+        <div className="mx-auto w-full max-w-4xl px-6 text-center">
+          <span className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-1.5 text-sm font-semibold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
+            <FileCheck className="h-4 w-4" />
+            Bezpłatnie na zawsze — bez limitu
+          </span>
+          <h1 className="mt-6 text-4xl font-bold text-gray-900 dark:text-white md:text-5xl">
+            KSeF za darmo. Bez limitu. Bez karty.
+          </h1>
+          <p className="mx-auto mt-5 max-w-2xl text-lg text-gray-600 dark:text-gray-400">
+            Wysyłka, odbiór i archiwum faktur ustrukturyzowanych w KSeF — pełny, nielimitowany dostęp
+            w planie Start, na zawsze. Gdy będziesz gotowy na więcej — automatyczne rozliczenia,
+            governance, płatności online — po prostu przechodzisz na płatny plan. Bez presji.
+          </p>
+
+          <div className="mx-auto mt-10 grid max-w-3xl grid-cols-2 gap-4 sm:grid-cols-3">
+            {[
+              { icon: FileCheck, label: "Nielimitowany KSeF" },
+              { icon: Smartphone, label: "Aplikacja mobilna" },
+              { icon: Bell, label: "Powiadomienia push" },
+              { icon: FileText, label: "Darmowy generator faktur" },
+              { icon: CreditCard, label: "Bez karty płatniczej" },
+              { icon: ArrowUpCircle, label: "Upgrade w każdej chwili" },
+            ].map(({ icon: Icon, label }) => (
+              <div
+                key={label}
+                className="flex items-center gap-2.5 rounded-xl border border-gray-200 bg-gray-50 px-3 py-3 text-left text-sm font-medium text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-200"
+              >
+                <Icon className="h-4 w-4 flex-shrink-0 text-emerald-600 dark:text-emerald-400" />
+                {label}
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+            <TrackedLink
+              href="/rejestracja"
+              event="cta_clicked"
+              eventProps={{ page: "cennik", cta_id: "hero_primary", text: "Załóż darmowe konto", destination: "/rejestracja" }}
+              className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-8 py-4 text-lg font-semibold text-white transition hover:bg-blue-700"
+            >
+              Załóż darmowe konto
+            </TrackedLink>
+            <TrackedLink
+              href="/darmowy-generator-faktur"
+              event="cta_clicked"
+              eventProps={{ page: "cennik", cta_id: "hero_secondary", text: "Wystaw fakturę bez konta", destination: "/darmowy-generator-faktur" }}
+              className="inline-flex items-center justify-center rounded-2xl border border-gray-300 px-8 py-4 text-lg font-semibold text-gray-800 transition hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-900"
+            >
+              Wystaw fakturę bez konta →
+            </TrackedLink>
+          </div>
+        </div>
+      </section>
+
       {/* Plans */}
       <section className="py-16">
         <div className="mx-auto w-full max-w-6xl px-6">
@@ -351,10 +413,10 @@ export default function Pricing() {
             <TrackedLink
               href="/rejestracja"
               event="cta_clicked"
-              eventProps={{ page: "cennik", cta_id: "footer_primary", text: "Rozpocznij 7-dniowy trial", destination: "/rejestracja" }}
+              eventProps={{ page: "cennik", cta_id: "footer_primary", text: "Załóż darmowe konto", destination: "/rejestracja" }}
               className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-8 py-4 text-lg font-semibold text-white transition hover:bg-blue-700"
             >
-              Rozpocznij 7-dniowy trial
+              Załóż darmowe konto
             </TrackedLink>
             <TrackedLink
               href="mailto:kontakt@ksiegai.pl"
@@ -365,7 +427,7 @@ export default function Pricing() {
               Porozmawiaj z ekspertem
             </TrackedLink>
           </div>
-          <p className="mt-6 text-sm text-gray-400">Bez karty kredytowej • Pełny dostęp • Anuluj w dowolnym momencie</p>
+          <p className="mt-6 text-sm text-gray-400">Bez karty kredytowej • KSeF bez limitu na zawsze • Upgrade, kiedy zechcesz</p>
         </div>
       </section>
 
