@@ -235,6 +235,7 @@ export default function Login() {
       invite: "1",
       bp: business_profile_id,
       cn: company_name,
+      trial: "1",
     });
     return true;
   };

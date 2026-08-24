@@ -71,3 +71,22 @@ export async function markInviteOpened(token: string): Promise<void> {
     // best-effort — see file header
   }
 }
+
+/**
+ * Logs "invited person read a KSeF article" — an anonymous, pre-registration
+ * funnel stage (see public-api's invite.logEvent action / admin_invite_events'
+ * 'ksef_article_viewed' type). Same best-effort/no-throw contract as
+ * markInviteOpened above.
+ */
+export async function logKsefArticleViewed(token: string, articleSlug: string | undefined): Promise<void> {
+  try {
+    const tokenHash = await sha256hex(token);
+    await publicApiAction("invite.logEvent", {
+      tokenHash,
+      eventType: "ksef_article_viewed",
+      metadata: { article_slug: articleSlug ?? null },
+    });
+  } catch {
+    // best-effort — see file header
+  }
+}

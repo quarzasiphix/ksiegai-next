@@ -7,7 +7,7 @@ import { storeAuthToken, redirectToApp } from "../../lib/auth/crossDomainAuth";
 import { getInviteOnboardingPath } from "../../lib/auth/inviteOnboarding";
 import { setAuthFlowOrigin } from "../../lib/auth/welcomeEmail";
 import { listAccessibleHomeBusinessProfiles } from "../../lib/home/businessProfiles";
-import { getSessionId, getVariantAssignments } from "../../lib/ab-testing-ssg";
+import { getSessionId, getVariantAssignments, loadABTests, getVariant, trackEvent } from "../../lib/ab-testing-ssg";
 import { publicApiAction, gatewayFetch } from "../../lib/gateway";
 import {
   captureInviteEvent,
@@ -43,6 +43,13 @@ const INVITE_COOKIE_NAME = "ksiegai_invite_token";
 const INVITE_STORAGE_KEY = "ksiegai_invite_token";
 const LEGACY_INVITE_STORAGE_KEY = "pending_invite_token";
 const INVITE_MAX_AGE = 90 * 24 * 60 * 60;
+
+// Matches the ab_test_definitions.test_key an admin creates in
+// admin-ksiegai's /ab-tests UI with two variants — e.g. {id:"control",
+// weight:50} and {id:"glow", weight:50}. No active test with this key means
+// getVariant() below returns null and the page renders the plain (no-glow)
+// button, same as before this test existed.
+const INVITE_GOOGLE_GLOW_TEST_KEY = "invite_google_cta_glow";
 
 async function sha256hex(text: string): Promise<string> {
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
@@ -131,6 +138,7 @@ export default function RegisterClient({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmed, setConfirmed] = useState<string | null>(null);
+  const [googleGlowVariant, setGoogleGlowVariant] = useState<string | null>(null);
   const awaitingEmailConfirm = useRef(false);
   const suppressSignedInRedirect = useRef(false);
   const regMethod = useRef<"password" | "magic_link">("password");
@@ -349,6 +357,23 @@ export default function RegisterClient({
       }
     });
   }, [inviteToken]);
+
+  // Only assigns a variant once there's an invite to show the auth card for
+  // — no point entering the test for visitors who never see this button.
+  // getVariant() itself no-ops (returns null) if no active test with this
+  // key exists yet, or the session rolled outside traffic_allocation.
+  useEffect(() => {
+    if (!inviteData) return;
+    let cancelled = false;
+    loadABTests().then((tests) => {
+      if (cancelled) return;
+      const test = Object.values(tests).find((t) => t.test_key === INVITE_GOOGLE_GLOW_TEST_KEY);
+      if (!test) return;
+      const variant = getVariant(test);
+      if (variant) setGoogleGlowVariant(variant.id);
+    });
+    return () => { cancelled = true; };
+  }, [inviteData]);
 
   useEffect(() => {
     if (resendCooldown <= 0) return;
@@ -740,6 +765,7 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
             invite: "1",
             bp: business_profile_id,
             cn: company_name,
+            trial: "1",
           });
         }
       } else {
@@ -1010,15 +1036,43 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
   // ─── Auth card for invited users ────────────────────────────────────────────
   const inviteAuthCardContent = inviteData ? (
     <>
-      {/* Google */}
-      <button
-        onClick={handleGoogle}
-        disabled={loading}
-        className="w-full flex items-center justify-center gap-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        <GoogleIcon className="h-5 w-5 shrink-0" />
-        Kontynuuj z Google
-      </button>
+      {/* Google — variant "glow" (ab_test_definitions.test_key
+          "invite_google_cta_glow") adds a soft pulsing ring marking this as
+          the recommended, lowest-friction path (one click, no password)
+          without hiding the plain "Kontynuuj" option below it. No active
+          test, or assigned to "control", renders the plain button. */}
+      <div className="relative">
+        {googleGlowVariant === "glow" && (
+          <div
+            aria-hidden
+            className="absolute -inset-1 rounded-2xl bg-blue-500/40 blur-md animate-invite-google-glow pointer-events-none"
+          />
+        )}
+        <button
+          onClick={() => {
+            if (googleGlowVariant) {
+              void trackEvent(INVITE_GOOGLE_GLOW_TEST_KEY, "click", "google_cta_clicked");
+            }
+            void handleGoogle();
+          }}
+          disabled={loading}
+          className="relative w-full flex items-center justify-center gap-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <GoogleIcon className="h-5 w-5 shrink-0" />
+          Kontynuuj z Google
+        </button>
+      </div>
+      {googleGlowVariant === "glow" && (
+        <style jsx>{`
+          @keyframes invite-google-glow {
+            0%, 100% { opacity: 0.35; }
+            50% { opacity: 0.75; }
+          }
+          .animate-invite-google-glow {
+            animation: invite-google-glow 2.4s ease-in-out infinite;
+          }
+        `}</style>
+      )}
 
       <div className="flex items-center gap-3">
         <div className="flex-1 border-t border-gray-200 dark:border-gray-700" />
@@ -1092,7 +1146,12 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
 
         <button
           type="button"
-          onClick={handleInviteContinue}
+          onClick={() => {
+            if (googleGlowVariant) {
+              void trackEvent(INVITE_GOOGLE_GLOW_TEST_KEY, "click", "continue_cta_clicked");
+            }
+            void handleInviteContinue();
+          }}
           disabled={loading}
           className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >

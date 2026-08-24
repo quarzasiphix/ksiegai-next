@@ -200,12 +200,13 @@ export default function AuthCallback() {
 
             const dest = getInviteOnboardingPath(inviteLookup?.company_type ?? null);
             if (redirectFrom === 'localhost' && localhostPort) {
-              window.location.href = `http://localhost:${localhostPort}${dest}?invite=1&bp=${business_profile_id}&cn=${encodeURIComponent(company_name)}`;
+              window.location.href = `http://localhost:${localhostPort}${dest}?invite=1&bp=${business_profile_id}&cn=${encodeURIComponent(company_name)}&trial=1`;
             } else {
               redirectToApp(dest, {
                 invite: "1",
                 bp: business_profile_id,
                 cn: company_name,
+                trial: "1",
               });
             }
             return;

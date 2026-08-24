@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { captureInviteEvent } from "@/lib/posthog/inviteAttribution";
-import { getStoredInviteToken, markInviteOpened, persistInviteToken } from "@/lib/auth/inviteTracking";
+import { getStoredInviteToken, logKsefArticleViewed, markInviteOpened, persistInviteToken } from "@/lib/auth/inviteTracking";
 
 type Variant = "inline" | "sidebar";
 type Position = "mid" | "end";
@@ -33,7 +33,20 @@ export function KsefInviteCTA({ variant = "inline", position = "end", articleSlu
       persistInviteToken(urlToken);
       void markInviteOpened(urlToken);
     }
-    setHasInvite(Boolean(urlToken || getStoredInviteToken()));
+    const token = urlToken || getStoredInviteToken();
+    setHasInvite(Boolean(token));
+
+    // "Viewed KSeF article" funnel stage — only for an invite-attributed
+    // visitor, and deduped per article per tab (this component renders up to
+    // 3 times on one page — mid/end/sidebar — so without this it would log
+    // 3x per real view).
+    if (token && articleSlug && typeof window !== "undefined") {
+      const dedupeKey = `ksef_article_viewed_logged:${articleSlug}`;
+      if (!window.sessionStorage.getItem(dedupeKey)) {
+        window.sessionStorage.setItem(dedupeKey, "1");
+        void logKsefArticleViewed(token, articleSlug);
+      }
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
