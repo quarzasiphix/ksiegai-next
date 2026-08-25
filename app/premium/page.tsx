@@ -47,7 +47,7 @@ export default function Premium() {
                 href="/rejestracja"
                 className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-lg px-10 py-4 rounded-2xl font-semibold shadow-xl hover:shadow-2xl transition-all"
               >
-                Uruchom 7-dniowy trial (Spółka Standard)
+                Uruchom 14-dniowy trial (Pełna księgowość)
                 <ArrowRight className="h-5 w-5" />
               </Link>
               <Link
@@ -313,11 +313,11 @@ export default function Premium() {
                 <div className="text-left">
                   <p className="text-blue-100 text-sm mb-2">Najpopularniejszy plan</p>
                   <h3 className="text-3xl font-bold mb-2">{PUBLIC_PRICING.spolkaStandard.name} — {formatPlnMonthly(PUBLIC_PRICING.spolkaStandard.monthlyPricePln)}</h3>
-                  <p className="text-blue-100">Pełna infrastruktura finansowa dla spółek z o.o.</p>
+                  <p className="text-blue-100">Pełna infrastruktura finansowa dla spółek, fundacji i stowarzyszeń.</p>
                 </div>
                 <Link href="/rejestracja">
                   <button className="bg-white hover:bg-gray-100 text-blue-600 font-bold px-8 py-4 rounded-2xl transition-colors shadow-lg whitespace-nowrap">
-                    Rozpocznij 7-dniowy trial
+                    Rozpocznij 14-dniowy trial
                   </button>
                 </Link>
               </div>
@@ -337,7 +337,7 @@ export default function Premium() {
               Zostaw operacje systemowi. Skup się na rozwoju firmy.
             </h2>
             <p className="text-xl text-blue-100 mb-6">
-              7-dniowy trial z pełnym dostępem. Bez karty kredytowej.<br />
+              14-dniowy trial z pełnym dostępem. Bez karty kredytowej.<br />
               Sprawdz, jak działa profesjonalna księgowość bez ręcznej pracy operacyjnej.
             </p>
             <p className="text-sm text-blue-200 mb-8">

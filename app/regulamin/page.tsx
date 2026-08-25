@@ -27,9 +27,9 @@ function FallbackContent() {
           <li><strong>Konto</strong> – indywidualne konto Użytkownika w Platformie, umożliwiające korzystanie z Usług.</li>
           <li><strong>Usługi</strong> – funkcjonalności Platformy dostępne dla Użytkowników, w tym fakturowanie, księgowość, integracja z KSeF, generowanie raportów.</li>
           <li><strong>Subskrypcja</strong> – odpłatny dostęp do Usług Premium na określony okres czasu.</li>
-          <li><strong>Plan Start</strong> – bezpłatny plan obejmujący połączenie z KSeF (walidacja, wysyłka, odbiór i archiwum faktur ustrukturyzowanych) na czas nieokreślony, bez konieczności podania danych karty płatniczej.</li>
+          <li><strong>Plan KSeF Start</strong> – bezpłatny plan obejmujący połączenie z KSeF (walidacja, wysyłka, odbiór i archiwum faktur ustrukturyzowanych) na czas nieokreślony, bez konieczności podania danych karty płatniczej.</li>
           <li><strong>Plan JDG</strong> – pakiet usług dla jednoosobowych działalności gospodarczych w cenie {formatPlnMonthly(PUBLIC_PRICING.jdg.monthlyPricePln)}.</li>
-          <li><strong>Plan Spółka Standard</strong> – pakiet usług dla spółek z o.o. w cenie {formatPlnMonthly(PUBLIC_PRICING.spolkaStandard.monthlyPricePln)} lub {formatPlnAnnual(PUBLIC_PRICING.spolkaStandard.annualPricePln)}.</li>
+          <li><strong>Plan Pełna księgowość</strong> – pakiet usług dla spółek z o.o. w cenie {formatPlnMonthly(PUBLIC_PRICING.spolkaStandard.monthlyPricePln)} lub {formatPlnAnnual(PUBLIC_PRICING.spolkaStandard.annualPricePln)}.</li>
         </ol>
       </section>
 
@@ -78,10 +78,10 @@ function FallbackContent() {
           <li>Płatności za Subskrypcję są przetwarzane przez Stripe, Inc.</li>
           <li>Dostępne Plany:
             <ul className="list-disc pl-6 mt-2">
-              <li><strong>Plan Start:</strong> bezpłatny, bez limitu czasowego — obejmuje połączenie z KSeF</li>
+              <li><strong>Plan KSeF Start:</strong> bezpłatny, bez limitu czasowego — obejmuje połączenie z KSeF</li>
               <li><strong>Plan JDG:</strong> {formatPlnMonthly(PUBLIC_PRICING.jdg.monthlyPricePln)}, rozliczany miesięcznie</li>
-              <li><strong>Plan Spółka Standard:</strong> {formatPlnMonthly(PUBLIC_PRICING.spolkaStandard.monthlyPricePln)} lub {formatPlnAnnual(PUBLIC_PRICING.spolkaStandard.annualPricePln)}</li>
-              <li><strong>Plan Enterprise:</strong> wycena indywidualna</li>
+              <li><strong>Plan Pełna księgowość:</strong> {formatPlnMonthly(PUBLIC_PRICING.spolkaStandard.monthlyPricePln)} lub {formatPlnAnnual(PUBLIC_PRICING.spolkaStandard.annualPricePln)}</li>
+              <li><strong>Plan Wiele podmiotów:</strong> wycena indywidualna</li>
             </ul>
           </li>
           <li>Subskrypcja odnawia się automatycznie na koniec okresu rozliczeniowego, chyba że Użytkownik anuluje Subskrypcję przed końcem okresu.</li>
@@ -95,7 +95,7 @@ function FallbackContent() {
       <section className="mb-8">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">§ 6. Okres próbny</h2>
         <ol className="list-decimal pl-6 space-y-2 text-gray-700 dark:text-gray-300">
-          <li>Nowi Użytkownicy Planu Spółka Standard otrzymują 7-dniowy bezpłatny okres próbny.</li>
+          <li>Nowi Użytkownicy Planu Pełna księgowość otrzymują 14-dniowy bezpłatny okres próbny.</li>
           <li>Okres próbny nie wymaga podania danych karty kredytowej.</li>
           <li>Po zakończeniu okresu próbnego, Użytkownik może wykupić pełną Subskrypcję lub kontynuować korzystanie z darmowych funkcji.</li>
           <li>Każdy Użytkownik może skorzystać z okresu próbnego tylko raz.</li>

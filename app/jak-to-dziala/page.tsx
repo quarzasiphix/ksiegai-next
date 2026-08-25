@@ -279,7 +279,7 @@ export default function JakToDziala() {
                 <ArrowRight className="h-5 w-5" />
               </TrackedLink>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-4">
-                7-dniowy trial • Bez karty • Pełny dostęp
+                14-dniowy trial • Bez karty • Pełny dostęp
               </p>
             </div>
           </div>
@@ -450,7 +450,7 @@ export default function JakToDziala() {
                 <ArrowRight className="h-5 w-5" />
               </TrackedLink>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-4">
-                7-dniowy trial (Spółka Standard) • Bez karty • Pełny dostęp
+                14-dniowy trial (Pełna księgowość) • Bez karty • Pełny dostęp
               </p>
             </div>
           </div>
@@ -474,7 +474,7 @@ export default function JakToDziala() {
                   <tr className="border-b-2 border-gray-200 dark:border-gray-800">
                     <th className="text-left p-4 text-gray-900 dark:text-white font-semibold">Funkcja</th>
                     <th className="text-center p-4 text-blue-600 dark:text-blue-400 font-semibold">JDG Start</th>
-                    <th className="text-center p-4 text-purple-600 dark:text-purple-400 font-semibold">Spółka Standard</th>
+                    <th className="text-center p-4 text-purple-600 dark:text-purple-400 font-semibold">Pełna księgowość</th>
                   </tr>
                 </thead>
                 <tbody className="text-sm">
@@ -543,7 +543,7 @@ export default function JakToDziala() {
               Gotowy, żeby zobaczyć to na żywo?
             </h2>
             <p className="text-xl text-blue-100 mb-8">
-              Uruchom 7-dniowy trial i przetestuj workflow na swoich danych. Bez karty, bez zobowiązań.
+              Uruchom 14-dniowy trial i przetestuj workflow na swoich danych. Bez karty, bez zobowiązań.
             </p>
             <TrackedLink
               href="/rejestracja"

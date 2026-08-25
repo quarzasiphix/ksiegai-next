@@ -270,10 +270,10 @@ export default function DlaKsiegowych() {
             <TrackedLink
               href="/rejestracja"
               event="cta_clicked"
-              eventProps={{ page: "dla-ksiegowych", persona: "accountant", cta_id: "mid_cta", text: "Uruchom pilotaż (7 dni)", destination: "/rejestracja" }}
+              eventProps={{ page: "dla-ksiegowych", persona: "accountant", cta_id: "mid_cta", text: "Uruchom pilotaż (14 dni)", destination: "/rejestracja" }}
               className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-8 py-4 text-base font-semibold text-white transition hover:bg-blue-700"
             >
-              Uruchom pilotaż (7 dni)
+              Uruchom pilotaż (14 dni)
               <ArrowRight className="ml-2 h-5 w-5" />
             </TrackedLink>
             <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
@@ -438,7 +438,7 @@ export default function DlaKsiegowych() {
         <div className="mx-auto w-full max-w-4xl px-6 text-center">
           <h2 className="mb-6 text-4xl font-bold text-gray-900 dark:text-white md:text-5xl">Przetestuj z jednym klientem. Bez ryzyka.</h2>
           <p className="mb-3 text-xl text-gray-600 dark:text-gray-400">
-            7-dniowy trial z pełnym dostępem. Bez karty kredytowej. Sprawdź, jak system przygotowuje dane i oszczędza Twój czas.
+            14-dniowy trial z pełnym dostępem. Bez karty kredytowej. Sprawdź, jak system przygotowuje dane i oszczędza Twój czas.
           </p>
           <p className="mb-4 text-base text-orange-600 dark:text-orange-400 font-medium">
             Każdy miesiąc bez przygotowania to większe ryzyko przy wejściu KSeF.
@@ -450,10 +450,10 @@ export default function DlaKsiegowych() {
             <TrackedLink
               href="/rejestracja"
               event="cta_clicked"
-              eventProps={{ page: "dla-ksiegowych", persona: "accountant", cta_id: "footer_primary", text: "Rozpocznij 7-dniowy trial", destination: "/rejestracja" }}
+              eventProps={{ page: "dla-ksiegowych", persona: "accountant", cta_id: "footer_primary", text: "Rozpocznij 14-dniowy trial", destination: "/rejestracja" }}
               className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-8 py-4 text-lg font-semibold text-white transition hover:bg-blue-700"
             >
-              Rozpocznij 7-dniowy trial
+              Rozpocznij 14-dniowy trial
             </TrackedLink>
             <TrackedLink
               href="mailto:kontakt@ksiegai.pl"

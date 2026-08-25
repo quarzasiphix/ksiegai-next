@@ -8,7 +8,7 @@ import { PageAnalytics } from "@/components/analytics/PageAnalytics";
 export const metadata: Metadata = {
   title: "Cennik KsięgaI | Nowoczesna księgowość JDG i spółek z o.o.",
   description:
-    `Transparentny cennik KsięgaI. Połączenie z KSeF jest bezpłatne na zawsze w planie Start. Plan JDG od ${formatPln(PUBLIC_PRICING.jdg.monthlyPricePln)}, Spółka Standard z governance i płatnościami Stripe (${formatPln(PUBLIC_PRICING.spolkaStandard.monthlyPricePln)}) oraz rozwiązania Enterprise.`,
+    `Transparentny cennik KsięgaI. Połączenie z KSeF jest bezpłatne na zawsze w planie KSeF Start. Plan JDG od ${formatPln(PUBLIC_PRICING.jdg.monthlyPricePln)}, Pełna księgowość z uchwałami i kontrolą finansową (${formatPln(PUBLIC_PRICING.spolkaStandard.monthlyPricePln)}) oraz plan Wiele podmiotów.`,
   alternates: {
     canonical: "https://www.ksiegai.pl/cennik/",
   },
@@ -56,11 +56,11 @@ const plans = [
   },
   {
     name: PUBLIC_PRICING.spolkaStandard.name,
-    tagline: "Pełna księgowość i governance dla spółek z o.o.",
+    tagline: "Pełna księgowość, dokumenty, uchwały i kontrola finansowa dla spółek, fundacji i stowarzyszeń.",
     price: formatPln(PUBLIC_PRICING.spolkaStandard.monthlyPricePln),
     cadence: "miesiąc",
     annual: `${formatPlnAnnual(PUBLIC_PRICING.spolkaStandard.annualPricePln)} – oszczędzasz ${formatPln(PUBLIC_PRICING.spolkaStandard.annualSavingsPln)}`,
-    badge: "Najczęściej wybierany",
+    badge: "Dla osób prawnych i organizacji",
     icon: Shield,
     features: [
       "Wszystko z JDG + workflow zatwierdzania (wyjątki + audyt)",
@@ -74,8 +74,8 @@ const plans = [
     highlight: true,
   },
   {
-    name: "Enterprise",
-    tagline: "Dla grup kapitałowych i wielopodmiotowych biur rachunkowych",
+    name: "Wiele podmiotów",
+    tagline: "Dla księgowych obsługujących wiele firm i zespołów",
     price: "Wycena indywidualna",
     cadence: "",
     icon: Building,
@@ -86,6 +86,7 @@ const plans = [
       "Indywidualne ustalenia SLA i wsparcia",
     ],
     cta: { label: "Porozmawiajmy", href: "mailto:kontakt@ksiegai.pl" },
+    extraLink: { label: "Zobacz ofertę dla księgowych →", href: "/dla-ksiegowych" },
     highlight: false,
   },
 ];
@@ -132,11 +133,11 @@ const faqs = [
   },
   {
     q: "Czy potrzebuję karty kredytowej, aby rozpocząć trial?",
-    a: "Nie. Trial trwa 14 dni i obejmuje pełny zakres funkcji Spółka Standard. Po zakończeniu wybierasz plan albo zostajesz na darmowym planie Start — Twoje dane nigdzie nie znikają.",
+    a: "Nie. Trial trwa 14 dni i obejmuje pełny zakres funkcji planu Pełna księgowość. Po zakończeniu wybierasz plan albo zostajesz na darmowym planie KSeF Start — Twoje dane nigdzie nie znikają.",
   },
   {
     q: "Czy połączenie z KSeF jest płatne?",
-    a: "Nie. Połączenie z KSeF — walidacja, wysyłka, odbiór i archiwum faktur — jest bezpłatne na zawsze, bez limitu dokumentów, w planie Start. To samo dotyczy aplikacji mobilnej i powiadomień push. Płatne plany (JDG, Spółka Standard) dodają deklaracje podatkowe, governance i płatności online przez Stripe (karta, BLIK, Google Pay).",
+    a: "Nie. Połączenie z KSeF — walidacja, wysyłka, odbiór i archiwum faktur — jest bezpłatne na zawsze, bez limitu dokumentów, w planie KSeF Start. To samo dotyczy aplikacji mobilnej i powiadomień push. Płatne plany (JDG, Pełna księgowość) dodają deklaracje podatkowe, uchwały, kontrolę finansową i płatności online przez Stripe (karta, BLIK, Google Pay).",
   },
   {
     q: "Czy muszę zakładać konto, żeby wystawić fakturę?",
@@ -147,7 +148,7 @@ const faqs = [
     a: "Nie. Każdy plan obejmuje dowolną liczbę osób pracujących na koncie Twojej firmy — nie płacisz za dodatkowe stanowiska.",
   },
   {
-    q: "Jak wygląda wdrożenie Enterprise?",
+    q: "Jak wygląda wdrożenie dla wielu podmiotów?",
     a: "Zaczynamy od rozmowy o Twojej strukturze podmiotów i potrzebach integracyjnych, żeby ustalić wycenę i zakres dopasowany do Twojej organizacji.",
   },
 ];
@@ -155,7 +156,7 @@ const faqs = [
 const pricingSchema = {
   "@context": "https://schema.org",
   "@type": "Product",
-  name: "KsięgaI – plan Spółka Standard",
+  name: "KsięgaI – plan Pełna księgowość",
   description: "Pełna księgowość, governance i automatyzacje dla spółek z o.o.",
   brand: { "@type": "Brand", name: "KsięgaI" },
   offers: {
@@ -188,9 +189,9 @@ export default function Pricing() {
             KSeF za darmo. Bez limitu. Bez karty.
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-lg text-gray-600 dark:text-gray-400">
-            Wysyłka, odbiór i archiwum faktur ustrukturyzowanych w KSeF — pełny, nielimitowany dostęp
-            w planie Start, na zawsze. Gdy będziesz gotowy na więcej — automatyczne rozliczenia,
-            governance, płatności online — po prostu przechodzisz na płatny plan. Bez presji.
+            Wysyłaj, odbieraj i przechowuj faktury w KSeF bez opłat i limitów. Gdy będziesz potrzebować
+            automatycznych rozliczeń, kontroli płatności, uchwał i obsługi całej firmy — możesz w każdej
+            chwili przejść na płatny plan.
           </p>
 
           <div className="mx-auto mt-10 grid max-w-3xl grid-cols-2 gap-4 sm:grid-cols-3">
@@ -297,6 +298,16 @@ export default function Pricing() {
                       {plan.cta.label}
                     </button>
                   </TrackedLink>
+                  {plan.extraLink && (
+                    <TrackedLink
+                      href={plan.extraLink.href}
+                      event="cta_clicked"
+                      eventProps={{ page: "cennik", cta_id: "plan_extra_link", plan: plan.name, text: plan.extraLink.label, destination: plan.extraLink.href }}
+                      className={`mt-3 block text-center text-sm font-medium ${plan.highlight ? "text-blue-100 hover:text-white" : "text-blue-600 hover:text-blue-700 dark:text-blue-400"}`}
+                    >
+                      {plan.extraLink.label}
+                    </TrackedLink>
+                  )}
                 </div>
               );
             })}
@@ -327,10 +338,10 @@ export default function Pricing() {
                 <thead>
                   <tr className="text-gray-500 dark:text-gray-300">
                     <th className="py-3 pr-4 font-semibold">Obszar</th>
-                    <th className="py-3 px-4 font-semibold">Start (bezpłatny)</th>
-                    <th className="py-3 px-4 font-semibold">JDG Start</th>
-                    <th className="py-3 px-4 font-semibold">Spółka Standard</th>
-                    <th className="py-3 px-4 font-semibold">Enterprise</th>
+                    <th className="py-3 px-4 font-semibold">KSeF Start (bezpłatny)</th>
+                    <th className="py-3 px-4 font-semibold">JDG</th>
+                    <th className="py-3 px-4 font-semibold">Pełna księgowość</th>
+                    <th className="py-3 px-4 font-semibold">Wiele podmiotów</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 text-gray-800 dark:divide-gray-800 dark:text-gray-100">

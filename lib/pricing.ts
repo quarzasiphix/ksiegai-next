@@ -1,14 +1,14 @@
 export const PUBLIC_PRICING = {
   start: {
-    name: "Start",
+    name: "KSeF Start",
     monthlyPricePln: 0,
   },
   jdg: {
-    name: "JDG Start",
+    name: "JDG",
     monthlyPricePln: 49,
   },
   spolkaStandard: {
-    name: "Spółka Standard",
+    name: "Pełna księgowość",
     monthlyPricePln: 89,
     annualPricePln: 890,
     annualSavingsPln: 178,

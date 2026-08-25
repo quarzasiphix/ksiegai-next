@@ -89,7 +89,7 @@ function FallbackContent() {
       <section className="mb-8">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">5. Bezpłatny okres próbny</h2>
         <div className="space-y-4 text-gray-700 dark:text-gray-300">
-          <p>Plan Spółka Standard oferuje 7-dniowy bezpłatny okres próbny.</p>
+          <p>Plan Pełna księgowość oferuje 14-dniowy bezpłatny okres próbny.</p>
           <p><strong>Zasady okresu próbnego:</strong></p>
           <ul className="list-disc pl-6 space-y-2">
             <li>Nie wymaga podania danych karty kredytowej</li>
