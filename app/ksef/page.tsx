@@ -309,9 +309,9 @@ export default function KsefPage() {
                   desc: "Co przygotować, jak uzyskać token i jak połączyć firmę z KsięgaI.",
                 },
                 {
-                  title: "Konto organizacji w e-Urzędzie Skarbowym",
-                  href: "/poradnik/konto-organizacji-e-urzad-skarbowy",
-                  desc: "Aktywacja konta dla NIP firmy i nadanie pełnomocnictw.",
+                  title: "KSeF dla spółki z o.o. — Konto Organizacji i ZAW-FA",
+                  href: "/poradnik/ksef-spolka-z-oo-kto-moze-nadac-dostep",
+                  desc: "Kolejność dla nowej spółki: Konto Organizacji w e-US, ZAW-FA, potem token.",
                 },
               ].map(({ title, href, desc }) => (
                 <Link

@@ -731,9 +731,9 @@ export default function Home() {
                     desc: "Zgłoszenie beneficjentów rzeczywistych — terminy i wymogi.",
                   },
                   {
-                    title: "Konto w e-Urzędzie Skarbowym",
-                    href: "/poradnik/konto-organizacji-e-urzad-skarbowy",
-                    desc: "Aktywacja konta dla organizacji i nadanie pełnomocnictw.",
+                    title: "Konto Organizacji w e-Urzędzie Skarbowym",
+                    href: "/poradnik/konto-organizacji-e-urzad-skarbowy-spolka",
+                    desc: "Nowa spółka nie widzi się w e-US? Jak wyznaczyć pierwszego użytkownika.",
                   },
                   {
                     title: "Checklista nowej spółki z o.o.",

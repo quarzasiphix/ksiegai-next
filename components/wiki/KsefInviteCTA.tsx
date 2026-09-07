@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { captureInviteEvent } from "@/lib/posthog/inviteAttribution";
 import { getStoredInviteToken, logKsefArticleViewed, markInviteOpened, persistInviteToken } from "@/lib/auth/inviteTracking";
@@ -17,7 +16,6 @@ interface Props {
 }
 
 export function KsefInviteCTA({ variant = "inline", position = "end", articleSlug }: Props) {
-  const searchParams = useSearchParams();
   const [hasInvite, setHasInvite] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -28,7 +26,12 @@ export function KsefInviteCTA({ variant = "inline", position = "end", articleSlu
     // there's nothing in localStorage yet — only the URL carries the token.
     // Persist it (same storage/cookie shape /rejestracja uses) and mark the
     // invite opened server-side. See lib/auth/inviteTracking.ts header.
-    const urlToken = searchParams?.get("invite") ?? null;
+    // Read the URL directly (not useSearchParams) so this static-exported page
+    // keeps server-rendering its content instead of bailing to CSR.
+    const urlToken =
+      typeof window !== "undefined"
+        ? new URLSearchParams(window.location.search).get("invite")
+        : null;
     if (urlToken) {
       persistInviteToken(urlToken);
       void markInviteOpened(urlToken);

@@ -6,7 +6,14 @@ import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { KsefInviteCTA } from '@/components/wiki/KsefInviteCTA';
 import { WikiArticleCard } from '@/components/wiki/WikiArticleCard';
 import { WikiCategorySidebar } from '@/components/wiki/WikiCategorySidebar';
-import { getAllWikiSlugs, getRelatedWikiArticles, getWikiArticle, getWikiArticlesByCategory } from '@/lib/wiki';
+import {
+  getAllWikiSlugs,
+  getRelatedWikiArticles,
+  getWikiArticle,
+  getWikiArticlesByCategory,
+  resolveArticleEntityTypes,
+  WIKI_ENTITY_HUBS,
+} from '@/lib/wiki';
 import { formatWikiDate, getWikiPresentationCategory } from '@/lib/wiki-presentation';
 
 type PageProps = {
@@ -169,7 +176,7 @@ export default async function WikiArticlePage({ params }: PageProps) {
                   <span>{presentation.badge}</span>
                 </div>
                 <h1 className="mt-5 max-w-4xl text-4xl font-semibold tracking-tight text-slate-950 dark:text-white md:text-6xl">
-                  {article.title}
+                  {article.h1 || article.title}
                 </h1>
                 <p className="mt-4 max-w-3xl text-lg leading-8 text-slate-600 dark:text-slate-300">
                   {article.excerpt || article.summary}
@@ -181,6 +188,26 @@ export default async function WikiArticlePage({ params }: PageProps) {
                   <span>•</span>
                   <span>{article.article_type === 'checklist' ? 'Checklist praktyczna' : 'Przewodnik krok po kroku'}</span>
                 </div>
+
+                {(() => {
+                  const ents = resolveArticleEntityTypes(article.entityTypes);
+                  const hubs = WIKI_ENTITY_HUBS.filter((h) => ents.includes(h.entityType));
+                  if (hubs.length === 0 || hubs.length === WIKI_ENTITY_HUBS.length) return null;
+                  return (
+                    <div className="mt-4 flex flex-wrap items-center gap-2 text-sm">
+                      <span className="text-slate-500 dark:text-slate-400">Poradnik dla:</span>
+                      {hubs.map((hub) => (
+                        <Link
+                          key={hub.entityType}
+                          href={`${hub.path}/`}
+                          className="rounded-full border border-black/10 bg-black/[0.03] px-3 py-1 text-slate-700 transition hover:border-sky-500/30 hover:text-sky-700 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-200 dark:hover:text-sky-300"
+                        >
+                          {hub.shortLabel}
+                        </Link>
+                      ))}
+                    </div>
+                  );
+                })()}
               </div>
 
               <div className="rounded-[28px] border border-black/10 bg-white/85 p-6 shadow-[0_24px_80px_-52px_rgba(15,23,42,0.42)] dark:border-white/10 dark:bg-white/[0.04]">

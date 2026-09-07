@@ -1,0 +1,5 @@
+# Wiki cluster consolidation (2026-09): the generic Konto Organizacji article
+# was merged into the new-spółka pillar. Keep the old URL alive as a 301 so
+# accrued SEO value flows to the canonical article.
+/poradnik/konto-organizacji-e-urzad-skarbowy      /poradnik/konto-organizacji-e-urzad-skarbowy-spolka/  301
+/poradnik/konto-organizacji-e-urzad-skarbowy/     /poradnik/konto-organizacji-e-urzad-skarbowy-spolka/  301

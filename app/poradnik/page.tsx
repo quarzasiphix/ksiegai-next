@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowRight, BookOpen, ExternalLink, Layers3, Sparkles } from 'lucide-react';
 import { WikiArticleCard } from '@/components/wiki/WikiArticleCard';
-import { getWikiArticlesByCategory } from '@/lib/wiki';
+import { getWikiArticlesByCategory, WIKI_ENTITY_HUBS } from '@/lib/wiki';
 import {
   getFeaturedArticles,
   getWikiPresentationCategory,
@@ -134,6 +134,24 @@ export default async function PoradnikPage() {
                 Praktyczne przewodniki o KSeF, rejestracji firmy, obowiązkach po wpisie do KRS,
                 podatkach, dokumentach i płatnościach. Konkret: co zrobić, kiedy i jak to połączyć z pracą w KsięgaI.
               </p>
+
+              <div className="mt-6">
+                <div className="text-sm font-medium uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+                  Wybierz formę prawną
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {WIKI_ENTITY_HUBS.map((hub) => (
+                    <Link
+                      key={hub.entityType}
+                      href={`${hub.path}/`}
+                      className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-sky-500/30 hover:text-sky-700 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-200 dark:hover:text-sky-300"
+                    >
+                      {hub.shortLabel}
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </Link>
+                  ))}
+                </div>
+              </div>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">

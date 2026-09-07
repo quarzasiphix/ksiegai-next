@@ -1,8 +1,100 @@
 import { supabaseServer } from './supabase-server';
-import { fallbackWikiArticles, fallbackWikiCategories, type FallbackWikiFaqItem } from './wiki-fallback';
+import {
+  fallbackWikiArticles,
+  fallbackWikiCategories,
+  ALL_WIKI_ENTITY_TYPES,
+  type FallbackWikiFaqItem,
+  type WikiEntityType,
+} from './wiki-fallback';
+
+export type { WikiEntityType } from './wiki-fallback';
+export { ALL_WIKI_ENTITY_TYPES } from './wiki-fallback';
+
+/** Entity hub landing pages: /poradnik/dla-<slug>/ */
+export type WikiEntityHub = {
+  entityType: WikiEntityType;
+  /** URL segment after /poradnik/dla- */
+  slug: string;
+  /** Full route path */
+  path: string;
+  name: string;
+  shortLabel: string;
+  tagline: string;
+  description: string;
+  /** Marketing page for this legal form, if any. */
+  marketingHref: string | null;
+};
+
+export const WIKI_ENTITY_HUBS: WikiEntityHub[] = [
+  {
+    entityType: 'spolka',
+    slug: 'spolek',
+    path: '/poradnik/dla-spolek',
+    name: 'Poradnik dla spółek z o.o.',
+    shortLabel: 'Spółka z o.o.',
+    tagline: 'Od wpisu do KRS do pełnej gotowości operacyjnej.',
+    description:
+      'Obowiązki po rejestracji sp. z o.o.: CRBR, konto organizacji w e-US, NIP-8, e-Doręczenia, ZAW-FA i KSeF, pełna księgowość, uchwały i finanse spółki — krok po kroku.',
+    marketingHref: '/spolka-z-oo',
+  },
+  {
+    entityType: 'jdg',
+    slug: 'jdg',
+    path: '/poradnik/dla-jdg',
+    name: 'Poradnik dla JDG',
+    shortLabel: 'JDG',
+    tagline: 'Jednoosobowa działalność — start i KSeF bez zbędnych kroków.',
+    description:
+      'Jednoosobowa działalność gospodarcza: pierwsze formalności po wpisie do CEIDG, VAT, ZUS, KSeF przez profil zaufany, faktury i deklaracje.',
+    marketingHref: '/jdg',
+  },
+  {
+    entityType: 'stowarzyszenie',
+    slug: 'stowarzyszen',
+    path: '/poradnik/dla-stowarzyszen',
+    name: 'Poradnik dla stowarzyszeń',
+    shortLabel: 'Stowarzyszenie',
+    tagline: 'Stowarzyszenie rejestrowe w KRS — obowiązki, których nikt nie tłumaczy.',
+    description:
+      'Stowarzyszenie wpisane do KRS: pierwsze obowiązki po rejestracji, CRBR, NIP-8, konto organizacji w e-US, e-Doręczenia, nadzór starosty, sprawozdawczość, działalność statutowa, odpłatna i gospodarcza, KSeF.',
+    marketingHref: null,
+  },
+  {
+    entityType: 'fundacja',
+    slug: 'fundacji',
+    path: '/poradnik/dla-fundacji',
+    name: 'Poradnik dla fundacji',
+    shortLabel: 'Fundacja',
+    tagline: 'Fundacja w KRS — od rejestracji do sprawozdania dla ministra.',
+    description:
+      'Fundacja wpisana do KRS: pierwsze obowiązki po rejestracji, CRBR, NIP-8, konto organizacji w e-US, e-Doręczenia, nadzór ministra i starosty, coroczne sprawozdanie z działalności, działalność statutowa, odpłatna i gospodarcza, KSeF.',
+    marketingHref: null,
+  },
+];
+
+export function getWikiEntityHub(entityType: WikiEntityType): WikiEntityHub {
+  return WIKI_ENTITY_HUBS.find((hub) => hub.entityType === entityType) ?? WIKI_ENTITY_HUBS[0];
+}
+
+export function getWikiEntityHubBySlug(slug: string): WikiEntityHub | null {
+  return WIKI_ENTITY_HUBS.find((hub) => hub.slug === slug) ?? null;
+}
+
+/** An article/category with no `entityTypes` applies to sp. z o.o. only. */
+export function resolveArticleEntityTypes(entityTypes?: WikiEntityType[] | null): WikiEntityType[] {
+  return entityTypes && entityTypes.length ? entityTypes : ['spolka'];
+}
 
 const wikiSlugAliases = {
   'nip-8-po-rejestracji-spolki-zoo': 'nip-8-spolka-zoo',
+  // Konto Organizacji cluster consolidation (2026-09): the generic
+  // "konto-organizacji-e-urzad-skarbowy" was merged into the new-spółka pillar.
+  // A 301 in public/_redirects is the canonical consolidation on Cloudflare;
+  // this alias keeps the statically generated page (and any non-CF render)
+  // resolving to the pillar content with a canonical tag to the pillar URL.
+  // The old slug is dropped from getWikiArticlesByCategory, so it no longer
+  // appears in the sitemap.
+  'konto-organizacji-e-urzad-skarbowy': 'konto-organizacji-e-urzad-skarbowy-spolka',
 } as const;
 
 export type WikiCategory = {
@@ -11,12 +103,16 @@ export type WikiCategory = {
   name: string;
   description: string | null;
   sort_order: number;
+  entityTypes?: WikiEntityType[];
 };
 
 export type WikiArticle = {
   id: string;
   slug: string;
   title: string;
+  /** Optional on-page H1 when it should differ from the SEO <title>. */
+  h1?: string | null;
+  entityTypes?: WikiEntityType[];
   excerpt: string;
   summary: string;
   purpose: string | null;
@@ -34,7 +130,7 @@ export type WikiArticle = {
 
 export type WikiArticleListItem = Pick<
   WikiArticle,
-  'id' | 'slug' | 'title' | 'excerpt' | 'summary' | 'article_type' | 'sort_order' | 'published_at' | 'updated_at'
+  'id' | 'slug' | 'title' | 'excerpt' | 'summary' | 'article_type' | 'sort_order' | 'published_at' | 'updated_at' | 'entityTypes'
 >;
 
 function isUuid(value: string): boolean {
@@ -73,8 +169,10 @@ export async function getWikiCategories(): Promise<WikiCategory[]> {
     .eq('is_active', true)
     .order('sort_order');
 
-  if (error) throw error;
-  return dedupeCategories([...(data ?? []), ...fallbackWikiCategories]);
+  if (error) {
+    console.warn('[wiki] getWikiCategories: DB read failed, using fallback only:', error.message);
+  }
+  return dedupeCategories([...((error ? [] : data) ?? []), ...fallbackWikiCategories]);
 }
 
 export async function getWikiCategoryBySlug(slug: string): Promise<WikiCategory | null> {
@@ -103,10 +201,12 @@ export async function getWikiArticlesByCategory(): Promise<
     .contains('surfaces', ['marketing'])
     .order('sort_order');
 
-  if (error) throw error;
+  if (error) {
+    console.warn('[wiki] getWikiArticlesByCategory: DB read failed, using fallback only:', error.message);
+  }
 
   const grouped = new Map<string, { category: WikiCategory; articles: WikiArticleListItem[] }>();
-  for (const row of data ?? []) {
+  for (const row of (error ? [] : data) ?? []) {
     const cat = row.category as unknown as WikiCategory;
     if (!grouped.has(cat.slug)) grouped.set(cat.slug, { category: cat, articles: [] });
     grouped.get(cat.slug)!.articles.push({
@@ -119,6 +219,8 @@ export async function getWikiArticlesByCategory(): Promise<
       sort_order: row.sort_order,
       published_at: row.published_at,
       updated_at: row.updated_at,
+      // DB rows carry no entityTypes yet — fallback merge below fills it, else default applies.
+      entityTypes: undefined,
     });
   }
 
@@ -138,6 +240,7 @@ export async function getWikiArticlesByCategory(): Promise<
         sort_order: article.sort_order,
         published_at: article.published_at,
         updated_at: article.updated_at,
+        entityTypes: article.entityTypes,
       });
     }
   }
@@ -145,6 +248,28 @@ export async function getWikiArticlesByCategory(): Promise<
   return [...grouped.values()]
     .map((group) => ({ category: group.category, articles: dedupeArticles(group.articles) }))
     .sort((a, b) => a.category.sort_order - b.category.sort_order);
+}
+
+/**
+ * Articles grouped by category, filtered to a single legal form. An article with
+ * no `entityTypes` counts as sp. z o.o.-only. Empty categories are dropped.
+ */
+export async function getWikiArticlesForEntity(entityType: WikiEntityType): Promise<
+  { category: WikiCategory; articles: WikiArticleListItem[] }[]
+> {
+  const grouped = await getWikiArticlesByCategory();
+  return grouped
+    .map(({ category, articles }) => ({
+      category,
+      articles: articles.filter((article) =>
+        resolveArticleEntityTypes(article.entityTypes).includes(entityType),
+      ),
+    }))
+    .filter((group) => group.articles.length > 0);
+}
+
+export function getAllWikiEntityHubSlugs(): string[] {
+  return WIKI_ENTITY_HUBS.map((hub) => hub.slug);
 }
 
 export async function getWikiArticle(slug: string): Promise<WikiArticle | null> {
@@ -162,7 +287,12 @@ export async function getWikiArticle(slug: string): Promise<WikiArticle | null> 
     .contains('surfaces', ['marketing'])
     .single();
 
-  if (!error && data) return data as unknown as WikiArticle;
+  if (!error && data) {
+    const article = data as unknown as WikiArticle;
+    // DB rows carry no entityTypes column yet — keep the fallback's tagging if we have one.
+    const fallback = fallbackWikiArticles.find((item) => item.slug === canonicalSlug);
+    return { ...article, entityTypes: article.entityTypes ?? fallback?.entityTypes };
+  }
   return fallbackWikiArticles.find((article) => article.slug === canonicalSlug) || null;
 }
 
@@ -191,8 +321,11 @@ export async function getWikiArticlesForCategory(categorySlug: string): Promise<
       .contains('surfaces', ['marketing'])
       .order('sort_order');
 
-    if (error) throw error;
-    dbArticles = (data ?? []) as unknown as WikiArticle[];
+    if (error) {
+      console.warn('[wiki] getWikiArticlesForCategory: DB read failed, using fallback only:', error.message);
+    } else {
+      dbArticles = (data ?? []) as unknown as WikiArticle[];
+    }
   }
 
   return {
@@ -227,6 +360,7 @@ export async function getRelatedWikiArticles(
         id: article.id,
         slug: article.slug,
         title: article.title,
+        entityTypes: article.entityTypes,
         excerpt: article.excerpt,
         summary: article.summary,
         purpose: null,

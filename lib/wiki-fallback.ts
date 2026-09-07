@@ -1,9 +1,19 @@
+/**
+ * Legal-form buckets the poradnik is split into. An article/category with no
+ * explicit `entityTypes` defaults to `['spolka']` (the wiki grew up sp. z o.o.-first).
+ */
+export type WikiEntityType = 'spolka' | 'jdg' | 'stowarzyszenie' | 'fundacja';
+
+export const ALL_WIKI_ENTITY_TYPES: WikiEntityType[] = ['spolka', 'jdg', 'stowarzyszenie', 'fundacja'];
+
 export type FallbackWikiCategory = {
   id: string;
   slug: string;
   name: string;
   description: string | null;
   sort_order: number;
+  /** Which entity hubs this category surfaces in. Absent → all entities. */
+  entityTypes?: WikiEntityType[];
 };
 
 export type FallbackWikiFaqItem = {
@@ -15,6 +25,13 @@ export type FallbackWikiArticle = {
   id: string;
   slug: string;
   title: string;
+  /** Optional on-page H1 when it should differ from the SEO <title>. */
+  h1?: string | null;
+  /**
+   * Legal forms this article applies to. Absent → `['spolka']`.
+   * Drives the /poradnik/dla-<entity> hub pages and entity-scoped invite emails.
+   */
+  entityTypes?: WikiEntityType[];
   excerpt: string;
   summary: string;
   purpose: string | null;
@@ -34,6 +51,7 @@ export const fallbackWikiCategories: FallbackWikiCategory[] = [
   {
     id: 'fallback-ksef',
     slug: 'ksef',
+    entityTypes: ['spolka', 'jdg', 'stowarzyszenie', 'fundacja'],
     name: 'KSeF',
     description: 'Praktyczne instrukcje do pracy z KSeF i połączenia firmy z systemem.',
     sort_order: 10,
@@ -101,12 +119,37 @@ export const fallbackWikiCategories: FallbackWikiCategory[] = [
     description: 'Praktyczny przewodnik po deklaracjach i formularzach podatkowych dla JDG i spółki z o.o. — JPK, VAT, ZUS, PIT, CIT i inne. Co to jest, kogo dotyczy i kiedy trzeba złożyć.',
     sort_order: 60,
   },
+  // ─── NGO (fundacja / stowarzyszenie) — appended so numeric indices above stay stable ───
+  {
+    id: 'fallback-start-ngo',
+    slug: 'start-ngo',
+    name: 'Start organizacji (fundacja / stowarzyszenie)',
+    description: 'Pierwsze obowiązki fundacji i stowarzyszenia rejestrowego po wpisie do KRS — NIP-8, CRBR, konto organizacji w e-US, e-Doręczenia, nadzór i sprawozdawczość — czego nigdzie nie tłumaczą wprost.',
+    sort_order: 7,
+    entityTypes: ['fundacja', 'stowarzyszenie'],
+  },
+  {
+    id: 'fallback-ngo-sprawozdawczosc',
+    slug: 'ngo-sprawozdawczosc',
+    name: 'Sprawozdawczość i nadzór NGO',
+    description: 'Coroczne sprawozdanie z działalności fundacji do ministra, nadzór starosty nad stowarzyszeniem, sprawozdania finansowe organizacji i rozdzielenie działalności statutowej, odpłatnej i gospodarczej.',
+    sort_order: 63,
+    entityTypes: ['fundacja', 'stowarzyszenie'],
+  },
 ];
+
+/** Index helpers for the NGO categories (appended, so not at a stable small index). */
+const CAT_START_NGO = fallbackWikiCategories.find((c) => c.slug === 'start-ngo')!;
+const CAT_NGO_SPRAWOZDAWCZOSC = fallbackWikiCategories.find((c) => c.slug === 'ngo-sprawozdawczosc')!;
+const CAT_URZAD_SKARBOWY = fallbackWikiCategories.find((c) => c.slug === 'urzad-skarbowy')!;
+const CAT_COMPLIANCE = fallbackWikiCategories.find((c) => c.slug === 'compliance')!;
+const CAT_KSEF = fallbackWikiCategories.find((c) => c.slug === 'ksef')!;
 
 export const fallbackWikiArticles: FallbackWikiArticle[] = [
   {
     id: 'fallback-ksef-token',
     slug: 'jak-zdobyc-token-ksef-i-podlaczyc-firme',
+    entityTypes: ['spolka', 'jdg', 'stowarzyszenie', 'fundacja'],
     title: 'Jak zdobyć token KSeF i podłączyć firmę do KsięgaI',
     excerpt: 'Najprostsza ścieżka: logujesz się do KSeF, tworzysz token, kopiujesz kod i wklejasz go do KsięgaI.',
     summary: 'Instrukcja krok po kroku, jak zdobyć token KSeF i wkleić go do KsięgaI.',
@@ -114,6 +157,8 @@ export const fallbackWikiArticles: FallbackWikiArticle[] = [
     body_markdown: `## Jak wygląda najprostsza ścieżka
 
 Nie szukaj przycisku typu "włącz KSeF" w aplikacji. Najpierw musisz zdobyć token w samym KSeF. Dopiero potem wracasz do KsięgaI i wklejasz kod w oknie połączenia.
+
+**JDG** łączy się z KSeF samodzielnie przez profil zaufany. **Spółka z o.o.** najpierw musi mieć pierwszą osobę z uprawnieniami w KSeF: [Konto Organizacji w e-US](/poradnik/konto-organizacji-e-urzad-skarbowy-spolka) → [ZAW-FA](/poradnik/ksef-spolka-z-oo-kto-moze-nadac-dostep) → pierwsze wejście do KSeF. Token generujesz dopiero potem.
 
 ## Krok po kroku
 
@@ -148,13 +193,14 @@ Nie szukaj przycisku typu "włącz KSeF" w aplikacji. Najpierw musisz zdobyć to
       { label: 'Podręcznik rozpoczęcia korzystania z KSeF', href: 'https://ksef.podatki.gov.pl/media/sthoiadq/podrecznik-ksef-20-cz-i-rozpoczecie-korzystania-z-ksef-25032026.pdf', external: true },
     ],
     related_actions: [
+      { label: 'KSeF dla spółki z o.o. bez pieczęci kwalifikowanej', href: '/poradnik/ksef-spolka-z-oo-kto-moze-nadac-dostep' },
+      { label: 'KSeF dla JDG — jak zacząć', href: '/poradnik/ksef-dla-jdg-jak-zaczac' },
       { label: 'Załóż konto w KsięgaI', href: '/rejestracja' },
-      { label: 'Zobacz cennik', href: '/cennik' },
     ],
     faq: [
       {
         question: 'Skąd wziąć token KSeF?',
-        answer: 'Token tworzysz w samym portalu KSeF po zalogowaniu się jako osoba, która ma dostęp do firmy.',
+        answer: 'Token tworzysz w samym portalu KSeF po zalogowaniu się jako osoba, która ma dostęp do firmy. W spółce z o.o. najpierw trzeba mieć pierwszą osobę z uprawnieniami w KSeF (po ZAW-FA lub uwierzytelnieniu pieczęcią kwalifikowaną).',
       },
       {
         question: 'Czy w KsięgaI trzeba osobno włączać KSeF?',
@@ -168,292 +214,329 @@ Nie szukaj przycisku typu "włącz KSeF" w aplikacji. Najpierw musisz zdobyć to
     article_type: 'guide',
     sort_order: 10,
     published_at: '2026-05-16T00:00:00.000Z',
-    updated_at: '2026-05-16T00:00:00.000Z',
+    updated_at: '2026-09-07T00:00:00.000Z',
     category: fallbackWikiCategories[0],
   },
-  {
-    id: 'fallback-e-us-org',
-    slug: 'konto-organizacji-e-urzad-skarbowy',
-    title: 'Jak uzyskać konto organizacji w e-Urzędzie Skarbowym',
-    excerpt: 'Dostęp do konta organizacji porządkuje działania podatkowe spółki i pomaga przygotować pracę z KSeF.',
-    summary: 'Przewodnik po uzyskaniu dostępu do konta organizacji w e-US.',
-    purpose: 'To praktyczny krok przed działaniem w imieniu spółki w sprawach podatkowych i przygotowaniem ścieżki do KSeF.',
-    body_markdown: `## Po co konto organizacji
-
-Prywatny dostęp do e-Urzędu Skarbowego nie oznacza jeszcze dostępu do konta spółki. Do działań podatkowych firmy potrzebujesz konta organizacji albo formalnie nadanego dostępu.
-
-## Kiedy zrobić ten krok
-
-Zrób to po uzyskaniu KRS i NIP, zanim zaczniesz formalności związane z KSeF, pełnomocnictwami i działaniem w imieniu firmy.
-
-## Co przygotować
-
-- NIP spółki
-- numer KRS
-- dane reprezentanta albo osoby, która ma dostać dostęp
-- profil zaufany albo podpis kwalifikowany
-
-## Praktyczna kolejność
-
-1. Wejdź do e-Urzędu Skarbowego.
-2. Znajdź ścieżkę do uzyskania dostępu do konta organizacji.
-3. Ustal, kto ma być administratorem konta organizacji.
-4. Złóż wniosek i poczekaj na aktywację.
-5. Po aktywacji sprawdź, czy możesz działać z poziomu organizacji, a nie tylko konta prywatnego.`,
-    checklist: [
-      'Upewnij się, że firma ma już NIP i numer KRS.',
-      'Ustal, kto ma być administratorem konta organizacji.',
-      'Złóż wniosek o dostęp do konta organizacji w e-US.',
-      'Po aktywacji sprawdź logowanie i dostęp z poziomu firmy.',
-    ],
-    official_links: [
-      { label: 'e-Urząd Skarbowy', href: 'https://www.podatki.gov.pl/e-urzad-skarbowy/', external: true },
-    ],
-    related_actions: [
-      { label: 'Przeczytaj poradnik o tokenie KSeF', href: '/poradnik/jak-zdobyc-token-ksef-i-podlaczyc-firme' },
-    ],
-    faq: [
-      {
-        question: 'Czy prywatne konto w e-US wystarczy do obsługi spółki?',
-        answer: 'Nie zawsze. Do działań w imieniu spółki potrzebujesz dostępu do konta organizacji albo właściwego umocowania.',
-      },
-      {
-        question: 'Czy konto organizacji jest potrzebne przed KSeF?',
-        answer: 'W praktyce bardzo pomaga, bo porządkuje działania podatkowe i dostęp do formalności wykonywanych w imieniu firmy.',
-      },
-    ],
-    article_type: 'guide',
-    sort_order: 20,
-    published_at: '2026-05-16T00:00:00.000Z',
-    updated_at: '2026-05-16T00:00:00.000Z',
-    category: fallbackWikiCategories[1],
-  },
-
-  // ─── Konto organizacji w e-US — spółka z o.o. ────────────────────────────────
+  // ─── Konto organizacji w e-US — spółka z o.o. (główny filar klastra) ─────────
+  // Uwaga: dawny ogólny artykuł "konto-organizacji-e-urzad-skarbowy" został
+  // scalony z tym filarem (301 w public/_redirects + alias w lib/wiki.ts),
+  // żeby trzy główne artykuły nie konkurowały o to samo zapytanie.
   {
     id: 'fallback-konto-organizacji-spolka',
     slug: 'konto-organizacji-e-urzad-skarbowy-spolka',
-    title: 'Konto organizacji w e-Urzędzie Skarbowym dla spółki z o.o. — krok po kroku',
-    excerpt: 'Bez konta organizacji zarząd działa w e-US jako osoba prywatna, nie w imieniu spółki. To blokuje dostęp do JPK, KSeF i pełnomocnictw podatkowych.',
-    summary: 'Przewodnik dla sp. z o.o.: jak prezes lub członek zarządu uzyskuje konto organizacji w e-US, jak nadać dostęp biuru rachunkowemu i co zrobić gdy spółka nie pojawia się na liście podmiotów.',
-    purpose: 'Właściciele spółek często logują się do e-US prywatnym profilem i nie rozumieją dlaczego nie widzą danych firmy. Ten artykuł prowadzi przez cały proces od pierwszego logowania do pełnego dostępu operacyjnego.',
-    body_markdown: `## Dlaczego konto prywatne nie wystarczy
+    title: 'Konto organizacji w e-Urzędzie Skarbowym dla nowej spółki z o.o. — krok po kroku',
+    h1: 'Nowa spółka nie pojawia się w e-Urzędzie Skarbowym? Jak uzyskać Konto Organizacji',
+    excerpt: 'Członek zarządu nowej spółki z o.o. nie dostaje automatycznie dostępu do jej Konta Organizacji tylko dlatego, że widnieje w KRS. Pierwszego użytkownika trzeba formalnie wyznaczyć wnioskiem w urzędzie skarbowym.',
+    summary: 'Praktyczny przewodnik dla nowej sp. z o.o.: dlaczego spółka nie pojawia się w e-Urzędzie Skarbowym, jak ustanowić pierwszego użytkownika Konta Organizacji wnioskiem w US, dlaczego kolejnych użytkowników dodaje się dopiero online, jak to się ma do NIP-8, UPL-1 i ZAW-FA oraz jaka jest właściwa kolejność kroków do KSeF.',
+    purpose: 'Zarząd nowej spółki loguje się do e-US i nie widzi firmy — a potem dostaje sprzeczne rady. Ten artykuł prowadzi przez sprawdzoną ścieżkę: od wniosku o dostęp do Konta Organizacji, przez NIP-8, aż po ZAW-FA i KSeF. Rozdziela też pojęcia, które w internecie bywają mylone: Konto Organizacji, UPL-1 i uprawnienia w KSeF.',
+    body_markdown: `## W skrócie
 
-Zalogowanie do e-Urzędu Skarbowego profilem zaufanym daje dostęp do **Twojego** konta podatnika — czyli Twojego PIT, Twojej historii deklaracji jako osoby fizycznej. Spółka to osobny podmiot z własnym NIP. Żeby działać w jej imieniu — składać JPK, zarządzać pełnomocnictwami, nadawać dostęp do KSeF — potrzebujesz konta organizacji.
+Nowa spółka z o.o. nie „pojawia się" sama w e-Urzędzie Skarbowym. Zanim ktokolwiek zacznie działać w jej imieniu, spółka musi wyznaczyć **pierwszego użytkownika Konta Organizacji** w odrębnej procedurze dostępu. Poniżej opisujemy sprawdzoną, najmniej zawodną ścieżkę dla świeżo zarejestrowanej spółki — oraz to, czym różni się ona od oficjalnych sposobów opisanych przez Ministerstwo Finansów.
 
-## Kto może uzyskać konto organizacji dla sp. z o.o.
+> **Członek zarządu nowej spółki z o.o. nie otrzymuje automatycznie dostępu do jej Konta Organizacji tylko dlatego, że widnieje w KRS.** Pierwszego użytkownika trzeba formalnie wyznaczyć we wniosku o przyznanie dostępu do Konta Organizacji. Dopiero użytkownik z dostępem rozszerzonym może później dodawać kolejne osoby online.
 
-Konto organizacji może uzyskać wyłącznie osoba wpisana w KRS jako uprawniona do reprezentacji spółki:
+> **Możliwość złożenia UPL-1 lub NIP-8 nie jest dowodem posiadania dostępu do Konta Organizacji.** Konto Organizacji, UPL-1 i uprawnienia w KSeF to trzy odrębne mechanizmy — prawne i techniczne — których nie należy używać zamiennie.
 
-- **Prezes zarządu** lub **członek zarządu** z prawem samodzielnej reprezentacji,
-- **Prokurent** — jeśli zakres prokury obejmuje reprezentację w sprawach podatkowych,
-- **Wspólnik** w spółkach osobowych (nie dotyczy sp. z o.o.).
+## Czy członek zarządu automatycznie widzi nową spółkę w e-US?
 
-Pracownicy, księgowi i biura rachunkowe **nie mogą** samodzielnie uzyskać konta organizacji — mogą dostać do niego dostęp dopiero po jego założeniu przez osobę uprawnioną.
+Nie. Wpis w KRS jako osoba uprawniona do reprezentacji (prezes, członek zarządu) wskazuje, **kto może wystąpić o dostęp** do Konta Organizacji — ale sam z siebie nie czyni tej osoby użytkownikiem konta. Nawet pełnomocnik ogólny spółki, jeśli nie został osobno dodany jako użytkownik Konta Organizacji, nie ma do niego dostępu w e-US.
 
-## Jak krok po kroku uzyskać konto organizacji
+Reprezentacja w KRS i dostęp do Konta Organizacji (UKO) to dwie różne rzeczy. Nie zakładaj, że bycie w zarządzie „załatwia" dostęp do e-US w imieniu spółki.
 
-### 1. Zaloguj się do e-US
+## Dlaczego spółka nie pojawia się po zalogowaniu?
 
-Wejdź na [podatki.gov.pl](https://www.podatki.gov.pl/e-urzad-skarbowy/) i zaloguj się profilem zaufanym, e-dowodem lub podpisem kwalifikowanym.
+Po zalogowaniu profilem zaufanym jesteś w **kontekście osoby prywatnej** — widzisz swój PIT i swoje sprawy. Żeby zobaczyć spółkę, musisz przełączyć się na jej Konto Organizacji. Jeśli po kliknięciu „Zmień kontekst" / „Przełącz podmiot" spółki nie ma na liście, to najczęściej dlatego, że **nikt nie został jeszcze wyznaczony jako użytkownik jej Konta Organizacji** — a nie dlatego, że „NIP się nie zsynchronizował".
 
-### 2. Znajdź opcję przełączenia na podmiot
+Rzadziej brak spółki na liście wynika z realnego błędu danych: błędnie wpisany PESEL reprezentanta w KRS albo stary NIP po przekształceniu. To trzeba poprawić u źródła (w KRS), ale u nowej spółki bez żadnego użytkownika Konta Organizacji pierwszym krokiem i tak jest złożenie wniosku o dostęp.
 
-Po zalogowaniu w prawym górnym rogu (lub w menu) poszukaj opcji **„Przełącz podmiot"** lub **„Działaj jako"**. Powinna pojawić się lista podmiotów powiązanych z Twoim PESEL.
+## Pierwszy użytkownik a kolejni użytkownicy — to dwa różne przypadki
 
-### 3. Spółka nie pojawia się na liście? — dla świeżo zarejestrowanej spółki licz się z wizytą w urzędzie
+To jest sedno problemu, o który rozbija się większość poradników.
 
-To częsty, wręcz standardowy problem po świeżej rejestracji (szczególnie przez S24 lub PRS). Automatyczne powiązanie KRS/NIP z PESEL reprezentanta bywa niedokończone i samo czekanie często nic nie zmienia.
+### Jak ustanowić pierwszego użytkownika Konta Organizacji?
 
-W praktyce pierwsza osoba uprawniona do reprezentacji **musi zwykle stawić się osobiście w placówce właściwego Urzędu Skarbowego** i złożyć tam papierowy wniosek o nadanie sobie dostępu do konta organizacji dla nowo zarejestrowanej spółki. Zabierz ze sobą:
+Dla spółki, która nie ma jeszcze żadnego użytkownika Konta Organizacji, pierwszą osobę wyznacza się formalnie przez **„Wniosek o przyznanie dostępu / odebranie dostępu do Konta Organizacji w e-Urzędzie Skarbowym"**.
 
-- odpis / wypis z KRS,
-- dokument tożsamości,
-- NIP spółki.
+Wniosek:
 
-Inne możliwe powody braku spółki na liście, jeśli wizyta w US nie jest jeszcze potrzebna:
+- składają **osoby uprawnione do reprezentacji spółki** zgodnie z zasadą reprezentacji z KRS (albo pełnomocnik ogólny),
+- wskazuje dane osoby, której nadaje się dostęp, oraz **rodzaj dostępu**: podstawowy albo rozszerzony,
+- kierowany jest do **urzędu skarbowego właściwego w sprawach ewidencji podatników** dla tej spółki.
 
-- **Za wcześnie** — powiązanie bywa zsynchronizowane po kilku dniach od rejestracji, zanim trzeba iść do urzędu.
-- **Błąd w KRS** — jeśli Twój PESEL jest wpisany błędnie w KRS, system nie powiąże Cię ze spółką. Wymaga to sprostowania w KRS.
-- **Kilka NIP** — jeśli spółka zmieniała NIP (np. po przekształceniu), może być zarejestrowana pod starym numerem.
+Pierwszy użytkownik powinien co do zasady dostać **dostęp rozszerzony** — tylko taki użytkownik może później dodawać i odbierać dostęp kolejnym osobom przez e-US (patrz niżej).
 
-### 4. Uaktywnij konto organizacji
+Sprawdzona, najmniej zawodna ścieżka dla świeżo zarejestrowanej spółki, którą stosujemy przy wdrożeniach kolejnych nowych spółek, to **złożenie wypełnionego wniosku osobiście w placówce właściwego urzędu skarbowego**. Załatwiasz sprawę przy okienku, od razu wyjaśniasz ewentualne braki, a przy okazji możesz w tej samej wizycie złożyć NIP-8.
 
-Po wizycie w urzędzie (albo po pojawieniu się spółki na liście automatycznie) system może poprosić o dodatkowe potwierdzenie tożsamości przy wyborze podmiotu. Po przejściu aktywacji masz pełny dostęp do konta organizacji: historia deklaracji, JPK, KSeF, pełnomocnictwa. Dopiero z tego poziomu składasz **ZAW-FA** (start KSeF) i nadajesz sobie dalsze pełnomocnictwa.
+### Dlaczego pierwszego użytkownika nie można po prostu dodać online?
 
-## NIP-8 nie musi czekać na konto organizacji
+Bo to problem „jajka i kury":
 
-Konto organizacji bywa najwolniejszym elementem całej ścieżki. Na złożenie **NIP-8** nie trzeba czekać: możesz nadać sobie **UPL-1** (pełnomocnictwo do podpisywania deklaracji elektronicznych) i złożyć NIP-8 od razu, równolegle do załatwiania konta organizacji. Konto organizacji i ZAW-FA (potrzebne do KSeF) dogrywasz osobno, w swoim tempie.
+- zarządzanie użytkownikami odbywa się **wewnątrz Konta Organizacji** (sekcja „Dane organizacji → Użytkownicy"),
+- wejść tam może tylko ktoś, kto **już ma dostęp rozszerzony**,
+- w nowej spółce nikt takiego dostępu nie ma — więc nie ma z czyjego konta dodać pierwszej osoby.
 
-## Jak nadać dostęp biuru rachunkowemu
+Instrukcje „jak dodać użytkownika online" opisują **kolejnych** użytkowników, a nie ustanowienie pierwszego. Do pierwszego zawsze potrzebny jest wniosek złożony poza kontem organizacji.
 
-Z poziomu konta organizacji możesz zarządzać **pełnomocnictwami podatkowymi**:
+## Oficjalne sposoby złożenia wniosku a ścieżka sprawdzona w praktyce
 
-- **UPL-1** — pełnomocnictwo do podpisywania deklaracji elektronicznych (np. JPK_V7, CIT-8). Biuro rachunkowe składa je samodzielnie lub robisz to Ty w ich imieniu.
-- **UPP-1** — pełnomocnictwo szczególne do konkretnych spraw.
+**Zgodnie z informacją Ministerstwa Finansów** wniosek o dostęp do Konta Organizacji można złożyć również elektronicznie — jako załącznik do pisma ogólnego w e-Urzędzie Skarbowym lub przez ePUAP, podpisany kwalifikowanym podpisem elektronicznym albo profilem zaufanym przez wszystkie osoby reprezentujące spółkę. Jeżeli ta droga jest u Was aktualna i wykonalna (wszyscy reprezentanci mają podpisy i mogą podpisać ten sam plik), można z niej skorzystać.
 
-Po nadaniu UPL-1 biuro rachunkowe będzie widoczne jako pełnomocnik i może działać w imieniu spółki bez Twojej każdorazowej zgody.
+**W praktyce** dla nowej spółki najmniej niejednoznaczna jest wizyta w urzędzie z papierowym wnioskiem: nie zależy od tego, czy w danym momencie działa podpisanie załącznika, i pozwala od ręki wyjaśnić braki. Nie oznacza to, że droga elektroniczna jest „niewłaściwa" — to kwestia niezawodności przy pierwszym uruchomieniu.
 
-## Dostęp do KSeF przez e-US
+Nie zakładaj też, że pierwszego użytkownika da się „wyklikać" z konta organizacyjnego, do którego nikt nie ma jeszcze dostępu — to niemożliwe.
 
-Zarządzanie tokenami KSeF i nadawanie uprawnień do wystawiania faktur w imieniu spółki odbywa się z poziomu portalu KSeF lub przez e-US. Konto organizacji w e-US jest krokiem poprzedzającym — bez niego nie możesz zarządzać uprawnieniami KSeF ani nadać biuru dostępu do faktur.
+## Jakie dokumenty zabrać do Urzędu Skarbowego?
 
-## Zarząd wieloosobowy — kto zakłada, kto ma dostęp
+Przygotuj:
 
-Każdy członek zarządu uprawniony do samodzielnej reprezentacji może mieć własne konto organizacji — nie potrzebują działać wspólnie. Jeśli zarząd wymaga reprezentacji łącznej (dwóch podpisów), do e-US i tak loguje się każda osoba z osobna, ale do składania deklaracji potrzebne może być pełnomocnictwo udzielone jednej z nich.`,
+- **wypełniony wniosek o przyznanie dostępu do Konta Organizacji** (rodzaj dostępu: zwykle rozszerzony dla pierwszej osoby),
+- **NIP i numer KRS spółki** oraz aktualny odpis / wydruk z KRS,
+- **dokument tożsamości** osoby, która ma zostać wyznaczona jako użytkownik,
+- **podpisy zgodne z zasadą reprezentacji spółki** z KRS (jeśli reprezentacja jest łączna — podpisy wszystkich wymaganych osób),
+- **dokument pełnomocnictwa**, jeśli wniosek składa osoba inna niż uprawnieni reprezentanci,
+- **dane potrzebne do NIP-8**, jeśli chcesz złożyć go przy tej samej wizycie (patrz niżej).
+
+Nie dokładaj „na wszelki wypadek" załączników, których formularz nie wymaga — zakres wymaganych dokumentów potwierdź w aktualnej instrukcji na podatki.gov.pl albo w swoim urzędzie.
+
+## Czy podczas tej samej wizyty można złożyć NIP-8?
+
+Tak — i zwykle warto. **NIP-8 to zgłoszenie danych uzupełniających** spółki wpisanej do KRS: rachunki bankowe, adresy miejsc prowadzenia działalności, miejsce przechowywania dokumentacji rachunkowej, dane kontaktowe, dane biura rachunkowego. Tych informacji KRS nie przekazuje do urzędu automatycznie.
+
+Termin: co do zasady **21 dni od wpisu do KRS** dla danych istotnych dla urzędu skarbowego oraz **7 dni** dla danych niezbędnych dla ZUS (gdy spółka jest płatnikiem składek) lub od zmiany danych. Za niezłożenie w terminie grozi grzywna (kodeks karny skarbowy).
+
+Ważne — i często mylone: **NIP-8 nie jest prawnie zależny od Konta Organizacji**, ale to nie znaczy, że da się go złożyć bez żadnego uprawnienia. Papierowo w urzędzie podpisują go osoby uprawnione do reprezentacji zgodnie z KRS. **Złożenie elektroniczne wymaga sposobu podpisu** — podpisu kwalifikowanego, aktywnego UPL-1 albo podpisania z poziomu kontekstu organizacji w e-US. Zwykły członek zarządu nowej spółki, który nie ma podpisu kwalifikowanego, aktywnego UPL-1 ani dostępu do Konta Organizacji, powinien **zanieść wypełniony NIP-8 do urzędu razem z wnioskiem o dostęp do Konta Organizacji dla pierwszego użytkownika** i złożyć oba przy jednej wizycie.
+
+Gdy dostęp do Konta Organizacji już istnieje, NIP-8 składasz wprost z kontekstu organizacji — **nie nadawaj sobie w tym celu UPL-1**. Sam fakt, że w jakiejś spółce udało się złożyć NIP-8 albo UPL-1, nie świadczy o tym, że spółka ma użytkownika Konta Organizacji.
+
+## Konto Organizacji, UPL-1 i KSeF to trzy różne rzeczy
+
+| Mechanizm | Do czego służy | Jak się go uzyskuje |
+|---|---|---|
+| **Dostęp do Konta Organizacji (UKO)** | Działanie w e-US w imieniu spółki: podgląd deklaracji, JPK, pełnomocnictwa, złożenie ZAW-FA | Wniosek o dostęp do Konta Organizacji (pierwszy użytkownik); kolejni — online przez użytkownika z dostępem rozszerzonym |
+| **UPL-1** | Upoważnienie konkretnej osoby do **podpisywania i składania deklaracji** spółki środkami komunikacji elektronicznej (np. JPK_V7, CIT-8) | Formularz UPL-1 do naczelnika US (papierowo lub przez e-US); odwołanie — OPL-1 |
+| **Uprawnienia w KSeF** | Wystawianie i odbieranie faktur ustrukturyzowanych w imieniu spółki oraz nadawanie dalszych uprawnień | Pierwsza osoba: ZAW-FA (albo uwierzytelnienie pieczęcią kwalifikowaną); kolejne — wewnątrz KSeF |
+
+To są trzy osobne uprawnienia. Posiadanie jednego z nich nie oznacza posiadania pozostałych.
+
+## Czy UPL-1 daje dostęp do Konta Organizacji? Czy Konto Organizacji zastępuje UPL-1?
+
+Nie w żadną stronę — to dwa różne uprawnienia.
+
+- **UPL-1 nie daje dostępu do Konta Organizacji.** UPL-1 dotyczy podpisywania deklaracji elektronicznych, a nie logowania się do e-US w kontekście spółki. Fakt, że komuś udało się złożyć UPL-1 dla spółki, nie znaczy, że ta osoba ma dostęp do jej Konta Organizacji.
+- **Konto Organizacji nie zawsze zastępuje UPL-1.** Użytkownik Konta Organizacji może w e-US wykonywać czynności spółki i podpisywać część dokumentów z poziomu tego konta. UPL-1 pozostaje jednak potrzebny, gdy deklaracje ma podpisywać i składać **inna wyznaczona osoba lub biuro rachunkowe** albo gdy wymaga tego dany proces elektronicznego składania deklaracji. Nie „nadawaj sobie UPL-1", żeby po prostu złożyć dokument, który i tak możesz złożyć jako użytkownik Konta Organizacji.
+
+## Praktyczna uwaga: co może wydarzyć się w e-US
+
+To obserwacja z uruchamiania kilku świeżo zarejestrowanych polskich spółek — bez wskazywania konkretnych osób ani firm.
+
+Ten sam członek zarządu, wpisany w KRS w kilku nowych spółkach, może **widzieć różne opcje dla różnych spółek**:
+
+- w jednej spółce interfejs e-US (ścieżka z poziomu konta osoby prywatnej) **nieoczekiwanie pozwolił** złożyć UPL-1 w imieniu spółki; spółka nadała UPL-1 tej samej osobie z zarządu; po aktywacji UPL-1 osoba ta mogła elektronicznie podpisać i złożyć NIP-8 spółki;
+- w innych nowych spółkach, gdzie ta sama osoba również była w zarządzie, e-US **nie zaoferował ani nie pozwolił** wykonać tej samej operacji UPL-1.
+
+Wniosek: to zachowanie interfejsu bywa **niespójne** i nie należy go traktować jako dowodu ogólnej reguły prawnej. Z jednego udanego złożenia UPL-1 nie wynika, że dana osoba miała już dostęp do Konta Organizacji — to osobne uprawnienie. Bezpieczny plan to ustanowić dostęp do Konta Organizacji wprost (wnioskiem) i przygotować NIP-8 na tę samą wizytę w urzędzie, niezależnie od tego, co akurat pokaże interfejs.
+
+## Dlaczego dla jednej spółki można było wysłać UPL-1, a dla innej nie?
+
+Nie ma na to pewnej, ogólnej odpowiedzi. W praktyce zależy to od stanu powiązań danej spółki w systemach e-US w danym momencie i od tego, jaką ścieżkę udostępnia interfejs. Kluczowe jest to, **czego z tego nie wolno wnioskować**: pojedyncze udane (lub nieudane) złożenie UPL-1 nie mówi nic o tym, czy spółka ma użytkownika Konta Organizacji ani czy ma uprawnienia w KSeF. Traktuj to jako wyjątkowo dostępną drogę, a nie standard.
+
+## Jak po uzyskaniu Konta Organizacji złożyć ZAW-FA?
+
+Gdy działasz już z poziomu Konta Organizacji spółki, **ZAW-FA** wyznacza pierwszą osobę fizyczną z uprawnieniami do zarządzania uprawnieniami w KSeF (uprawnienia „właścicielskie"). ZAW-FA można złożyć papierowo (osobiście lub pocztą) albo elektronicznie przez e-Urząd Skarbowy. Po skutecznym ZAW-FA ta osoba loguje się do KSeF, może wystawiać i odbierać faktury oraz nadawać dalsze uprawnienia — w tym token/certyfikat dla aplikacji takiej jak KsięgaI i dostęp dla biura rachunkowego. Szczegóły: [KSeF dla spółki z o.o. bez pieczęci kwalifikowanej](/poradnik/ksef-spolka-z-oo-kto-moze-nadac-dostep).
+
+## Czy spółka z pieczęcią kwalifikowaną potrzebuje ZAW-FA?
+
+Jeśli spółka ma odpowiednią **pieczęć kwalifikowaną** (zawierającą NIP), może uwierzytelnić się w KSeF bez ZAW-FA i wyznaczyć pierwszą osobę fizyczną bezpośrednio w systemie. To alternatywna droga, a nie główny scenariusz dla zwykłej, małej, świeżo zarejestrowanej spółki — te zwykle pieczęci nie mają i idą ścieżką ZAW-FA.
+
+## Jak nadać dostęp kolejnej osobie lub księgowej?
+
+Gdy pierwszy użytkownik z **dostępem rozszerzonym** już działa:
+
+- **kolejnych użytkowników e-US** dodajesz online: w kontekście spółki wejdź w „Dane organizacji → Użytkownicy" i nadaj dostęp (podstawowy lub rozszerzony);
+- **biuro rachunkowe do podpisywania deklaracji** — przez **UPL-1** (biuro składa je samodzielnie albo Ty w e-US), niezależnie od Konta Organizacji;
+- **biuro rachunkowe do obsługi faktur w KSeF** — przez uprawnienia w KSeF nadane po stronie NIP biura, już po ZAW-FA / pierwszym uwierzytelnieniu spółki w KSeF.
+
+## Kolejność kroków dla nowej spółki
+
+1. Rejestracja spółki i nadanie NIP (wpis do KRS).
+2. **Pierwszy użytkownik Konta Organizacji** — wniosek o dostęp (dla nowej spółki: najpewniej osobiście w US).
+3. Praca w **kontekście spółki** w e-US.
+4. **NIP-8** — dane uzupełniające (termin 21 dni od wpisu do KRS; można złożyć przy tej samej wizycie).
+5. **ZAW-FA** — pierwsza osoba z uprawnieniami w KSeF (albo uwierzytelnienie pieczęcią kwalifikowaną).
+6. **Dalsze uprawnienia w KSeF** — dla osób, biura rachunkowego, aplikacji.
+7. **Połączenie z KsięgaI** — token/certyfikat KSeF wklejony w ustawieniach firmy.
+
+## Zastrzeżenie
+
+Stan na 7 września 2026 r. Procedury e-Urzędu Skarbowego i KSeF bywają zmieniane — przed działaniem sprawdź aktualne instrukcje na podatki.gov.pl i ksef.podatki.gov.pl. KsięgaI to oprogramowanie do prowadzenia firmy i fakturowania, a nie doradztwo podatkowe ani prawne; w sprawach wątpliwych skonsultuj się z księgową, doradcą podatkowym lub właściwym urzędem.`,
     checklist: [
-      'Zaloguj się do e-US profilem zaufanym lub e-dowodem.',
-      'Kliknij „Przełącz podmiot" i sprawdź czy spółka jest na liście.',
-      'Jeśli nie ma spółki — licz się z wizytą w placówce US z wypisem z KRS, żeby złożyć papierowy wniosek o dostęp.',
-      'Aktywuj konto organizacji dla spółki (NIP firmy).',
-      'Jeśli potrzebujesz złożyć NIP-8 od razu — nadaj sobie UPL-1 i nie czekaj na konto organizacji.',
-      'Zweryfikuj dostęp do zakładki JPK i historii deklaracji spółki.',
-      'Złóż lub przyjmij UPL-1 dla biura rachunkowego.',
-      'Przejdź do portalu KSeF i skonfiguruj uprawnienia do fakturowania.',
+      'Ustal, kto (zgodnie z reprezentacją z KRS) wystąpi o dostęp i kto ma być pierwszym użytkownikiem Konta Organizacji.',
+      'Wypełnij „Wniosek o przyznanie dostępu do Konta Organizacji w e-Urzędzie Skarbowym" — dla pierwszej osoby zaznacz dostęp rozszerzony.',
+      'Przygotuj odpis z KRS, NIP i KRS spółki, dokument tożsamości osoby wyznaczanej oraz pełnomocnictwo, jeśli wniosek składa ktoś inny niż reprezentanci.',
+      'Zbierz dane do NIP-8: rachunki bankowe, adresy działalności, miejsce przechowywania dokumentacji, dane kontaktowe, dane biura rachunkowego.',
+      'Złóż wniosek o dostęp do Konta Organizacji — dla nowej spółki najpewniej osobiście w placówce właściwego US.',
+      'Przy tej samej wizycie złóż NIP-8 (termin: 21 dni od wpisu do KRS), jeśli nie został jeszcze skutecznie złożony.',
+      'Po aktywacji dostępu przełącz się na kontekst spółki w e-US i sprawdź podgląd deklaracji, JPK i sekcję „Użytkownicy".',
+      'Złóż ZAW-FA, aby wyznaczyć pierwszą osobę z uprawnieniami w KSeF (lub uwierzytelnij spółkę pieczęcią kwalifikowaną).',
+      'Nadaj dalsze uprawnienia: kolejni użytkownicy e-US online, biuro rachunkowe przez UPL-1, obsługa faktur przez uprawnienia w KSeF.',
+      'Wygeneruj token/certyfikat KSeF i połącz spółkę z KsięgaI.',
     ],
     official_links: [
       { label: 'e-Urząd Skarbowy', href: 'https://www.podatki.gov.pl/e-urzad-skarbowy/', external: true },
-      { label: 'Pełnomocnictwa podatkowe (UPL-1)', href: 'https://www.podatki.gov.pl/e-urzad-skarbowy/twoje-sprawy/pelnomocnictwa/', external: true },
+      { label: 'Konto Organizacji — zasady (podatki.gov.pl)', href: 'https://www.podatki.gov.pl/e-urzad-skarbowy/konto-organizacji', external: true },
+      { label: 'Wniosek o przyznanie/odebranie dostępu do Konta Organizacji (PDF)', href: 'https://www.podatki.gov.pl/media/ckdf0mxs/wniosek-o-przyznanie-dost%C4%99pu_odebranie-dost%C4%99pu-do-konta-organizacji-w-e-urzedzie-skarbowym-2.pdf', external: true },
+      { label: 'Jak dodać lub odebrać użytkownikowi dostęp do Konta Organizacji', href: 'https://www.podatki.gov.pl/e-urzad-skarbowy/pytania-i-odpowiedzi/konto-organizacji/8-jak-zlozyc-wniosek-o-przyznanie-lub-odebranie-uzytkownikowi-dostepu-do-konta-organizacji', external: true },
+      { label: 'ZAW-FA — formularz (PDF)', href: 'https://ksef.podatki.gov.pl/media/em1k4cmk/zaw-fa.pdf', external: true },
+      { label: 'Biznes.gov.pl — zgłoszenie NIP-8', href: 'https://www.biznes.gov.pl/pl/portal/ou1478', external: true },
+      { label: 'UPL-1 — pełnomocnictwo do podpisywania deklaracji elektronicznych', href: 'https://www.gov.pl/web/gov/wyznacz-pelnomocnika-do-podpisywania-elektronicznej-deklaracji-podatkowej', external: true },
     ],
     related_actions: [
-      { label: 'Konto organizacji — podstawy', href: '/poradnik/konto-organizacji-e-urzad-skarbowy' },
-      { label: 'Jak zdobyć token KSeF', href: '/poradnik/jak-zdobyc-token-ksef-i-podlaczyc-firme' },
-      { label: 'NIP-8 — kiedy i co zgłosić', href: '/poradnik/nip-8-spolka-zoo' },
+      { label: 'KSeF dla spółki z o.o. bez pieczęci kwalifikowanej', href: '/poradnik/ksef-spolka-z-oo-kto-moze-nadac-dostep' },
+      { label: 'NIP-8 po rejestracji spółki z o.o.', href: '/poradnik/nip-8-spolka-zoo' },
+      { label: 'Pierwsze obowiązki po założeniu spółki z o.o.', href: '/poradnik/pierwsze-obowiazki-po-zalozeniu-spolki-zoo' },
+      { label: 'e-Urząd Skarbowy — konto prywatne a konto organizacji', href: '/poradnik/e-urzad' },
     ],
     faq: [
       {
-        question: 'Ile czasu czekać na pojawienie się spółki na liście podmiotów?',
-        answer: 'Dla świeżo zarejestrowanej spółki zwykle nie warto tylko czekać — najczęściej trzeba stawić się osobiście w placówce właściwego US z wypisem z KRS i złożyć papierowy wniosek o dostęp do konta organizacji.',
+        question: 'Czy członek zarządu automatycznie widzi nową spółkę w e-Urzędzie Skarbowym?',
+        answer: 'Nie. Wpis w KRS wskazuje, kto może wystąpić o dostęp do Konta Organizacji, ale nie czyni tej osoby użytkownikiem konta. Nawet pełnomocnik ogólny bez osobnego dodania jako użytkownik nie ma dostępu do Konta Organizacji.',
       },
       {
-        question: 'Czy muszę mieć konto organizacji, żeby złożyć NIP-8?',
-        answer: 'Nie. NIP-8 można złożyć od razu po nadaniu sobie UPL-1, bez czekania na aktywację konta organizacji. Konto organizacji i ZAW-FA do KSeF można załatwić osobno, później.',
+        question: 'Jak ustanowić pierwszego użytkownika Konta Organizacji nowej spółki?',
+        answer: 'Przez „Wniosek o przyznanie dostępu do Konta Organizacji w e-Urzędzie Skarbowym", podpisany zgodnie z reprezentacją spółki z KRS i złożony w urzędzie skarbowym właściwym w sprawach ewidencji. Dla nowej spółki najpewniejszą drogą jest złożenie wniosku osobiście w placówce US. Oficjalnie dopuszczalna jest też droga elektroniczna (pismo ogólne w e-US lub ePUAP z podpisem kwalifikowanym albo profilem zaufanym).',
       },
       {
-        question: 'Czy każdy członek zarządu musi zakładać konto organizacji osobno?',
-        answer: 'Tak, każda osoba loguje się własnym profilem zaufanym. Ale konto organizacji jest jedno — każdy uprawniony tylko je „włącza" dla siebie.',
+        question: 'Dlaczego pierwszego użytkownika nie można dodać online?',
+        answer: 'Dodawanie użytkowników działa tylko wewnątrz Konta Organizacji i tylko dla osoby z dostępem rozszerzonym. W nowej spółce nikt takiego dostępu nie ma, więc nie ma z czyjego konta dodać pierwszej osoby. Instrukcje „dodaj użytkownika online" opisują kolejnych, a nie pierwszego użytkownika.',
       },
       {
-        question: 'Czy biuro rachunkowe może samodzielnie uzyskać konto organizacji?',
-        answer: 'Nie. Konto organizacji może uzyskać tylko osoba wpisana w KRS jako uprawniona do reprezentacji. Biuro dostaje dostęp przez UPL-1 nadany przez zarząd.',
+        question: 'Czy złożenie NIP-8 wymaga dostępu do Konta Organizacji?',
+        answer: 'NIP-8 nie jest prawnie zależny od Konta Organizacji, ale złożenie elektroniczne i tak wymaga sposobu podpisu (podpis kwalifikowany, aktywny UPL-1 albo podpisanie z kontekstu organizacji w e-US). Członek zarządu nowej spółki bez żadnego z tych narzędzi powinien złożyć NIP-8 papierowo w urzędzie — najlepiej razem z wnioskiem o dostęp do Konta Organizacji dla pierwszego użytkownika. Termin to co do zasady 21 dni od wpisu do KRS (7 dni dla danych potrzebnych ZUS lub od zmiany danych).',
       },
       {
-        question: 'Czy konto organizacji w e-US daje automatycznie dostęp do KSeF?',
-        answer: 'Nie automatycznie. KSeF to osobny system. Konto organizacji w e-US jest warunkiem wstępnym, ale dostęp do KSeF konfiguruje się oddzielnie w portalu KSeF lub przez e-US.',
+        question: 'Czy UPL-1 daje dostęp do Konta Organizacji?',
+        answer: 'Nie. UPL-1 to pełnomocnictwo do podpisywania i składania deklaracji elektronicznych, a nie dostęp do e-US w kontekście spółki. Możliwość złożenia UPL-1 nie oznacza, że dana osoba ma dostęp do Konta Organizacji.',
       },
       {
-        question: 'Czy wspólnik bez roli w zarządzie może uzyskać konto organizacji?',
-        answer: 'Nie, jeśli nie jest wpisany w KRS jako uprawniony do reprezentacji. Bycie wspólnikiem (udziałowcem) nie daje automatycznie prawa do działania w imieniu spółki w e-US.',
+        question: 'Dlaczego dla jednej spółki dało się złożyć UPL-1 online, a dla innej nie?',
+        answer: 'To niespójne zachowanie interfejsu e-US, zależne od stanu powiązań danej spółki i udostępnionej ścieżki. Nie jest to reguła prawna. Nie należy z tego wnioskować, że spółka ma użytkownika Konta Organizacji ani uprawnienia w KSeF.',
+      },
+      {
+        question: 'Czy spółka z pieczęcią kwalifikowaną musi składać ZAW-FA?',
+        answer: 'Nie, jeśli pieczęć zawiera NIP — wtedy spółka uwierzytelnia się w KSeF bezpośrednio i wyznacza pierwszą osobę fizyczną w systemie. Zwykłe nowe małe spółki najczęściej pieczęci nie mają i idą ścieżką ZAW-FA.',
+      },
+      {
+        question: 'Jak nadać dostęp kolejnej osobie lub księgowej?',
+        answer: 'Kolejnych użytkowników e-US dodaje online użytkownik z dostępem rozszerzonym w „Dane organizacji → Użytkownicy". Biuro rachunkowe do podpisywania deklaracji dostaje UPL-1. Obsługę faktur w KSeF nadaje się osobno w KSeF, po ZAW-FA lub pierwszym uwierzytelnieniu spółki.',
       },
     ],
     article_type: 'guide',
     sort_order: 25,
     published_at: '2026-05-24T00:00:00.000Z',
-    updated_at: '2026-05-24T00:00:00.000Z',
+    updated_at: '2026-09-07T00:00:00.000Z',
     category: fallbackWikiCategories[1],
   },
 
   {
     id: 'fallback-nip8-spolka',
     slug: 'nip-8-spolka-zoo',
-    title: 'NIP-8 po rejestracji spółki z o.o. — kiedy złożyć i co zgłosić',
-    excerpt: 'Po wpisie spółki do KRS nie wszystko trafia automatycznie do urzędu skarbowego. NIP-8 uzupełnia dane, których brakuje po samej rejestracji.',
-    summary: 'Praktyczny przewodnik: kiedy spółka z o.o. składa NIP-8, jakie dane trzeba tam wpisać i czego nie odkładać po rejestracji.',
-    purpose: 'Właściciele spółek często zakładają, że po KRS i nadaniu NIP nic więcej nie trzeba robić. NIP-8 porządkuje dane uzupełniające potrzebne urzędowi skarbowemu i ZUS.',
+    title: 'NIP-8 po rejestracji spółki z o.o. — termin, dane uzupełniające i jak złożyć',
+    excerpt: 'Wpis do KRS i nadanie NIP nie przekazują urzędowi wszystkiego. NIP-8 uzupełnia dane spółki — masz na to co do zasady 21 dni od wpisu do KRS. NIP-8 nie jest prawnie zależny od Konta Organizacji, ale złożenie elektroniczne wymaga sposobu podpisu.',
+    summary: 'Kiedy spółka z o.o. składa NIP-8 (termin 21 dni od wpisu do KRS, 7 dni dla danych ZUS), jakie dane uzupełniające trzeba podać, jak i gdzie go złożyć oraz jak to się ma do Konta Organizacji i UPL-1 (osobne mechanizmy, ale do złożenia elektronicznego i tak potrzebny jest podpis).',
+    purpose: 'Właściciele spółek zakładają, że po KRS i nadaniu NIP nic więcej nie trzeba robić — a NIP-8 ma termin i sankcję. Ten artykuł porządkuje, co i kiedy zgłosić oraz rozdziela NIP-8 od Konta Organizacji i UPL-1.',
     body_markdown: `## Co to jest NIP-8
 
-NIP-8 to zgłoszenie uzupełniające danych podmiotu wpisanego do KRS. Sam wpis do KRS i nadanie NIP nie przekazują wszystkich informacji potrzebnych urzędowi skarbowemu i ZUS.
+NIP-8 to **zgłoszenie danych uzupełniających** podmiotu wpisanego do KRS. Wpis do KRS i automatyczne nadanie NIP oraz REGON to za mało, żeby urząd skarbowy, GUS i ZUS miały komplet informacji o spółce. NIP-8 dopina dane operacyjne, których KRS nie przekazuje.
 
-W praktyce NIP-8 służy do dopięcia danych operacyjnych spółki po rejestracji.
+## Kiedy złożyć NIP-8 — termin
 
-## Gdzie złożyć NIP-8
+Termin liczy się od dnia wpisu spółki do KRS:
 
-NIP-8 składa się elektronicznie w **e-Urzędzie Skarbowym** (podatki.gov.pl). Do wysyłki potrzebne jest konto organizacji spółki w e-US — jeśli go jeszcze nie masz, załóż je najpierw.
+- **21 dni** — na dane istotne dla urzędu skarbowego i statystyki publicznej,
+- **7 dni** — na dane niezbędne dla ZUS, gdy spółka jest płatnikiem składek, oraz na zgłoszenie zmiany danych, gdy zmiana nastąpi później.
 
-## Kiedy złożyć NIP-8
+Za niezłożenie zgłoszenia identyfikacyjnego lub aktualizacyjnego w terminie grozi grzywna na podstawie Kodeksu karnego skarbowego. Nie odkładaj NIP-8 „na później".
 
-Dla spółki z o.o. NIP-8 składa się **po wpisie do KRS**, gdy spółka ma już numer KRS i NIP, ale trzeba uzupełnić brakujące informacje.
+## Jakie dane trafiają do NIP-8
 
-Nie czekaj z tym „na później”, jeśli:
+Dane uzupełniające, których nie ma w KRS, m.in.:
 
-- otworzyłeś rachunek bankowy spółki,
-- masz miejsce prowadzenia działalności inne niż sam adres siedziby,
-- chcesz uporządkować dane kontaktowe i adresowe,
-- potrzebujesz, żeby urząd miał aktualne dane do dalszych formalności.
+- numery **rachunków bankowych** spółki (firmowych),
+- **adresy miejsc prowadzenia działalności** inne niż sama siedziba,
+- **miejsce przechowywania dokumentacji rachunkowej**,
+- **dane kontaktowe** (telefon, e-mail),
+- dane **biura rachunkowego** lub jednostki prowadzącej księgowość,
+- ewentualny szczególny status podatkowy.
 
-## Jakie dane zwykle trafiają do NIP-8
+## Gdzie i jak złożyć NIP-8
 
-Najczęściej w NIP-8 uzupełnia się:
+NIP-8 kierujesz do **naczelnika urzędu skarbowego właściwego ze względu na siedzibę spółki**. Możesz go złożyć:
 
-- numery rachunków bankowych spółki,
-- miejsce przechowywania dokumentacji rachunkowej,
-- dane kontaktowe,
-- adresy związane z działalnością,
-- dane o prowadzącej księgowość jednostce lub biurze rachunkowym,
-- inne dane uzupełniające, których nie obejmuje sam wpis do KRS.
+- **papierowo** w urzędzie (osobiście) — formularz podpisują osoby uprawnione do reprezentacji spółki zgodnie z KRS,
+- **elektronicznie** przez e-Urząd Skarbowy — wtedy potrzebny jest sposób podpisu: podpis kwalifikowany, aktywne UPL-1 albo podpisanie z poziomu kontekstu organizacji w e-US.
 
-## Czego nie zakładać
+**NIP-8 nie jest prawnie zależny od Konta Organizacji — ale to nie jest cała instrukcja.** Zwykły członek zarządu świeżo zarejestrowanej spółki, który nie ma podpisu kwalifikowanego, aktywnego UPL-1 ani dostępu do Konta Organizacji, nie złoży NIP-8 elektronicznie. W tej sytuacji **zanieś wypełniony NIP-8 do urzędu razem z wnioskiem o dostęp do Konta Organizacji dla pierwszego użytkownika** i złóż oba przy jednej wizycie.
 
-- Sam KRS nie załatwia wszystkiego.
-- Samo nadanie NIP nie oznacza, że urząd zna konto bankowe spółki.
-- Zmiany organizacyjne po rejestracji też mogą wymagać aktualizacji danych.
+Gdy dostęp do Konta Organizacji już istnieje, NIP-8 składasz wprost z kontekstu organizacji — **nie nadawaj sobie w tym celu UPL-1**.
+
+## NIP-8, Konto Organizacji i UPL-1 — nie myl tych pojęć
+
+- **NIP-8** to zgłoszenie danych spółki. Nie daje żadnego dostępu ani uprawnień.
+- **Dostęp do Konta Organizacji** to możliwość działania w e-US w imieniu spółki. Pierwszego użytkownika wyznacza się osobnym wnioskiem — [opisujemy to w przewodniku o Koncie Organizacji dla nowej spółki](/poradnik/konto-organizacji-e-urzad-skarbowy-spolka).
+- **UPL-1** to pełnomocnictwo do podpisywania deklaracji elektronicznych. Fakt, że komuś udało się złożyć UPL-1 albo NIP-8 dla spółki, **nie dowodzi**, że ta osoba ma dostęp do Konta Organizacji.
+
+W praktyce zdarza się, że interfejs e-US dla jednej nowej spółki pozwoli tej samej osobie z zarządu złożyć UPL-1, a dla innej nie. To niespójne zachowanie systemu, a nie reguła — nie planuj wokół niego procesu. Bezpiecznie: dane do NIP-8 przygotuj na wizytę w urzędzie.
 
 ## Praktyczna kolejność po założeniu spółki
 
-1. Poczekaj aż spółka pojawi się poprawnie po wpisie do KRS i ma nadany NIP.
-2. Zbierz dane do uzupełnienia: konto bankowe, adresy, dane księgowości.
-3. Złóż NIP-8 bez odkładania tego na moment „jak będzie czas”.
-4. Sprawdź, czy późniejsze formalności używają już aktualnych danych spółki.
-
-## Gdzie NIP-8 styka się z innymi obowiązkami
-
-NIP-8 często pojawia się obok innych kroków po rejestracji spółki:
-
-- konto organizacji w e-Urzędzie Skarbowym,
-- dane do e-Doręczeń,
-- przygotowanie formalności pod KSeF,
-- porządkowanie relacji z biurem rachunkowym.
-
-Jeżeli dane kontaktowe, adresowe albo rachunkowe są nieaktualne, kolejne kroki robią się bardziej chaotyczne.`,
+1. Sprawdź, że spółka ma wpis do KRS i nadany NIP.
+2. Zbierz dane uzupełniające: rachunki bankowe, adresy, miejsce przechowywania dokumentacji, dane kontaktowe, dane biura rachunkowego.
+3. Ustal, czym podpiszesz NIP-8: podpis kwalifikowany lub aktywne UPL-1 → możesz elektronicznie; brak jednego i drugiego oraz brak dostępu do Konta Organizacji → złóż papierowo w urzędzie.
+4. Nową spółką bez tych narzędzi: zanieś NIP-8 do urzędu razem z wnioskiem o dostęp do Konta Organizacji dla pierwszego użytkownika i złóż oba przy jednej wizycie (termin NIP-8: 21 dni od wpisu do KRS).
+5. Gdy masz już dostęp do Konta Organizacji: złóż NIP-8 wprost z kontekstu organizacji — nie nadawaj sobie w tym celu UPL-1.
+6. Aktualizuj NIP-8 przy każdej zmianie danych (np. nowy rachunek, zmiana biura) — w terminie 7 dni od zmiany.`,
     checklist: [
-      'Upewnij się, że spółka ma już wpis do KRS i nadany NIP.',
-      'Załóż konto organizacji w e-Urzędzie Skarbowym, jeśli jeszcze go nie masz.',
-      'Przygotuj numery rachunków bankowych spółki.',
-      'Spisz aktualne adresy i dane kontaktowe spółki.',
-      'Ustal, jakie dane o księgowości i przechowywaniu dokumentów trzeba uzupełnić.',
-      'Złóż NIP-8 zaraz po zebraniu danych, zamiast odkładać go na później.',
+      'Sprawdź, że spółka ma wpis do KRS i nadany NIP.',
+      'Ustal termin: 21 dni od wpisu do KRS (7 dni dla danych potrzebnych ZUS lub od zmiany danych).',
+      'Zbierz numery firmowych rachunków bankowych spółki oraz pozostałe dane uzupełniające.',
+      'Spisz adresy miejsc prowadzenia działalności i miejsce przechowywania dokumentacji rachunkowej.',
+      'Przygotuj dane kontaktowe spółki i dane biura rachunkowego.',
+      'Ustal sposób podpisu: podpis kwalifikowany / aktywne UPL-1 → elektronicznie; bez nich i bez dostępu do Konta Organizacji → papierowo w urzędzie.',
+      'Nową spółką bez podpisu kwalifikowanego i UPL-1: złóż NIP-8 papierowo razem z wnioskiem o dostęp do Konta Organizacji dla pierwszego użytkownika, przy jednej wizycie.',
+      'Gdy masz już dostęp do Konta Organizacji: złóż NIP-8 z kontekstu organizacji, bez nadawania sobie UPL-1.',
+      'Ustaw przypomnienie o aktualizacji NIP-8 przy każdej zmianie danych (7 dni).',
     ],
     official_links: [
-      { label: 'Biznes.gov.pl — NIP-8', href: 'https://www.biznes.gov.pl/pl/portal/ou66', external: true },
-      { label: 'Formularze podatkowe', href: 'https://www.podatki.gov.pl/formularze-podatkowe/', external: true },
+      { label: 'Biznes.gov.pl — zgłoszenie NIP-8', href: 'https://www.biznes.gov.pl/pl/portal/ou1478', external: true },
+      { label: 'Formularze podatkowe (NIP-8)', href: 'https://www.podatki.gov.pl/formularze-podatkowe/', external: true },
     ],
     related_actions: [
-      { label: 'Konto organizacji w e-US dla spółki', href: '/poradnik/konto-organizacji-e-urzad-skarbowy-spolka' },
-      { label: 'e-Doręczenia dla spółki z o.o.', href: '/poradnik/e-doreczenia-spolka-zoo' },
-      { label: 'KSeF w spółce z o.o. — kto nadaje dostęp', href: '/poradnik/ksef-spolka-z-oo-kto-moze-nadac-dostep' },
+      { label: 'Konto Organizacji w e-US dla nowej spółki z o.o.', href: '/poradnik/konto-organizacji-e-urzad-skarbowy-spolka' },
+      { label: 'e-Doręczenia dla spółki z o.o.', href: '/poradnik/e-doreczenia-spolka' },
+      { label: 'Pierwsze obowiązki po założeniu spółki z o.o.', href: '/poradnik/pierwsze-obowiazki-po-zalozeniu-spolki-zoo' },
     ],
     faq: [
       {
-        question: 'Czy NIP-8 składa się przed wpisem do KRS?',
-        answer: 'Nie. To zgłoszenie uzupełniające dla podmiotu już wpisanego do KRS, po uzyskaniu numeru NIP.',
+        question: 'Ile czasu na złożenie NIP-8 po rejestracji spółki?',
+        answer: 'Co do zasady 21 dni od dnia wpisu do KRS na dane istotne dla urzędu skarbowego, a 7 dni na dane niezbędne dla ZUS (gdy spółka jest płatnikiem składek) oraz na późniejsze zmiany danych. Za spóźnienie grozi grzywna.',
       },
       {
-        question: 'Gdzie złożyć NIP-8?',
-        answer: 'Elektronicznie przez e-Urząd Skarbowy (podatki.gov.pl), z konta organizacji spółki.',
+        question: 'Czy do złożenia NIP-8 potrzebuję dostępu do Konta Organizacji?',
+        answer: 'NIP-8 nie jest prawnie zależny od Konta Organizacji, ale to nie cała instrukcja: złożenie elektroniczne wymaga sposobu podpisu (podpis kwalifikowany, aktywne UPL-1 albo podpisanie z kontekstu organizacji w e-US). Zwykły członek zarządu nowej spółki bez żadnego z tych narzędzi powinien złożyć NIP-8 papierowo w urzędzie — najlepiej razem z wnioskiem o dostęp do Konta Organizacji dla pierwszego użytkownika, przy jednej wizycie.',
       },
       {
-        question: 'Czy rachunek bankowy spółki zgłasza się właśnie przez NIP-8?',
-        answer: 'W praktyce to jeden z głównych powodów składania NIP-8 po rejestracji spółki.',
+        question: 'Czy możliwość złożenia UPL-1 lub NIP-8 oznacza, że mam dostęp do Konta Organizacji?',
+        answer: 'Nie. To trzy odrębne mechanizmy. Złożenie UPL-1 albo NIP-8 nie jest dowodem posiadania dostępu do Konta Organizacji.',
       },
       {
-        question: 'Czy jeśli nic się nie zmieniło, można odpuścić NIP-8?',
-        answer: 'Nie warto tego zakładać bez sprawdzenia. NIP-8 służy właśnie do uzupełnienia danych, których urząd nie dostaje z samego wpisu do KRS.',
+        question: 'Jakie dane najczęściej zgłasza się przez NIP-8?',
+        answer: 'Numery firmowych rachunków bankowych, adresy miejsc prowadzenia działalności, miejsce przechowywania dokumentacji rachunkowej, dane kontaktowe i dane biura rachunkowego — czyli to, czego KRS nie przekazuje urzędowi.',
       },
     ],
     article_type: 'guide',
     sort_order: 18,
     published_at: '2026-05-25T00:00:00.000Z',
-    updated_at: '2026-05-25T00:00:00.000Z',
+    updated_at: '2026-09-07T00:00:00.000Z',
     category: fallbackWikiCategories[3],
   },
 
@@ -707,11 +790,16 @@ Aktywuj skrzynkę, wyznacz konkretną osobę z numerem telefonu jako odbiorcę i
   {
     id: 'fallback-ksef-dostep-ksiegowej',
     slug: 'jak-nadac-dostep-ksef-dla-ksiegowej',
+    entityTypes: ['spolka', 'jdg', 'stowarzyszenie', 'fundacja'],
     title: 'Jak nadać biuru rachunkowemu dostęp do KSeF',
     excerpt: 'Biuro rachunkowe może dostać dostęp do Twojego KSeF przez swój NIP — bez udostępniania tokena ani loginu.',
     summary: 'Instrukcja nadania dostępu do KSeF dla biura rachunkowego lub księgowej przez mechanizm NIP — inny niż token używany przez aplikacje.',
     purpose: 'Dwa najczęstsze pytania po połączeniu z KSeF to: jak dać dostęp biuru rachunkowemu i dlaczego to jest inaczej niż token. Ten poradnik wyjaśnia różnicę i prowadzi przez kroki.',
-    body_markdown: `## Dwa sposoby dostępu do KSeF
+    body_markdown: `## Zanim nadasz dostęp — spółka musi być już w KSeF
+
+Ten poradnik zakłada, że Twoja firma ma już pierwszą osobę z uprawnieniami w KSeF. W **spółce z o.o.** oznacza to wcześniejszą ścieżkę: pierwszy użytkownik [Konta Organizacji w e-US](/poradnik/konto-organizacji-e-urzad-skarbowy-spolka) → [ZAW-FA](/poradnik/ksef-spolka-z-oo-kto-moze-nadac-dostep) (albo uwierzytelnienie pieczęcią kwalifikowaną z NIP) → pierwsze wejście do KSeF. Dopiero wtedy jest z czego nadawać dostęp biuru. Dostęp biura do e-US w sprawach deklaracji to osobna rzecz — pełnomocnictwo **UPL-1**, nie KSeF.
+
+## Dwa sposoby dostępu do KSeF
 
 W KSeF istnieją dwa osobne mechanizmy dostępu:
 
@@ -776,9 +864,18 @@ Warto potwierdzić z księgową lub biurem, jakiego zakresu uprawnień realnie p
     related_actions: [
       { label: 'Jak zdobyć token KSeF (dla aplikacji)', href: '/poradnik/jak-zdobyc-token-ksef-i-podlaczyc-firme' },
       { label: 'KSeF dla JDG — jak zacząć', href: '/poradnik/ksef-dla-jdg-jak-zaczac' },
-      { label: 'KSeF dla spółki z o.o.', href: '/poradnik/ksef-spolka-z-oo-kto-moze-nadac-dostep' },
+      { label: 'KSeF dla spółki z o.o. bez pieczęci kwalifikowanej', href: '/poradnik/ksef-spolka-z-oo-kto-moze-nadac-dostep' },
+      { label: 'Konto Organizacji w e-US dla nowej spółki z o.o.', href: '/poradnik/konto-organizacji-e-urzad-skarbowy-spolka' },
     ],
     faq: [
+      {
+        question: 'Czy w nowej spółce mogę od razu nadać biuru dostęp do KSeF?',
+        answer: 'Nie. Najpierw spółka musi mieć pierwszą osobę z uprawnieniami w KSeF: Konto Organizacji w e-US → ZAW-FA (albo pieczęć kwalifikowana z NIP) → pierwsze wejście do KSeF. Dopiero wtedy jest z czego nadawać dostęp biuru.',
+      },
+      {
+        question: 'Czy dostęp biura do KSeF to to samo co UPL-1?',
+        answer: 'Nie. UPL-1 upoważnia biuro do podpisywania i składania deklaracji w e-US. Dostęp do faktur w KSeF to osobne uprawnienie nadawane w KSeF po stronie NIP biura.',
+      },
       {
         question: 'Czy muszę podać biuru rachunkowemu mój token KSeF?',
         answer: 'Nie. Token służy aplikacjom jak KsięgaI. Biuro dostaje dostęp przez inny mechanizm — wpisujesz NIP biura w ustawieniach KSeF i nadajesz uprawnienia.',
@@ -799,7 +896,7 @@ Warto potwierdzić z księgową lub biurem, jakiego zakresu uprawnień realnie p
     article_type: 'guide',
     sort_order: 20,
     published_at: '2026-05-18T00:00:00.000Z',
-    updated_at: '2026-05-18T00:00:00.000Z',
+    updated_at: '2026-09-07T00:00:00.000Z',
     category: fallbackWikiCategories[0],
   },
 
@@ -807,6 +904,7 @@ Warto potwierdzić z księgową lub biurem, jakiego zakresu uprawnień realnie p
   {
     id: 'fallback-ksef-jdg',
     slug: 'ksef-dla-jdg-jak-zaczac',
+    entityTypes: ['jdg'],
     title: 'KSeF dla JDG — jak zacząć i co przygotować',
     excerpt: 'Jako właściciel JDG możesz połączyć się z KSeF samodzielnie przez profil zaufany. Nie potrzebujesz kwalifikowanego podpisu.',
     summary: 'Przewodnik po KSeF dla jednoosobowej działalności gospodarczej — co przygotować, jak uzyskać token i jak połączyć firmę z KsięgaI.',
@@ -900,131 +998,122 @@ Jeżeli masz biuro rachunkowe lub księgową — oni potrzebują dostępu przez 
   {
     id: 'fallback-ksef-spolka',
     slug: 'ksef-spolka-z-oo-kto-moze-nadac-dostep',
-    title: 'KSeF dla spółki z o.o. — kto może nadać dostęp i jak to zrobić',
-    excerpt: 'W spółce z o.o. samo bycie w KRS nie wystarcza do wejścia do KSeF. Najpierw potrzebne jest konto organizacji w e-US, potem ZAW-FA, a dopiero potem pierwsze logowanie do KSeF.',
-    summary: 'Przewodnik po KSeF dla spółki z o.o.: najpierw konto organizacji w e-Urzędzie Skarbowym, potem ZAW-FA, a dopiero później logowanie do KSeF, token i nadawanie dalszych dostępów.',
-    purpose: 'W spółce z o.o. punkt startowy do KSeF jest dwuetapowy. Sama reprezentacja w KRS nie daje jeszcze wejścia do portalu KSeF — najpierw trzeba działać przez konto organizacji i formalnie uzyskać uprawnienie.',
-    body_markdown: `## Najważniejsze: bez ZAW-FA nie zalogujesz spółki do KSeF
+    title: 'KSeF dla spółki z o.o. bez pieczęci kwalifikowanej — Konto Organizacji i ZAW-FA',
+    h1: 'KSeF dla nowej spółki z o.o. — od Konta Organizacji przez ZAW-FA do połączenia z aplikacją',
+    excerpt: 'Nowa spółka z o.o. bez pieczęci kwalifikowanej wchodzi do KSeF w ustalonej kolejności: najpierw pierwszy użytkownik Konta Organizacji w e-US, potem ZAW-FA, potem dalsze uprawnienia w KSeF i token dla aplikacji.',
+    summary: 'Jak spółka z o.o. bez kwalifikowanej pieczęci autoryzuje się w KSeF: rola Konta Organizacji w e-US, złożenie ZAW-FA dla pierwszej osoby, dalsze uprawnienia w KSeF, certyfikat/token dla aplikacji i dostęp dla biura rachunkowego — z rozdzieleniem tych pojęć. Alternatywa z pieczęcią kwalifikowaną opisana osobno.',
+    purpose: 'Ten artykuł zaczyna się tam, gdzie kończy się problem „spółka nie widzi się w e-US". Zakłada, że pierwszy użytkownik Konta Organizacji jest już wyznaczony, i prowadzi przez autoryzację w KSeF, nie powielając całego przewodnika o Koncie Organizacji.',
+    body_markdown: `## Ten artykuł zaczyna się po rozwiązaniu problemu z e-US
 
-W spółce z o.o. pierwszy krok nie dzieje się w portalu KSeF. Najpierw osoba uprawniona do reprezentacji spółki musi uzyskać dostęp do **konta organizacji** w e-Urzędzie Skarbowym.
+Autoryzacja spółki w KSeF ma sens dopiero wtedy, gdy spółka może działać w e-Urzędzie Skarbowym we własnym kontekście. Jeśli nowa spółka nie pojawia się w e-US, najpierw wyznacz **pierwszego użytkownika Konta Organizacji** — opisujemy to krok po kroku w osobnym przewodniku: [Konto Organizacji w e-US dla nowej spółki z o.o.](/poradnik/konto-organizacji-e-urzad-skarbowy-spolka). Tutaj zakładamy, że ten etap jest już za Wami.
 
-Dopiero z poziomu konta organizacji można przejść do formalności, które dają pierwsze uprawnienie do działania w KSeF. W praktyce oznacza to złożenie **ZAW-FA** dla osoby, która ma zacząć obsługiwać KSeF w imieniu spółki.
+## Sześć pojęć, których nie wolno mylić
 
-Bez tego etapu nikt nie wejdzie do KSeF w imieniu spółki — ani prezes, ani pracownik, ani biuro rachunkowe.
+| Pojęcie | Co to jest |
+|---|---|
+| **Dostęp do Konta Organizacji (UKO)** | Możliwość działania w e-US w imieniu spółki. Warunek wstępny, nie część KSeF. |
+| **UPL-1** | Pełnomocnictwo do podpisywania i składania **deklaracji** elektronicznych spółki. Dotyczy deklaracji, nie KSeF. |
+| **ZAW-FA** | Zawiadomienie, którym spółka wyznacza **pierwszą osobę fizyczną** z uprawnieniami do zarządzania uprawnieniami w KSeF. |
+| **Dalsze uprawnienia w KSeF** | Uprawnienia nadawane **wewnątrz KSeF** kolejnym osobom i podmiotom przez osobę wyznaczoną w ZAW-FA. |
+| **Certyfikat / token KSeF** | Poświadczenie dla **aplikacji** (np. KsięgaI), żeby działała w imieniu spółki w KSeF. |
+| **Dostęp dla biura rachunkowego** | Uprawnienie w KSeF nadane po stronie NIP biura — biuro obsługuje faktury z własnych narzędzi. |
 
-## Kto zaczyna cały proces
+Posiadanie jednego z tych elementów nie oznacza posiadania pozostałych. Samo bycie w KRS nie daje żadnego z nich automatycznie.
 
-Proces startowy zwykle zaczyna osoba wpisana w KRS jako uprawniona do reprezentacji spółki — najczęściej prezes zarządu albo członek zarządu z prawem samodzielnej reprezentacji.
+## Właściwa kolejność dla nowej spółki bez pieczęci kwalifikowanej
 
-Ta osoba:
-- loguje się do e-Urzędu Skarbowego swoim profilem zaufanym albo e-dowodem
-- aktywuje lub uzyskuje dostęp do **konta organizacji** dla NIP spółki
-- składa **ZAW-FA**, żeby nadać sobie pierwsze uprawnienie do KSeF
+1. **Rejestracja i NIP** — spółka wpisana do KRS, nadany NIP.
+2. **Pierwszy użytkownik Konta Organizacji** — wyznaczony wnioskiem w urzędzie skarbowym (dla nowej spółki zwykle osobiście).
+3. **Kontekst spółki w e-US** — użytkownik przełącza się na Konto Organizacji i widzi sprawy spółki.
+4. **ZAW-FA** — spółka wyznacza pierwszą osobę fizyczną z uprawnieniami w KSeF (uprawnienia „właścicielskie").
+5. **Pierwsza osoba z dostępem do KSeF** — po skutecznym ZAW-FA loguje się do KSeF i może wystawiać oraz odbierać faktury.
+6. **Dalsze uprawnienia w KSeF** — ta osoba nadaje w KSeF dostęp kolejnym pracownikom i biuru rachunkowemu (po stronie NIP biura).
+7. **Połączenie z KsięgaI** — certyfikat/token KSeF wygenerowany dla spółki i wklejony w ustawieniach firmy w KsięgaI.
 
-Samo to, że ktoś jest w KRS, nie oznacza jeszcze automatycznego wejścia do portalu KSeF.
+## Co robi ZAW-FA i jak je złożyć
 
-## Właściwa kolejność kroków
+**ZAW-FA** (zawiadomienie o nadaniu lub odebraniu uprawnień do korzystania z KSeF) służy podmiotom, które nie mogą samodzielnie uwierzytelnić się w KSeF pieczęcią kwalifikowaną. Zawiadomienie:
 
-1. Osoba z KRS loguje się do e-Urzędu Skarbowego.
-2. Przełącza się na [konto organizacji](/poradnik/konto-organizacji-e-urzad-skarbowy-spolka) spółki.
-3. Z poziomu konta organizacji składa **ZAW-FA** dla siebie albo dla osoby, która ma rozpocząć pracę z KSeF.
-4. Dopiero po skutecznym ZAW-FA możliwe jest pierwsze logowanie do portalu KSeF w imieniu spółki.
-5. Po wejściu do KSeF można wygenerować token dla aplikacji (np. KsięgaI) i nadać dalsze uprawnienia innym osobom albo biuru rachunkowemu.
+- wyznacza **pierwszą osobę fizyczną**, która w imieniu spółki będzie zarządzać uprawnieniami w KSeF,
+- składa się do **naczelnika urzędu skarbowego** — papierowo (osobiście lub pocztą) albo elektronicznie przez e-Urząd Skarbowy; dopuszczalne jest też złożenie przez e-Doręczenia z podpisem elektronicznym,
+- po skutecznym przyjęciu daje wskazanej osobie pełny dostęp do wystawiania i odbierania faktur oraz do nadawania dalszych uprawnień.
 
-To jest kluczowa różnica względem uproszczonych opisów w internecie: **KSeF nie jest pierwszym krokiem. Pierwszym krokiem jest konto organizacji i ZAW-FA.**
+Uprawnienia nadane przez ZAW-FA oraz domyślne uprawnienia „właścicielskie" przypisane do NIP są uznawane także w KSeF 2.0.
 
-## Co dzieje się po pierwszym wejściu do KSeF
+## Alternatywa: spółka z pieczęcią kwalifikowaną
 
-Dopiero gdy spółka ma już pierwszą osobę skutecznie wpuszczoną do KSeF, można:
-- wygenerować token KSeF do połączenia z aplikacją taką jak KsięgaI
-- nadać dostęp pracownikowi działu finansowego
-- nadać dostęp biuru rachunkowemu przez NIP biura
+Jeśli spółka ma **kwalifikowaną pieczęć elektroniczną zawierającą NIP**, może uwierzytelnić się w KSeF bezpośrednio, bez ZAW-FA, i od razu wyznaczyć pierwszą osobę fizyczną z uprawnieniami. Uwaga: pieczęć kwalifikowana **bez numeru NIP** nie wystarcza do samodzielnego uwierzytelnienia — wtedy i tak potrzebne jest ZAW-FA.
 
-Czyli: token i dalsze uprawnienia są **po** ZAW-FA, a nie przed nim.
+To rozwiązanie dla podmiotów, które pieczęć już mają (często większe organizacje). Zwykła, mała, świeżo zarejestrowana spółka z o.o. przeważnie pieczęci nie ma i idzie ścieżką ZAW-FA opisaną wyżej.
 
-## Jak nadać dostęp innym osobom w firmie
+## Dalsze uprawnienia i dostęp dla biura rachunkowego
 
-Po uzyskaniu pierwszego dostępu do KSeF osoba uprawniona może nadać dostęp:
-- innym osobom fizycznym w firmie
-- pracownikom lub współpracownikom
-- biuru rachunkowemu przez NIP firmy biura
+Po tym, jak pierwsza osoba działa już w KSeF, nadaje ona **wewnątrz KSeF**:
 
-Każdy z tych dostępów jest wtórny wobec pierwszego kroku. Jeśli spółka nie przeszła jeszcze przez konto organizacji i ZAW-FA, nie ma z czego nadawać dalszych uprawnień.
+- dostęp innym osobom fizycznym w spółce (np. dział finansowy),
+- dostęp **biuru rachunkowemu po stronie jego NIP** — biuro loguje się do własnego KSeF i widzi spółkę na liście podmiotów; nie potrzebuje tokena ani hasła spółki,
+- **certyfikat/token** dla aplikacji takiej jak KsięgaI do automatycznej wysyłki i synchronizacji faktur.
 
-## Co się dzieje, gdy zarząd się zmieni
+Zakres uprawnień (odczyt, wystawianie, pełny) ustalasz przy nadawaniu. Szczegóły nadawania dostępu biuru: [Jak nadać biuru rachunkowemu dostęp do KSeF](/poradnik/jak-nadac-dostep-ksef-dla-ksiegowej).
 
-Zmiany w KRS wpływają na uprawnienia w KSeF. Jeżeli prezes odchodzi:
-- nowa osoba z KRS musi najpierw mieć dostęp do konta organizacji i sprawdzić, czy trzeba ponownie uporządkować uprawnienia przez ZAW-FA
-- stare tokeny mogą wymagać odnowienia
-- warto cofnąć dostępy osób, które odchodzą
+## Zmiana zarządu
 
-Jest to ważny punkt w procesie zmiany zarządu — warto potwierdzić z biurem rachunkowym lub prawnikiem, co i kiedy trzeba zaktualizować w KSeF.
+Zmiany w KRS nie porządkują automatycznie uprawnień w e-US ani w KSeF. Po zmianie zarządu:
 
-## Jak oddelegować obsługę KSeF do biura rachunkowego
+- nowa osoba uprawniona do reprezentacji powinna zostać **użytkownikiem Konta Organizacji** (wnioskiem lub online, jeśli jest już użytkownik z dostępem rozszerzonym),
+- przejrzyj uprawnienia w KSeF i odbierz dostęp osobom, które odeszły,
+- sprawdź ważność certyfikatów/tokenów i w razie potrzeby wygeneruj nowe.
 
-Biuro dostaje dostęp przez swój NIP — nie potrzebuje Twojego tokena ani hasła. Ale ten etap pojawia się dopiero wtedy, gdy ktoś po stronie spółki przeszedł już ścieżkę: konto organizacji -> ZAW-FA -> pierwsze wejście do KSeF.
+## Zastrzeżenie
 
-Po nadaniu dostępu biuro loguje się do własnego KSeF i widzi Twoją spółkę na liście podmiotów.
-
-Zakres tego co biuro może robić (odczyt, wystawianie faktur, pełny dostęp) ustalasz w momencie nadawania uprawnień.
-
-## Różnica między tokenem a dostępem przez NIP
-
-| Cel | Mechanizm |
-|-----|-----------|
-| Pierwsze wejście spółki do KSeF | Konto organizacji w e-US + ZAW-FA |
-| Połączenie z KsięgaI (automatyczna wysyłka i synchronizacja) | Token KSeF |
-| Dostęp biura rachunkowego do obsługi KSeF | NIP firmy biura |
-| Dostęp pracownika do portalu KSeF | Uprawnienie nadane po wejściu do KSeF |
-
-Warto rozdzielać te pojęcia. **ZAW-FA otwiera drzwi do KSeF**, a token i dalsze dostępy są dopiero kolejnym etapem.
-
-## Na co uważać w spółce
-
-- W spółce wieloosobowej sprawdź, kto realnie może uruchomić konto organizacji i złożyć ZAW-FA w imieniu spółki.
-- Nie zakładaj, że wpis w KRS sam z siebie daje od razu dostęp do portalu KSeF.
-- Zmiana zarządu to dobry moment na przegląd wszystkich nadanych dostępów w KSeF.
-- Warto zachować dokumentację kto, kiedy i komu nadał dostęp — szczególnie przy audycie.`,
+Stan na 7 września 2026 r. Zasady KSeF i e-Urzędu Skarbowego bywają zmieniane — przed działaniem sprawdź aktualne instrukcje na ksef.podatki.gov.pl i podatki.gov.pl. KsięgaI to oprogramowanie do fakturowania i prowadzenia firmy, a nie doradztwo podatkowe ani prawne; w sprawach wątpliwych skonsultuj się z księgową, doradcą podatkowym lub urzędem.`,
     checklist: [
-      'Ustal, kto w spółce jest wpisany w KRS jako osoba uprawniona do reprezentacji.',
-      'Zaloguj tę osobę do e-Urzędu Skarbowego i przejdź na konto organizacji spółki.',
-      'Złóż ZAW-FA, żeby nadać pierwsze uprawnienie do KSeF.',
-      'Dopiero po skutecznym ZAW-FA zaloguj się do portalu KSeF.',
-      'Wygeneruj token dla aplikacji (np. KsięgaI) i skopiuj go natychmiast.',
-      'Nadaj dostęp biuru rachunkowemu lub pracownikom dopiero po wejściu do KSeF.',
+      'Upewnij się, że spółka ma już wyznaczonego pierwszego użytkownika Konta Organizacji i działa we własnym kontekście w e-US.',
+      'Ustal, która osoba fizyczna ma zostać wskazana w ZAW-FA jako pierwsza z uprawnieniami w KSeF.',
+      'Złóż ZAW-FA do naczelnika US (papierowo lub przez e-US) — albo, jeśli spółka ma pieczęć kwalifikowaną z NIP, pomiń ZAW-FA i uwierzytelnij się w KSeF bezpośrednio.',
+      'Po skutecznym ZAW-FA zaloguj wskazaną osobę do KSeF i sprawdź, że może wystawiać i odbierać faktury.',
+      'Nadaj w KSeF dalsze uprawnienia: pracownikom oraz biuru rachunkowemu po stronie jego NIP.',
+      'Wygeneruj certyfikat/token KSeF dla spółki i skopiuj go od razu.',
       'Wklej token do ustawień KSeF w KsięgaI i sprawdź status połączenia.',
     ],
     official_links: [
       { label: 'Portal KSeF', href: 'https://ksef.podatki.gov.pl/', external: true },
-      { label: 'Podręcznik KSeF — zarządzanie dostępem', href: 'https://ksef.podatki.gov.pl/media/sthoiadq/podrecznik-ksef-20-cz-i-rozpoczecie-korzystania-z-ksef-25032026.pdf', external: true },
+      { label: 'ZAW-FA — formularz (PDF)', href: 'https://ksef.podatki.gov.pl/media/em1k4cmk/zaw-fa.pdf', external: true },
+      { label: 'KSeF — uprawnienia i autoryzacja', href: 'https://ksef.podatki.gov.pl/ksef-news/uprawnienia-i-autoryzacja/', external: true },
+      { label: 'Podręcznik KSeF 2.0 — rozpoczęcie korzystania (PDF)', href: 'https://ksef.podatki.gov.pl/media/cq3laefg/podrecznik-ksef-2-0-cz-i-rozpoczecie-korzystania-z-ksef.pdf', external: true },
     ],
     related_actions: [
-      { label: 'Jak nadać biuru dostęp przez NIP', href: '/poradnik/jak-nadac-dostep-ksef-dla-ksiegowej' },
-      { label: 'Jak zdobyć token KSeF', href: '/poradnik/jak-zdobyc-token-ksef-i-podlaczyc-firme' },
-      { label: 'Pierwsza spółka z o.o. — obowiązki po rejestracji', href: '/poradnik/pierwsze-obowiazki-po-zalozeniu-spolki-zoo' },
+      { label: 'Konto Organizacji w e-US dla nowej spółki z o.o.', href: '/poradnik/konto-organizacji-e-urzad-skarbowy-spolka' },
+      { label: 'Jak nadać biuru rachunkowemu dostęp do KSeF', href: '/poradnik/jak-nadac-dostep-ksef-dla-ksiegowej' },
+      { label: 'Jak zdobyć token KSeF i podłączyć firmę do KsięgaI', href: '/poradnik/jak-zdobyc-token-ksef-i-podlaczyc-firme' },
+      { label: 'Pierwsze obowiązki po założeniu spółki z o.o.', href: '/poradnik/pierwsze-obowiazki-po-zalozeniu-spolki-zoo' },
     ],
     faq: [
       {
-        question: 'Czy pracownik firmy może od razu wejść do KSeF spółki?',
-        answer: 'Nie. Najpierw spółka musi przejść ścieżkę konto organizacji -> ZAW-FA -> pierwsze wejście do KSeF. Dopiero potem można nadać pracownikowi dalszy dostęp.',
+        question: 'Czy sama obecność w KRS wystarcza, żeby wejść do KSeF spółki?',
+        answer: 'Nie. Wpis w KRS wskazuje, kto może uruchomić proces po stronie spółki. Przed pierwszym wejściem do KSeF potrzebny jest dostęp do Konta Organizacji w e-US, a następnie ZAW-FA (albo uwierzytelnienie pieczęcią kwalifikowaną z NIP).',
       },
       {
-        question: 'Czy sama obecność w KRS wystarcza, żeby wejść do KSeF?',
-        answer: 'Nie. Wpis w KRS wskazuje, kto może zacząć proces po stronie spółki, ale przed pierwszym logowaniem do KSeF trzeba jeszcze mieć konto organizacji w e-US i złożyć ZAW-FA.',
+        question: 'Czy spółka z pieczęcią kwalifikowaną musi składać ZAW-FA?',
+        answer: 'Nie, jeśli pieczęć zawiera NIP — spółka uwierzytelnia się w KSeF bezpośrednio i wyznacza pierwszą osobę fizyczną w systemie. Pieczęć bez NIP nie wystarcza i wtedy ZAW-FA jest potrzebne.',
       },
       {
-        question: 'Kiedy mogę wygenerować token do KsięgaI?',
-        answer: 'Dopiero po uzyskaniu pierwszego skutecznego dostępu do KSeF. Najpierw konto organizacji i ZAW-FA, potem logowanie do KSeF, a dopiero później token.',
+        question: 'Czy Konto Organizacji, UPL-1 i ZAW-FA to to samo?',
+        answer: 'Nie. Konto Organizacji to dostęp do e-US w imieniu spółki. UPL-1 to pełnomocnictwo do podpisywania deklaracji. ZAW-FA wyznacza pierwszą osobę z uprawnieniami w KSeF. To trzy odrębne mechanizmy.',
       },
       {
-        question: 'Co się dzieje z dostępami w KSeF gdy zmienia się zarząd?',
-        answer: 'Zmiana zarządu nie porządkuje wszystkiego automatycznie. Nowa osoba powinna przejąć konto organizacji, sprawdzić podstawę dostępu do KSeF i przejrzeć istniejące uprawnienia oraz tokeny.',
+        question: 'Kiedy mogę wygenerować token KSeF do KsięgaI?',
+        answer: 'Po tym, jak spółka ma pierwszą osobę z uprawnieniami w KSeF (po ZAW-FA lub uwierzytelnieniu pieczęcią). Certyfikat/token dla aplikacji nadaje się na końcu, nie na początku.',
+      },
+      {
+        question: 'Jak biuro rachunkowe dostaje dostęp do KSeF spółki?',
+        answer: 'Przez uprawnienie nadane w KSeF po stronie NIP biura — po tym, jak spółka przeszła ścieżkę Konto Organizacji → ZAW-FA → pierwsza osoba w KSeF. Biuro nie potrzebuje tokena ani hasła spółki.',
       },
     ],
     article_type: 'guide',
     sort_order: 40,
     published_at: '2026-05-18T00:00:00.000Z',
-    updated_at: '2026-05-24T00:00:00.000Z',
+    updated_at: '2026-09-07T00:00:00.000Z',
     category: fallbackWikiCategories[0],
   },
 
@@ -1050,7 +1139,11 @@ Po wpisie do KRS masz terminy, których nie możesz pominąć. Najważniejszy:
 ## Pierwszy tydzień
 
 - **e-Doręczenia** — oficjalny kanał korespondencji z urzędami. Spółki mają obowiązek posiadania adresu do e-Doręczeń. Aktywuj skrzynkę i ustal kto ją monitoruje.
-- **e-Urząd Skarbowy — konto organizacji** — dostęp do konta firmowego w e-US porządkuje działania podatkowe i ułatwia późniejsze formalności z KSeF.
+- **Konto Organizacji w e-Urzędzie Skarbowym** — żeby działać w e-US w imieniu spółki, trzeba **wyznaczyć pierwszego użytkownika Konta Organizacji**. Sama reprezentacja w KRS nie daje tego dostępu i samo czekanie zwykle nic nie zmienia — dla nowej spółki najpewniejszą drogą jest złożenie wniosku o dostęp osobiście w urzędzie. Krok po kroku: [Konto Organizacji w e-US dla nowej spółki z o.o.](/poradnik/konto-organizacji-e-urzad-skarbowy-spolka).
+
+## NIP-8 — dane uzupełniające (termin 21 dni)
+
+**NIP-8** zgłasza dane, których KRS nie przekazuje urzędowi: firmowe rachunki bankowe, adresy miejsc prowadzenia działalności, miejsce przechowywania dokumentacji, dane kontaktowe, dane biura rachunkowego. Termin to co do zasady **21 dni od wpisu do KRS** (7 dni dla danych potrzebnych ZUS). NIP-8 nie jest prawnie zależny od Konta Organizacji, ale złożenie elektroniczne wymaga sposobu podpisu (podpis kwalifikowany, aktywne UPL-1 albo podpisanie z kontekstu organizacji w e-US). Zwykły członek zarządu bez tych narzędzi: **zanieś NIP-8 do urzędu razem z wnioskiem o dostęp do Konta Organizacji dla pierwszego użytkownika** i złóż oba przy jednej wizycie. Szczegóły: [NIP-8 po rejestracji spółki z o.o.](/poradnik/nip-8-spolka-zoo).
 
 ## Decyzja o VAT
 
@@ -1069,9 +1162,11 @@ Warto potwierdzić z biurem rachunkowym lub doradcą podatkowym zanim zaczniesz 
 ## Przygotowanie do KSeF
 
 KSeF staje się obowiązkowy — nie musisz od razu łączyć spółki z systemem, ale warto:
-- ustalić kto w spółce będzie zarządzał dostępem do KSeF (osoba z KRS)
+- ustalić, kto po stronie spółki uruchomi ścieżkę do KSeF: Konto Organizacji w e-US → **ZAW-FA** (wyznaczenie pierwszej osoby z uprawnieniami w KSeF) → dalsze uprawnienia
 - zapytać biuro rachunkowe, czy ma własny system obsługi KSeF
 - wybrać aplikację fakturową (np. KsięgaI), która jest KSeF-ready
+
+Pełna kolejność dla spółki: [KSeF dla spółki z o.o. bez pieczęci kwalifikowanej](/poradnik/ksef-spolka-z-oo-kto-moze-nadac-dostep).
 
 ## Organizacja dokumentów od pierwszego dnia
 
@@ -1082,26 +1177,33 @@ Warto ustalić z biurem rachunkowym jaki jest preferowany sposób przekazywania 
       'Zgłoś beneficjentów rzeczywistych do CRBR — priorytet i termin ustawowy.',
       'Otwórz firmowe konto bankowe i wpłać kapitał zakładowy jeśli jeszcze nie zrobiono.',
       'Aktywuj adres do e-Doręczeń i ustal kto będzie monitorować skrzynkę.',
-      'Utwórz konto organizacji w e-Urzędzie Skarbowym.',
+      'Wyznacz pierwszego użytkownika Konta Organizacji w e-US (wniosek o dostęp — dla nowej spółki zwykle osobiście w urzędzie).',
+      'Złóż NIP-8 z danymi uzupełniającymi w terminie 21 dni od wpisu do KRS — papierowo przy tej samej wizycie w urzędzie, jeśli nie masz podpisu kwalifikowanego ani aktywnego UPL-1.',
       'Zdecyduj o rejestracji VAT i złóż formularz VAT-R jeśli potrzebne.',
       'Ustal z biurem rachunkowym status ZUS wspólników.',
-      'Ustal kto w spółce zarządza dostępem do KSeF.',
+      'Ustal, kto uruchomi ścieżkę do KSeF: Konto Organizacji → ZAW-FA → dalsze uprawnienia.',
       'Ustal z biurem rachunkowym sposób przekazywania dokumentów.',
     ],
     official_links: [
       { label: 'CRBR — rejestracja', href: 'https://www.podatki.gov.pl/crbr/', external: true },
       { label: 'e-Doręczenia dla przedsiębiorcy', href: 'https://www.gov.pl/web/e-doreczenia/dla-przedsiebiorcy', external: true },
-      { label: 'e-Urząd Skarbowy', href: 'https://www.podatki.gov.pl/e-urzad-skarbowy/', external: true },
+      { label: 'Konto Organizacji w e-Urzędzie Skarbowym', href: 'https://www.podatki.gov.pl/e-urzad-skarbowy/konto-organizacji', external: true },
+      { label: 'Biznes.gov.pl — zgłoszenie NIP-8', href: 'https://www.biznes.gov.pl/pl/portal/ou1478', external: true },
     ],
     related_actions: [
       { label: 'Poradnik CRBR — co zgłosić', href: '/poradnik/crbr-spolka-zoo-co-zglosic' },
-      { label: 'e-Doręczenia dla firmy', href: '/poradnik/e-doreczenia-dla-firmy' },
-      { label: 'KSeF dla spółki z o.o.', href: '/poradnik/ksef-spolka-z-oo-kto-moze-nadac-dostep' },
+      { label: 'Konto Organizacji w e-US dla nowej spółki z o.o.', href: '/poradnik/konto-organizacji-e-urzad-skarbowy-spolka' },
+      { label: 'NIP-8 po rejestracji spółki z o.o.', href: '/poradnik/nip-8-spolka-zoo' },
+      { label: 'KSeF dla spółki z o.o. bez pieczęci kwalifikowanej', href: '/poradnik/ksef-spolka-z-oo-kto-moze-nadac-dostep' },
     ],
     faq: [
       {
         question: 'Ile czasu mam na zgłoszenie do CRBR po rejestracji spółki?',
         answer: 'Termin jest ustawowy i liczy się od dnia wpisu do KRS. Nie zwlekaj — zrób to w pierwszych dniach po rejestracji.',
+      },
+      {
+        question: 'Czy będąc w zarządzie mam automatycznie dostęp do spółki w e-Urzędzie Skarbowym?',
+        answer: 'Nie. Wpis w KRS pozwala wystąpić o dostęp do Konta Organizacji, ale go nie nadaje. Pierwszego użytkownika trzeba wyznaczyć wnioskiem; dla nowej spółki najpewniej osobiście w urzędzie.',
       },
       {
         question: 'Czy spółka z o.o. musi być vatowcem od razu?',
@@ -1119,7 +1221,7 @@ Warto ustalić z biurem rachunkowym jaki jest preferowany sposób przekazywania 
     article_type: 'checklist',
     sort_order: 10,
     published_at: '2026-05-18T00:00:00.000Z',
-    updated_at: '2026-05-18T00:00:00.000Z',
+    updated_at: '2026-09-07T00:00:00.000Z',
     category: fallbackWikiCategories[3],
   },
 
@@ -1127,6 +1229,7 @@ Warto ustalić z biurem rachunkowym jaki jest preferowany sposób przekazywania 
   {
     id: 'fallback-pelna-ksiegowosc',
     slug: 'pelna-ksiegowosc-spolka-zoo-o-co-chodzi',
+    entityTypes: ['spolka', 'stowarzyszenie', 'fundacja'],
     title: 'Pełna księgowość — o co chodzi w spółce z o.o.',
     excerpt: 'Spółka z o.o. nie może prowadzić uproszczonej ewidencji. Pełna księgowość to więcej niż lista faktur — to zapis każdej operacji według planu kont.',
     summary: 'Proste wyjaśnienie pełnej księgowości dla właścicieli spółki z o.o.: czym różni się od listy faktur, dlaczego każda operacja musi być zapisana i co musisz przygotowywać dla księgowej.',
@@ -1233,6 +1336,7 @@ Drugi problem to opóźnienia. Im dłużej czekasz z dostarczeniem dokumentów b
   {
     id: 'fallback-plan-kont',
     slug: 'plan-kont-co-to-jest',
+    entityTypes: ['spolka', 'stowarzyszenie', 'fundacja'],
     title: 'Plan kont — co to jest i po co firmie chart of accounts',
     excerpt: 'Plan kont to zorganizowana lista "szufladek", do których trafia każda operacja finansowa firmy. Nie musisz go znać na pamięć — ale warto rozumieć co to jest.',
     summary: 'Proste wyjaśnienie czym jest plan kont (chart of accounts) dla właścicieli firm — bez żargonu, z przykładami.',
@@ -1326,6 +1430,7 @@ Nie musisz znać numerów kont. Wystarczy wiedzieć, że za każdym raportem fin
   {
     id: 'fallback-faktura-platnosc-ksiegowanie',
     slug: 'faktura-platnosc-ksiegowanie-roznica',
+    entityTypes: ['spolka', 'jdg', 'stowarzyszenie', 'fundacja'],
     title: 'Faktura, płatność i księgowanie — dlaczego to nie jest to samo',
     excerpt: 'Wysłałeś fakturę. Klient zapłacił. Księgowa coś dopisała. To trzy osobne zdarzenia — i każde ma inne znaczenie dla VAT, CIT i rozliczeń.',
     summary: 'Wyjaśnienie różnicy między wystawieniem faktury, otrzymaniem płatności i zaksięgowaniem operacji — i dlaczego ta różnica ma znaczenie dla podatków.',
@@ -1412,6 +1517,7 @@ Dwa scenariusze, które najczęściej zaskakują:
   {
     id: 'fallback-stripe-platnosci',
     slug: 'jak-przyjmowac-platnosci-przy-fakturze-stripe',
+    entityTypes: ['spolka', 'jdg', 'stowarzyszenie', 'fundacja'],
     title: 'Jak przyjmować płatności przy fakturze — Stripe Connect w KsięgaI',
     excerpt: 'Zamiast czekać na przelew, dajesz klientowi link do płatności przy fakturze. Karta, BLIK, przelew — pieniądze trafiają bezpośrednio na Twoje konto w Stripe.',
     summary: 'Jak działa Stripe Connect w KsięgaI: co to jest konto Stripe Express, jak klient płaci, jak trafiają pieniądze i dlaczego to bezpieczniejsze niż podawanie numeru konta.',
@@ -1568,11 +1674,13 @@ Twoja aplikacja (np. KsięgaI) obsługuje całą techniczną komunikację z KSeF
 
 ## Jak się przygotować
 
-Trzy kroki niezależnie od formy działalności:
+**JDG** — trzy kroki:
 
 1. **Zdobądź token KSeF** — generujesz go w portalu KSeF po zalogowaniu profilem zaufanym.
 2. **Podłącz aplikację** — wklejasz token do KsięgaI i od tej chwili faktury idą przez KSeF automatycznie.
 3. **Poinformuj biuro rachunkowe** — biuro potrzebuje swojego dostępu (przez NIP biura, nie przez Twój token).
+
+**Spółka z o.o.** — ścieżka jest dłuższa: najpierw pierwszy użytkownik [Konta Organizacji w e-US](/poradnik/konto-organizacji-e-urzad-skarbowy-spolka), potem **ZAW-FA** (albo uwierzytelnienie pieczęcią kwalifikowaną z NIP), a dopiero potem token/certyfikat dla aplikacji. Szczegóły: [KSeF dla spółki z o.o. bez pieczęci kwalifikowanej](/poradnik/ksef-spolka-z-oo-kto-moze-nadac-dostep).
 
 ## Co to jest "KSeF-ready"
 
@@ -1611,13 +1719,14 @@ Jeżeli nie chcesz jeszcze wysyłać faktur do KSeF, możesz pracować w trybie 
     article_type: 'guide',
     sort_order: 5,
     published_at: '2026-05-18T00:00:00.000Z',
-    updated_at: '2026-05-18T00:00:00.000Z',
+    updated_at: '2026-09-07T00:00:00.000Z',
     category: fallbackWikiCategories[0],
   },
 
   {
     id: 'fallback-ksef-token-short',
     slug: 'ksef-token',
+    entityTypes: ['spolka', 'jdg', 'stowarzyszenie', 'fundacja'],
     title: 'Token KSeF — gdzie go wziąć i gdzie wkleić',
     excerpt: 'Token KSeF to ciąg znaków, który generujesz w portalu KSeF i wklejasz do aplikacji. Widoczny tylko raz — skopiuj go od razu.',
     summary: 'Krótka, konkretna instrukcja: gdzie wygenerować token KSeF i co z nim zrobić w KsięgaI.',
@@ -1771,74 +1880,81 @@ Brak zgłoszenia w terminie może skutkować karą finansową. Regulacje są egz
   {
     id: 'fallback-e-urzad-short',
     slug: 'e-urzad',
-    title: 'e-Urząd Skarbowy dla firmy — pierwsze logowanie i konto organizacji',
-    excerpt: 'e-Urząd Skarbowy ma dwa tryby: konto prywatne i konto organizacji. Do działania w imieniu firmy potrzebujesz drugiego.',
-    summary: 'Przewodnik po e-Urzędzie Skarbowym dla przedsiębiorców: różnica między kontem prywatnym a kontem organizacji, jak uzyskać dostęp i dlaczego to ważne przed KSeF.',
-    purpose: 'Wielu właścicieli firm loguje się do e-US prywatnym kontem i nie rozumie czemu nie widzi danych firmy. Ten artykuł wyjaśnia dlaczego i co zrobić.',
-    body_markdown: `## Dwa tryby e-Urzędu Skarbowego
+    entityTypes: ['spolka', 'jdg', 'stowarzyszenie', 'fundacja'],
+    title: 'e-Urząd Skarbowy dla firmy — konto prywatne a Konto Organizacji',
+    excerpt: 'e-Urząd Skarbowy ma dwa konteksty: osoby prywatnej i organizacji. Żeby działać w imieniu firmy, potrzebujesz Konta Organizacji — a w nowej spółce trzeba je najpierw uruchomić, wyznaczając pierwszego użytkownika.',
+    summary: 'Jak działa e-Urząd Skarbowy dla przedsiębiorcy: różnica między kontem osoby prywatnej a Kontem Organizacji, dlaczego reprezentacja w KRS nie daje automatycznie dostępu, jak wygląda to u JDG i jak nadać dostęp biuru rachunkowemu.',
+    purpose: 'Właściciele firm logują się do e-US prywatnym profilem i nie rozumieją, czemu nie widzą danych firmy. Ten artykuł wyjaśnia dwa konteksty i kieruje do szczegółowego przewodnika dla nowej spółki.',
+    body_markdown: `## Dwa konteksty e-Urzędu Skarbowego
 
 e-Urząd Skarbowy (podatki.gov.pl) ma dwa odrębne konteksty:
 
-- **Konto prywatne** — Twoje osobiste rozliczenia, PIT, deklaracje jako osoby fizycznej.
-- **Konto organizacji** — dostęp do konta podatkowego firmy: NIP firmy, JPK, KSeF, deklaracje firmowe.
+- **Kontekst osoby prywatnej** — Twoje osobiste rozliczenia: PIT, deklaracje jako osoby fizycznej.
+- **Konto Organizacji** — konto podatkowe firmy: NIP firmy, JPK, deklaracje firmowe, pełnomocnictwa, złożenie ZAW-FA do KSeF.
 
-Logując się profilem zaufanym wchodzisz domyślnie na konto prywatne. Żeby działać w imieniu firmy, musisz przełączyć się na konto organizacji — albo uzyskać do niego dostęp jeśli go jeszcze nie masz.
+Logując się profilem zaufanym wchodzisz domyślnie w kontekst osoby prywatnej. Żeby działać w imieniu firmy, musisz przełączyć się na Konto Organizacji — a jeśli go jeszcze nie masz, najpierw uzyskać do niego dostęp.
 
-## Kto może uzyskać konto organizacji
+## Kto może działać w Koncie Organizacji
 
-Osoba, która jest wpisana w KRS jako uprawniona do reprezentacji spółki (prezes, członek zarządu) lub właściciel JDG (automatycznie powiązany z NIP firmy).
+O dostęp do Konta Organizacji może wystąpić osoba wpisana w KRS jako uprawniona do reprezentacji spółki (prezes, członek zarządu) albo pełnomocnik ogólny. Ważne: **wpis w KRS ani pełnomocnictwo ogólne nie nadają dostępu automatycznie** — pierwszego użytkownika Konta Organizacji trzeba formalnie wyznaczyć wnioskiem. Kolejnych użytkowników dodaje online użytkownik z dostępem rozszerzonym.
 
-Inne osoby (pracownicy, biuro rachunkowe) mogą uzyskać dostęp przez pełnomocnictwa nadawane przez osobę uprawnioną.
+Pracownicy i biura rachunkowe nie występują o Konto Organizacji — dostają dostęp do e-US przez pełnomocnictwa (UPL-1) albo są dodawani jako użytkownicy przez osobę z dostępem rozszerzonym.
 
-## Jak przełączyć się na konto organizacji
+## Nowa spółka nie pojawia się po zalogowaniu?
 
-Po zalogowaniu do e-US:
-1. Poszukaj opcji "Przełącz na podmiot" lub "Działaj jako organizacja".
-2. Wybierz NIP firmy z listy dostępnych podmiotów.
-3. Jeśli firma nie pojawia się na liście — musisz wnioskować o dostęp.
+Jeśli po kliknięciu „Zmień kontekst" / „Przełącz podmiot" spółki nie ma na liście, najczęściej znaczy to, że **nikt nie został jeszcze wyznaczony jako użytkownik jej Konta Organizacji** — a nie że „NIP się nie zsynchronizował" i wystarczy poczekać. W nowej spółce trzeba przejść procedurę dostępu.
 
-Jeśli dopiero rejestrujesz spółkę — konto organizacji zazwyczaj staje się dostępne po pojawieniu się NIP w rejestrach (może minąć kilka dni od rejestracji).
+Pełen proces krok po kroku (wniosek, dokumenty, kolejność do KSeF) opisujemy tutaj: **[Konto Organizacji w e-Urzędzie Skarbowym dla nowej spółki z o.o.](/poradnik/konto-organizacji-e-urzad-skarbowy-spolka)**.
+
+## Jak to wygląda u JDG
+
+Jednoosobowa działalność jest identyfikowana przez NIP przedsiębiorcy, który jest jednocześnie NIP firmy. W praktyce, logując się profilem zaufanym, JDG-owiec ma w e-US dostęp do swoich spraw osobistych i firmowych w jednym miejscu — bez odrębnej procedury dostępu do Konta Organizacji, która dotyczy podmiotów wpisanych do KRS.
 
 ## Dlaczego to ważne przed KSeF
 
-Wiele działań związanych z KSeF wykonuje się z poziomu e-US lub bezpośrednio w portalu KSeF — ale logując się jako przedstawiciel firmy, nie jako osoba prywatna. Brak konta organizacji to blokada na drodze do KSeF.
+Część działań związanych z KSeF (m.in. złożenie ZAW-FA) wykonuje się z poziomu firmy, nie osoby prywatnej. Bez działania w kontekście Konta Organizacji nie ruszysz z autoryzacją spółki w KSeF. Kolejność dla spółki opisujemy w przewodniku [KSeF dla spółki z o.o. bez pieczęci kwalifikowanej](/poradnik/ksef-spolka-z-oo-kto-moze-nadac-dostep).
 
 ## Jak nadać dostęp biuru rachunkowemu
 
-Z poziomu konta organizacji możesz zarządzać pełnomocnictwami. Biuro rachunkowe, które ma pełnomocnictwo (UPL-1), może działać w imieniu firmy w e-US. To osobny krok od dostępu do KSeF.`,
+Z poziomu Konta Organizacji zarządzasz pełnomocnictwami. Biuro rachunkowe z **UPL-1** może podpisywać i składać deklaracje w imieniu firmy. To osobny mechanizm od dostępu do KSeF i od dodania kogoś jako użytkownika Konta Organizacji.
+
+## Zastrzeżenie
+
+Stan na 7 września 2026 r. Procedury e-Urzędu Skarbowego bywają zmieniane — sprawdź aktualne instrukcje na podatki.gov.pl. KsięgaI to oprogramowanie, a nie doradztwo podatkowe ani prawne.`,
     checklist: [
       'Zaloguj się do e-Urzędu Skarbowego profilem zaufanym lub e-dowodem.',
-      'Sprawdź czy firma pojawia się na liście dostępnych podmiotów.',
-      'Przełącz się na konto organizacji (NIP firmy).',
-      'Jeśli brak dostępu — złóż wniosek o konto organizacji.',
-      'Sprawdź czy biuro rachunkowe ma aktualne pełnomocnictwo UPL-1.',
+      'Sprawdź, w jakim jesteś kontekście (osoba prywatna vs organizacja) i czy firma jest na liście podmiotów.',
+      'Jeśli to nowa spółka i nie ma jej na liście — przejdź procedurę wyznaczenia pierwszego użytkownika Konta Organizacji (patrz przewodnik dla nowej spółki).',
+      'Po uzyskaniu dostępu przełącz się na Konto Organizacji i sprawdź podgląd deklaracji oraz JPK.',
+      'Sprawdź, czy biuro rachunkowe ma aktualne pełnomocnictwo UPL-1.',
     ],
     official_links: [
       { label: 'e-Urząd Skarbowy', href: 'https://www.podatki.gov.pl/e-urzad-skarbowy/', external: true },
+      { label: 'Konto Organizacji — zasady (podatki.gov.pl)', href: 'https://www.podatki.gov.pl/e-urzad-skarbowy/konto-organizacji', external: true },
     ],
     related_actions: [
-      { label: 'Jak uzyskać konto organizacji w e-US', href: '/poradnik/konto-organizacji-e-urzad-skarbowy' },
-      { label: 'KSeF — jak zacząć', href: '/poradnik/ksef' },
-      { label: 'Pierwsze obowiązki po rejestracji spółki', href: '/poradnik/pierwsze-obowiazki-po-zalozeniu-spolki-zoo' },
+      { label: 'Konto Organizacji w e-US dla nowej spółki z o.o. — krok po kroku', href: '/poradnik/konto-organizacji-e-urzad-skarbowy-spolka' },
+      { label: 'KSeF dla spółki z o.o. bez pieczęci kwalifikowanej', href: '/poradnik/ksef-spolka-z-oo-kto-moze-nadac-dostep' },
+      { label: 'Pierwsze obowiązki po założeniu spółki z o.o.', href: '/poradnik/pierwsze-obowiazki-po-zalozeniu-spolki-zoo' },
     ],
     faq: [
       {
-        question: 'Czy konto prywatne w e-US wystarcza do obsługi firmy?',
-        answer: 'Nie. Do działań podatkowych w imieniu spółki potrzebujesz konta organizacji lub właściwego pełnomocnictwa. Konto prywatne daje dostęp tylko do Twoich osobistych rozliczeń.',
+        question: 'Czy konto osoby prywatnej w e-US wystarcza do obsługi firmy?',
+        answer: 'Nie. Do działań w imieniu spółki potrzebujesz Konta Organizacji albo właściwego pełnomocnictwa. Kontekst osoby prywatnej daje dostęp tylko do Twoich osobistych rozliczeń.',
       },
       {
-        question: 'Dlaczego firma nie pojawia się na liście podmiotów?',
-        answer: 'Może minąć kilka dni od rejestracji zanim NIP firmy jest widoczny w systemach e-US. Jeśli minął tydzień i nadal jej nie ma — skontaktuj się z właściwym US.',
+        question: 'Czy członek zarządu automatycznie widzi nową spółkę w e-US?',
+        answer: 'Nie. Wpis w KRS pozwala wystąpić o dostęp do Konta Organizacji, ale go nie nadaje. Pierwszego użytkownika trzeba wyznaczyć wnioskiem; samo czekanie zwykle nic nie zmienia.',
       },
       {
-        question: 'Czy JDG też potrzebuje konta organizacji?',
-        answer: 'JDG-owcy są identyfikowani przez swój NIP, który jest jednocześnie NIP firmy. W praktyce logując się profilem zaufanym masz dostęp zarówno do konta osobistego jak i firmowego w jednym miejscu.',
+        question: 'Czy JDG też przechodzi procedurę Konta Organizacji?',
+        answer: 'Nie. JDG jest identyfikowana przez NIP przedsiębiorcy i w e-US ma dostęp do spraw osobistych i firmowych w jednym miejscu. Procedura Konta Organizacji dotyczy podmiotów wpisanych do KRS.',
       },
     ],
     article_type: 'guide',
     sort_order: 15,
     published_at: '2026-05-18T00:00:00.000Z',
-    updated_at: '2026-05-18T00:00:00.000Z',
+    updated_at: '2026-09-07T00:00:00.000Z',
     category: fallbackWikiCategories[1],
   },
 
@@ -1857,7 +1973,8 @@ Z poziomu konta organizacji możesz zarządzać pełnomocnictwami. Biuro rachunk
 ## Tydzień 1: formalności cyfrowe
 
 - **e-Doręczenia** — aktywuj adres do e-Doręczeń. Spółki mają obowiązek. Ustal kto monitoruje skrzynkę.
-- **e-Urząd Skarbowy** — sprawdź czy masz dostęp do konta organizacji (konto firmy, nie prywatne).
+- **Konto Organizacji w e-US** — wyznacz pierwszego użytkownika Konta Organizacji (wniosek o dostęp; dla nowej spółki zwykle osobiście w urzędzie). Wpis w KRS tego dostępu nie nadaje. Patrz: [Konto Organizacji dla nowej spółki z o.o.](/poradnik/konto-organizacji-e-urzad-skarbowy-spolka).
+- **NIP-8** — zgłoś dane uzupełniające (rachunki bankowe, adresy, dokumentacja, dane kontaktowe) w terminie **21 dni od wpisu do KRS**. NIP-8 nie jest prawnie zależny od Konta Organizacji, ale wersję elektroniczną trzeba czymś podpisać (podpis kwalifikowany / aktywne UPL-1 / kontekst organizacji w e-US). Bez tego zanieś NIP-8 papierowo razem z wnioskiem o dostęp do Konta Organizacji dla pierwszego użytkownika, przy jednej wizycie.
 - **VAT** — zdecyduj czy rejestrujesz spółkę jako vatowca i złóż VAT-R jeśli tak. Warto potwierdzić z biurem rachunkowym.
 
 ## Tydzień 2: operacje i dokumentacja
@@ -1866,11 +1983,11 @@ Z poziomu konta organizacji możesz zarządzać pełnomocnictwami. Biuro rachunk
 - **Pierwsza faktura** — skonfiguruj aplikację do fakturowania (KsięgaI lub inne), wystaw fakturę próbną i sprawdź poprawność danych.
 - **ZUS wspólników** — ustal status ZUS z biurem rachunkowym. Jednoosobowy wspólnik zwykle ma obowiązek ZUS.
 
-## Tydzień 3–4: przygotowanie do KSeF
+## Tydzień 3–4: droga do KSeF
 
-- Ustal kto w spółce będzie zarządzał dostępem do KSeF (osoba z KRS).
-- Wygeneruj token KSeF i podłącz do aplikacji.
-- Nadaj dostęp biuru rachunkowemu przez NIP biura (osobny mechanizm od tokena).
+- Po uruchomieniu Konta Organizacji złóż **ZAW-FA** — wyznacza pierwszą osobę z uprawnieniami w KSeF (spółka z pieczęcią kwalifikowaną z NIP może pominąć ZAW-FA).
+- Po pierwszym wejściu do KSeF nadaj dalsze uprawnienia i wygeneruj token/certyfikat dla aplikacji.
+- Nadaj dostęp biuru rachunkowemu po stronie NIP biura (osobny mechanizm od tokena). Kolejność: [KSeF dla spółki z o.o. bez pieczęci kwalifikowanej](/poradnik/ksef-spolka-z-oo-kto-moze-nadac-dostep).
 
 ## Przez cały pierwszy miesiąc
 
@@ -1881,28 +1998,36 @@ Z poziomu konta organizacji możesz zarządzać pełnomocnictwami. Biuro rachunk
       'Dzień 1–3: Zgłoś CRBR na podatki.gov.pl.',
       'Dzień 1–3: Otwórz firmowe konto bankowe.',
       'Tydzień 1: Aktywuj e-Doręczenia i ustal kto monitoruje skrzynkę.',
-      'Tydzień 1: Uzyskaj dostęp do konta organizacji w e-Urzędzie Skarbowym.',
+      'Tydzień 1: Wyznacz pierwszego użytkownika Konta Organizacji w e-US (wniosek o dostęp — dla nowej spółki zwykle osobiście w urzędzie).',
+      'Tydzień 1: Złóż NIP-8 z danymi uzupełniającymi (termin 21 dni od wpisu do KRS) — papierowo razem z wnioskiem o dostęp do Konta Organizacji, jeśli nie masz podpisu kwalifikowanego ani UPL-1.',
       'Tydzień 1: Zdecyduj o VAT i złóż VAT-R jeśli potrzebne.',
       'Tydzień 2: Ustal z biurem rachunkowym sposób przekazywania dokumentów.',
       'Tydzień 2: Skonfiguruj aplikację do fakturowania.',
       'Tydzień 2: Ustal status ZUS wspólników z biurem rachunkowym.',
-      'Tydzień 3–4: Wygeneruj token KSeF i połącz z aplikacją.',
-      'Tydzień 3–4: Nadaj biuru rachunkowemu dostęp do KSeF przez NIP biura.',
+      'Tydzień 3–4: Po uruchomieniu Konta Organizacji złóż ZAW-FA (albo uwierzytelnij spółkę pieczęcią kwalifikowaną z NIP).',
+      'Tydzień 3–4: Po pierwszym wejściu do KSeF wygeneruj token/certyfikat i połącz z aplikacją.',
+      'Tydzień 3–4: Nadaj biuru rachunkowemu dostęp do KSeF po stronie NIP biura.',
     ],
     official_links: [
       { label: 'CRBR — zgłoszenie', href: 'https://www.podatki.gov.pl/crbr/', external: true },
       { label: 'e-Doręczenia dla przedsiębiorcy', href: 'https://www.gov.pl/web/e-doreczenia/dla-przedsiebiorcy', external: true },
+      { label: 'Konto Organizacji w e-Urzędzie Skarbowym', href: 'https://www.podatki.gov.pl/e-urzad-skarbowy/konto-organizacji', external: true },
       { label: 'Portal KSeF', href: 'https://ksef.podatki.gov.pl/', external: true },
     ],
     related_actions: [
       { label: 'Szczegółowe obowiązki po rejestracji', href: '/poradnik/pierwsze-obowiazki-po-zalozeniu-spolki-zoo' },
-      { label: 'KSeF dla spółki z o.o.', href: '/poradnik/ksef-spolka-z-oo-kto-moze-nadac-dostep' },
-      { label: 'Pełna księgowość — o co chodzi', href: '/poradnik/pelna-ksiegowosc-spolka-zoo-o-co-chodzi' },
+      { label: 'Konto Organizacji w e-US dla nowej spółki z o.o.', href: '/poradnik/konto-organizacji-e-urzad-skarbowy-spolka' },
+      { label: 'NIP-8 po rejestracji spółki z o.o.', href: '/poradnik/nip-8-spolka-zoo' },
+      { label: 'KSeF dla spółki z o.o. bez pieczęci kwalifikowanej', href: '/poradnik/ksef-spolka-z-oo-kto-moze-nadac-dostep' },
     ],
     faq: [
       {
         question: 'W jakiej kolejności zrobić CRBR i konto bankowe?',
         answer: 'Jedno i drugie jak najszybciej po wpisie do KRS. CRBR ma ustawowy termin — zrób go w pierwszych dniach. Konto bankowe też przyda się od razu do płatności za formalności.',
+      },
+      {
+        question: 'Czy do konta spółki w e-US wystarczy być w zarządzie?',
+        answer: 'Nie. Wpis w KRS pozwala wystąpić o dostęp do Konta Organizacji, ale go nie nadaje. Pierwszego użytkownika trzeba wyznaczyć wnioskiem — kolejnych dodaje się później online.',
       },
       {
         question: 'Czy mogę wystawiać faktury bez podłączenia do KSeF?',
@@ -1912,13 +2037,14 @@ Z poziomu konta organizacji możesz zarządzać pełnomocnictwami. Biuro rachunk
     article_type: 'checklist',
     sort_order: 15,
     published_at: '2026-05-18T00:00:00.000Z',
-    updated_at: '2026-05-18T00:00:00.000Z',
+    updated_at: '2026-09-07T00:00:00.000Z',
     category: fallbackWikiCategories[3],
   },
 
   {
     id: 'fallback-zakladanie-firmy',
     slug: 'zakladanie-firmy',
+    entityTypes: ['jdg', 'spolka'],
     title: 'Zakładanie firmy w Polsce — JDG czy spółka z o.o.?',
     excerpt: 'Dwie najpopularniejsze formy działalności różnią się odpowiedzialnością, podatkami i formalnościami. Porównanie bez żargonu.',
     summary: 'Praktyczne porównanie JDG i spółki z o.o. dla osób, które dopiero decydują jaką formę działalności wybrać.',
@@ -2104,10 +2230,11 @@ Aktualny stan wpisu sprawdzisz w wyszukiwarce KRS na **ekrs.ms.gov.pl** lub prze
 
 Wpis do KRS to dopiero początek. Zaraz po rejestracji masz do wykonania kilka obowiązkowych i pilnych kroków — sprawdź checklistę po prawej stronie. Najważniejsze z terminami:
 
-- **14 dni od wpisu** — zgłoszenie beneficjentów rzeczywistych do **CRBR** (sankcja: do 1 mln zł)
+- **14 dni roboczych od wpisu** — zgłoszenie beneficjentów rzeczywistych do **CRBR** (za brak grozi wysoka kara)
 - **jak najszybciej** — **konto bankowe dla spółki** (potrzebne do wpłaty kapitału i płatności)
-- **jak najszybciej** — **NIP-8** (zgłoszenie uzupełniające: rachunek bankowy, PKD, dane kontaktowe)
-- **do 3 miesięcy** — **e-Doręczenia** (skrzynka do korespondencji urzędowej)
+- **21 dni od wpisu do KRS** — **NIP-8** (dane uzupełniające: firmowe rachunki bankowe, adresy działalności, miejsce przechowywania dokumentacji, dane kontaktowe; 7 dni dla danych potrzebnych ZUS). NIP-8 nie jest prawnie zależny od Konta Organizacji, ale złożenie elektroniczne wymaga podpisu (podpis kwalifikowany / aktywne UPL-1 / kontekst organizacji w e-US) — bez tego złóż go papierowo razem z wnioskiem o dostęp do Konta Organizacji dla pierwszego użytkownika.
+- **jak najszybciej** — wyznaczenie **pierwszego użytkownika Konta Organizacji w e-US** (wniosek o dostęp; wpis w KRS tego dostępu nie nadaje). Dla nowej spółki zwykle osobiście w urzędzie — można przy tej samej wizycie złożyć NIP-8.
+- **e-Doręczenia** — skrzynka do korespondencji urzędowej dla spółki
 - **przed pierwszą transakcją** — **rejestracja VAT**, jeśli chcesz być vatowcem od razu
 `,
     checklist: [
@@ -2120,24 +2247,27 @@ Wpis do KRS to dopiero początek. Zaraz po rejestracji masz do wykonania kilka o
       'Zaproś wszystkich wspólników do podpisania — każda osoba podpisuje osobno swoim profilem zaufanym lub podpisem kwalifikowanym.',
       'Opłać wniosek (250 zł) i złóż po zebraniu wszystkich podpisów.',
       'Sprawdź wpis w KRS — NIP i REGON pojawią się po kilku dniach.',
-      'W ciągu 14 dni od wpisu: zgłoś beneficjentów rzeczywistych do CRBR.',
+      'W ciągu 14 dni roboczych od wpisu: zgłoś beneficjentów rzeczywistych do CRBR.',
       'Jak najszybciej: otwórz konto bankowe dla spółki.',
-      'Złóż NIP-8 (zgłoszenie uzupełniające z rachunkiem bankowym i danymi kontaktowymi).',
+      'Złóż NIP-8 z danymi uzupełniającymi w terminie 21 dni od wpisu do KRS — papierowo razem z wnioskiem o dostęp do Konta Organizacji, jeśli nie masz podpisu kwalifikowanego ani aktywnego UPL-1.',
+      'Wyznacz pierwszego użytkownika Konta Organizacji w e-US (wniosek o dostęp — dla nowej spółki zwykle osobiście w urzędzie).',
       'Aktywuj skrzynkę e-Doręczeń dla spółki.',
       'Zdecyduj o rejestracji VAT przed pierwszą transakcją (jeśli planujesz być vatowcem).',
-      'Rozważ połączenie spółki z KSeF, gdy stanie się obowiązkowy lub gdy chcesz działać przed terminem.',
+      'Po uruchomieniu Konta Organizacji zaplanuj ZAW-FA i połączenie spółki z KSeF.',
     ],
     official_links: [
       { href: 'https://ekrs.ms.gov.pl/', label: 'Portal eKRS — rejestracja przez S24', external: true },
       { href: 'https://www.gov.pl/web/gov/zaloz-spolke-z-ograniczona-odpowiedzialnoscia-przez-internet', label: 'Gov.pl — rejestracja sp. z o.o. online', external: true },
       { href: 'https://www.podatki.gov.pl/crbr/', label: 'CRBR — zgłoszenie beneficjentów', external: true },
-      { href: 'https://www.biznes.gov.pl/pl/portal/ou66', label: 'Biznes.gov.pl — NIP-8', external: true },
+      { href: 'https://www.biznes.gov.pl/pl/portal/ou1478', label: 'Biznes.gov.pl — zgłoszenie NIP-8', external: true },
+      { href: 'https://www.podatki.gov.pl/e-urzad-skarbowy/konto-organizacji', label: 'Konto Organizacji w e-Urzędzie Skarbowym', external: true },
       { href: 'https://ekrs.ms.gov.pl/rdf/pd/search_df', label: 'Wyszukiwarka KRS', external: true },
     ],
     related_actions: [
       { label: 'Zgłoszenie do CRBR po rejestracji', href: '/poradnik/crbr-spolka-zoo-co-zglosic' },
-      { label: 'NIP-8 po rejestracji spółki', href: '/poradnik/nip-8-spolka-zoo' },
-      { label: 'Pierwsze kroki po rejestracji spółki', href: '/poradnik/pierwsze-kroki-po-rejestracji-spolki-zoo' },
+      { label: 'NIP-8 po rejestracji spółki z o.o.', href: '/poradnik/nip-8-spolka-zoo' },
+      { label: 'Konto Organizacji w e-US dla nowej spółki z o.o.', href: '/poradnik/konto-organizacji-e-urzad-skarbowy-spolka' },
+      { label: 'Pierwsze obowiązki po założeniu spółki z o.o.', href: '/poradnik/pierwsze-obowiazki-po-zalozeniu-spolki-zoo' },
     ],
     faq: [
       {
@@ -2168,7 +2298,7 @@ Wpis do KRS to dopiero początek. Zaraz po rejestracji masz do wykonania kilka o
     article_type: 'guide',
     sort_order: 10,
     published_at: '2026-06-03T00:00:00.000Z',
-    updated_at: '2026-06-03T00:00:00.000Z',
+    updated_at: '2026-09-07T00:00:00.000Z',
     category: fallbackWikiCategories[3],
   },
 
@@ -2958,6 +3088,7 @@ Nie ma jednej optymalnej metody. Właściciele spółek często łączą kilka �
   {
     id: 'fallback-struktury-jdg-vs-spolka',
     slug: 'jdg-czy-spolka-zoo-co-wybrac',
+    entityTypes: ['jdg', 'spolka'],
     title: 'JDG czy spółka z o.o. — co wybrać?',
     excerpt: 'JDG jest prosta i tania w obsłudze, ale właściciel odpowiada za długi całym swoim majątkiem. Sp. z o.o. daje ograniczoną odpowiedzialność, lecz wymaga pełnej księgowości i więcej formalności.',
     summary: 'Porównanie JDG i sp. z o.o. pod kątem odpowiedzialności, podatków, ZUS, kosztów obsługi i sytuacji, w których każda forma ma przewagę.',
@@ -3056,6 +3187,7 @@ Wybór zależy od poziomu przychodów, ryzyka, planów na przyszłość i gotowo
   {
     id: 'fallback-struktury-rodzaje-spolek',
     slug: 'rodzaje-spolek-w-polsce-przewodnik',
+    entityTypes: ['spolka', 'jdg'],
     title: 'Rodzaje spółek w Polsce — prosty przewodnik',
     excerpt: 'Polskie prawo gospodarcze oferuje kilka form spółek. Każda różni się odpowiedzialnością, opodatkowaniem, kosztami rejestracji i typowym zastosowaniem.',
     summary: 'Przegląd form prawnych: sp. z o.o., SA, PSA, spółka komandytowa, spółka jawna i JDG jako punkt odniesienia — różnice w odpowiedzialności, podatkach i typowych zastosowaniach.',
@@ -3496,9 +3628,11 @@ Jeśli spółki są powiązane (np. jeden właściciel), każda transakcja międ
     excerpt: 'Fundusz rodzinny to polska instytucja prawna służąca do gromadzenia i zarządzania majątkiem w perspektywie wielopokoleniowej. Nie jest to narzędzie dla każdego — ma określone wymagania, obowiązki i ograniczenia.',
     summary: 'Czym jest fundusz rodzinny, kto może go założyć, jak działa pod względem podatkowym i dla kogo może być właściwym rozwiązaniem.',
     purpose: 'Fundusz rodzinny jest często przedstawiany jako magiczne rozwiązanie podatkowe lub sukcesyjne. Warto zrozumieć, co naprawdę oferuje, a czego nie robi.',
-    body_markdown: `## Co to jest fundusz rodzinny
+    body_markdown: `## Co to jest fundacja rodzinna
 
-Fundusz rodzinny (FRod) to nowy podmiot prawa polskiego (od 2023 r.), stworzony z myślą o zarządzaniu i ochronie majątku rodzinnego w długim horyzoncie czasowym. Reguluje go ustawa z 26 stycznia 2023 r. o fundacji rodzinnej.
+> **Uwaga terminologiczna:** „fundacja rodzinna" (potocznie „fundusz rodzinny") to instytucja z **ustawy z 26 stycznia 2023 r. o fundacji rodzinnej**, służąca sukcesji i zarządzaniu majątkiem rodzinnym. To **nie jest** klasyczna fundacja z ustawy o fundacjach z 1984 r. (organizacja pozarządowa realizująca cele społeczne). Różnią się rejestrem, celem, opodatkowaniem i obowiązkami. Poradniki dla fundacji-NGO znajdziesz w sekcji [Poradnik dla fundacji](/poradnik/dla-fundacji).
+
+Fundacja rodzinna to nowy podmiot prawa polskiego (od 2023 r.), stworzony z myślą o zarządzaniu i ochronie majątku rodzinnego w długim horyzoncie czasowym. Reguluje go ustawa z 26 stycznia 2023 r. o fundacji rodzinnej.
 
 Fundusz rodzinny:
 - jest odrębną osobą prawną (nie spółką, lecz fundacją)
@@ -3680,6 +3814,7 @@ Jeśli planujesz działalność zagraniczną, zrób to z doradcą podatkowym, kt
   {
     id: 'fallback-struktury-przygotowanie-ksiegowosc',
     slug: 'jak-przygotowac-spolke-zoo-do-pelnej-ksiegowosci',
+    entityTypes: ['spolka', 'stowarzyszenie', 'fundacja'],
     title: 'Jak przygotować spółkę z o.o. do pełnej księgowości',
     excerpt: 'Czysta księgowość spółki zaczyna się przed pierwszą fakturą. Odpowiednie konto bankowe, dostęp dla księgowej, dokumenty kosztowe i gotowość do KSeF to podstawy, które warto ułożyć zaraz po rejestracji.',
     summary: 'Praktyczna lista tego, co trzeba przygotować po rejestracji sp. z o.o.: dane firmy, konto, faktury, umowy, dokumenty kosztowe, dostęp do e-US, KSeF i workflow dokumentów z biurem rachunkowym.',
@@ -3899,6 +4034,7 @@ KSH nie określa wprost sposobu archiwizacji, ale przepisy o rachunkowości wyma
   {
     id: 'fallback-ceidg-1',
     slug: 'ceidg-1-jdg',
+    entityTypes: ['jdg'],
     title: 'CEIDG-1 — co to jest i kiedy JDG składa wniosek',
     excerpt: 'CEIDG-1 to podstawowy formularz JDG: rejestrujesz firmę, zmieniasz dane, zawieszasz lub zamykasz działalność. Bez niego nie ma wpisu do CEIDG.',
     summary: 'Przewodnik po formularzu CEIDG-1 dla JDG: kiedy go składasz, co można zmienić, ile masz czasu na aktualizację i jak to zrobić elektronicznie.',
@@ -4002,6 +4138,7 @@ CEIDG-1 to formularz zewnętrzny — KsięgaI nie składa go za Ciebie do CEIDG.
   {
     id: 'fallback-jpk-v7',
     slug: 'jpk-v7-deklaracja-vat',
+    entityTypes: ['spolka', 'jdg', 'stowarzyszenie', 'fundacja'],
     title: 'JPK_V7 — co to jest i kto musi składać co miesiąc',
     excerpt: 'JPK_V7 to obowiązkowy miesięczny plik vatowca. Łączy rejestr VAT z deklaracją w jednym pliku XML — zastąpił stare VAT-7 i JPK_VAT.',
     summary: 'Przewodnik po JPK_V7: czym jest, kto i kiedy składa, co zawiera plik oraz jak KsięgaI automatyzuje ten obowiązek.',
@@ -4115,6 +4252,7 @@ Biuro rachunkowe lub księgowa mają kompletny, porządny zestaw danych bez koni
   {
     id: 'fallback-vat-r',
     slug: 'vat-r-rejestracja-vatowca',
+    entityTypes: ['spolka', 'jdg', 'stowarzyszenie', 'fundacja'],
     title: 'VAT-R — kiedy i jak zarejestrować się jako podatnik VAT',
     excerpt: 'VAT-R to formularz rejestracji VAT. Składasz go zanim wystawisz pierwszą fakturę z VAT — i zanim przekroczysz ustawowy próg obrotu.',
     summary: 'Przewodnik po VAT-R: kiedy musisz zarejestrować się jako czynny vatowiec, kiedy możesz to zrobić dobrowolnie i co dzieje się po rejestracji.',
@@ -4209,6 +4347,7 @@ KsięgaI nie składa VAT-R za Ciebie, ale może pomóc w codziennym zarządzaniu
   {
     id: 'fallback-vat-ue',
     slug: 'vat-ue-transakcje-unijne',
+    entityTypes: ['spolka', 'jdg', 'stowarzyszenie', 'fundacja'],
     title: 'VAT-UE — kiedy rejestrować się do transakcji wewnątrzwspólnotowych',
     excerpt: 'Kupujesz usługi od zagranicznej firmy z UE? Sprzedajesz towary do innego kraju UE? Zanim wystawisz pierwszą fakturę — sprawdź czy potrzebujesz rejestracji VAT-UE.',
     summary: 'Przewodnik po VAT-UE: co to jest, kogo dotyczy transakcji wewnątrzwspólnotowych, kiedy złożyć formularz i jak wygląda weryfikacja numeru VAT-UE.',
@@ -4298,6 +4437,7 @@ KsięgaI może pomóc kategoryzować faktury kosztowe od zagranicznych dostawcó
   {
     id: 'fallback-vat-9m',
     slug: 'vat-9m-import-uslug',
+    entityTypes: ['spolka', 'jdg', 'stowarzyszenie', 'fundacja'],
     title: 'VAT-9M — kiedy firma bez VAT płaci podatek od zagranicznych usług',
     excerpt: 'Nie jesteś vatowcem, ale kupujesz usługi od zagranicznych firm? VAT-9M to deklaracja właśnie dla tego przypadku — rozliczasz VAT mimo że nie jesteś czynnym podatnikiem.',
     summary: 'Wyjaśnienie VAT-9M: kto składa tę deklarację, kiedy powstaje obowiązek VAT od importu usług i jak wygląda rozliczenie dla firmy zwolnionej z VAT.',
@@ -4384,6 +4524,7 @@ KsięgaI przechowuje faktury zagraniczne i może je oznaczać jako wymagające r
   {
     id: 'fallback-zus-dra',
     slug: 'zus-dra-deklaracja-zus',
+    entityTypes: ['spolka', 'jdg', 'stowarzyszenie', 'fundacja'],
     title: 'ZUS DRA — comiesięczna deklaracja ZUS dla przedsiębiorcy i pracodawcy',
     excerpt: 'ZUS DRA to miesięczna deklaracja rozliczeniowa do ZUS. Składają ją JDG i pracodawcy — nalicza składki na ubezpieczenia społeczne za siebie i za pracowników.',
     summary: 'Przewodnik po ZUS DRA: kto składa, kiedy, co deklaruje JDG a co pracodawca i jak zmienił się obowiązek przy małym ZUS plus.',
@@ -4482,6 +4623,7 @@ KsięgaI przechowuje dokumenty kadrowe i listy płac. Dla biura rachunkowego, kt
   {
     id: 'fallback-pit-36',
     slug: 'pit-36-jdg-zasady-ogolne',
+    entityTypes: ['jdg'],
     title: 'PIT-36 — roczne rozliczenie JDG na zasadach ogólnych (skala podatkowa)',
     excerpt: 'PIT-36 to roczna deklaracja podatkowa JDG rozliczającej się na skali podatkowej. Składasz ją do końca kwietnia za poprzedni rok — i dopiero wtedy wiesz ile naprawdę zapłaciłeś.',
     summary: 'Przewodnik po PIT-36: kto składa, kiedy, co można odliczyć, jak działa skala podatkowa i czym różni się od PIT-36L i PIT-28.',
@@ -4576,6 +4718,7 @@ KsięgaI porządkuje faktury i dokumenty kosztowe przez cały rok. Biuro rachunk
   {
     id: 'fallback-pit-36l',
     slug: 'pit-36l-podatek-liniowy-jdg',
+    entityTypes: ['jdg'],
     title: 'PIT-36L — roczne rozliczenie JDG na podatku liniowym',
     excerpt: 'PIT-36L to roczna deklaracja JDG, która wybrała podatek liniowy — 19% od dochodu bez progresji i bez większości ulg podatkowych.',
     summary: 'Przewodnik po PIT-36L: dla kogo jest podatek liniowy, kiedy składasz deklarację, jakich ulg nie możesz stosować i kiedy warto zmienić formę opodatkowania.',
@@ -4673,6 +4816,7 @@ Tak jak przy PIT-36: KsięgaI pilnuje kompletności dokumentów przez rok. Biuro
   {
     id: 'fallback-pit-28',
     slug: 'pit-28-ryczalt-od-przychodow',
+    entityTypes: ['jdg'],
     title: 'PIT-28 — roczne rozliczenie JDG na ryczałcie ewidencjonowanym',
     excerpt: 'PIT-28 to roczna deklaracja JDG opodatkowanej ryczałtem. Płacisz podatek od przychodu (nie dochodu) — bez możliwości odliczania kosztów, ale z niższymi stawkami dla wielu branż.',
     summary: 'Przewodnik po PIT-28: kiedy ryczałt jest korzystny, jakie są stawki ryczałtu dla różnych typów działalności, kiedy złożyć PIT-28 i czego nie można odliczyć.',
@@ -4785,6 +4929,7 @@ KsięgaI rejestruje faktury sprzedaży i pozwala kategoryzować przychody wedłu
   {
     id: 'fallback-pit-11',
     slug: 'pit-11-informacja-o-dochodach',
+    entityTypes: ['spolka', 'jdg', 'stowarzyszenie', 'fundacja'],
     title: 'PIT-11 — co to jest i kiedy firma musi go wystawić pracownikom',
     excerpt: 'PIT-11 to roczna informacja o dochodach i zaliczkach przekazywana pracownikom i do urzędu skarbowego. Jeśli zatrudniasz ludzi lub wypłacasz im zlecenia — PIT-11 jest Twoim obowiązkiem.',
     summary: 'Przewodnik po PIT-11: kto wystawia, komu, kiedy, co zawiera i co się dzieje jeśli prześlesz go po terminie.',
@@ -4879,6 +5024,7 @@ KsięgaI przechowuje dokumenty kadrowe i dane z list płac. Biuro rachunkowe kor
   {
     id: 'fallback-pit-4r-pit-8ar',
     slug: 'pit-4r-pit-8ar-zaliczki-podatku',
+    entityTypes: ['spolka', 'jdg', 'stowarzyszenie', 'fundacja'],
     title: 'PIT-4R i PIT-8AR — roczne deklaracje pracodawcy z zaliczek na podatek',
     excerpt: 'Zatrudniasz pracowników lub wypłacasz zlecenia? Co roku musisz złożyć PIT-4R (zaliczki od wynagrodzeń) i ewentualnie PIT-8AR (zryczałtowany podatek). Oba terminy to koniec stycznia.',
     summary: 'Wyjaśnienie PIT-4R i PIT-8AR: czym są, kto je składa, jaki jest termin i jak mają się do PIT-11 wystawianego pracownikom.',
@@ -5178,6 +5324,7 @@ KsięgaI pilnuje obiegu dokumentów przez cały rok. Biuro rachunkowe mające ko
   {
     id: 'fallback-ksef-obsluga-pomoc',
     slug: 'obsluga-ksef-status-i-najczestsze-problemy',
+    entityTypes: ['spolka', 'jdg', 'stowarzyszenie', 'fundacja'],
     title: 'Obsługa KSeF — statusy faktur, błędy i jak rozwiązać najczęstsze problemy',
     excerpt: 'Dokument "oczekuje na zatwierdzenie", faktura nie trafia do KSeF, token nie działa — co te komunikaty oznaczają i co z nimi zrobić.',
     summary: 'Praktyczny przewodnik po obsłudze KSeF: co oznaczają statusy dokumentów, najczęstsze błędy przy wysyłce faktur i gdzie szukać pomocy, kiedy coś nie działa.',
@@ -5258,6 +5405,892 @@ W okresach szczytowego obciążenia (np. koniec miesiąca) KSeF bywa wolniejszy 
     published_at: '2026-08-18T00:00:00.000Z',
     updated_at: '2026-08-18T00:00:00.000Z',
     category: fallbackWikiCategories[0],
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // NGO — fundacja / stowarzyszenie rejestrowe (klaster obowiązków po rejestracji)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  {
+    id: 'fallback-ngo-pierwsze-obowiazki-fundacji',
+    slug: 'pierwsze-obowiazki-po-rejestracji-fundacji',
+    entityTypes: ['fundacja'],
+    title: 'Pierwsze obowiązki fundacji po rejestracji w KRS — pełna lista z terminami',
+    h1: 'Fundacja jest w KRS — i co dalej? Obowiązki, o których nikt nie mówi',
+    excerpt: 'Wpis do KRS to nie koniec. Fundacja ma po rejestracji NIP-8 (21 dni), CRBR (14 dni), konto organizacji w e-US, e-Doręczenia, a co roku sprawozdanie z działalności do właściwego ministra.',
+    summary: 'Kompletna checklista obowiązków fundacji zaraz po wpisie do KRS: NIP-8, CRBR, rachunek bankowy, konto organizacji w e-Urzędzie Skarbowym, e-Doręczenia, nadzór ministra i starosty, coroczne sprawozdanie z działalności, sprawozdanie finansowe oraz rozdzielenie działalności statutowej, odpłatnej i gospodarczej.',
+    purpose: 'Zarząd nowej fundacji zwykle nie wie, co i w jakiej kolejności załatwić po rejestracji — a część obowiązków ma ustawowe terminy i sankcje. Ten poradnik układa je w jedną listę i kieruje do szczegółowych instrukcji.',
+    body_markdown: `## W skrócie
+
+Rejestracja fundacji w KRS uruchamia kilka obowiązków — część z ustawowym terminem liczonym od dnia wpisu:
+
+- **NIP-8** — dane uzupełniające do urzędu skarbowego, **21 dni** od wpisu do KRS,
+- **CRBR** — zgłoszenie beneficjentów rzeczywistych, **14 dni** od wpisu do KRS,
+- **konto bankowe** organizacji — jak najszybciej (numer zgłaszasz w NIP-8),
+- **konto organizacji w e-Urzędzie Skarbowym** — żeby działać w e-US w imieniu fundacji,
+- **e-Doręczenia** — adres do korespondencji urzędowej,
+- co roku: **sprawozdanie z działalności** do właściwego ministra oraz **sprawozdanie finansowe**.
+
+Fundacja jest osobą prawną — prowadzi pełną księgowość od pierwszego dnia, nawet jeśli nie ma jeszcze żadnych przychodów.
+
+## Pierwsze dni: NIP-8 i CRBR
+
+### NIP-8 — 21 dni od wpisu do KRS
+
+Wpis do KRS nadaje NIP i REGON automatycznie, ale nie przekazuje urzędowi danych operacyjnych. **NIP-8** uzupełnia m.in.: numery rachunków bankowych, adresy miejsc prowadzenia działalności, miejsce przechowywania dokumentacji, dane kontaktowe, datę powstania obowiązku opłacania składek (jeśli fundacja zatrudnia). Termin: **21 dni** od wpisu do KRS; zmiana danych — 7 dni. Szczegóły i sposób podpisu: [NIP-8 dla fundacji i stowarzyszenia](/poradnik/nip-8-fundacja-stowarzyszenie).
+
+### CRBR — 14 dni od wpisu do KRS
+
+Fundacje wpisane do KRS są objęte **Centralnym Rejestrem Beneficjentów Rzeczywistych** (od 31 października 2021 r.). Zgłoszenie robi osoba uprawniona do reprezentacji zgodnie z KRS, bezpłatnie, przez [crbr.podatki.gov.pl](https://crbr.podatki.gov.pl/), w terminie **14 dni** od wpisu do KRS. Za brak zgłoszenia lub nieprawdziwe dane grozi kara do **1 000 000 zł**. Jak ustalić beneficjenta w fundacji (brak udziałowców): [CRBR dla fundacji i stowarzyszenia](/poradnik/crbr-fundacja-stowarzyszenie).
+
+## Konto bankowe i konto organizacji w e-US
+
+Otwórz **firmowy rachunek bankowy** fundacji (potrzebne: statut, odpis z KRS, dokumenty tożsamości zarządu) i zgłoś jego numer w NIP-8.
+
+Żeby działać w e-Urzędzie Skarbowym w imieniu fundacji — składać JPK, zarządzać pełnomocnictwami, złożyć ZAW-FA do KSeF — potrzebujesz **konta organizacji**. **Wpis w KRS jako członek zarządu nie nadaje tego dostępu automatycznie.** Pierwszego użytkownika trzeba formalnie wyznaczyć wnioskiem, najczęściej osobiście w urzędzie. Cała procedura (identyczna jak dla spółki): [Konto organizacji w e-US dla fundacji i stowarzyszenia](/poradnik/konto-organizacji-e-urzad-skarbowy-ngo).
+
+## e-Doręczenia
+
+Fundacja wpisana do KRS ma obowiązek posiadania **adresu do e-Doręczeń**. Dla podmiotów rejestrowanych po 1 stycznia 2025 r. adres jest zwykle zakładany w procesie rejestracji w KRS — sprawdź, czy jest **aktywny** w Bazie Adresów Elektronicznych, i ustal, kto monitoruje skrzynkę. Szczegóły i aktualne terminy: [e-Doręczenia dla fundacji i stowarzyszenia](/poradnik/e-doreczenia-fundacja-stowarzyszenie).
+
+## Nadzór nad fundacją
+
+Fundacja podlega **podwójnemu nadzorowi**: właściwego **ministra** (wskazanego w KRS, adekwatnego do celów statutowych) oraz **starosty** właściwego ze względu na siedzibę. Organy nadzoru mogą żądać wyjaśnień, wglądu w dokumenty i uchwały. Ustal, który minister jest wpisany w Twoim KRS — do niego składasz coroczne sprawozdanie.
+
+## Coroczne sprawozdanie z działalności do ministra
+
+To obowiązek **wyłącznie fundacji** (stowarzyszenia go nie mają). Fundacja składa co roku właściwemu ministrowi **sprawozdanie z działalności** za rok poprzedni — w postaci elektronicznej, na urzędowym formularzu, podpisane podpisem kwalifikowanym, zaufanym albo osobistym. Termin, formularz i podstawa prawna: [Sprawozdanie z działalności fundacji](/poradnik/sprawozdanie-z-dzialalnosci-fundacji).
+
+## Sprawozdanie finansowe
+
+Fundacja sporządza **sprawozdanie finansowe** według ustawy o rachunkowości (organizacje nieprowadzące działalności gospodarczej mogą stosować uproszczony załącznik nr 6). SF sporządza się w **postaci elektronicznej** (struktura logiczna), podpisuje cały zarząd i osoba prowadząca księgi; składa się do Szefa KAS lub — jeśli fundacja jest w rejestrze przedsiębiorców — do KRS.
+
+## Działalność statutowa, odpłatna i gospodarcza
+
+Zanim fundacja zacznie pobierać opłaty lub sprzedawać, ustal charakter tych działań: **statutowa nieodpłatna**, **odpłatna działalność pożytku publicznego** (bez wpisu do rejestru przedsiębiorców, ale z wyodrębnieniem księgowym) czy **działalność gospodarcza** (wpis do rejestru przedsiębiorców KRS). Od tego zależą księgowość, VAT i KSeF. Zobacz: [Działalność w NGO — statutowa, odpłatna, gospodarcza](/poradnik/dzialalnosc-w-ngo-statutowa-odplatna-gospodarcza).
+
+## KSeF
+
+Jeśli fundacja jest podatnikiem VAT i wystawia faktury, dotyczy jej **KSeF**. Ścieżka jest taka sama jak dla spółki bez pieczęci kwalifikowanej: konto organizacji w e-US → **ZAW-FA** → pierwsza osoba z uprawnieniami → dalsze uprawnienia → token dla aplikacji. Zobacz: [KSeF dla fundacji i stowarzyszenia](/poradnik/ksef-dla-fundacji-i-stowarzyszenia).
+
+## Zastrzeżenie
+
+Stan na 7 września 2026 r. Przepisy i procedury bywają zmieniane — sprawdź aktualne informacje na gov.pl, podatki.gov.pl i u właściwego ministra. KsięgaI to oprogramowanie do prowadzenia organizacji i fakturowania, a nie doradztwo podatkowe ani prawne.`,
+    checklist: [
+      'Zgłoś beneficjentów rzeczywistych do CRBR w terminie 14 dni od wpisu do KRS (crbr.podatki.gov.pl).',
+      'Złóż NIP-8 z danymi uzupełniającymi w terminie 21 dni od wpisu do KRS.',
+      'Otwórz firmowy rachunek bankowy fundacji i zgłoś jego numer w NIP-8.',
+      'Wyznacz pierwszego użytkownika konta organizacji w e-US (wniosek o dostęp — zwykle osobiście w urzędzie).',
+      'Sprawdź, czy adres do e-Doręczeń fundacji jest aktywny, i ustal osobę monitorującą skrzynkę.',
+      'Ustal, który minister jest wpisany w KRS jako organ nadzoru — do niego składasz sprawozdanie z działalności.',
+      'Zaplanuj coroczne sprawozdanie z działalności do ministra oraz sprawozdanie finansowe.',
+      'Ustal charakter działań fundacji: statutowa nieodpłatna, odpłatna pożytku publicznego czy gospodarcza.',
+      'Jeśli fundacja wystawia faktury i jest podatnikiem VAT — zaplanuj ścieżkę do KSeF (konto organizacji → ZAW-FA).',
+    ],
+    official_links: [
+      { label: 'CRBR — zgłoszenie beneficjentów rzeczywistych', href: 'https://crbr.podatki.gov.pl/', external: true },
+      { label: 'Konto Organizacji w e-Urzędzie Skarbowym', href: 'https://www.podatki.gov.pl/e-urzad-skarbowy/konto-organizacji', external: true },
+      { label: 'Formularz sprawozdania z działalności fundacji (Ministerstwo Sprawiedliwości)', href: 'https://www.gov.pl/web/sprawiedliwosc/formularz-sprawozdania-z-dzialalnosci-fundacji', external: true },
+      { label: 'Fundacje — nadzór (Ministerstwo Sprawiedliwości)', href: 'https://www.gov.pl/web/sprawiedliwosc/fundacje-nadzor', external: true },
+      { label: 'e-Doręczenia dla podmiotów niepublicznych', href: 'https://www.gov.pl/web/e-doreczenia', external: true },
+    ],
+    related_actions: [
+      { label: 'Konto organizacji w e-US dla fundacji i stowarzyszenia', href: '/poradnik/konto-organizacji-e-urzad-skarbowy-ngo' },
+      { label: 'CRBR dla fundacji i stowarzyszenia', href: '/poradnik/crbr-fundacja-stowarzyszenie' },
+      { label: 'NIP-8 dla fundacji i stowarzyszenia', href: '/poradnik/nip-8-fundacja-stowarzyszenie' },
+      { label: 'Sprawozdanie z działalności fundacji', href: '/poradnik/sprawozdanie-z-dzialalnosci-fundacji' },
+      { label: 'KSeF dla fundacji i stowarzyszenia', href: '/poradnik/ksef-dla-fundacji-i-stowarzyszenia' },
+    ],
+    faq: [
+      {
+        question: 'Ile czasu ma fundacja na CRBR i NIP-8 po rejestracji?',
+        answer: 'CRBR — 14 dni od wpisu do KRS (kara do 1 mln zł za brak). NIP-8 — 21 dni od wpisu do KRS (grzywna za spóźnienie). Oba terminy liczą się od dnia wpisu.',
+      },
+      {
+        question: 'Czy fundacja musi składać sprawozdanie do ministra co roku?',
+        answer: 'Tak. Fundacja składa właściwemu ministrowi (wskazanemu w KRS) coroczne sprawozdanie z działalności za rok poprzedni, w postaci elektronicznej na urzędowym formularzu. Stowarzyszenia takiego obowiązku nie mają.',
+      },
+      {
+        question: 'Czy członek zarządu fundacji automatycznie widzi ją w e-Urzędzie Skarbowym?',
+        answer: 'Nie. Wpis w KRS pozwala wystąpić o dostęp do konta organizacji, ale go nie nadaje. Pierwszego użytkownika trzeba wyznaczyć wnioskiem — dla nowej organizacji zwykle osobiście w urzędzie.',
+      },
+      {
+        question: 'Czy fundacja bez przychodów prowadzi księgowość?',
+        answer: 'Tak. Fundacja jest osobą prawną i od dnia wpisu do KRS prowadzi pełne księgi rachunkowe, nawet bez żadnych operacji. Organizacje nieprowadzące działalności gospodarczej mogą stosować uproszczony załącznik nr 6 do ustawy o rachunkowości.',
+      },
+    ],
+    article_type: 'checklist',
+    sort_order: 10,
+    published_at: '2026-09-07T00:00:00.000Z',
+    updated_at: '2026-09-07T00:00:00.000Z',
+    category: CAT_START_NGO,
+  },
+
+  {
+    id: 'fallback-ngo-pierwsze-obowiazki-stowarzyszenia',
+    slug: 'pierwsze-obowiazki-po-rejestracji-stowarzyszenia',
+    entityTypes: ['stowarzyszenie'],
+    title: 'Pierwsze obowiązki stowarzyszenia po rejestracji w KRS — lista z terminami',
+    h1: 'Stowarzyszenie jest w KRS — pierwsze obowiązki, o których nikt nie mówi',
+    excerpt: 'Stowarzyszenie rejestrowe po wpisie do KRS ma NIP-8 (21 dni), CRBR (14 dni), konto organizacji w e-US, e-Doręczenia i nadzór starosty. Sprawozdania do ministra — w odróżnieniu od fundacji — nie składa.',
+    summary: 'Checklista obowiązków stowarzyszenia rejestrowego zaraz po wpisie do KRS: NIP-8, CRBR, rachunek bankowy, konto organizacji w e-Urzędzie Skarbowym, e-Doręczenia, nadzór starosty, sprawozdanie finansowe, działalność statutowa, odpłatna i gospodarcza oraz KSeF. Czym różni się od obowiązków fundacji.',
+    purpose: 'Zarząd nowego stowarzyszenia często nie wie, co załatwić po rejestracji ani czym jego obowiązki różnią się od obowiązków fundacji. Ten poradnik układa je w listę z terminami.',
+    body_markdown: `## W skrócie
+
+Wpis stowarzyszenia rejestrowego do KRS uruchamia obowiązki — część z ustawowym terminem od dnia wpisu:
+
+- **CRBR** — zgłoszenie beneficjentów rzeczywistych, **14 dni** od wpisu do KRS,
+- **NIP-8** — dane uzupełniające do urzędu skarbowego, **21 dni** od wpisu do KRS,
+- **konto bankowe** organizacji — jak najszybciej (numer zgłaszasz w NIP-8),
+- **konto organizacji w e-Urzędzie Skarbowym** — żeby działać w e-US w imieniu stowarzyszenia,
+- **e-Doręczenia** — adres do korespondencji urzędowej,
+- co roku: **sprawozdanie finansowe** (sprawozdania z działalności do ministra stowarzyszenie **nie składa**).
+
+Stowarzyszenie rejestrowe jest osobą prawną — prowadzi pełną księgowość od pierwszego dnia, nawet bez przychodów.
+
+## Pierwsze dni: CRBR i NIP-8
+
+### CRBR — 14 dni od wpisu do KRS
+
+Stowarzyszenia wpisane do KRS są objęte **Centralnym Rejestrem Beneficjentów Rzeczywistych** (od 31 października 2021 r.). Zgłoszenie robi osoba uprawniona do reprezentacji zgodnie z KRS, bezpłatnie, przez [crbr.podatki.gov.pl](https://crbr.podatki.gov.pl/), w terminie **14 dni** od wpisu do KRS. Kara za brak lub nieprawdziwe dane — do **1 000 000 zł**. W stowarzyszeniu nie ma udziałowców, więc beneficjentów ustala się według kontroli faktycznej. Jak to zrobić: [CRBR dla fundacji i stowarzyszenia](/poradnik/crbr-fundacja-stowarzyszenie).
+
+### NIP-8 — 21 dni od wpisu do KRS
+
+KRS nadaje NIP i REGON automatycznie, ale nie przekazuje urzędowi danych operacyjnych. **NIP-8** uzupełnia numery rachunków bankowych, adresy, miejsce przechowywania dokumentacji, dane kontaktowe, datę powstania obowiązku składek (jeśli stowarzyszenie zatrudnia). Termin: **21 dni** od wpisu do KRS; zmiana danych — 7 dni. Szczegóły: [NIP-8 dla fundacji i stowarzyszenia](/poradnik/nip-8-fundacja-stowarzyszenie).
+
+## Konto bankowe i konto organizacji w e-US
+
+Otwórz **firmowy rachunek bankowy** stowarzyszenia (statut, odpis z KRS, dokumenty tożsamości zarządu) i zgłoś numer w NIP-8.
+
+Do działania w e-Urzędzie Skarbowym w imieniu stowarzyszenia potrzebujesz **konta organizacji**. **Wpis w KRS jako członek zarządu nie nadaje tego dostępu automatycznie** — pierwszego użytkownika trzeba wyznaczyć wnioskiem, zwykle osobiście w urzędzie. Cała procedura: [Konto organizacji w e-US dla fundacji i stowarzyszenia](/poradnik/konto-organizacji-e-urzad-skarbowy-ngo).
+
+## e-Doręczenia
+
+Stowarzyszenie rejestrowe (podmiot niepubliczny w KRS) ma obowiązek posiadania **adresu do e-Doręczeń**. Dla organizacji rejestrowanych po 1 stycznia 2025 r. adres jest zwykle zakładany przy rejestracji w KRS — sprawdź jego **aktywność** w Bazie Adresów Elektronicznych. Szczegóły i terminy: [e-Doręczenia dla fundacji i stowarzyszenia](/poradnik/e-doreczenia-fundacja-stowarzyszenie).
+
+## Nadzór nad stowarzyszeniem
+
+Organem nadzoru jest **starosta** (lub prezydent miasta na prawach powiatu) właściwy ze względu na siedzibę stowarzyszenia. Może żądać odpisów uchwał walnego zebrania, wyjaśnień od zarządu i przeprowadzać kontrolę. **Stowarzyszenie nie składa sprawozdania z działalności do ministra** — to obowiązek fundacji. Wyjątek: stowarzyszenie ze statusem organizacji pożytku publicznego składa sprawozdanie merytoryczne i finansowe w bazie sprawozdań OPP.
+
+## Sprawozdanie finansowe
+
+Stowarzyszenie rejestrowe sporządza **sprawozdanie finansowe** według ustawy o rachunkowości (organizacje nieprowadzące działalności gospodarczej mogą stosować uproszczony załącznik nr 6). SF sporządza się w **postaci elektronicznej**, podpisuje cały zarząd i osoba prowadząca księgi; składa się do Szefa KAS lub — jeśli stowarzyszenie prowadzi działalność gospodarczą i jest w rejestrze przedsiębiorców — do KRS. Zobacz: [Obowiązki sprawozdawcze stowarzyszenia](/poradnik/obowiazki-sprawozdawcze-stowarzyszenia).
+
+## Działalność statutowa, odpłatna i gospodarcza
+
+Zanim stowarzyszenie zacznie pobierać opłaty od uczestników lub sprzedawać, ustal charakter tych działań: **statutowa nieodpłatna**, **odpłatna działalność pożytku publicznego** czy **działalność gospodarcza** (wymaga wpisu do rejestru przedsiębiorców KRS). Zobacz: [Działalność w NGO — statutowa, odpłatna, gospodarcza](/poradnik/dzialalnosc-w-ngo-statutowa-odplatna-gospodarcza).
+
+## KSeF
+
+Jeśli stowarzyszenie jest podatnikiem VAT i wystawia faktury, dotyczy go **KSeF** na ogólnych zasadach: konto organizacji w e-US → **ZAW-FA** → pierwsza osoba z uprawnieniami → token. Zobacz: [KSeF dla fundacji i stowarzyszenia](/poradnik/ksef-dla-fundacji-i-stowarzyszenia).
+
+## Zastrzeżenie
+
+Stan na 7 września 2026 r. Przepisy bywają zmieniane — sprawdź aktualne informacje na gov.pl i u właściwego starosty. KsięgaI to oprogramowanie, a nie doradztwo podatkowe ani prawne.`,
+    checklist: [
+      'Zgłoś beneficjentów rzeczywistych do CRBR w terminie 14 dni od wpisu do KRS.',
+      'Złóż NIP-8 z danymi uzupełniającymi w terminie 21 dni od wpisu do KRS.',
+      'Otwórz firmowy rachunek bankowy stowarzyszenia i zgłoś jego numer w NIP-8.',
+      'Wyznacz pierwszego użytkownika konta organizacji w e-US (wniosek o dostęp — zwykle osobiście w urzędzie).',
+      'Sprawdź, czy adres do e-Doręczeń stowarzyszenia jest aktywny, i wyznacz osobę monitorującą skrzynkę.',
+      'Ustal właściwego starostę (organ nadzoru) ze względu na siedzibę stowarzyszenia.',
+      'Zaplanuj coroczne sprawozdanie finansowe (do Szefa KAS lub KRS).',
+      'Ustal charakter działań: statutowa nieodpłatna, odpłatna pożytku publicznego czy gospodarcza.',
+      'Jeśli stowarzyszenie wystawia faktury i jest podatnikiem VAT — zaplanuj ścieżkę do KSeF.',
+    ],
+    official_links: [
+      { label: 'CRBR — zgłoszenie beneficjentów rzeczywistych', href: 'https://crbr.podatki.gov.pl/', external: true },
+      { label: 'Konto Organizacji w e-Urzędzie Skarbowym', href: 'https://www.podatki.gov.pl/e-urzad-skarbowy/konto-organizacji', external: true },
+      { label: 'e-Doręczenia dla podmiotów niepublicznych', href: 'https://www.gov.pl/web/e-doreczenia', external: true },
+      { label: 'Sprawozdania finansowe organizacji do Szefa KAS', href: 'https://www.podatki.gov.pl/e-sprawozdania-finansowe/', external: true },
+    ],
+    related_actions: [
+      { label: 'Konto organizacji w e-US dla fundacji i stowarzyszenia', href: '/poradnik/konto-organizacji-e-urzad-skarbowy-ngo' },
+      { label: 'CRBR dla fundacji i stowarzyszenia', href: '/poradnik/crbr-fundacja-stowarzyszenie' },
+      { label: 'NIP-8 dla fundacji i stowarzyszenia', href: '/poradnik/nip-8-fundacja-stowarzyszenie' },
+      { label: 'Obowiązki sprawozdawcze stowarzyszenia', href: '/poradnik/obowiazki-sprawozdawcze-stowarzyszenia' },
+      { label: 'KSeF dla fundacji i stowarzyszenia', href: '/poradnik/ksef-dla-fundacji-i-stowarzyszenia' },
+    ],
+    faq: [
+      {
+        question: 'Czy stowarzyszenie składa sprawozdanie z działalności do ministra?',
+        answer: 'Nie. To obowiązek fundacji. Stowarzyszenie rejestrowe podlega nadzorowi starosty i składa jedynie sprawozdanie finansowe (oraz — jeśli ma status OPP — sprawozdanie merytoryczne w bazie OPP).',
+      },
+      {
+        question: 'Ile czasu ma stowarzyszenie na CRBR i NIP-8?',
+        answer: 'CRBR — 14 dni od wpisu do KRS (kara do 1 mln zł). NIP-8 — 21 dni od wpisu do KRS. Oba liczą się od dnia wpisu.',
+      },
+      {
+        question: 'Kto nadzoruje stowarzyszenie?',
+        answer: 'Starosta (albo prezydent miasta na prawach powiatu) właściwy ze względu na siedzibę stowarzyszenia. Może żądać odpisów uchwał i wyjaśnień od zarządu.',
+      },
+      {
+        question: 'Czy członek zarządu stowarzyszenia automatycznie widzi je w e-US?',
+        answer: 'Nie. Wpis w KRS pozwala wystąpić o dostęp do konta organizacji, ale go nie nadaje. Pierwszego użytkownika trzeba wyznaczyć wnioskiem, zwykle osobiście w urzędzie.',
+      },
+    ],
+    article_type: 'checklist',
+    sort_order: 12,
+    published_at: '2026-09-07T00:00:00.000Z',
+    updated_at: '2026-09-07T00:00:00.000Z',
+    category: CAT_START_NGO,
+  },
+
+  {
+    id: 'fallback-ngo-konto-organizacji',
+    slug: 'konto-organizacji-e-urzad-skarbowy-ngo',
+    entityTypes: ['fundacja', 'stowarzyszenie'],
+    title: 'Konto organizacji w e-Urzędzie Skarbowym dla fundacji i stowarzyszenia',
+    h1: 'Fundacja lub stowarzyszenie nie pojawia się w e-Urzędzie Skarbowym? Jak uzyskać Konto Organizacji',
+    excerpt: 'Procedura Konta Organizacji jest taka sama dla każdego podmiotu w KRS — także fundacji i stowarzyszenia. Wpis w KRS jako członek zarządu nie nadaje dostępu; pierwszego użytkownika trzeba wyznaczyć wnioskiem.',
+    summary: 'Jak fundacja lub stowarzyszenie rejestrowe uzyskuje dostęp do Konta Organizacji w e-Urzędzie Skarbowym: dlaczego organizacja nie widnieje po zalogowaniu, jak wyznaczyć pierwszego użytkownika wnioskiem, jakie dokumenty (statut, odpis KRS, reprezentacja) przygotować i jak to się łączy z NIP-8 i ZAW-FA do KSeF.',
+    purpose: 'Zarząd fundacji lub stowarzyszenia loguje się do e-US i nie widzi organizacji, a poradniki online mówią głównie o spółkach. Ten artykuł pokazuje, że procedura jest identyczna, i wskazuje różnice w dokumentach.',
+    body_markdown: `## Procedura jest taka sama jak dla spółki
+
+**Konto Organizacji w e-Urzędzie Skarbowym działa tak samo dla każdego podmiotu wpisanego do KRS — bez względu na formę prawną.** Oficjalna informacja Ministerstwa Finansów wprost wymienia stowarzyszenia i fundacje obok spółek. Dlatego cała mechanika — bootstrap pierwszego użytkownika, dostęp podstawowy vs rozszerzony, dodawanie kolejnych osób online — jest opisana w jednym miejscu:
+
+> **[Konto organizacji w e-US dla nowej spółki z o.o. — krok po kroku](/poradnik/konto-organizacji-e-urzad-skarbowy-spolka)** — przeczytaj ten przewodnik jako podstawę. Poniżej tylko to, co jest inne dla fundacji i stowarzyszenia.
+
+## Czy członek zarządu automatycznie widzi organizację w e-US?
+
+Nie. Wpis w KRS jako osoba uprawniona do reprezentacji fundacji lub stowarzyszenia wskazuje, **kto może wystąpić o dostęp** do Konta Organizacji — ale sam z siebie nie czyni tej osoby użytkownikiem konta. Jeśli po zalogowaniu i kliknięciu „Zmień kontekst" / „Przełącz podmiot" organizacji nie ma na liście, to najczęściej dlatego, że **nikt nie został jeszcze wyznaczony jako jej użytkownik**.
+
+## Jak wyznaczyć pierwszego użytkownika
+
+Tak samo jak w spółce: przez **„Wniosek o przyznanie dostępu / odebranie dostępu do Konta Organizacji w e-Urzędzie Skarbowym"**, złożony do urzędu skarbowego właściwego w sprawach ewidencji dla organizacji. Dla nowej organizacji najpewniejszą drogą jest **złożenie wniosku osobiście w placówce US**. Pierwszy użytkownik powinien dostać **dostęp rozszerzony** — tylko taki może potem dodawać kolejne osoby online (sekcja „Dane organizacji → Użytkownicy").
+
+## Co jest inne dla fundacji i stowarzyszenia — dokumenty
+
+Do urzędu zabierz:
+
+- **wypełniony wniosek o dostęp do Konta Organizacji**,
+- **statut** organizacji (w spółce to umowa/akt założycielski — tu statut),
+- **aktualny odpis / wydruk z KRS**,
+- **dokument tożsamości** osoby wyznaczanej na użytkownika,
+- **podpisy zgodne z zasadą reprezentacji ze STATUTU i wpisu w KRS** — w wielu fundacjach i stowarzyszeniach reprezentacja jest łączna (np. dwóch członków zarządu); wtedy wniosek podpisuje komplet wymaganych osób,
+- **pełnomocnictwo**, jeśli wniosek składa ktoś inny niż osoby uprawnione do reprezentacji,
+- **dane do NIP-8**, jeśli chcesz złożyć go przy tej samej wizycie.
+
+## NIP-8 i ta sama wizyta
+
+**Złożenie NIP-8 nie jest prawnie zależne od Konta Organizacji**, ale złożenie elektroniczne wymaga sposobu podpisu (podpis kwalifikowany, aktywne UPL-1 albo podpisanie z kontekstu organizacji w e-US). Zwykły członek zarządu nowej organizacji bez tych narzędzi powinien **zanieść NIP-8 do urzędu razem z wnioskiem o dostęp do Konta Organizacji** i złożyć oba przy jednej wizycie. Szczegóły: [NIP-8 dla fundacji i stowarzyszenia](/poradnik/nip-8-fundacja-stowarzyszenie).
+
+## Po co Konto Organizacji fundacji i stowarzyszeniu
+
+Z poziomu Konta Organizacji organizacja: przegląda deklaracje i JPK, zarządza pełnomocnictwami (UPL-1 dla biura rachunkowego), a przede wszystkim **składa ZAW-FA** — pierwszy krok do KSeF. Bez Konta Organizacji nie ruszysz z autoryzacją organizacji w KSeF. Zobacz: [KSeF dla fundacji i stowarzyszenia](/poradnik/ksef-dla-fundacji-i-stowarzyszenia).
+
+## Zastrzeżenie
+
+Stan na 7 września 2026 r. Sprawdź aktualne instrukcje na podatki.gov.pl. KsięgaI to oprogramowanie, a nie doradztwo podatkowe ani prawne.`,
+    checklist: [
+      'Przeczytaj przewodnik o Koncie Organizacji dla spółki — mechanika jest identyczna.',
+      'Ustal osoby uprawnione do reprezentacji zgodnie ze statutem i wpisem w KRS.',
+      'Wypełnij wniosek o przyznanie dostępu do Konta Organizacji — dostęp rozszerzony dla pierwszej osoby.',
+      'Przygotuj statut, aktualny odpis z KRS, dokument tożsamości wyznaczanej osoby i pełnomocnictwo, jeśli wniosek składa ktoś inny niż reprezentanci.',
+      'Zbierz dane do NIP-8 i złóż go przy tej samej wizycie w urzędzie.',
+      'Złóż wniosek — dla nowej organizacji najpewniej osobiście w placówce właściwego US.',
+      'Po aktywacji przełącz się na kontekst organizacji i sprawdź podgląd deklaracji oraz sekcję „Użytkownicy".',
+      'Zaplanuj ZAW-FA, jeśli organizacja wystawia faktury i wchodzi do KSeF.',
+    ],
+    official_links: [
+      { label: 'Konto Organizacji — zasady (podatki.gov.pl)', href: 'https://www.podatki.gov.pl/e-urzad-skarbowy/konto-organizacji', external: true },
+      { label: 'Wniosek o przyznanie/odebranie dostępu do Konta Organizacji (PDF)', href: 'https://www.podatki.gov.pl/media/ckdf0mxs/wniosek-o-przyznanie-dost%C4%99pu_odebranie-dost%C4%99pu-do-konta-organizacji-w-e-urzedzie-skarbowym-2.pdf', external: true },
+      { label: 'e-Urząd Skarbowy', href: 'https://www.podatki.gov.pl/e-urzad-skarbowy/', external: true },
+    ],
+    related_actions: [
+      { label: 'Konto organizacji w e-US dla nowej spółki — pełna mechanika', href: '/poradnik/konto-organizacji-e-urzad-skarbowy-spolka' },
+      { label: 'Pierwsze obowiązki fundacji po rejestracji', href: '/poradnik/pierwsze-obowiazki-po-rejestracji-fundacji' },
+      { label: 'Pierwsze obowiązki stowarzyszenia po rejestracji', href: '/poradnik/pierwsze-obowiazki-po-rejestracji-stowarzyszenia' },
+      { label: 'NIP-8 dla fundacji i stowarzyszenia', href: '/poradnik/nip-8-fundacja-stowarzyszenie' },
+    ],
+    faq: [
+      {
+        question: 'Czy Konto Organizacji dla fundacji różni się od tego dla spółki?',
+        answer: 'Sama procedura jest identyczna — wniosek o dostęp, pierwszy użytkownik, dostęp rozszerzony, dodawanie kolejnych osób online. Różnią się dokumenty: zamiast umowy spółki dołączasz statut, a reprezentacja wynika ze statutu i KRS (często łączna).',
+      },
+      {
+        question: 'Czy stowarzyszenie może wyznaczyć pierwszego użytkownika online?',
+        answer: 'Nie. Online dodaje się dopiero kolejnych użytkowników, przez osobę z dostępem rozszerzonym. Pierwszego zawsze wyznacza się wnioskiem złożonym poza kontem organizacji.',
+      },
+      {
+        question: 'Czy do NIP-8 fundacji potrzebne jest Konto Organizacji?',
+        answer: 'Nie jest prawnie wymagane. Papierowo NIP-8 podpisują osoby uprawnione do reprezentacji zgodnie z KRS. Elektroniczne złożenie wymaga podpisu kwalifikowanego, aktywnego UPL-1 albo kontekstu organizacji w e-US.',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 22,
+    published_at: '2026-09-07T00:00:00.000Z',
+    updated_at: '2026-09-07T00:00:00.000Z',
+    category: CAT_URZAD_SKARBOWY,
+  },
+
+  {
+    id: 'fallback-ngo-nip8',
+    slug: 'nip-8-fundacja-stowarzyszenie',
+    entityTypes: ['fundacja', 'stowarzyszenie'],
+    title: 'NIP-8 dla fundacji i stowarzyszenia — termin, dane uzupełniające, jak złożyć',
+    excerpt: 'Fundacja i stowarzyszenie rejestrowe składają NIP-8 z danymi uzupełniającymi w ciągu 21 dni od wpisu do KRS. Nie zależy prawnie od Konta Organizacji, ale wersja elektroniczna wymaga sposobu podpisu.',
+    summary: 'Kiedy fundacja i stowarzyszenie składają NIP-8 (21 dni od wpisu do KRS, 7 dni na zmianę), jakie dane uzupełniające podać, gdzie i jak go złożyć oraz jak to się ma do Konta Organizacji i UPL-1.',
+    purpose: 'Zarząd nowej organizacji zakłada, że po KRS i nadaniu NIP nic więcej nie trzeba — a NIP-8 ma termin i sankcję. Ten artykuł porządkuje, co i kiedy zgłosić.',
+    body_markdown: `## Co to jest NIP-8
+
+NIP-8 to **zgłoszenie danych uzupełniających** podmiotu wpisanego do KRS. Wpis nadaje NIP i REGON, ale nie przekazuje urzędowi danych operacyjnych organizacji. NIP-8 je dopina.
+
+## Termin
+
+Liczony od dnia wpisu do KRS:
+
+- **21 dni** — na dane istotne dla urzędu skarbowego i statystyki publicznej,
+- **7 dni** — na dane niezbędne dla ZUS (gdy organizacja jest płatnikiem składek) oraz na zgłoszenie każdej późniejszej zmiany danych.
+
+Za niezłożenie w terminie grozi grzywna (Kodeks karny skarbowy).
+
+## Jakie dane trafiają do NIP-8
+
+- numery **firmowych rachunków bankowych** organizacji,
+- **adresy miejsc prowadzenia działalności** inne niż sama siedziba,
+- **miejsce przechowywania dokumentacji rachunkowej**,
+- **dane kontaktowe** (telefon, e-mail),
+- **przeważający rodzaj działalności (PKD)**,
+- **data powstania obowiązku opłacania składek**, jeśli organizacja zatrudnia,
+- dane **biura rachunkowego**, jeśli prowadzi księgi.
+
+## Jak złożyć — i czy potrzebne jest Konto Organizacji
+
+NIP-8 kierujesz do **naczelnika urzędu skarbowego właściwego ze względu na siedzibę** organizacji.
+
+**NIP-8 nie jest prawnie zależny od Konta Organizacji.** Papierowo w urzędzie podpisują go osoby uprawnione do reprezentacji zgodnie z KRS (w fundacjach i stowarzyszeniach reprezentacja bywa łączna — wtedy komplet podpisów). **Złożenie elektroniczne** przez e-Urząd Skarbowy wymaga sposobu podpisu: podpisu kwalifikowanego, aktywnego UPL-1 albo podpisania z poziomu kontekstu organizacji w e-US.
+
+Zwykły członek zarządu nowej organizacji, który nie ma podpisu kwalifikowanego, aktywnego UPL-1 ani dostępu do Konta Organizacji, powinien **zanieść wypełniony NIP-8 do urzędu razem z wnioskiem o dostęp do Konta Organizacji dla pierwszego użytkownika** i złożyć oba przy jednej wizycie.
+
+Gdy dostęp do Konta Organizacji już istnieje, NIP-8 składasz wprost z kontekstu organizacji — **nie nadawaj sobie w tym celu UPL-1**.
+
+## NIP-8, Konto Organizacji i UPL-1 to trzy różne rzeczy
+
+- **NIP-8** to zgłoszenie danych. Nie daje żadnego dostępu.
+- **Konto Organizacji** to działanie w e-US w imieniu organizacji — patrz [Konto organizacji w e-US dla fundacji i stowarzyszenia](/poradnik/konto-organizacji-e-urzad-skarbowy-ngo).
+- **UPL-1** to pełnomocnictwo do podpisywania deklaracji elektronicznych. Możliwość złożenia UPL-1 albo NIP-8 nie dowodzi posiadania dostępu do Konta Organizacji.
+
+## Zastrzeżenie
+
+Stan na 7 września 2026 r. Sprawdź aktualne informacje na podatki.gov.pl i biznes.gov.pl. KsięgaI to oprogramowanie, a nie doradztwo podatkowe ani prawne.`,
+    checklist: [
+      'Sprawdź, że organizacja ma wpis do KRS i nadany NIP.',
+      'Ustal termin: 21 dni od wpisu do KRS (7 dni dla danych potrzebnych ZUS lub od zmiany danych).',
+      'Zbierz numery firmowych rachunków bankowych i pozostałe dane uzupełniające.',
+      'Ustal PKD przeważające i miejsce przechowywania dokumentacji rachunkowej.',
+      'Ustal sposób podpisu: podpis kwalifikowany / aktywne UPL-1 → elektronicznie; bez nich i bez Konta Organizacji → papierowo.',
+      'Nową organizacją bez tych narzędzi: złóż NIP-8 papierowo razem z wnioskiem o dostęp do Konta Organizacji, przy jednej wizycie.',
+      'Ustaw przypomnienie o aktualizacji NIP-8 przy każdej zmianie danych (7 dni).',
+    ],
+    official_links: [
+      { label: 'Biznes.gov.pl — zgłoszenie NIP-8', href: 'https://www.biznes.gov.pl/pl/portal/ou1478', external: true },
+      { label: 'Formularze podatkowe (NIP-8)', href: 'https://www.podatki.gov.pl/formularze-podatkowe/', external: true },
+    ],
+    related_actions: [
+      { label: 'Konto organizacji w e-US dla fundacji i stowarzyszenia', href: '/poradnik/konto-organizacji-e-urzad-skarbowy-ngo' },
+      { label: 'Pierwsze obowiązki fundacji po rejestracji', href: '/poradnik/pierwsze-obowiazki-po-rejestracji-fundacji' },
+      { label: 'Pierwsze obowiązki stowarzyszenia po rejestracji', href: '/poradnik/pierwsze-obowiazki-po-rejestracji-stowarzyszenia' },
+      { label: 'CRBR dla fundacji i stowarzyszenia', href: '/poradnik/crbr-fundacja-stowarzyszenie' },
+    ],
+    faq: [
+      {
+        question: 'Ile czasu na NIP-8 po rejestracji fundacji lub stowarzyszenia?',
+        answer: 'Co do zasady 21 dni od dnia wpisu do KRS; 7 dni na dane potrzebne ZUS oraz na późniejsze zmiany danych. Za spóźnienie grozi grzywna.',
+      },
+      {
+        question: 'Czy do NIP-8 potrzebne jest Konto Organizacji?',
+        answer: 'Nie jest prawnie wymagane. Papierowo podpisują go osoby uprawnione do reprezentacji zgodnie z KRS. Elektroniczne złożenie wymaga podpisu kwalifikowanego, aktywnego UPL-1 albo kontekstu organizacji w e-US.',
+      },
+      {
+        question: 'Czy możliwość złożenia UPL-1 lub NIP-8 oznacza dostęp do Konta Organizacji?',
+        answer: 'Nie. To trzy odrębne mechanizmy — złożenie UPL-1 albo NIP-8 nie jest dowodem posiadania dostępu do Konta Organizacji.',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 24,
+    published_at: '2026-09-07T00:00:00.000Z',
+    updated_at: '2026-09-07T00:00:00.000Z',
+    category: CAT_START_NGO,
+  },
+
+  {
+    id: 'fallback-ngo-crbr',
+    slug: 'crbr-fundacja-stowarzyszenie',
+    entityTypes: ['fundacja', 'stowarzyszenie'],
+    title: 'CRBR dla fundacji i stowarzyszenia — kogo zgłosić i w jakim terminie',
+    excerpt: 'Fundacje i stowarzyszenia wpisane do KRS są objęte CRBR od 31 października 2021 r. Zgłoszenie w 14 dni od wpisu, bez udziałowców — beneficjentów ustala się według faktycznej kontroli.',
+    summary: 'Jak fundacja i stowarzyszenie zgłaszają beneficjentów rzeczywistych do CRBR: termin 14 dni od wpisu do KRS, kto zgłasza, jak ustalić beneficjenta bez udziałowców (kontrola faktyczna, zarząd jako rozwiązanie ostateczne), kary i aktualizacja.',
+    purpose: 'Wiele nowych fundacji i stowarzyszeń nie wie, że CRBR ich dotyczy, albo nie wie, kogo wpisać, skoro nie ma wspólników. Ten artykuł to wyjaśnia.',
+    body_markdown: `## Czy CRBR dotyczy fundacji i stowarzyszenia
+
+Tak. Od **31 października 2021 r.** fundacje oraz stowarzyszenia podlegające wpisowi do KRS są **podmiotami zobowiązanymi** do zgłaszania informacji do **Centralnego Rejestru Beneficjentów Rzeczywistych**.
+
+## Termin
+
+**14 dni od dnia wpisu do KRS.** Aktualizacja danych — w terminie 14 dni od zmiany. Zgłoszenie jest bezpłatne i składa się elektronicznie na [crbr.podatki.gov.pl](https://crbr.podatki.gov.pl/), z podpisem kwalifikowanym lub profilem zaufanym.
+
+## Kto zgłasza
+
+Wyłącznie **osoba uprawniona do reprezentacji** organizacji zgodnie z KRS (członek zarządu / komplet zarządu przy reprezentacji łącznej). Nie można tego zlecić pełnomocnikowi ani biuru rachunkowemu — zgłoszenie podpisuje reprezentant.
+
+## Kto jest beneficjentem rzeczywistym, skoro nie ma udziałowców
+
+W fundacji i stowarzyszeniu nie ma wspólników ani udziałów, więc kryterium własnościowe nie działa. Beneficjenta ustala się według **faktycznej kontroli**:
+
+- osoby fizyczne sprawujące kontrolę nad organizacją poprzez posiadane uprawnienia (np. fundator z realnym wpływem, osoba powołująca lub odwołująca zarząd, osoba finansująca i wpływająca na decyzje),
+- jeżeli po wyczerpaniu innych możliwości nie da się wskazać takiej osoby — jako beneficjentów wykazuje się **osoby zajmujące wyższe stanowiska kierownicze**, czyli zwykle **członków zarządu**.
+
+Zawsze udokumentuj, dlaczego wskazałeś dane osoby — to podstawa przy ewentualnej kontroli.
+
+## Kary
+
+Za niezgłoszenie w terminie, zgłoszenie nieprawdziwych danych lub brak aktualizacji: kara pieniężna do **1 000 000 zł** dla organizacji oraz do **50 000 zł** dla beneficjenta, który nie przekazał organizacji wymaganych informacji.
+
+## Zastrzeżenie
+
+Stan na 7 września 2026 r. Sprawdź aktualne komunikaty Ministerstwa Finansów o CRBR. KsięgaI to oprogramowanie, a nie doradztwo prawne.`,
+    checklist: [
+      'Potwierdź, że organizacja jest wpisana do KRS (CRBR dotyczy fundacji i stowarzyszeń rejestrowych).',
+      'Ustal beneficjentów rzeczywistych według kontroli faktycznej; jeśli nie da się wskazać — członków zarządu.',
+      'Udokumentuj sposób ustalenia beneficjentów.',
+      'Zaloguj się na crbr.podatki.gov.pl profilem zaufanym lub podpisem kwalifikowanym.',
+      'Złóż zgłoszenie w terminie 14 dni od wpisu do KRS; zgłoszenie podpisuje reprezentant zgodnie z KRS.',
+      'Zachowaj urzędowe potwierdzenie (UPO).',
+      'Aktualizuj CRBR w 14 dni od każdej zmiany składu zarządu lub sposobu kontroli.',
+    ],
+    official_links: [
+      { label: 'CRBR — zgłoszenie', href: 'https://crbr.podatki.gov.pl/', external: true },
+      { label: 'Nowe podmioty zobowiązane do CRBR od 31 X 2021 (Ministerstwo Finansów)', href: 'https://www.gov.pl/web/finanse/i-a-zgloszenie-informacji-do-centralnego-rejestru-beneficjentow-rzeczywistych-zwanego-dalej-crbr--nowe-podmioty-zobowiazane-do-zglaszania-informacji-do-crbr-po-zmianach-obowiazujacych-od-31-x-2021', external: true },
+      { label: 'Kto musi być w CRBR (biznes.gov.pl)', href: 'https://www.biznes.gov.pl/pl/portal/00165', external: true },
+    ],
+    related_actions: [
+      { label: 'Pierwsze obowiązki fundacji po rejestracji', href: '/poradnik/pierwsze-obowiazki-po-rejestracji-fundacji' },
+      { label: 'Pierwsze obowiązki stowarzyszenia po rejestracji', href: '/poradnik/pierwsze-obowiazki-po-rejestracji-stowarzyszenia' },
+      { label: 'NIP-8 dla fundacji i stowarzyszenia', href: '/poradnik/nip-8-fundacja-stowarzyszenie' },
+    ],
+    faq: [
+      {
+        question: 'Czy CRBR dotyczy każdej fundacji i stowarzyszenia?',
+        answer: 'Dotyczy fundacji i stowarzyszeń podlegających wpisowi do KRS (od 31 października 2021 r.). Stowarzyszenia zwykłe, nierejestrowe, nie są w KRS i CRBR ich nie obejmuje.',
+      },
+      {
+        question: 'Kogo wpisać jako beneficjenta, skoro nie ma udziałowców?',
+        answer: 'Osoby fizyczne sprawujące faktyczną kontrolę nad organizacją. Jeśli po analizie nie da się wskazać takiej osoby — członków zarządu jako osoby na wyższych stanowiskach kierowniczych. Sposób ustalenia trzeba udokumentować.',
+      },
+      {
+        question: 'Ile czasu na zgłoszenie do CRBR?',
+        answer: '14 dni od wpisu do KRS, a przy zmianach — 14 dni od zdarzenia. Kara za brak lub nieprawdziwe dane sięga 1 mln zł dla organizacji.',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 26,
+    published_at: '2026-09-07T00:00:00.000Z',
+    updated_at: '2026-09-07T00:00:00.000Z',
+    category: CAT_COMPLIANCE,
+  },
+
+  {
+    id: 'fallback-ngo-e-doreczenia',
+    slug: 'e-doreczenia-fundacja-stowarzyszenie',
+    entityTypes: ['fundacja', 'stowarzyszenie'],
+    title: 'e-Doręczenia dla fundacji i stowarzyszenia — obowiązek, adres, kto monitoruje',
+    excerpt: 'Fundacja i stowarzyszenie rejestrowe (podmioty niepubliczne w KRS) mają obowiązek posiadania adresu do e-Doręczeń. Dla organizacji rejestrowanych od 2025 r. adres powstaje przy wpisie do KRS — trzeba go tylko aktywować.',
+    summary: 'Jak działa obowiązek e-Doręczeń dla fundacji i stowarzyszenia rejestrowego: kiedy adres powstaje, jak sprawdzić jego aktywność w Bazie Adresów Elektronicznych, kto powinien monitorować skrzynkę i co grozi za ignorowanie korespondencji.',
+    purpose: 'Nowe organizacje często nie wiedzą, że mają skrzynkę do e-Doręczeń, i przegapiają pierwsze urzędowe pisma. Ten artykuł mówi, co sprawdzić i jak to ustawić.',
+    body_markdown: `## Obowiązek e-Doręczeń dla organizacji
+
+**e-Doręczenia** to publiczny, prawnie skuteczny odpowiednik listu poleconego za potwierdzeniem odbioru. Podmioty niepubliczne wpisane do **KRS** — w tym **fundacje i stowarzyszenia rejestrowe** — mają obowiązek posiadania **adresu do doręczeń elektronicznych** wpisanego do **Bazy Adresów Elektronicznych (BAE)**.
+
+## Kiedy adres powstaje
+
+- **Organizacje rejestrowane w KRS od 1 stycznia 2025 r.** — wniosek o utworzenie adresu do e-Doręczeń składa się **razem z wnioskiem o wpis do KRS**; adres powstaje w toku rejestracji. Twoim zadaniem jest **aktywacja** skrzynki i sprawdzenie, że adres jest wpisany do BAE.
+- **Organizacje zarejestrowane wcześniej** — obowiązek wszedł etapami; jeśli nie masz jeszcze adresu, załóż go przez [gov.pl/web/e-doreczenia](https://www.gov.pl/web/e-doreczenia) i sprawdź aktualny termin dla podmiotów KRS.
+
+## Co zrobić po rejestracji
+
+1. Sprawdź w BAE, czy adres do e-Doręczeń organizacji istnieje i jest **aktywny**.
+2. Zaloguj się do skrzynki (przez [Konto Przedsiębiorcy / gov.pl](https://www.gov.pl/web/e-doreczenia)) i dokończ aktywację, jeśli trzeba.
+3. **Wyznacz osobę (i zastępcę), która regularnie sprawdza skrzynkę** — pisma z e-Doręczeń wywołują skutki prawne z upływem terminu, nawet jeśli nikt ich nie odczytał.
+4. Rozważ nadanie dostępu do skrzynki księgowej lub biuru rachunkowemu.
+
+## Dlaczego to ważne
+
+Po wpisaniu adresu do BAE urzędy i sądy doręczają organizacji korespondencję **elektronicznie**. Nieodebrane pismo uznaje się za doręczone po 14 dniach. Ignorowanie skrzynki to realne ryzyko przegapienia wezwania z urzędu skarbowego, sądu rejestrowego albo organu nadzoru.
+
+## Zastrzeżenie
+
+Stan na 7 września 2026 r. Terminy wdrożenia e-Doręczeń były zmieniane — sprawdź aktualne informacje na gov.pl/web/e-doreczenia. KsięgaI to oprogramowanie, a nie doradztwo prawne.`,
+    checklist: [
+      'Sprawdź w Bazie Adresów Elektronicznych, czy organizacja ma adres do e-Doręczeń i czy jest aktywny.',
+      'Dokończ aktywację skrzynki, jeśli adres powstał przy rejestracji w KRS, ale nie został uruchomiony.',
+      'Jeśli organizacja jest starsza i nie ma adresu — załóż go na gov.pl/web/e-doreczenia.',
+      'Wyznacz osobę i zastępcę odpowiedzialnych za regularne sprawdzanie skrzynki.',
+      'Rozważ nadanie dostępu do skrzynki księgowej lub biuru rachunkowemu.',
+      'Ustaw powiadomienia e-mail o nowej korespondencji w skrzynce.',
+    ],
+    official_links: [
+      { label: 'e-Doręczenia — informacje i aktywacja', href: 'https://www.gov.pl/web/e-doreczenia', external: true },
+      { label: 'Baza Adresów Elektronicznych', href: 'https://www.gov.pl/web/e-doreczenia/baza-adresow-elektronicznych', external: true },
+    ],
+    related_actions: [
+      { label: 'Pierwsze obowiązki fundacji po rejestracji', href: '/poradnik/pierwsze-obowiazki-po-rejestracji-fundacji' },
+      { label: 'Pierwsze obowiązki stowarzyszenia po rejestracji', href: '/poradnik/pierwsze-obowiazki-po-rejestracji-stowarzyszenia' },
+      { label: 'Konto organizacji w e-US dla fundacji i stowarzyszenia', href: '/poradnik/konto-organizacji-e-urzad-skarbowy-ngo' },
+    ],
+    faq: [
+      {
+        question: 'Czy fundacja i stowarzyszenie muszą mieć e-Doręczenia?',
+        answer: 'Tak, jako podmioty niepubliczne wpisane do KRS mają obowiązek posiadania adresu do doręczeń elektronicznych w Bazie Adresów Elektronicznych.',
+      },
+      {
+        question: 'Organizacja zarejestrowana w 2025 lub 2026 roku — czy adres już mamy?',
+        answer: 'Najprawdopodobniej tak. Od 1 stycznia 2025 r. wniosek o adres do e-Doręczeń składa się razem z wnioskiem o wpis do KRS. Trzeba sprawdzić aktywność adresu w BAE i uruchomić skrzynkę.',
+      },
+      {
+        question: 'Co się stanie, jeśli nikt nie sprawdza skrzynki?',
+        answer: 'Pismo doręczone elektronicznie uznaje się za doręczone po 14 dniach, nawet nieodczytane. Można w ten sposób przegapić wezwanie z urzędu, sądu rejestrowego lub organu nadzoru.',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 28,
+    published_at: '2026-09-07T00:00:00.000Z',
+    updated_at: '2026-09-07T00:00:00.000Z',
+    category: CAT_COMPLIANCE,
+  },
+
+  {
+    id: 'fallback-ngo-ksef',
+    slug: 'ksef-dla-fundacji-i-stowarzyszenia',
+    entityTypes: ['fundacja', 'stowarzyszenie'],
+    title: 'KSeF dla fundacji i stowarzyszenia — kiedy dotyczy i jak uzyskać dostęp',
+    h1: 'KSeF w fundacji i stowarzyszeniu — kiedy Cię dotyczy i od czego zacząć',
+    excerpt: 'KSeF dotyczy fundacji i stowarzyszenia, które są podatnikami VAT i wystawiają faktury. Ścieżka dostępu jest taka sama jak dla spółki bez pieczęci kwalifikowanej: konto organizacji w e-US → ZAW-FA → dalsze uprawnienia.',
+    summary: 'Kiedy KSeF obejmuje fundację lub stowarzyszenie (podatnik VAT wystawiający faktury, także zwolniony z VAT), a kiedy nie (tylko darowizny i składki bez faktur), oraz jak organizacja bez pieczęci kwalifikowanej uzyskuje dostęp: konto organizacji, ZAW-FA, pierwsza osoba z uprawnieniami, token dla aplikacji, dostęp dla biura rachunkowego.',
+    purpose: 'Organizacje nie wiedzą, czy KSeF ich dotyczy, bo „nie prowadzą firmy". Kryterium jest inne — wystawianie faktur jako podatnik VAT. Ten artykuł to porządkuje i pokazuje ścieżkę dostępu.',
+    body_markdown: `## Kiedy KSeF dotyczy organizacji
+
+KSeF (Krajowy System e-Faktur) obejmuje **podatników VAT wystawiających faktury** — niezależnie od formy prawnej. Fundacja lub stowarzyszenie **jest objęte KSeF**, jeżeli:
+
+- jest czynnym podatnikiem VAT i wystawia faktury (np. za działalność gospodarczą lub odpłatną),
+- jest podatnikiem VAT zwolnionym, ale **wystawia faktury** (faktura na żądanie, faktury w ramach działalności odpłatnej) — obowiązek e-faktur obejmuje etapami także podatników zwolnionych.
+
+KSeF **nie dotyczy** organizacji, która przyjmuje wyłącznie **darowizny, składki członkowskie i dotacje** i **nie wystawia żadnych faktur** — to nie są czynności fakturowane.
+
+Zakres i terminy obowiązkowości bywają zmieniane — potwierdź z księgową, od kiedy dotyczy Twojej organizacji.
+
+## Ścieżka dostępu — jak dla spółki bez pieczęci kwalifikowanej
+
+Organizacja jest podmiotem w KRS i zwykle **nie ma kwalifikowanej pieczęci elektronicznej**, więc idzie tą samą ścieżką co spółka z o.o. bez pieczęci:
+
+1. **Rejestracja i NIP** — organizacja wpisana do KRS.
+2. **Pierwszy użytkownik konta organizacji w e-US** — wniosek o dostęp (dla nowej organizacji zwykle osobiście w urzędzie). Zobacz: [Konto organizacji w e-US dla fundacji i stowarzyszenia](/poradnik/konto-organizacji-e-urzad-skarbowy-ngo).
+3. **Kontekst organizacji w e-US** — użytkownik przełącza się na organizację.
+4. **ZAW-FA** — organizacja wyznacza pierwszą osobę fizyczną z uprawnieniami w KSeF (uprawnienia „właścicielskie").
+5. **Pierwsza osoba w KSeF** — po skutecznym ZAW-FA loguje się do KSeF, wystawia i odbiera faktury.
+6. **Dalsze uprawnienia** — dla kolejnych osób i dla **biura rachunkowego** (po stronie NIP biura).
+7. **Token / certyfikat KSeF** — dla aplikacji takiej jak KsięgaI, na końcu.
+
+Pełne wyjaśnienie każdego etapu (w tym alternatywa z pieczęcią kwalifikowaną): [KSeF dla spółki z o.o. bez pieczęci kwalifikowanej](/poradnik/ksef-spolka-z-oo-kto-moze-nadac-dostep).
+
+## Rozdziel pojęcia
+
+- **Konto Organizacji** — dostęp do e-US w imieniu organizacji (warunek wstępny).
+- **UPL-1** — pełnomocnictwo do podpisywania deklaracji (np. JPK_V7), nie do KSeF.
+- **ZAW-FA** — wyznaczenie pierwszej osoby z uprawnieniami w KSeF.
+- **Token / certyfikat** — dla aplikacji, nadawany po ZAW-FA.
+
+## Zastrzeżenie
+
+Stan na 7 września 2026 r. Zakres i terminy KSeF bywają zmieniane — sprawdź ksef.podatki.gov.pl i potwierdź z księgową. KsięgaI to oprogramowanie, a nie doradztwo podatkowe.`,
+    checklist: [
+      'Ustal z księgową, czy organizacja jest podatnikiem VAT i wystawia faktury — jeśli tak, KSeF ją obejmuje.',
+      'Jeśli organizacja przyjmuje tylko darowizny, składki i dotacje bez faktur — KSeF na razie nie dotyczy.',
+      'Wyznacz pierwszego użytkownika konta organizacji w e-US (wniosek o dostęp).',
+      'Z kontekstu organizacji złóż ZAW-FA, aby wyznaczyć pierwszą osobę z uprawnieniami w KSeF.',
+      'Po skutecznym ZAW-FA zaloguj tę osobę do KSeF i sprawdź wystawianie oraz odbiór faktur.',
+      'Nadaj dalsze uprawnienia: kolejnym osobom i biuru rachunkowemu po stronie NIP biura.',
+      'Wygeneruj token / certyfikat KSeF i połącz organizację z KsięgaI.',
+    ],
+    official_links: [
+      { label: 'Portal KSeF', href: 'https://ksef.podatki.gov.pl/', external: true },
+      { label: 'ZAW-FA — formularz (PDF)', href: 'https://ksef.podatki.gov.pl/media/em1k4cmk/zaw-fa.pdf', external: true },
+      { label: 'KSeF — uprawnienia i autoryzacja', href: 'https://ksef.podatki.gov.pl/ksef-news/uprawnienia-i-autoryzacja/', external: true },
+    ],
+    related_actions: [
+      { label: 'KSeF dla spółki z o.o. bez pieczęci kwalifikowanej — pełna ścieżka', href: '/poradnik/ksef-spolka-z-oo-kto-moze-nadac-dostep' },
+      { label: 'Konto organizacji w e-US dla fundacji i stowarzyszenia', href: '/poradnik/konto-organizacji-e-urzad-skarbowy-ngo' },
+      { label: 'Jak nadać biuru rachunkowemu dostęp do KSeF', href: '/poradnik/jak-nadac-dostep-ksef-dla-ksiegowej' },
+      { label: 'Działalność w NGO — statutowa, odpłatna, gospodarcza', href: '/poradnik/dzialalnosc-w-ngo-statutowa-odplatna-gospodarcza' },
+    ],
+    faq: [
+      {
+        question: 'Czy KSeF dotyczy fundacji, która nie prowadzi działalności gospodarczej?',
+        answer: 'Może dotyczyć. Kryterium to bycie podatnikiem VAT i wystawianie faktur — np. w działalności odpłatnej pożytku publicznego. Jeśli organizacja przyjmuje wyłącznie darowizny, składki i dotacje bez faktur, KSeF jej nie obejmuje.',
+      },
+      {
+        question: 'Czy organizacja potrzebuje pieczęci kwalifikowanej do KSeF?',
+        answer: 'Nie musi. Bez pieczęci idzie ścieżką: konto organizacji w e-US → ZAW-FA → pierwsza osoba z uprawnieniami. Pieczęć kwalifikowana z NIP pozwala pominąć ZAW-FA, ale małe organizacje zwykle jej nie mają.',
+      },
+      {
+        question: 'Kiedy generujemy token KSeF dla KsięgaI?',
+        answer: 'Na końcu — po tym, jak organizacja ma pierwszą osobę z uprawnieniami w KSeF (po ZAW-FA). Token służy aplikacji, nie zastępuje wcześniejszych kroków.',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 45,
+    published_at: '2026-09-07T00:00:00.000Z',
+    updated_at: '2026-09-07T00:00:00.000Z',
+    category: CAT_KSEF,
+  },
+
+  {
+    id: 'fallback-ngo-sprawozdanie-fundacji',
+    slug: 'sprawozdanie-z-dzialalnosci-fundacji',
+    entityTypes: ['fundacja'],
+    title: 'Sprawozdanie z działalności fundacji do ministra — termin, formularz, jak złożyć',
+    excerpt: 'Fundacja składa co roku właściwemu ministrowi sprawozdanie z działalności za rok poprzedni — w postaci elektronicznej, na urzędowym formularzu, z podpisem kwalifikowanym, zaufanym lub osobistym. Stowarzyszenia tego obowiązku nie mają.',
+    summary: 'Kompletna instrukcja corocznego sprawozdania z działalności fundacji: podstawa prawna (art. 12 ustawy o fundacjach), właściwy minister wskazany w KRS, termin (za rok poprzedni do końca roku następnego), urzędowy formularz z rozporządzenia Ministra Sprawiedliwości z 20 grudnia 2022 r., forma elektroniczna, podpis i sposób przekazania.',
+    purpose: 'To obowiązek wyłącznie fundacji, łatwy do przegapienia i różny u każdego ministra. Ten artykuł zbiera podstawę prawną, termin i praktykę w jednym miejscu.',
+    body_markdown: `## Na czym polega obowiązek
+
+Fundacja ma obowiązek **corocznego składania właściwemu ministrowi sprawozdania ze swojej działalności** (art. 12 ust. 2 ustawy z 6 kwietnia 1984 r. o fundacjach). Sprawozdanie pozwala organowi nadzoru ocenić, czy fundacja realizuje cele statutowe. **Stowarzyszenia nie mają tego obowiązku.**
+
+## Do którego ministra
+
+Do **ministra właściwego ze względu na cele statutowe fundacji** — ten minister jest **wskazany we wpisie do KRS** (rubryka „organ sprawujący nadzór"). Sprawdź go w odpisie z KRS. Różni ministrowie (Sprawiedliwości, Zdrowia, Kultury, Cyfryzacji, Rodziny i Polityki Społecznej itd.) publikują własne komunikaty i adresy do składania.
+
+## Termin
+
+Sprawozdanie składa się **za rok poprzedni, najpóźniej do końca roku następnego**. Przykładowo sprawozdanie za 2025 r. — do **31 grudnia 2026 r.** Niektórzy ministrowie wskazują wcześniejsze terminy porządkowe — sprawdź komunikat swojego ministra.
+
+## Formularz i forma
+
+- Sprawozdanie sporządza się na **jednolitym urzędowym formularzu** określonym w **rozporządzeniu Ministra Sprawiedliwości z 20 grudnia 2022 r.** w sprawie jednolitego wzoru formularza sprawozdania z działalności fundacji (Dz. U. z 2022 r. poz. 2791).
+- Formularz jest udostępniony w **Biuletynie Informacji Publicznej** na stronie urzędu obsługującego Ministra Sprawiedliwości.
+- Sprawozdanie sporządza się w **postaci elektronicznej** i opatruje **kwalifikowanym podpisem elektronicznym, podpisem zaufanym albo podpisem osobistym** osób uprawnionych do reprezentacji.
+
+## Jak przekazać ministrowi
+
+Elektronicznie — przez **e-Doręczenia** lub pocztą elektroniczną na adres wskazany przez ministra (część ministrów wskazuje preferowaną formę i skrzynkę). Zachowaj potwierdzenie wysłania.
+
+## Co jeszcze
+
+- Fundacja **ze statusem OPP** dodatkowo zamieszcza sprawozdanie merytoryczne i finansowe w **bazie sprawozdań OPP** (Narodowy Instytut Wolności) — to odrębny obowiązek.
+- Sprawozdanie z działalności to **nie to samo** co sprawozdanie finansowe (bilans, RZiS) — oba są wymagane, ale idą w różne miejsca.
+
+## Zastrzeżenie
+
+Stan na 7 września 2026 r. Sprawdź aktualny komunikat właściwego ministra i treść rozporządzenia. KsięgaI to oprogramowanie, a nie doradztwo prawne.`,
+    checklist: [
+      'Sprawdź w odpisie z KRS, który minister jest wpisany jako organ nadzoru fundacji.',
+      'Znajdź komunikat tego ministra o sprawozdaniach fundacji (adres, preferowana forma, termin porządkowy).',
+      'Pobierz jednolity formularz sprawozdania z BIP Ministerstwa Sprawiedliwości.',
+      'Wypełnij sprawozdanie za rok poprzedni w postaci elektronicznej.',
+      'Podpisz podpisem kwalifikowanym, zaufanym lub osobistym przez osoby uprawnione do reprezentacji.',
+      'Prześlij do ministra przez e-Doręczenia lub e-mail wskazany w komunikacie; zachowaj potwierdzenie.',
+      'Nie myl tego ze sprawozdaniem finansowym — to odrębny dokument składany gdzie indziej.',
+      'Fundacja OPP: dodatkowo zamieść sprawozdania w bazie sprawozdań OPP.',
+    ],
+    official_links: [
+      { label: 'Formularz sprawozdania z działalności fundacji (Ministerstwo Sprawiedliwości)', href: 'https://www.gov.pl/web/sprawiedliwosc/formularz-sprawozdania-z-dzialalnosci-fundacji', external: true },
+      { label: 'Fundacje — nadzór (Ministerstwo Sprawiedliwości)', href: 'https://www.gov.pl/web/sprawiedliwosc/fundacje-nadzor', external: true },
+      { label: 'Rozporządzenie MS z 20.12.2022 (Dz.U. 2022 poz. 2791)', href: 'https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20220002791', external: true },
+    ],
+    related_actions: [
+      { label: 'Pierwsze obowiązki fundacji po rejestracji', href: '/poradnik/pierwsze-obowiazki-po-rejestracji-fundacji' },
+      { label: 'Działalność w NGO — statutowa, odpłatna, gospodarcza', href: '/poradnik/dzialalnosc-w-ngo-statutowa-odplatna-gospodarcza' },
+      { label: 'Obowiązki sprawozdawcze stowarzyszenia', href: '/poradnik/obowiazki-sprawozdawcze-stowarzyszenia' },
+    ],
+    faq: [
+      {
+        question: 'Do kiedy fundacja składa sprawozdanie z działalności?',
+        answer: 'Za rok poprzedni najpóźniej do końca roku następnego (np. za 2025 r. do 31 grudnia 2026 r.). Niektórzy ministrowie wskazują wcześniejsze terminy porządkowe.',
+      },
+      {
+        question: 'Czy stowarzyszenie też składa sprawozdanie do ministra?',
+        answer: 'Nie. To obowiązek wyłącznie fundacji, wynikający z ustawy o fundacjach. Stowarzyszenie podlega nadzorowi starosty.',
+      },
+      {
+        question: 'W jakiej formie składa się sprawozdanie?',
+        answer: 'W postaci elektronicznej, na jednolitym urzędowym formularzu z rozporządzenia MS z 20 grudnia 2022 r., podpisane podpisem kwalifikowanym, zaufanym albo osobistym, i przesłane ministrowi przez e-Doręczenia lub e-mail.',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 10,
+    published_at: '2026-09-07T00:00:00.000Z',
+    updated_at: '2026-09-07T00:00:00.000Z',
+    category: CAT_NGO_SPRAWOZDAWCZOSC,
+  },
+
+  {
+    id: 'fallback-ngo-sprawozdawczosc-stowarzyszenia',
+    slug: 'obowiazki-sprawozdawcze-stowarzyszenia',
+    entityTypes: ['stowarzyszenie'],
+    title: 'Obowiązki sprawozdawcze stowarzyszenia — nadzór starosty, sprawozdanie finansowe',
+    excerpt: 'Stowarzyszenie rejestrowe nie składa sprawozdania z działalności do ministra. Podlega nadzorowi starosty i składa sprawozdanie finansowe — do Szefa KAS albo do KRS, zależnie od tego, czy prowadzi działalność gospodarczą.',
+    summary: 'Co i komu raportuje stowarzyszenie rejestrowe: nadzór starosty (odpisy uchwał walnego zebrania, wyjaśnienia), sprawozdanie finansowe (termin, forma elektroniczna, KAS vs KRS), dodatkowe obowiązki stowarzyszenia OPP oraz czym to się różni od obowiązków fundacji.',
+    purpose: 'Zarządy stowarzyszeń często przenoszą na siebie „obowiązki fundacji", których nie mają, albo pomijają sprawozdanie finansowe. Ten artykuł rozdziela jedno od drugiego.',
+    body_markdown: `## Czego stowarzyszenie NIE musi robić
+
+Stowarzyszenie rejestrowe **nie składa** corocznego sprawozdania z działalności do ministra — to obowiązek wyłącznie fundacji (ustawa o fundacjach). Nie ma też ministra jako organu nadzoru.
+
+## Nadzór starosty
+
+Organem nadzoru nad stowarzyszeniem jest **starosta** (lub prezydent miasta na prawach powiatu) właściwy ze względu na siedzibę. Starosta może:
+
+- żądać **odpisów uchwał walnego zebrania członków**,
+- żądać **wyjaśnień** od zarządu,
+- w razie nieprawidłowości — wystąpić o ich usunięcie, a w skrajnych przypadkach wnioskować do sądu o środki nadzorcze.
+
+W praktyce: prowadź porządną dokumentację uchwał i protokołów walnego zebrania oraz posiedzeń zarządu — to pierwsze, o co poprosi starosta.
+
+## Sprawozdanie finansowe
+
+Stowarzyszenie rejestrowe jest osobą prawną i **prowadzi pełne księgi rachunkowe** (ustawa o rachunkowości). Organizacje **nieprowadzące działalności gospodarczej** mogą stosować uproszczony **załącznik nr 6** do ustawy o rachunkowości.
+
+- **Sporządzenie SF** — w ciągu 3 miesięcy od dnia bilansowego (zwykle do 31 marca), w **postaci elektronicznej** (ustrukturyzowany plik), podpisane przez **cały zarząd** oraz osobę prowadzącą księgi.
+- **Zatwierdzenie** — przez organ zatwierdzający (walne zebranie) w ciągu 6 miesięcy od dnia bilansowego.
+- **Złożenie** — jeśli stowarzyszenie **nie prowadzi działalności gospodarczej**: do **Szefa KAS** w terminie 10 dni od zatwierdzenia. Jeśli **prowadzi działalność gospodarczą** i jest w rejestrze przedsiębiorców: do **KRS** w terminie 15 dni od zatwierdzenia.
+
+## Stowarzyszenie ze statusem OPP
+
+Dodatkowo zamieszcza **sprawozdanie merytoryczne i finansowe** w **bazie sprawozdań organizacji pożytku publicznego** (Narodowy Instytut Wolności), w terminie do 15 lipca (albo 30 listopada, zależnie od roku obrotowego).
+
+## Podatki
+
+Stowarzyszenie składa też **CIT-8** z załącznikiem CIT-8/O (dochody na cele statutowe zwykle korzystają ze zwolnienia, ale zeznanie i tak trzeba złożyć). Jeśli jest podatnikiem VAT — JPK_V7.
+
+## Zastrzeżenie
+
+Stan na 7 września 2026 r. Terminy sprawozdawcze zależą od roku obrotowego i statusu organizacji — potwierdź z księgową. KsięgaI to oprogramowanie, a nie doradztwo podatkowe.`,
+    checklist: [
+      'Ustal właściwego starostę (organ nadzoru) ze względu na siedzibę stowarzyszenia.',
+      'Prowadź uporządkowaną dokumentację uchwał i protokołów walnego zebrania oraz zarządu.',
+      'Ustal, czy stowarzyszenie prowadzi działalność gospodarczą — od tego zależy miejsce złożenia sprawozdania finansowego.',
+      'Sporządź sprawozdanie finansowe w postaci elektronicznej do 31 marca; podpisuje cały zarząd i osoba prowadząca księgi.',
+      'Zwołaj walne zebranie i zatwierdź sprawozdanie w ciągu 6 miesięcy od dnia bilansowego.',
+      'Złóż sprawozdanie finansowe: do Szefa KAS (10 dni od zatwierdzenia) lub do KRS (15 dni), zależnie od działalności gospodarczej.',
+      'Złóż CIT-8 z załącznikiem CIT-8/O za rok podatkowy.',
+      'Stowarzyszenie OPP: zamieść sprawozdania w bazie sprawozdań OPP w wymaganym terminie.',
+    ],
+    official_links: [
+      { label: 'e-Sprawozdania finansowe (podatki.gov.pl)', href: 'https://www.podatki.gov.pl/e-sprawozdania-finansowe/', external: true },
+      { label: 'Sprawozdania finansowe do Szefa KAS', href: 'https://www.podatki.gov.pl/e-sprawozdania-finansowe/przekazywanie-sprawozdania-do-szefa-kas/', external: true },
+      { label: 'Baza sprawozdań OPP (Narodowy Instytut Wolności)', href: 'https://sprawozdaniaopp.niw.gov.pl/', external: true },
+    ],
+    related_actions: [
+      { label: 'Pierwsze obowiązki stowarzyszenia po rejestracji', href: '/poradnik/pierwsze-obowiazki-po-rejestracji-stowarzyszenia' },
+      { label: 'Sprawozdanie z działalności fundacji (dla porównania)', href: '/poradnik/sprawozdanie-z-dzialalnosci-fundacji' },
+      { label: 'Działalność w NGO — statutowa, odpłatna, gospodarcza', href: '/poradnik/dzialalnosc-w-ngo-statutowa-odplatna-gospodarcza' },
+    ],
+    faq: [
+      {
+        question: 'Czy stowarzyszenie składa sprawozdanie z działalności do ministra?',
+        answer: 'Nie. Ten obowiązek dotyczy tylko fundacji. Stowarzyszenie podlega nadzorowi starosty, który może żądać odpisów uchwał walnego zebrania i wyjaśnień.',
+      },
+      {
+        question: 'Gdzie stowarzyszenie składa sprawozdanie finansowe?',
+        answer: 'Do Szefa KAS (jeśli nie prowadzi działalności gospodarczej) w 10 dni od zatwierdzenia, albo do KRS (jeśli jest w rejestrze przedsiębiorców) w 15 dni od zatwierdzenia. Sprawozdanie jest elektroniczne i podpisuje je cały zarząd.',
+      },
+      {
+        question: 'Czy stowarzyszenie bez przychodów składa CIT-8?',
+        answer: 'Tak. Zeznanie CIT-8 (z załącznikiem CIT-8/O) składa się nawet gdy dochód jest w całości zwolniony jako przeznaczony na cele statutowe.',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 12,
+    published_at: '2026-09-07T00:00:00.000Z',
+    updated_at: '2026-09-07T00:00:00.000Z',
+    category: CAT_NGO_SPRAWOZDAWCZOSC,
+  },
+
+  {
+    id: 'fallback-ngo-dzialalnosc',
+    slug: 'dzialalnosc-w-ngo-statutowa-odplatna-gospodarcza',
+    entityTypes: ['fundacja', 'stowarzyszenie'],
+    title: 'Działalność w NGO — statutowa, odpłatna pożytku publicznego i gospodarcza',
+    excerpt: 'Zanim fundacja lub stowarzyszenie zacznie pobierać opłaty albo sprzedawać, musi rozstrzygnąć, czy to działalność statutowa nieodpłatna, odpłatna pożytku publicznego, czy gospodarcza. Od tego zależą księgi, VAT, KSeF i wpis do rejestru przedsiębiorców.',
+    summary: 'Trzy tryby aktywności w NGO: statutowa nieodpłatna, odpłatna działalność pożytku publicznego (bez wpisu do rejestru przedsiębiorców, z wyodrębnieniem księgowym, limit wynagrodzeń, przychód nie wyższy niż koszty) i działalność gospodarcza (wpis do rejestru przedsiębiorców KRS). Jak je rozdzielić w księgach i co z tego wynika dla VAT i KSeF.',
+    purpose: 'Zarządy NGO mieszają te pojęcia i albo niepotrzebnie rejestrują działalność gospodarczą, albo prowadzą ją bez wpisu. Ten artykuł porządkuje różnice i skutki.',
+    body_markdown: `## Trzy tryby aktywności
+
+### 1. Działalność statutowa nieodpłatna
+
+Realizacja celów statutowych bez pobierania opłat od odbiorców — finansowana z darowizn, składek, dotacji, zbiórek. To podstawowy tryb każdej fundacji i stowarzyszenia.
+
+### 2. Odpłatna działalność pożytku publicznego
+
+Działania **w zakresie celów statutowych**, za które organizacja pobiera opłatę od odbiorców, przy czym:
+
+- **przychód nie może być wyższy niż koszty** tej działalności (bez zysku),
+- **wynagrodzenia osób** przy tej działalności są ustawowo limitowane,
+- **nie wymaga wpisu do rejestru przedsiębiorców**,
+- **wymaga rachunkowego wyodrębnienia** (osobne konta, przypisanie kosztów i przychodów).
+
+To nie jest działalność gospodarcza — ale przekroczenie warunków (zysk, zbyt wysokie wynagrodzenia) zamienia ją w działalność gospodarczą z mocy prawa.
+
+### 3. Działalność gospodarcza
+
+Zarobkowa, zorganizowana i ciągła sprzedaż towarów lub usług. Dla NGO:
+
+- **wymaga wpisu do rejestru przedsiębiorców KRS** (obok wpisu w rejestrze stowarzyszeń/fundacji),
+- **cały dochód** musi być przeznaczony na cele statutowe,
+- **musi być wyodrębniona księgowo** od działalności statutowej,
+- **nie może pokrywać się przedmiotowo** (ten sam kod PKD) z działalnością odpłatną pożytku publicznego.
+
+## Skutki dla księgowości
+
+Niezależnie od trybu, fundacja i stowarzyszenie prowadzą **pełne księgi rachunkowe**. Jeśli występuje działalność odpłatna lub gospodarcza — **plan kont musi rozdzielać** przychody i koszty statutowe, odpłatne i gospodarcze. Bez tego nie udowodnisz przy kontroli, że warunki działalności odpłatnej są zachowane, ani nie rozliczysz poprawnie CIT.
+
+## Skutki dla VAT i KSeF
+
+- Odpłatna działalność pożytku publicznego i działalność gospodarcza to zwykle **czynności opodatkowane VAT** (albo zwolnione przedmiotowo) — organizacja może stać się **podatnikiem VAT** i mieć obowiązek **JPK_V7**.
+- Jeśli organizacja **wystawia faktury** jako podatnik VAT — dotyczy jej **KSeF**. Zobacz: [KSeF dla fundacji i stowarzyszenia](/poradnik/ksef-dla-fundacji-i-stowarzyszenia).
+- Sama działalność statutowa nieodpłatna (darowizny, składki, dotacje) nie jest sprzedażą i nie rodzi obowiązku fakturowania.
+
+## Zastrzeżenie
+
+Stan na 7 września 2026 r. Kwalifikacja działalności ma poważne skutki podatkowe — potwierdź ją z księgową lub doradcą podatkowym przed rozpoczęciem odpłatnych działań. KsięgaI to oprogramowanie, a nie doradztwo podatkowe.`,
+    checklist: [
+      'Wypisz wszystkie działania organizacji, za które pobierasz lub planujesz pobierać opłaty.',
+      'Dla każdego rozstrzygnij: statutowa nieodpłatna, odpłatna pożytku publicznego czy gospodarcza.',
+      'Sprawdź, czy odpłatna działalność mieści się w celach statutowych i czy przychód nie przekracza kosztów.',
+      'Jeśli planujesz działalność gospodarczą — przygotuj wniosek o wpis do rejestru przedsiębiorców KRS.',
+      'Upewnij się, że działalność gospodarcza i odpłatna nie pokrywają się tym samym kodem PKD.',
+      'Ustaw plan kont, który rozdziela przychody i koszty statutowe, odpłatne i gospodarcze.',
+      'Z księgową ustal status VAT i obowiązek JPK_V7.',
+      'Jeśli organizacja wystawia faktury jako podatnik VAT — zaplanuj ścieżkę do KSeF.',
+    ],
+    official_links: [
+      { label: 'Działalność odpłatna i nieodpłatna pożytku publicznego (Narodowy Instytut Wolności)', href: 'https://niw.gov.pl/', external: true },
+      { label: 'Ustawa o działalności pożytku publicznego i o wolontariacie', href: 'https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20030960873', external: true },
+      { label: 'Rejestr przedsiębiorców KRS', href: 'https://ekrs.ms.gov.pl/', external: true },
+    ],
+    related_actions: [
+      { label: 'Pierwsze obowiązki fundacji po rejestracji', href: '/poradnik/pierwsze-obowiazki-po-rejestracji-fundacji' },
+      { label: 'Pierwsze obowiązki stowarzyszenia po rejestracji', href: '/poradnik/pierwsze-obowiazki-po-rejestracji-stowarzyszenia' },
+      { label: 'KSeF dla fundacji i stowarzyszenia', href: '/poradnik/ksef-dla-fundacji-i-stowarzyszenia' },
+    ],
+    faq: [
+      {
+        question: 'Czy odpłatna działalność pożytku publicznego to działalność gospodarcza?',
+        answer: 'Nie, o ile przychód nie przekracza kosztów tej działalności, a wynagrodzenia mieszczą się w ustawowym limicie. Nie wymaga wpisu do rejestru przedsiębiorców, ale wymaga wyodrębnienia księgowego. Przekroczenie warunków zamienia ją w działalność gospodarczą.',
+      },
+      {
+        question: 'Czy fundacja może prowadzić działalność gospodarczą?',
+        answer: 'Tak, jeśli statut to przewiduje. Wymaga wpisu do rejestru przedsiębiorców KRS, przeznaczenia całego dochodu na cele statutowe i wyodrębnienia księgowego. Nie może pokrywać się przedmiotowo z działalnością odpłatną pożytku publicznego.',
+      },
+      {
+        question: 'Czy przyjmowanie darowizn i składek to sprzedaż objęta KSeF?',
+        answer: 'Nie. Darowizny, składki członkowskie i dotacje nie są czynnościami fakturowanymi. KSeF dotyczy organizacji dopiero gdy jest podatnikiem VAT i wystawia faktury.',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 20,
+    published_at: '2026-09-07T00:00:00.000Z',
+    updated_at: '2026-09-07T00:00:00.000Z',
+    category: CAT_NGO_SPRAWOZDAWCZOSC,
   },
 
   // ─── TODO: kolejne artykuły do dodania ──────────────────────────────────────

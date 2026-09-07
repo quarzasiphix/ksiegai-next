@@ -8,7 +8,7 @@ function AuthLoginRedirectInner() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    const returnTo = searchParams.get("returnTo");
+    const returnTo = searchParams?.get("returnTo");
     const target =
       returnTo && returnTo.length > 0
         ? `/logowanie?returnTo=${encodeURIComponent(returnTo)}`

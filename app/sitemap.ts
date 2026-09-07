@@ -1,9 +1,9 @@
 import { MetadataRoute } from 'next'
-import { getWikiArticlesByCategory } from '@/lib/wiki';
+import { getWikiArticlesByCategory, WIKI_ENTITY_HUBS } from '@/lib/wiki';
 import { mcpCategories } from '@/lib/mcpTools';
 
 const baseUrl = 'https://www.ksiegai.pl';
-const staticLastModified = new Date('2026-05-18T00:00:00+02:00');
+const staticLastModified = new Date('2026-09-07T00:00:00+02:00');
 
 const staticRoutes: Array<{
   path: string;
@@ -30,6 +30,11 @@ const staticRoutes: Array<{
   { path: '/woocommerce-ksiegowosc', changeFrequency: 'weekly', priority: 0.7 },
   { path: '/bezpieczenstwo-danych', changeFrequency: 'monthly', priority: 0.65 },
   { path: '/poradnik', changeFrequency: 'weekly', priority: 0.7 },
+  ...WIKI_ENTITY_HUBS.map((hub) => ({
+    path: hub.path.replace(/^https?:\/\/[^/]+/, ''),
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  })),
   { path: '/infrastructure', changeFrequency: 'monthly', priority: 0.6 },
   { path: '/governance', changeFrequency: 'monthly', priority: 0.6 },
   { path: '/tovernet', changeFrequency: 'monthly', priority: 0.4 },
