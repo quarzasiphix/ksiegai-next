@@ -3147,6 +3147,106 @@ Uchwała zarządu nie zastąpi uchwały wspólników w sprawach zastrzeżonych d
     updated_at: '2026-09-29T00:00:00.000Z',
     category: fallbackWikiCategories[6],
   },
+  {
+    id: 'fallback-uchwaly-stowarzyszenie-fundacja',
+    slug: 'uchwaly-stowarzyszenie-fundacja',
+    title: 'Uchwały w stowarzyszeniu i fundacji — kto je podejmuje i jak je dokumentować',
+    entityTypes: ['stowarzyszenie', 'fundacja'],
+    excerpt:
+      'Walne zebranie, zarząd, komisja rewizyjna, rada fundacji — kto w NGO podejmuje uchwały, co mówi ustawa, a co statut, i czego może zażądać organ nadzoru.',
+    summary:
+      'W stowarzyszeniu najwyższą władzą jest walne zebranie członków, a zarząd i organ kontroli wewnętrznej są obowiązkowe. Fundacja nie ma członków — obowiązkowy jest tylko zarząd, resztę ustala statut. Wyjaśniamy zasady, głosowanie zdalne (bez ograniczenia do epidemii od 27 marca 2026 r.) i nadzór.',
+    purpose:
+      'Starosta może zażądać odpisów uchwał walnego zebrania stowarzyszenia, a minister lub starosta może wystąpić do sądu o uchylenie uchwały zarządu fundacji. Uchwały w NGO to nie formalność — to dowód, że organizacja działa zgodnie ze statutem.',
+    body_markdown: `## Stowarzyszenie: trzy obowiązkowe władze
+
+Najwyższą władzą stowarzyszenia jest **walne zebranie członków**. W sprawach, w których statut nie wskazuje innej władzy, uchwały podejmuje walne zebranie (art. 11 ust. 1 Prawa o stowarzyszeniach). Przy dużej liczbie członków statut może przewidzieć zebranie delegatów (art. 11 ust. 2).
+
+Stowarzyszenie musi mieć **zarząd** i **organ kontroli wewnętrznej** — najczęściej komisję rewizyjną (art. 11 ust. 3).
+
+Ustawa zostawia szczegóły statutowi. To statut określa władze, tryb ich wyboru i kompetencje, sposób reprezentacji i zaciągania zobowiązań, **warunki ważności uchwał** oraz zasady zmiany statutu (art. 10 ust. 1 pkt 5, 6 i 8).
+
+### Umowa stowarzyszenia z członkiem zarządu
+
+W umowach i sporach z członkiem zarządu stowarzyszenie reprezentuje członek organu kontroli wewnętrznej wskazany w uchwale tego organu albo pełnomocnik powołany uchwałą walnego zebrania (art. 11 ust. 4). To odpowiednik zasady znanej ze spółek — art. 210 KSH.
+
+### Zmiana statutu
+
+Zarząd musi niezwłocznie zawiadomić sąd rejestrowy o zmianie statutu (art. 21 ust. 1).
+
+## Fundacja: zarząd i to, co ustali statut
+
+Fundacja nie ma członków, więc nie ma walnego zebrania. Ustawa wymaga tylko **zarządu**, który kieruje działalnością fundacji i reprezentuje ją na zewnątrz (art. 10 ustawy o fundacjach). Skład, organizację, sposób powoływania oraz uprawnienia zarządu określa statut ustalony przez fundatora (art. 5 ust. 1).
+
+Statut może przewidzieć obok zarządu **inne organy** (art. 5 ust. 1) — zwykle radę fundacji, która nadzoruje zarząd, zatwierdza sprawozdania albo zmienia statut. Fundator ma tylko te uprawnienia, które daje mu statut.
+
+- **Zmiana statutu** wymaga wpisu do KRS (art. 11 ust. 2 ustawy o fundacjach).
+- **Działalność gospodarcza** nieprzewidziana w statucie wymaga uprzedniej zmiany statutu (art. 11 ust. 1).
+- **Umowy z członkiem zarządu** — ustawa o fundacjach nie reguluje tego wprost. Warto, by statut wskazywał, kto reprezentuje fundację w takiej umowie (np. rada fundacji).
+
+## Głosowanie zdalne — od 27 marca 2026 r. bez ograniczenia do epidemii
+
+Władze stowarzyszenia mogą głosować poza posiedzeniem przy użyciu środków komunikacji elektronicznej, jeżeli ich członkowie wyrazili na to zgodę w formie dokumentowej. Udział zdalny w posiedzeniu trzeba wskazać w zawiadomieniu, z opisem sposobu uczestnictwa i głosowania (art. 10 ust. 1a–1c Prawa o stowarzyszeniach). Statut może te zasady ograniczyć albo wyłączyć (art. 10 ust. 1d).
+
+Do fundacji stosuje się te przepisy odpowiednio (art. 5 ust. 1a ustawy o fundacjach).
+
+Do marca 2026 r. przepisy te działały tylko w stanie epidemii lub zagrożenia epidemicznego. Ustawa z 23 stycznia 2026 r. (Dz.U. 2026 poz. 316) uchyliła to ograniczenie — od **27 marca 2026 r.** głosowanie zdalne jest możliwe na stałe, o ile statut go nie wyklucza.
+
+## Nadzór nad uchwałami
+
+| | Stowarzyszenie | Fundacja |
+|---|---|---|
+| Kto nadzoruje | Starosta (albo wojewoda — dla stowarzyszeń JST) (art. 8 ust. 5) | Właściwy minister i starosta (art. 12 ust. 1) |
+| Czego może żądać | Odpisów uchwał walnego zebrania i wyjaśnień (art. 25 ust. 2) | Usunięcia uchybień albo zmiany zarządu w wyznaczonym terminie (art. 14 ust. 1) |
+| Sankcja | Grzywna do 5000 zł za niezastosowanie się (art. 26) | Wniosek do sądu o zawieszenie zarządu i zarządcę przymusowego (art. 14 ust. 2) |
+| Uchylenie uchwały | Sąd może uchylić uchwałę niezgodną z prawem lub statutem (art. 29 ust. 1 pkt 2) | Sąd może uchylić uchwałę zarządu w rażącej sprzeczności z celem, statutem lub prawem (art. 13) |
+
+## Jak to uporządkować w praktyce
+
+1. Przeczytaj statut pod kątem: kompetencji organów, zwoływania posiedzeń, kworum i większości, zatwierdzania sprawozdania finansowego, reprezentacji i zmiany statutu.
+2. Numeruj uchwały z oznaczeniem organu (np. „Uchwała nr 3/2026 Zarządu”).
+3. Przechowuj uchwały razem z protokołami i listami obecności — organ nadzoru może zażądać odpisów.
+4. Roczne sprawozdanie finansowe zatwierdza organ wskazany w statucie — to też uchwała.`,
+    checklist: [
+      'Sprawdź w statucie kompetencje organów i warunki ważności uchwał.',
+      'Upewnij się, że stowarzyszenie ma obsadzony zarząd i organ kontroli wewnętrznej.',
+      'Ustal, kto reprezentuje organizację w umowach z członkiem zarządu.',
+      'Prowadź numerowany rejestr uchwał z protokołami.',
+      'Zmiany statutu zgłaszaj do KRS.',
+    ],
+    official_links: [
+      { label: 'Prawo o stowarzyszeniach (ISAP)', href: 'https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU19890200104', external: true },
+      { label: 'Ustawa o fundacjach (ISAP)', href: 'https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU19840210097', external: true },
+      { label: 'Dz.U. 2026 poz. 316 — zmiana dot. głosowania zdalnego', href: 'https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20260000316', external: true },
+    ],
+    related_actions: [
+      { label: 'Obowiązki sprawozdawcze stowarzyszenia', href: '/poradnik/obowiazki-sprawozdawcze-stowarzyszenia/' },
+      { label: 'Sprawozdanie z działalności fundacji', href: '/poradnik/sprawozdanie-z-dzialalnosci-fundacji/' },
+      { label: 'Załóż konto dla organizacji w KsięgaI', href: '/rejestracja/' },
+    ],
+    faq: [
+      {
+        question: 'Czy stowarzyszenie musi co roku zwoływać walne zebranie?',
+        answer:
+          'Prawo o stowarzyszeniach nie wyznacza takiego terminu — częstotliwość i tryb zwoływania określa statut. Roczne sprawozdanie finansowe musi jednak zostać zatwierdzone przez organ wskazany w statucie w ciągu 6 miesięcy od dnia bilansowego.',
+      },
+      {
+        question: 'Czy fundator może sam zmienić statut fundacji?',
+        answer:
+          'Tylko jeżeli statut mu na to pozwala. Ustawa o fundacjach nie daje fundatorowi ogólnego prawa do zmiany statutu — wszystko zależy od postanowień statutu. Każda zmiana wymaga wpisu do KRS.',
+      },
+      {
+        question: 'Czy zarząd stowarzyszenia może głosować mailowo?',
+        answer:
+          'Tak, jeżeli członkowie zarządu zgodzili się na to w formie dokumentowej, a statut tego nie wyklucza (art. 10 ust. 1a i 1d Prawa o stowarzyszeniach). Od 27 marca 2026 r. nie trzeba do tego stanu epidemii.',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 35,
+    published_at: '2026-09-29T00:00:00.000Z',
+    updated_at: '2026-09-29T00:00:00.000Z',
+    category: fallbackWikiCategories[6],
+  },
 
   // ─── KATEGORIA: finanse-spolki (fallbackWikiCategories[7]) ──────────────────
 

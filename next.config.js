@@ -17,6 +17,25 @@ const nextConfig = {
   experimental: {
     missingSuspenseWithCSRBailout: false,
   },
+
+  // `next dev` ignores public/_headers, so mirror the CORS rule for the KSH
+  // JSON contract locally (ksef-ai on :8080 fetches it). Static export does
+  // not support headers(), hence dev-only.
+  ...(isDevCommand
+    ? {
+        async headers() {
+          return [
+            {
+              source: "/poradnik/ksh/data/:path*",
+              headers: [
+                { key: "Access-Control-Allow-Origin", value: "*" },
+                { key: "Access-Control-Allow-Methods", value: "GET" },
+              ],
+            },
+          ];
+        },
+      }
+    : {}),
 };
 
 module.exports = nextConfig;
