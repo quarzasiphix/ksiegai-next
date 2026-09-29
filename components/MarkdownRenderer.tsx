@@ -29,7 +29,8 @@ function parseInline(text: string): React.ReactNode {
 
     if (minIdx === boldIdx && boldMatch) {
       if (boldMatch[1]) parts.push(boldMatch[1]);
-      parts.push(<strong key={key++}>{boldMatch[2]}</strong>);
+      // Recurse so auto-linked citations inside **bold** still render as links.
+      parts.push(<strong key={key++}>{parseInline(boldMatch[2])}</strong>);
       remaining = boldMatch[3];
     } else if (minIdx === linkIdx && linkMatch) {
       if (linkMatch[1]) parts.push(linkMatch[1]);

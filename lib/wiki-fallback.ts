@@ -2333,7 +2333,7 @@ Przepis **nie dotyczy** umów między spółką a wspólnikiem, który nie zasia
 
 ## Co grozi za pominięcie art. 210 KSH
 
-Umowa podpisana z naruszeniem art. 210 KSH jest **bezwzględnie nieważna** — z mocy prawa, bez potrzeby wyroków sądowych. Praktyczne konsekwencje:
+Według przeważającego stanowiska orzecznictwa i doktryny umowa podpisana z naruszeniem art. 210 KSH jest **nieważna** i nie da się jej skutecznie „potwierdzić” po fakcie. Praktyczne konsekwencje:
 
 - kontrakt menedżerski prezesa może zostać uznany za nieważny podczas audytu lub sporu
 - ZUS lub urząd skarbowy może zakwestionować podstawę do wypłat z tytułu umowy
@@ -2350,11 +2350,11 @@ Procedura jest prosta, ale musi być udokumentowana:
 4. Podpisz umowę z członkiem zarządu — ze strony spółki podpisuje powołany pełnomocnik.
 5. Przechowaj uchwałę i protokół w archiwum spółki.
 
-> **Ważne:** pełnomocnikiem może być wspólnik, inna osoba z zarządu (niezaangażowana w tę konkretną umowę) albo zewnętrzna osoba zaufana. Nie ma wymogu, by był prawnikiem.
+> **Ważne:** pełnomocnikiem może być wspólnik albo zewnętrzna osoba zaufana — nie musi być prawnikiem. To, czy może nim być inny członek zarządu, bywało w orzecznictwie sporne, dlatego najbezpieczniej wskazać osobę spoza zarządu.
 
 ## Spółka z radą nadzorczą
 
-Jeśli spółka ma radę nadzorczą, to ona — nie pełnomocnik — reprezentuje spółkę w umowach z zarządem. Uchwała wspólników do powołania pełnomocnika jest potrzebna tylko wtedy, gdy rada nadzorcza nie istnieje.
+Art. 210 § 1 KSH wskazuje radę nadzorczą **lub** pełnomocnika powołanego uchwałą wspólników. Jeśli spółka ma radę nadzorczą, umowę z członkiem zarządu może podpisać rada — ale wspólnicy nadal mogą powołać do tego pełnomocnika. W spółce bez rady nadzorczej jedyną drogą jest uchwała wspólników.
 
 ## Czego nie wolno robić
 
@@ -2379,11 +2379,11 @@ Jeśli spółka ma radę nadzorczą, to ona — nie pełnomocnik — reprezentuj
     faq: [
       {
         question: 'Czy prezes będący jedynym wspólnikiem też potrzebuje pełnomocnika?',
-        answer: 'Tak, ale zasada jest zmodyfikowana. Art. 210 § 2 KSH mówi, że gdy jeden wspólnik jest jednocześnie jedynym członkiem zarządu, czynność prawna między nim a spółką wymaga formy aktu notarialnego.',
+        answer: 'Nie, jeżeli jest też jedynym członkiem zarządu. Art. 210 § 2 KSH wyłącza wtedy zasadę z § 1 — zamiast pełnomocnika czynność prawna między nim a spółką wymaga formy aktu notarialnego (wyjątek: czynności na wzorcu w systemie teleinformatycznym). Jeżeli zarząd jest wieloosobowy, pełnomocnika powołuje jedyny wspólnik uchwałą.',
       },
       {
         question: 'Kto może być pełnomocnikiem z art. 210 KSH?',
-        answer: 'Dowolna osoba wskazana uchwałą wspólników — może to być inny wspólnik, osoba spoza spółki, a nawet drugi członek zarządu (o ile nie jest stroną tej konkretnej umowy). Nie musi być prawnikiem.',
+        answer: 'Osoba wskazana uchwałą wspólników — np. inny wspólnik albo osoba spoza spółki. Nie musi być prawnikiem. Powołanie innego członka zarządu bywało w orzecznictwie sporne, więc bezpieczniej wskazać osobę spoza zarządu.',
       },
       {
         question: 'Czy pełnomocnictwo z art. 210 KSH musi być notarialne?',
@@ -2391,13 +2391,13 @@ Jeśli spółka ma radę nadzorczą, to ona — nie pełnomocnik — reprezentuj
       },
       {
         question: 'Co jeśli umowa z naruszeniem art. 210 już obowiązuje?',
-        answer: 'Należy jak najszybciej zwołać ZW, podjąć uchwałę o ratyfikacji i podpisać umowę ponownie z pełnomocnikiem. Warto skonsultować się z prawnikiem, czy nieważność można konwalidować.',
+        answer: 'Nie zakładaj, że wystarczy „uchwała o ratyfikacji” — według przeważającego stanowiska takiej umowy nie da się skutecznie potwierdzić. Podejmij uchwałę o powołaniu pełnomocnika, zawrzyj umowę ponownie w prawidłowej reprezentacji i ureguluj rozliczenia za okres wcześniejszy, najlepiej z prawnikiem.',
       },
     ],
     article_type: 'guide',
     sort_order: 10,
     published_at: '2026-05-23T00:00:00.000Z',
-    updated_at: '2026-05-23T00:00:00.000Z',
+    updated_at: '2026-09-29T00:00:00.000Z',
     category: fallbackWikiCategories[6],
   },
 
@@ -2457,7 +2457,7 @@ Wiele spółek ma „historyczne" umowy podpisane bez pełnomocnika. Każdy anek
 
 ## Szczególny przypadek: jedyny wspólnik = jedyny członek zarządu
 
-Art. 210 § 2 KSH wprowadza dodatkowy obowiązek: gdy spółka ma jednego wspólnika, który jest jednocześnie jedynym członkiem zarządu, każda czynność prawna między nim a spółką **wymaga formy aktu notarialnego**.
+Art. 210 § 2 KSH zmienia zasady: gdy spółka ma jednego wspólnika, który jest jednocześnie jedynym członkiem zarządu, pełnomocnika się nie powołuje, a każda czynność prawna między nim a spółką **wymaga formy aktu notarialnego** (wyjątek z § 3: czynności dokonywane na wzorcu w systemie teleinformatycznym).
 
 Dotyczy to klasycznej sytuacji: solo founder zakłada sp. z o.o., jest jedynym wspólnikiem i prezesem. Każda umowa między nim a tą spółką — pożyczka, wynajem, kontrakt — musi być zawarta u notariusza.
 
@@ -2495,7 +2495,7 @@ Szczegółowy opis procedury znajdziesz w artykule: [KSH art. 210 — procedura 
       },
       {
         question: 'Co jeśli mamy radę nadzorczą?',
-        answer: 'Wtedy to rada nadzorcza reprezentuje spółkę w umowach z zarządem — nie potrzebujesz osobnego pełnomocnika. Wystarczy uchwała rady i podpis jej przewodniczącego lub upoważnionego członka.',
+        answer: 'Wtedy umowę z członkiem zarządu może podpisać w imieniu spółki rada nadzorcza (na podstawie uchwały rady). Art. 210 mówi „rada nadzorcza lub pełnomocnik”, więc wspólnicy nadal mogą zamiast tego powołać pełnomocnika.',
       },
       {
         question: 'Czy nieważną umowę można naprawić wstecznie?',
@@ -2509,7 +2509,7 @@ Szczegółowy opis procedury znajdziesz w artykule: [KSH art. 210 — procedura 
     article_type: 'guide',
     sort_order: 11,
     published_at: '2026-05-24T00:00:00.000Z',
-    updated_at: '2026-05-24T00:00:00.000Z',
+    updated_at: '2026-09-29T00:00:00.000Z',
     category: fallbackWikiCategories[6],
   },
 
@@ -2533,7 +2533,7 @@ W spółce z o.o. najczęściej spotykamy dwa rodzaje umocowania do działania w
 Są sytuacje, gdy to nie zarząd, ale zgromadzenie wspólników musi powołać pełnomocnika:
 
 - **Art. 210 KSH** — umowy i spory między spółką a członkiem zarządu (szczegółowo opisujemy w osobnym artykule)
-- **Art. 253 KSH** — gdy spółka wytacza powództwo w sporze ze wspólnikiem, który jest jednocześnie w zarządzie
+- **Art. 253 KSH** — w sporze o uchylenie lub stwierdzenie nieważności uchwały wspólników spółkę reprezentuje zarząd, chyba że wspólnicy uchwałą ustanowią w tym celu pełnomocnika (a gdy zarząd nie może działać i brak takiego pełnomocnika — sąd ustanawia kuratora)
 - **Umowa spółki może rozszerzyć listę** — niektóre umowy spółki wymagają zgody ZW dla czynności przekraczających zwykły zarząd
 
 ## Pełnomocnictwo udzielone przez zarząd — kiedy to wystarczy
@@ -2593,13 +2593,13 @@ Jeśli chcesz dać komuś stałe szerokie uprawnienia do działania w imieniu sp
       },
       {
         question: 'Czy pełnomocnictwo wygasa, gdy zmienia się skład zarządu?',
-        answer: 'Zależy od podstawy. Pełnomocnictwo udzielone przez zarząd wygasa, gdy zarząd traci uprawnienie do jego udzielenia. Pełnomocnictwo z uchwały ZW nie wygasa automatycznie ze zmianą zarządu.',
+        answer: 'Nie automatycznie. Pełnomocnictwo udziela spółka (działająca przez zarząd), więc zmiana składu zarządu go nie wygasza — nowy zarząd może je jednak odwołać. Pełnomocnik z art. 210 KSH powołany uchwałą wspólników działa, dopóki wspólnicy go nie odwołają lub nie wyczerpie się zakres umocowania.',
       },
     ],
     article_type: 'guide',
     sort_order: 20,
     published_at: '2026-05-23T00:00:00.000Z',
-    updated_at: '2026-05-23T00:00:00.000Z',
+    updated_at: '2026-09-29T00:00:00.000Z',
     category: fallbackWikiCategories[6],
   },
 
@@ -2740,6 +2740,411 @@ Gdy przychodzi audyt, nie szukasz dokumentów w mailach — filtrujesz decyzje p
     sort_order: 30,
     published_at: '2026-05-23T00:00:00.000Z',
     updated_at: '2026-05-23T00:00:00.000Z',
+    category: fallbackWikiCategories[6],
+  },
+
+  // ─── Uchwały i zgromadzenia (2026-09) — legal statements verified against
+  // the KSH consolidated text Dz.U. 2024 poz. 18 on 2026-09-29. ─────────────
+  {
+    id: 'fallback-uchwala-zarzadu-a-wspolnikow',
+    slug: 'uchwala-zarzadu-a-uchwala-wspolnikow-roznice',
+    title: 'Uchwała zarządu a uchwała wspólników — różnice w sp. z o.o.',
+    entityTypes: ['spolka'],
+    excerpt:
+      'Kto podejmuje uchwałę, w jakich sprawach, jaką większością i co grozi, gdy jej zabraknie. Porównanie uchwał zarządu i uchwał wspólników na podstawie KSH.',
+    summary:
+      'Zarząd prowadzi sprawy spółki, wspólnicy decydują o sprawach właścicielskich. Różni się organ, tryb, większość głosów, forma i skutek braku uchwały — zestawiamy to w jednym miejscu.',
+    purpose:
+      'Decyzja podjęta przez niewłaściwy organ to najczęstsza przyczyna wadliwych umów w małych spółkach. Czynność, dla której ustawa wymaga uchwały wspólników, dokonana bez niej jest nieważna.',
+    body_markdown: `## Po co spółce uchwały i decyzje
+
+Sp. z o.o. jest osobnym podmiotem — nie „decyduje” za nią właściciel ani prezes jako osoba prywatna, tylko jej organy: zarząd, zgromadzenie wspólników i (jeżeli jest) rada nadzorcza. Uchwała albo udokumentowana decyzja to dowód, że dana sprawa została rozstrzygnięta przez uprawniony organ w przewidzianym trybie. Sprawdza to biegły rewident, urząd skarbowy przy kontroli kosztów, bank, kupujący udziały i sąd.
+
+Zarząd prowadzi sprawy spółki i reprezentuje ją (art. 201 § 1 KSH). Wspólnicy podejmują uchwały w sprawach, które KSH i umowa spółki zastrzegają dla nich (art. 228 KSH).
+
+## Porównanie w jednej tabeli
+
+| | Uchwała zarządu | Uchwała wspólników |
+|---|---|---|
+| Kto podejmuje | Członkowie zarządu — tylko przy zarządzie wieloosobowym | Wspólnicy (w spółce jednoosobowej — jedyny wspólnik) |
+| Kiedy jest wymagana | Sprawy przekraczające zwykłe czynności spółki albo takie, którym sprzeciwił się inny członek zarządu (art. 208 § 4 KSH) | Sprawy z art. 228 KSH, inne sprawy z KSH (np. art. 210 KSH, art. 15 KSH) i z umowy spółki |
+| Warunek ważności | Wszyscy członkowie prawidłowo zawiadomieni o posiedzeniu (art. 208 § 5 KSH) | Prawidłowe zwołanie zgromadzenia albo pisemna zgoda wszystkich wspólników (art. 227 § 2 KSH) |
+| Większość | Bezwzględna większość głosów | Bezwzględna większość (art. 245 KSH); 2/3 lub 3/4 w sprawach z art. 246 KSH |
+| Tryb | Posiedzenie, pisemnie lub zdalnie (art. 208 § 5¹–5³ KSH) | Zgromadzenie, pisemnie bez zgromadzenia lub zdalny udział (art. 234¹ KSH) |
+| Zapis | Protokół / rejestr uchwał zarządu | Księga protokołów (art. 248 KSH) |
+| Brak uchwały | Członek zarządu naraża się na odpowiedzialność wobec spółki | Co do zasady czynność nieważna, jeżeli uchwały wymaga ustawa (art. 17 § 1 KSH) — z wyjątkami, np. art. 230 KSH |
+
+## Uchwały zarządu — kiedy są potrzebne
+
+Przy zarządzie wieloosobowym każdy członek zarządu może bez uchwały prowadzić sprawy nieprzekraczające zwykłych czynności spółki (art. 208 § 3 KSH). Uprzednia uchwała zarządu jest wymagana, gdy:
+
+- sprawa przekracza zakres zwykłych czynności spółki, albo
+- choćby jeden z pozostałych członków zarządu sprzeciwi się jej przeprowadzeniu (art. 208 § 4 KSH).
+
+Powołanie prokurenta wymaga zgody **wszystkich** członków zarządu, a odwołać prokurę może każdy z nich (art. 208 § 6–7 KSH).
+
+Jednoosobowy zarząd nie podejmuje uchwał w rozumieniu art. 208 — po prostu działa. Ważne decyzje (zakup środka trwałego, regulamin wynagrodzeń, polityka rozliczania kosztów) i tak warto zapisywać jako decyzje zarządu: to one uzasadniają wydatki przy kontroli.
+
+Więcej: [Posiedzenie zarządu i uchwały zarządu](/poradnik/posiedzenie-zarzadu-uchwaly-zarzadu/).
+
+## Uchwały wspólników — kiedy są potrzebne
+
+Art. 228 KSH wymienia sprawy wymagające uchwały wspólników, m.in.:
+
+- zatwierdzenie sprawozdania zarządu i sprawozdania finansowego oraz absolutorium,
+- roszczenia o naprawienie szkody wyrządzonej przy zawiązaniu spółki lub sprawowaniu zarządu albo nadzoru,
+- zbycie i wydzierżawienie przedsiębiorstwa lub jego zorganizowanej części,
+- nabycie i zbycie nieruchomości — jeżeli umowa spółki nie stanowi inaczej,
+- zwrot dopłat.
+
+Do tego inne przepisy KSH, np.:
+
+- powołanie i odwołanie członków zarządu — jeżeli umowa spółki nie stanowi inaczej (art. 201 § 4 KSH),
+- umowy między spółką a członkiem zarządu — reprezentuje ją rada nadzorcza lub pełnomocnik powołany uchwałą wspólników (art. 210 KSH),
+- kredyt, pożyczka lub poręczenie dla członka zarządu, rady nadzorczej, prokurenta — zgoda zgromadzenia (art. 15 KSH),
+- rozporządzenie prawem lub zaciągnięcie zobowiązania o wartości dwukrotnie przewyższającej kapitał zakładowy — jeżeli umowa spółki nie stanowi inaczej (art. 230 KSH); brak tej uchwały nie powoduje jednak nieważności czynności,
+- zmiana umowy spółki — w protokole notarialnym (art. 255 KSH).
+
+Umowa spółki może ten katalog rozszerzyć.
+
+## Co się dzieje, gdy uchwały zabraknie
+
+- **Uchwała wymagana przez ustawę:** czynność prawna dokonana bez niej jest nieważna. Zgodę można jednak wyrazić także po fakcie — najpóźniej w ciągu dwóch miesięcy od złożenia oświadczenia przez spółkę; takie potwierdzenie działa wstecz (art. 17 § 1–2 KSH). Wyjątek: przy zobowiązaniach powyżej dwukrotności kapitału zakładowego art. 230 KSH wprost wyłącza tę sankcję — czynność jest ważna, ale zarząd odpowiada wobec spółki.
+- **Uchwała wymagana wyłącznie przez umowę spółki:** czynność jest ważna, ale członkowie zarządu odpowiadają wobec spółki za naruszenie umowy (art. 17 § 3 KSH).
+
+## Najczęstsze pomyłki
+
+- Prezes podpisuje umowę z samym sobą „bo wspólnicy się zgadzają” — potrzebny jest pełnomocnik powołany uchwałą wspólników (art. 210 KSH).
+- Uchwała zarządu podjęta bez zawiadomienia jednego z członków zarządu.
+- Zmiana umowy spółki zwykłą uchwałą zamiast w protokole notarialnym.
+- Brak jakiegokolwiek zapisu decyzji — ustne ustalenia nie są dowodem.`,
+    checklist: [
+      'Przed ważną decyzją sprawdź, czy wymaga jej art. 228 KSH, inny przepis KSH albo umowa spółki.',
+      'Jeżeli tak — przygotuj uchwałę wspólników (na zgromadzeniu albo pisemnie).',
+      'Przy zarządzie wieloosobowym sprawy ponad zwykłe czynności przeprowadzaj przez uchwałę zarządu.',
+      'Zapisz każdą uchwałę i powiąż ją z umową lub wydatkiem, którego dotyczy.',
+    ],
+    official_links: [
+      { label: 'Kodeks spółek handlowych — tekst jednolity (ISAP)', href: 'https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20240000018', external: true },
+    ],
+    related_actions: [
+      { label: 'Zgromadzenie wspólników — kiedy i jak zwołać', href: '/poradnik/zgromadzenie-wspolnikow-kiedy-i-jak-zwolac/' },
+      { label: 'Kiedy spółka z o.o. potrzebuje uchwały?', href: '/poradnik/kiedy-spolka-zoo-potrzebuje-uchwaly/' },
+      { label: 'Prowadź uchwały i decyzje w KsięgaI', href: '/rejestracja/' },
+    ],
+    faq: [
+      {
+        question: 'Czy wspólnik, który jest też prezesem, może sam podjąć uchwałę wspólników?',
+        answer:
+          'Tylko jeżeli jest jedynym wspólnikiem — wtedy wykonuje wszystkie uprawnienia zgromadzenia wspólników (art. 156 KSH). Przy kilku wspólnikach uchwałę podejmują wszyscy wspólnicy zgodnie z KSH i umową spółki.',
+      },
+      {
+        question: 'Czy uchwała zarządu może zastąpić uchwałę wspólników?',
+        answer:
+          'Nie. W sprawach zastrzeżonych dla wspólników uchwała zarządu nie wystarcza — a czynność, dla której ustawa wymaga uchwały wspólników, dokonana bez niej jest nieważna (art. 17 § 1 KSH).',
+      },
+      {
+        question: 'Czy uchwały wspólników można podjąć bez spotkania?',
+        answer:
+          'Tak, jeżeli wszyscy wspólnicy wyrażą na piśmie zgodę na postanowienie, które ma być powzięte, albo na głosowanie pisemne (art. 227 § 2 KSH).',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 31,
+    published_at: '2026-09-29T00:00:00.000Z',
+    updated_at: '2026-09-29T00:00:00.000Z',
+    category: fallbackWikiCategories[6],
+  },
+  {
+    id: 'fallback-zgromadzenie-wspolnikow',
+    slug: 'zgromadzenie-wspolnikow-kiedy-i-jak-zwolac',
+    title: 'Zgromadzenie wspólników sp. z o.o. — kiedy jest potrzebne i jak je zwołać',
+    entityTypes: ['spolka'],
+    excerpt:
+      'Zwyczajne i nadzwyczajne zgromadzenie wspólników: kto zwołuje, w jakim terminie, jak wysłać zaproszenia, kiedy można obejść się bez formalnego zwołania i bez zgromadzenia.',
+    summary:
+      'Zgromadzenie zwołuje zarząd listem poleconym, kurierem albo — za pisemną zgodą wspólnika — e-mailem, co najmniej dwa tygodnie wcześniej. Wyjaśniamy też kworum, pełnomocników, udział online i uchwały pisemne.',
+    purpose:
+      'Wadliwie zwołane zgromadzenie otwiera drogę do zaskarżenia uchwał. W małych spółkach da się je legalnie uprościć — trzeba tylko wiedzieć, na jakiej podstawie.',
+    body_markdown: `## Czym jest zgromadzenie wspólników
+
+Zgromadzenie wspólników to organ, w którym właściciele sp. z o.o. podejmują uchwały. Uchwały wspólników co do zasady podejmuje się na zgromadzeniu (art. 227 § 1 KSH). „Zgromadzenie” dotyczy wyłącznie wspólników — zarząd i rada nadzorcza odbywają **posiedzenia**.
+
+## Kiedy zgromadzenie jest potrzebne
+
+- **Zwyczajne zgromadzenie wspólników** — raz w roku, w ciągu sześciu miesięcy po zakończeniu roku obrotowego (art. 231 § 1 KSH). Zatwierdza sprawozdania, dzieli zysk lub pokrywa stratę i udziela absolutorium. Szczegóły: [Zwyczajne zgromadzenie wspólników](/poradnik/zwyczajne-zgromadzenie-wspolnikow-termin-uchwaly/).
+- **Nadzwyczajne zgromadzenie wspólników** — w przypadkach wskazanych w KSH lub umowie spółki, a także gdy uprawnieni do zwołania uznają to za wskazane (art. 232 KSH). W praktyce: zawsze, gdy potrzebna jest uchwała wspólników w ciągu roku — np. powołanie członka zarządu, pełnomocnik do umowy z członkiem zarządu, dopłaty, zmiana umowy spółki.
+- **Obowiązkowo przy dużej stracie** — jeżeli bilans wykaże stratę przewyższającą sumę kapitałów zapasowego i rezerwowych oraz połowę kapitału zakładowego, zarząd musi niezwłocznie zwołać zgromadzenie w sprawie dalszego istnienia spółki (art. 233 § 1 KSH).
+
+## Kto zwołuje
+
+| Kto | Kiedy |
+|---|---|
+| Zarząd | Zawsze — to podstawowa kompetencja (art. 235 § 1 KSH) |
+| Rada nadzorcza / komisja rewizyjna | Zwyczajne — gdy zarząd nie zwoła go w terminie; nadzwyczajne — gdy uznają to za wskazane, a zarząd nie zwoła go w 2 tygodnie od ich żądania (art. 235 § 2 KSH) |
+| Wspólnicy z co najmniej 1/10 kapitału | Mogą żądać zwołania nadzwyczajnego zgromadzenia — na piśmie, najpóźniej miesiąc przed proponowanym terminem (art. 236 § 1 KSH) |
+| Wspólnicy z co najmniej 1/20 kapitału | Mogą żądać umieszczenia spraw w porządku obrad najbliższego zgromadzenia — najpóźniej 3 tygodnie przed terminem (art. 236 § 1¹ KSH) |
+
+Jeżeli zarząd nie zwoła zgromadzenia w ciągu dwóch tygodni od żądania wspólników, sąd rejestrowy może upoważnić ich do zwołania (art. 237 § 1 KSH).
+
+## Jak zwołać — krok po kroku
+
+1. **Przygotuj porządek obrad i projekty uchwał.** Uchwał w sprawach spoza porządku obrad podjąć nie można, chyba że cały kapitał zakładowy jest reprezentowany i nikt nie zgłosił sprzeciwu (art. 239 § 1 KSH).
+2. **Wyślij zaproszenia co najmniej dwa tygodnie przed terminem** — listem poleconym albo przesyłką kurierską. Zamiast tego możesz wysłać zaproszenie e-mailem lub na adres do doręczeń elektronicznych, jeżeli wspólnik wcześniej wyraził na to pisemną zgodę i podał adres (art. 238 § 1 KSH).
+3. **W zaproszeniu wskaż** dzień, godzinę, miejsce i szczegółowy porządek obrad; przy zmianie umowy spółki — istotne elementy proponowanych zmian (art. 238 § 2 KSH).
+4. **Miejsce:** siedziba spółki, chyba że umowa spółki wskazuje inne miejsce w Polsce (art. 234 KSH).
+5. **Przeprowadź zgromadzenie i sporządź protokół** z listą obecności, a uchwały wpisz do księgi protokołów (art. 248 KSH).
+
+## Kworum, głosy i pełnomocnicy
+
+- **Kworum:** jeżeli KSH lub umowa spółki nie stanowią inaczej, zgromadzenie jest ważne bez względu na liczbę reprezentowanych udziałów (art. 241 KSH).
+- **Głosy:** na każdy udział o równej wartości nominalnej przypada jeden głos, chyba że umowa spółki stanowi inaczej (art. 242 KSH).
+- **Większość:** bezwzględna większość głosów (art. 245 KSH); 2/3 przy zmianie umowy spółki, rozwiązaniu spółki i zbyciu przedsiębiorstwa, 3/4 przy istotnej zmianie przedmiotu działalności (art. 246 § 1 KSH).
+- **Pełnomocnik wspólnika:** pełnomocnictwo musi być udzielone na piśmie pod rygorem nieważności, a jego kopię dołącza się do księgi protokołów. Pełnomocnikiem nie może być członek zarządu ani pracownik spółki (art. 243 KSH).
+- **Wyłączenie od głosowania:** wspólnik nie głosuje nad uchwałami dotyczącymi jego odpowiedzialności wobec spółki, absolutorium, zwolnienia z zobowiązania i sporu między nim a spółką (art. 244 KSH).
+- **Głosowanie tajne:** przy wyborach, odwołaniu członków organów, pociągnięciu ich do odpowiedzialności, w sprawach osobowych oraz na żądanie choćby jednego wspólnika (art. 247 § 2 KSH).
+
+## Jak legalnie uprościć zgromadzenie
+
+**Zgromadzenie bez formalnego zwołania.** Uchwały można podjąć mimo braku formalnego zwołania, jeżeli cały kapitał zakładowy jest reprezentowany, a nikt z obecnych nie zgłosił sprzeciwu dotyczącego odbycia zgromadzenia lub wniesienia poszczególnych spraw do porządku obrad (art. 240 KSH). W spółce dwóch wspólników, którzy się spotykają — to najprostsza droga.
+
+**Uchwały bez zgromadzenia.** Jeżeli wszyscy wspólnicy wyrażą na piśmie zgodę na postanowienie, które ma być powzięte, albo na głosowanie pisemne, uchwałę można podjąć bez odbycia zgromadzenia (art. 227 § 2 KSH). Zarząd wpisuje takie uchwały do księgi protokołów (art. 248 § 3 KSH).
+
+**Zgromadzenie online.** Wspólnicy mogą uczestniczyć zdalnie, jeżeli umowa spółki tego nie wyklucza; decyduje zwołujący, a zasady określa regulamin (art. 234¹ KSH). Zaproszenie musi wtedy zawierać informacje o sposobie udziału, głosowania i zgłaszania sprzeciwu (art. 238 § 3 KSH).
+
+**Spółka jednoosobowa.** Jedyny wspólnik wykonuje wszystkie uprawnienia zgromadzenia wspólników (art. 156 KSH) — nie zwołuje niczego, tylko podejmuje uchwały na piśmie.
+
+## Zaskarżanie uchwał
+
+Uchwała sprzeczna z umową spółki lub dobrymi obyczajami i godząca w interesy spółki albo mająca na celu pokrzywdzenie wspólnika może być zaskarżona powództwem o uchylenie (art. 249 KSH). Uchwała sprzeczna z ustawą — powództwem o stwierdzenie nieważności (art. 252 KSH). Wadliwe zwołanie zgromadzenia daje prawo do zaskarżenia także wspólnikowi, który na nim nie był (art. 250 KSH).`,
+    checklist: [
+      'Ustal, czy potrzebujesz zgromadzenia, czy wystarczy uchwała pisemna wszystkich wspólników (art. 227 § 2 KSH).',
+      'Przygotuj porządek obrad i projekty uchwał.',
+      'Wyślij zaproszenia co najmniej 2 tygodnie przed terminem: list polecony, kurier albo e-mail za pisemną zgodą wspólnika.',
+      'Sprawdź pełnomocnictwa wspólników (forma pisemna, nie członek zarządu ani pracownik).',
+      'Sporządź protokół z listą obecności i wynikami głosowań.',
+      'Wpisz uchwały do księgi protokołów i dołącz dowody zwołania.',
+    ],
+    official_links: [
+      { label: 'Kodeks spółek handlowych — tekst jednolity (ISAP)', href: 'https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20240000018', external: true },
+    ],
+    related_actions: [
+      { label: 'Zwyczajne zgromadzenie wspólników — termin i uchwały', href: '/poradnik/zwyczajne-zgromadzenie-wspolnikow-termin-uchwaly/' },
+      { label: 'Uchwała zarządu a uchwała wspólników', href: '/poradnik/uchwala-zarzadu-a-uchwala-wspolnikow-roznice/' },
+      { label: 'Planuj zgromadzenia i uchwały w KsięgaI', href: '/rejestracja/' },
+    ],
+    faq: [
+      {
+        question: 'Mamy dwóch wspólników. Czy musimy wysyłać listy polecone?',
+        answer:
+          'Nie, jeżeli obaj jesteście obecni i nikt nie zgłasza sprzeciwu — wtedy działa art. 240 KSH. Możecie też podjąć uchwały pisemnie bez zgromadzenia (art. 227 § 2 KSH).',
+      },
+      {
+        question: 'Czy zgromadzenie jest ważne, jeżeli przyszła tylko część wspólników?',
+        answer:
+          'Tak — jeżeli zostało prawidłowo zwołane, a KSH i umowa spółki nie wymagają kworum, jest ważne bez względu na liczbę reprezentowanych udziałów (art. 241 KSH).',
+      },
+      {
+        question: 'Czy prezes może głosować jako pełnomocnik wspólnika?',
+        answer: 'Nie. Członek zarządu i pracownik spółki nie mogą być pełnomocnikami na zgromadzeniu wspólników (art. 243 § 3 KSH).',
+      },
+      {
+        question: 'Czy zaproszenie e-mailem jest ważne?',
+        answer:
+          'Tylko wobec wspólnika, który wcześniej wyraził na to pisemną zgodę i podał adres e-mail (art. 238 § 1 KSH). Pozostałych zaprasza się listem poleconym lub kurierem.',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 32,
+    published_at: '2026-09-29T00:00:00.000Z',
+    updated_at: '2026-09-29T00:00:00.000Z',
+    category: fallbackWikiCategories[6],
+  },
+  {
+    id: 'fallback-zwyczajne-zgromadzenie-wspolnikow',
+    slug: 'zwyczajne-zgromadzenie-wspolnikow-termin-uchwaly',
+    title: 'Zwyczajne zgromadzenie wspólników — termin, porządek obrad i uchwały',
+    entityTypes: ['spolka'],
+    excerpt:
+      'Do 30 czerwca (przy roku kalendarzowym) każda sp. z o.o. musi zatwierdzić sprawozdanie finansowe, zdecydować o zysku lub stracie i udzielić absolutorium. Co dokładnie, w jakiej kolejności i co łatwo przeoczyć.',
+    summary:
+      'Zwyczajne zgromadzenie wspólników odbywa się w ciągu sześciu miesięcy po końcu roku obrotowego. Wyjaśniamy obowiązkowy porządek obrad, terminy z ustawy o rachunkowości, wygasające mandaty zarządu i wersję dla spółki jednoosobowej.',
+    purpose:
+      'Bez zatwierdzonego sprawozdania finansowego spółka nie złoży go do KRS i nie podzieli zysku. To obowiązek każdej sp. z o.o. — także takiej, która nie miała przychodów.',
+    body_markdown: `## Termin
+
+Zwyczajne zgromadzenie wspólników powinno odbyć się w ciągu **sześciu miesięcy po upływie każdego roku obrotowego** (art. 231 § 1 KSH). Jeżeli rok obrotowy spółki pokrywa się z kalendarzowym — do **30 czerwca**.
+
+Terminy z ustawy o rachunkowości, które się z tym łączą:
+
+| Krok | Termin |
+|---|---|
+| Sporządzenie sprawozdania finansowego przez zarząd | 3 miesiące od dnia bilansowego (zwykle do 31 marca) |
+| Zatwierdzenie przez zgromadzenie wspólników | 6 miesięcy od dnia bilansowego (zwykle do 30 czerwca) |
+| Złożenie do KRS (Repozytorium Dokumentów Finansowych) | 15 dni od zatwierdzenia |
+
+## Obowiązkowy porządek obrad
+
+Art. 231 § 2 KSH wymienia sprawy, które muszą znaleźć się na zwyczajnym zgromadzeniu:
+
+1. **Rozpatrzenie i zatwierdzenie** sprawozdania zarządu z działalności spółki oraz sprawozdania finansowego za ubiegły rok obrotowy.
+2. **Uchwała o podziale zysku albo pokryciu straty** — jeżeli umowa spółki nie wyłączyła tego spod kompetencji zgromadzenia.
+3. **Absolutorium** dla członków organów spółki z wykonania obowiązków.
+
+Absolutorium dotyczy **wszystkich** osób, które pełniły funkcję członka zarządu, rady nadzorczej lub komisji rewizyjnej w ostatnim roku obrotowym — także tych, które odeszły w trakcie roku (art. 231 § 3 KSH). Członek zarządu nie głosuje nad własnym absolutorium, jeżeli jest wspólnikiem (art. 244 KSH).
+
+Zgromadzenie może zająć się też innymi sprawami (art. 231 § 5 KSH) — w praktyce często dokłada się tu powołanie zarządu na kolejną kadencję.
+
+## Podział zysku
+
+Wspólnik ma prawo do udziału w zysku wynikającym z rocznego sprawozdania finansowego i przeznaczonym do podziału uchwałą zgromadzenia (art. 191 § 1 KSH). Kwota do podziału nie może przekroczyć zysku za ostatni rok obrotowy powiększonego o niepodzielone zyski z lat ubiegłych i kwoty z kapitałów utworzonych z zysku — pomniejszonej o niepokryte straty i udziały własne (art. 192 KSH). Dywidendę dostają wspólnicy, którym udziały przysługiwały w dniu powzięcia uchwały o podziale zysku (art. 193 § 1 KSH).
+
+## Nie przegap wygasających mandatów zarządu
+
+Jeżeli umowa spółki nie stanowi inaczej, mandat członka zarządu wygasa z dniem odbycia zgromadzenia zatwierdzającego sprawozdanie finansowe za pierwszy pełny rok obrotowy pełnienia funkcji (art. 202 § 1 KSH). Przy powołaniu na dłużej niż rok — za ostatni pełny rok obrotowy kadencji (art. 202 § 2 KSH).
+
+Przykład: prezes powołany w maju 2025 r., umowa spółki nie określa kadencji. Pierwszy pełny rok obrotowy to 2026, więc mandat wygaśnie na zgromadzeniu zatwierdzającym sprawozdanie za 2026 r. — w 2027 r. Jeżeli ma dalej pełnić funkcję, w porządku obrad tego zgromadzenia umieść uchwałę o powołaniu na kolejną kadencję.
+
+## Spółka jednoosobowa i uchwały pisemne
+
+W spółce jednoosobowej jedyny wspólnik wykonuje wszystkie uprawnienia zgromadzenia wspólników (art. 156 KSH) — sam podejmuje uchwały zatwierdzające, na piśmie, i wpisuje je do księgi protokołów.
+
+Przy kilku wspólnikach zgromadzenie może się nie odbywać fizycznie, jeżeli wszyscy wspólnicy zgodzą się na piśmie na treść uchwał albo na głosowanie pisemne (art. 227 § 2 KSH).
+
+## Działalność zawieszona przez cały rok
+
+Jeżeli działalność spółki była zawieszona przez cały rok obrotowy i nie doszło do zamknięcia ksiąg, zwyczajne zgromadzenie za ten rok może się nie odbyć na podstawie uchwały wspólników. Sprawy te przechodzą wtedy na kolejne zwyczajne zgromadzenie (art. 231 § 6 KSH).
+
+## Duża strata
+
+Jeżeli bilans wykaże stratę przewyższającą sumę kapitałów zapasowego i rezerwowych oraz połowę kapitału zakładowego, zarząd jest obowiązany niezwłocznie zwołać zgromadzenie w celu powzięcia uchwały dotyczącej dalszego istnienia spółki (art. 233 § 1 KSH). Taka uchwała bywa łączona ze zwyczajnym zgromadzeniem.`,
+    checklist: [
+      'Upewnij się, że sprawozdanie finansowe zostało sporządzone i podpisane (do 3 miesięcy od dnia bilansowego).',
+      'Sprawdź, czy na tym zgromadzeniu wygasają mandaty członków zarządu (art. 202 KSH).',
+      'Zwołaj zgromadzenie albo przygotuj uchwały pisemne wszystkich wspólników.',
+      'Podejmij uchwały: zatwierdzenie sprawozdań, podział zysku albo pokrycie straty, absolutorium dla każdego członka organów z ubiegłego roku.',
+      'Wpisz uchwały do księgi protokołów.',
+      'Złóż sprawozdanie finansowe wraz z uchwałą do KRS w ciągu 15 dni od zatwierdzenia.',
+    ],
+    official_links: [
+      { label: 'Kodeks spółek handlowych — tekst jednolity (ISAP)', href: 'https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20240000018', external: true },
+      { label: 'eKRS — złożenie dokumentów finansowych', href: 'https://ekrs.ms.gov.pl/', external: true },
+    ],
+    related_actions: [
+      { label: 'e-Sprawozdanie finansowe sp. z o.o.', href: '/poradnik/e-sprawozdanie-finansowe-spolka-zoo/' },
+      { label: 'Zgromadzenie wspólników — kiedy i jak zwołać', href: '/poradnik/zgromadzenie-wspolnikow-kiedy-i-jak-zwolac/' },
+      { label: 'Planuj zgromadzenia w KsięgaI', href: '/rejestracja/' },
+    ],
+    faq: [
+      {
+        question: 'Czy spółka bez przychodów też musi odbyć zwyczajne zgromadzenie?',
+        answer:
+          'Tak. Obowiązek z art. 231 KSH dotyczy każdej sp. z o.o. Wyjątek to rok, w którym działalność była zawieszona przez cały czas i nie zamknięto ksiąg — wtedy wspólnicy mogą uchwałą przenieść sprawy na następne zgromadzenie (art. 231 § 6 KSH).',
+      },
+      {
+        question: 'Co jeśli zgromadzenie odbędzie się po 30 czerwca?',
+        answer:
+          'Termin z art. 231 § 1 KSH zostaje przekroczony, a za nim przesuwa się też złożenie sprawozdania do KRS. Nieterminowe złożenie sprawozdania może skutkować wezwaniem i grzywną w postępowaniu przymuszającym przed sądem rejestrowym. Zwołaj zgromadzenie jak najszybciej.',
+      },
+      {
+        question: 'Czy trzeba podjąć uchwałę, gdy spółka miała stratę?',
+        answer: 'Tak — uchwała o pokryciu straty jest częścią obowiązkowego porządku obrad (art. 231 § 2 pkt 2 KSH).',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 33,
+    published_at: '2026-09-29T00:00:00.000Z',
+    updated_at: '2026-09-29T00:00:00.000Z',
+    category: fallbackWikiCategories[6],
+  },
+  {
+    id: 'fallback-posiedzenie-zarzadu',
+    slug: 'posiedzenie-zarzadu-uchwaly-zarzadu',
+    title: 'Posiedzenie zarządu i uchwały zarządu w sp. z o.o. — kiedy są wymagane',
+    entityTypes: ['spolka'],
+    excerpt:
+      'Zarząd nie odbywa „zgromadzeń”, tylko posiedzenia. Kiedy uchwała zarządu jest potrzebna, jak ją podjąć (także zdalnie i pisemnie) i czym różni się od reprezentacji spółki.',
+    summary:
+      'Przy zarządzie wieloosobowym zwykłe sprawy może prowadzić każdy członek zarządu sam, ale sprawy ponad zwykły zarząd wymagają uprzedniej uchwały. Wyjaśniamy art. 208 KSH, prokurę, konflikt interesów i sytuację jednoosobowego zarządu.',
+    purpose:
+      'W spółkach z dwoma lub trzema członkami zarządu decyzje często zapadają „na korytarzu”. Gdy sprawa przekracza zwykłe czynności, brak uchwały zarządu naraża jego członków na odpowiedzialność wobec spółki.',
+    body_markdown: `## Posiedzenie zarządu, a nie „zgromadzenie zarządu”
+
+W sp. z o.o. „zgromadzenie” to organ wspólników. Zarząd (i rada nadzorcza) odbywa **posiedzenia** i podejmuje na nich **uchwały zarządu**. Przepisy o uchwałach zarządu stosuje się, gdy zarząd jest wieloosobowy — i tylko wtedy, gdy umowa spółki nie stanowi inaczej (art. 208 § 1 KSH).
+
+## Kiedy uchwała zarządu jest potrzebna
+
+- Każdy członek zarządu ma prawo i obowiązek prowadzenia spraw spółki (art. 208 § 2 KSH).
+- Sprawy **nieprzekraczające zwykłych czynności** spółki może prowadzić samodzielnie, bez uchwały (art. 208 § 3 KSH).
+- **Uprzednia uchwała zarządu** jest wymagana, gdy sprawa przekracza zakres zwykłych czynności spółki albo gdy przed jej załatwieniem choćby jeden z pozostałych członków zarządu się sprzeciwi (art. 208 § 4 KSH).
+
+KSH nie definiuje „zwykłych czynności”. W praktyce ocenia się je według skali działalności spółki: bieżące zakupy, faktury sprzedażowe i typowe umowy z klientami to zwykłe czynności; zakup nieruchomości, duży kredyt, nowa linia biznesowa, zatrudnienie kluczowego menedżera — zwykle już nie. Umowa spółki albo regulamin zarządu może to doprecyzować.
+
+## Jak podjąć uchwałę zarządu
+
+| Zasada | Podstawa |
+|---|---|
+| Wszyscy członkowie muszą być prawidłowo zawiadomieni o posiedzeniu | art. 208 § 5 KSH |
+| Uchwała zapada bezwzględną większością głosów | art. 208 § 5 KSH |
+| Udział w posiedzeniu zdalnie (wideo, telefon) | art. 208 § 5¹ KSH — chyba że umowa spółki stanowi inaczej |
+| Uchwała w trybie pisemnym lub zdalnym, bez posiedzenia | art. 208 § 5² KSH — chyba że umowa spółki stanowi inaczej |
+| Głos na piśmie za pośrednictwem innego członka zarządu | art. 208 § 5³ KSH — chyba że umowa spółki stanowi inaczej |
+| Głos rozstrzygający prezesa przy równości głosów | art. 208 § 8 KSH — tylko jeżeli przewiduje to umowa spółki |
+
+## Prokura
+
+Powołanie prokurenta wymaga zgody **wszystkich** członków zarządu, ale odwołać prokurę może każdy członek zarządu samodzielnie (art. 208 § 6–7 KSH).
+
+## Konflikt interesów
+
+W przypadku sprzeczności interesów spółki z interesami członka zarządu, jego małżonka, krewnych i powinowatych do drugiego stopnia oraz osób, z którymi jest powiązany osobiście, członek zarządu powinien ujawnić konflikt i wstrzymać się od udziału w rozstrzyganiu takiej sprawy (art. 209 KSH). Umowy między spółką a członkiem zarządu i tak podpisuje po stronie spółki rada nadzorcza albo pełnomocnik powołany uchwałą wspólników (art. 210 KSH).
+
+## Uchwała zarządu a reprezentacja spółki
+
+Uchwała zarządu to **decyzja wewnętrzna** — rozstrzyga, czy spółka coś zrobi. To, **kto podpisze** umowę na zewnątrz, wynika z zasad reprezentacji. Przy wieloosobowym zarządzie, jeżeli umowa spółki nie stanowi inaczej, do składania oświadczeń w imieniu spółki potrzebne jest współdziałanie dwóch członków zarządu albo członka zarządu z prokurentem (art. 205 § 1 KSH). Prawa członka zarządu do reprezentacji nie można ograniczyć ze skutkiem wobec osób trzecich (art. 204 § 2 KSH) — dlatego umowa podpisana bez wewnętrznej uchwały zwykle jest ważna, ale członek zarządu odpowiada wobec spółki.
+
+## Jednoosobowy zarząd
+
+Jednoosobowy zarząd nie zwołuje posiedzeń i nie podejmuje uchwał w rozumieniu art. 208 KSH — decyduje samodzielnie. Mimo to warto zapisywać ważne decyzje (z datą i uzasadnieniem): to dowód dla wspólników, księgowej i urzędu skarbowego, dlaczego spółka poniosła dany wydatek.
+
+## Uchwały, które zawsze należą do wspólników
+
+Uchwała zarządu nie zastąpi uchwały wspólników w sprawach zastrzeżonych dla wspólników — np. z art. 228 KSH, powołania członka zarządu (art. 201 § 4 KSH) czy umów z członkiem zarządu (art. 210 KSH). Porównanie: [Uchwała zarządu a uchwała wspólników](/poradnik/uchwala-zarzadu-a-uchwala-wspolnikow-roznice/).`,
+    checklist: [
+      'Sprawdź, czy zarząd jest wieloosobowy i czy umowa spółki zmienia zasady z art. 208 KSH.',
+      'Ustal (najlepiej w regulaminie zarządu), co w Twojej spółce przekracza zwykłe czynności.',
+      'Przed sprawą ponad zwykłe czynności zawiadom wszystkich członków zarządu i podejmij uchwałę.',
+      'Członek zarządu w konflikcie interesów ujawnia go i nie głosuje.',
+      'Protokołuj uchwały zarządu i przechowuj je razem z dokumentami, których dotyczą.',
+    ],
+    official_links: [
+      { label: 'Kodeks spółek handlowych — tekst jednolity (ISAP)', href: 'https://isap.sejm.gov.pl/isap.nsf/DocDetails.xsp?id=WDU20240000018', external: true },
+    ],
+    related_actions: [
+      { label: 'Uchwała zarządu a uchwała wspólników', href: '/poradnik/uchwala-zarzadu-a-uchwala-wspolnikow-roznice/' },
+      { label: 'Pełnomocnik w sp. z o.o. — kiedy i jak powołać', href: '/poradnik/pelnomocnik-spolka-zoo-kiedy-i-jak-powolac/' },
+      { label: 'Rejestr uchwał zarządu w KsięgaI', href: '/rejestracja/' },
+    ],
+    faq: [
+      {
+        question: 'Czy zarząd może podjąć uchwałę mailowo?',
+        answer:
+          'Tak — art. 208 § 5² KSH pozwala podejmować uchwały zarządu w trybie pisemnym lub przy użyciu środków porozumiewania się na odległość, chyba że umowa spółki stanowi inaczej. Wszyscy członkowie muszą zostać zawiadomieni.',
+      },
+      {
+        question: 'Co jeśli członkowie zarządu mają po równo głosów?',
+        answer:
+          'Uchwała nie zapada, bo potrzebna jest bezwzględna większość. Głos rozstrzygający prezesa działa tylko wtedy, gdy przewiduje go umowa spółki (art. 208 § 8 KSH).',
+      },
+      {
+        question: 'Czy do powołania prokurenta wystarczy decyzja prezesa?',
+        answer: 'Przy zarządzie wieloosobowym nie — wymagana jest zgoda wszystkich członków zarządu (art. 208 § 6 KSH).',
+      },
+    ],
+    article_type: 'guide',
+    sort_order: 34,
+    published_at: '2026-09-29T00:00:00.000Z',
+    updated_at: '2026-09-29T00:00:00.000Z',
     category: fallbackWikiCategories[6],
   },
 

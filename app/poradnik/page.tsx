@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ArrowRight, BookOpen, ExternalLink, Layers3, Sparkles } from 'lucide-react';
+import { ArrowRight, BookOpen, ExternalLink, Layers3, Scale, Sparkles } from 'lucide-react';
 import { WikiArticleCard } from '@/components/wiki/WikiArticleCard';
 import { getWikiArticlesByCategory, WIKI_ENTITY_HUBS } from '@/lib/wiki';
 import {
@@ -192,6 +192,22 @@ export default async function PoradnikPage() {
                   })}
                 </div>
               </div>
+
+              <Link
+                href="/poradnik/ksh/"
+                className="group rounded-[28px] border border-black/10 bg-white/80 p-6 shadow-[0_24px_80px_-52px_rgba(15,23,42,0.38)] transition hover:border-sky-500/30 dark:border-white/10 dark:bg-white/[0.04]"
+              >
+                <div className="flex items-center gap-3 text-sm font-medium text-slate-500 dark:text-slate-400">
+                  <Scale className="h-4 w-4 text-sky-600 dark:text-sky-300" />
+                  <span>Kodeks spółek handlowych</span>
+                </div>
+                <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">
+                  Przepisy KSH, na które powołują się poradniki — aktualna treść i wyjaśnienie w praktyce.
+                </p>
+                <span className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-slate-900 group-hover:text-sky-700 dark:text-white dark:group-hover:text-sky-300">
+                  Przejdź do przepisów KSH <ArrowRight className="h-4 w-4" />
+                </span>
+              </Link>
             </div>
           </div>
         </section>

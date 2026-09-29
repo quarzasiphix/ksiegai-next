@@ -6,3 +6,10 @@
 /android/version.json
   Access-Control-Allow-Origin: https://app.ksiegai.pl
   Access-Control-Allow-Methods: GET
+
+# Public KSH reference data (static JSON contract, no credentials) consumed by
+# app.ksiegai.pl (incl. the Capacitor Android shell) and ksiegai-mcp.
+/poradnik/ksh/data/*
+  Access-Control-Allow-Origin: *
+  Access-Control-Allow-Methods: GET
+  Cache-Control: public, max-age=3600

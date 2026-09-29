@@ -97,6 +97,8 @@ const wikiSlugAliases = {
   'konto-organizacji-e-urzad-skarbowy': 'konto-organizacji-e-urzad-skarbowy-spolka',
 } as const;
 
+const RESERVED_WIKI_SLUGS = new Set(['ksh', 'kategoria']);
+
 export type WikiCategory = {
   id: string;
   slug: string;
@@ -381,6 +383,62 @@ export async function getRelatedWikiArticles(
   return dedupeArticles([...sameCategory, ...fallback]).slice(0, limit);
 }
 
+/** Text-bearing fields of every published marketing article — for citation indexes. */
+export type WikiArticleTextIndexItem = {
+  slug: string;
+  title: string;
+  excerpt: string;
+  texts: string[];
+};
+
+let textIndexPromise: Promise<WikiArticleTextIndexItem[]> | null = null;
+
+export function getWikiArticleTextIndex(): Promise<WikiArticleTextIndexItem[]> {
+  textIndexPromise ??= (async () => {
+    const { data, error } = await supabaseServer
+      .from('wiki_articles')
+      .select('slug, title, excerpt, summary, purpose, body_markdown, checklist')
+      .eq('status', 'published')
+      .contains('surfaces', ['marketing']);
+    if (error) {
+      console.warn('[wiki] getWikiArticleTextIndex: DB read failed, using fallback only:', error.message);
+    }
+
+    const bySlug = new Map<string, WikiArticleTextIndexItem>();
+    for (const article of fallbackWikiArticles) {
+      bySlug.set(article.slug, {
+        slug: article.slug,
+        title: article.title,
+        excerpt: article.excerpt,
+        texts: [
+          article.summary,
+          article.purpose ?? '',
+          article.body_markdown ?? '',
+          ...article.checklist,
+          ...article.faq.flatMap((item) => [item.question, item.answer]),
+        ],
+      });
+    }
+    // DB rows win on slug collision, mirroring getWikiArticle().
+    for (const row of (error ? [] : data) ?? []) {
+      const fallback = bySlug.get(row.slug);
+      bySlug.set(row.slug, {
+        slug: row.slug,
+        title: row.title,
+        excerpt: row.excerpt ?? '',
+        texts: [
+          row.summary ?? '',
+          row.purpose ?? '',
+          row.body_markdown ?? fallback?.texts.join('\n') ?? '',
+          ...(Array.isArray(row.checklist) ? (row.checklist as string[]) : []),
+        ],
+      });
+    }
+    return [...bySlug.values()].filter((item) => !(item.slug in wikiSlugAliases));
+  })();
+  return textIndexPromise;
+}
+
 export async function getAllWikiCategorySlugs(): Promise<string[]> {
   const categories = await getWikiCategories();
   return dedupeCategories(categories).map((category) => category.slug);
@@ -414,5 +472,8 @@ export async function getAllWikiSlugs(): Promise<{ slug: string; updated_at: str
         sort_order: fallbackArticle?.sort_order ?? 0,
       };
     }),
-  ]).map(({ slug, updated_at }) => ({ slug, updated_at }));
+  ])
+    // /poradnik/ksh/ is the KSH reference section — never a wiki article slug.
+    .filter(({ slug }) => !RESERVED_WIKI_SLUGS.has(slug))
+    .map(({ slug, updated_at }) => ({ slug, updated_at }));
 }

@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next'
 import { getWikiArticlesByCategory, WIKI_ENTITY_HUBS } from '@/lib/wiki';
 import { mcpCategories } from '@/lib/mcpTools';
+import { getAllKshPages } from '@/lib/ksh/registry';
 
 const baseUrl = 'https://www.ksiegai.pl';
 const staticLastModified = new Date('2026-09-07T00:00:00+02:00');
@@ -75,6 +76,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ];
   });
 
+  // Only Tier A KSH pages are indexable; Tier B reference pages are noindex.
+  const kshPages = (await getAllKshPages()).filter((page) => page.tier === 'A');
+  const kshLastModified = kshPages.reduce(
+    (latest, page) => Math.max(latest, new Date(page.commentary!.updatedAt).getTime()),
+    staticLastModified.getTime(),
+  );
+  const kshEntries = [
+    {
+      url: `${baseUrl}/poradnik/ksh/`,
+      lastModified: new Date(kshLastModified),
+      changeFrequency: 'weekly' as const,
+      priority: 0.65,
+    },
+    ...kshPages.map((page) => ({
+      url: `${baseUrl}${page.path}`,
+      lastModified: new Date(page.commentary!.updatedAt),
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+    })),
+  ];
+
   return [
     ...staticRoutes.map((route) => ({
       url: route.path === '' ? `${baseUrl}/` : `${baseUrl}${route.path}/`,
@@ -83,6 +105,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: route.priority,
     })),
     ...wikiEntries,
+    ...kshEntries,
     ...mcpCategoryEntries,
   ]
 }

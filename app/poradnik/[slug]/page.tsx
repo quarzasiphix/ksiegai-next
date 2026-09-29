@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, ArrowRight, CheckCircle2, ChevronRight, ExternalLink, ListChecks } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle2, ChevronRight, ExternalLink, ListChecks, Scale } from 'lucide-react';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { KsefInviteCTA } from '@/components/wiki/KsefInviteCTA';
 import { WikiArticleCard } from '@/components/wiki/WikiArticleCard';
@@ -15,6 +15,8 @@ import {
   WIKI_ENTITY_HUBS,
 } from '@/lib/wiki';
 import { formatWikiDate, getWikiPresentationCategory } from '@/lib/wiki-presentation';
+import { getKshPagesCitedIn, linkKshMarkdown } from '@/lib/ksh/registry';
+import { formatKshNumber } from '@/lib/ksh/statute';
 
 type PageProps = {
   params: { slug: string };
@@ -61,6 +63,13 @@ export default async function WikiArticlePage({ params }: PageProps) {
     count: articles.length,
   }));
   const related = await getRelatedWikiArticles(article.category.slug, article.slug, 3);
+  // KSH citations ("art. 210 KSH") become links to /poradnik/ksh/art-210/.
+  const bodyMarkdown = article.body_markdown ? await linkKshMarkdown(article.body_markdown) : null;
+  const citedKsh = await getKshPagesCitedIn([
+    article.body_markdown ?? '',
+    ...article.checklist,
+    ...(article.faq ?? []).flatMap((item) => [item.question, item.answer]),
+  ]);
   const presentation = getWikiPresentationCategory(article.category.slug);
   const faqItems = (article.faq ?? []).map((item) => ({
     '@type': 'Question',
@@ -241,8 +250,8 @@ export default async function WikiArticlePage({ params }: PageProps) {
                 <KsefInviteCTA variant="inline" position="mid" articleSlug={article.slug} />
               )}
 
-              {article.body_markdown ? (
-                <MarkdownRenderer content={article.body_markdown} />
+              {bodyMarkdown ? (
+                <MarkdownRenderer content={bodyMarkdown} />
               ) : (
                 <p className="text-muted-foreground">
                   Treść artykułu jest w trakcie przygotowania. Skorzystaj z checklisty i oficjalnych linków po prawej, żeby wykonać najważniejsze kroki już teraz.
@@ -296,6 +305,27 @@ export default async function WikiArticlePage({ params }: PageProps) {
                         </a>
                       ))}
                     </div>
+                  </div>
+                </section>
+              ) : null}
+
+              {citedKsh.length ? (
+                <section className="rounded-[28px] border border-black/10 bg-white/88 p-6 shadow-[0_24px_80px_-54px_rgba(15,23,42,0.35)] dark:border-white/10 dark:bg-white/[0.04]">
+                  <div className="mb-4 flex items-center gap-2">
+                    <Scale className="h-5 w-5 text-sky-600 dark:text-sky-300" />
+                    <h2 className="text-lg font-semibold">Przepisy w tym poradniku</h2>
+                  </div>
+                  <div className="space-y-2">
+                    {citedKsh.slice(0, 6).map(({ page }) => (
+                      <Link
+                        key={page.number}
+                        href={page.path}
+                        className="flex items-baseline gap-2 rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm transition hover:border-sky-500/30 dark:border-white/10 dark:bg-white/[0.03]"
+                      >
+                        <span className="shrink-0 font-semibold text-slate-950 dark:text-white">Art. {formatKshNumber(page.number)} KSH</span>
+                        <span className="text-slate-600 dark:text-slate-300">{page.shortTitle}</span>
+                      </Link>
+                    ))}
                   </div>
                 </section>
               ) : null}

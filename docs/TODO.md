@@ -1,12 +1,19 @@
 # TODO (Multi-agent)
 Created: legacy-existing (exact date unknown)
-Last modified: 2026-06-13 13:46 CEST
+Last modified: 2026-09-29 17:40 CEST
 
 ## Ownership zones
 - Agent A: frontend/UI/UX and SEO content/pages
 - Agent B: backend/auth/email integration and infrastructure
 
 ## QUEUE
+- [ ] T-KSH-2: Expand KSH Tier A commentary (lib/ksh/commentary)
+  - Next: 228, 230, 233, 299, 202, 231, 208, 201, 15/17, 177, 195, 173, 206, 551 § 5 / 584¹
+  - Each: verify against statute.json, pin statuteSha256, add to KSH_COMMENTARIES
+  - Legal review: art. 210 caseLaw entry (SN III CZP 71/18) and "skutki naruszenia" passage are `reviewStatus: editorial` — get a lawyer pass before scaling
+- [ ] T-KSH-3: Merge the two art. 210 poradniki (ksh-art-210-pelnomocnik-… / ksh-art-210-dlaczego-…) into one procedure guide + 301; retitle away from "KSH art. 210" to avoid cannibalising /poradnik/ksh/art-210/
+- [ ] T-KSH-4: Schedule `npm run ksh:check` (weekly) + Cloudflare rebuild on amendment effective dates (DU/2026/176 → 2027-02-18)
+- [ ] T-KSH-5: Layout hardcodes `<meta name="robots|googlebot" content="index, follow">` in app/layout.tsx on top of metadata — Tier B noindex still wins (most restrictive), but remove the duplicate hardcoded tags
 - [ ] T-302: Implement fixes from registration/email/SEO audit
   - DoD:
     - [ ] Registration flow gaps fixed end-to-end

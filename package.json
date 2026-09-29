@@ -7,7 +7,10 @@
     "prebuild": "node scripts/fetch-ab-tests.js",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "ksh:ingest": "node scripts/ksh/ingest-ksh.mjs",
+    "ksh:check": "node scripts/ksh/check-ksh-amendments.mjs",
+    "ksh:test": "node --experimental-strip-types --no-warnings scripts/ksh/citations.test.mts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
