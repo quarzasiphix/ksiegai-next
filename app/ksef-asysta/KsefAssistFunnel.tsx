@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, type FormEvent, type ReactNode } from "react";
 import { Search, Building2, Mail, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
 import posthog from "posthog-js";
 import { gatewayFetch } from "@/lib/gateway";
@@ -18,7 +18,37 @@ type LookupResult = {
 
 type Step = "query" | "found" | "sent";
 
-export default function KsefAssistFunnel() {
+// Shared by /ksef-asysta (product "ksef_assist") and /start-podmiotu
+// (product "company_start" — KsięgaI Start). Same lead endpoint; the product
+// picks the invite campaign_source, the e-mail copy and where
+// RegisterClient sends the lead after sign-up.
+export type LeadProduct = "ksef_assist" | "company_start";
+
+const COPY: Record<LeadProduct, { foundText: (name: string) => ReactNode; sentText: string; posthogPrefix: string }> = {
+  ksef_assist: {
+    foundText: (name) => (
+      <>
+        Podaj e-mail, a wyślemy link do dokończenia aktywacji i umówienia asysty przy konfiguracji KSeF dla{" "}
+        <strong>{name}</strong>.
+      </>
+    ),
+    sentText: "i przejść do umówienia asysty przy KSeF.",
+    posthogPrefix: "ksef_assist_funnel",
+  },
+  company_start: {
+    foundText: (name) => (
+      <>
+        Podaj e-mail, a wyślemy link, pod którym przygotujemy profil <strong>{name}</strong> i pokażemy pakiet
+        KsięgaI Start.
+      </>
+    ),
+    sentText: "i przejść do pakietu KsięgaI Start.",
+    posthogPrefix: "company_start_funnel",
+  },
+};
+
+export default function KsefAssistFunnel({ product = "ksef_assist" }: { product?: LeadProduct } = {}) {
+  const copy = COPY[product];
   const [step, setStep] = useState<Step>("query");
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
@@ -46,7 +76,7 @@ export default function KsefAssistFunnel() {
         setLoading(false);
         return;
       }
-      posthog.capture("ksef_assist_funnel_company_found", { source: "ksiegai_next_seo" });
+      posthog.capture(`${copy.posthogPrefix}_company_found`, { source: "ksiegai_next_seo" });
       setCompany(result);
       setStep("found");
     } catch (err) {
@@ -77,9 +107,10 @@ export default function KsefAssistFunnel() {
           companyName: company?.name,
           companyType: company?.companyType,
           city: company?.city,
+          product,
         }),
       });
-      posthog.capture("ksef_assist_funnel_lead_created", { source: "ksiegai_next_seo" });
+      posthog.capture(`${copy.posthogPrefix}_lead_created`, { source: "ksiegai_next_seo" });
       setStep("sent");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Coś poszło nie tak. Spróbuj ponownie.");
@@ -160,8 +191,7 @@ export default function KsefAssistFunnel() {
           </div>
 
           <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-            Podaj e-mail, a wyślemy link do dokończenia aktywacji i umówienia asysty przy
-            konfiguracji KSeF dla <strong>{company.name}</strong>.
+            {copy.foundText(company.name ?? "Twojej firmy")}
           </p>
 
           <div>
@@ -212,7 +242,7 @@ export default function KsefAssistFunnel() {
           <h3 className="mt-4 text-lg font-bold text-gray-900 dark:text-white">Sprawdź skrzynkę</h3>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
             Wysłaliśmy link na <strong>{email}</strong>. Kliknij go, żeby dokończyć aktywację konta
-            (jedno kliknięcie, bez hasła) i przejść do umówienia asysty przy KSeF.
+            (jedno kliknięcie, bez hasła) {copy.sentText}
           </p>
         </div>
       )}

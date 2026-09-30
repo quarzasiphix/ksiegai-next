@@ -23,6 +23,7 @@ const staticRoutes: Array<{
   { path: '/mcp', changeFrequency: 'weekly', priority: 0.65 },
   { path: '/jdg', changeFrequency: 'weekly', priority: 0.75 },
   { path: '/spolka-z-oo', changeFrequency: 'weekly', priority: 0.75 },
+  { path: '/start-podmiotu', changeFrequency: 'weekly', priority: 0.75 },
   { path: '/faktury', changeFrequency: 'weekly', priority: 0.75 },
   { path: '/platnosci-online', changeFrequency: 'weekly', priority: 0.7 },
   { path: '/stripe-dla-saas', changeFrequency: 'weekly', priority: 0.7 },

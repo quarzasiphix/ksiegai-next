@@ -47,7 +47,7 @@ const INBOX_PROVIDERS: Record<string, { name: string; url: string }> = {
 
 const ACCESS_FEATURES = [
   "Profil firmy gotowy do przejęcia",
-  "Checklista po rejestracji dostępna",
+  "Formalności po rejestracji dostępne",
   "Konfiguracja KSeF do aktywacji",
   "Fakturowanie do uruchomienia",
 ];

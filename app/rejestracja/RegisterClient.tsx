@@ -760,6 +760,10 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
         // the business profile claim_admin_invite just auto-provisioned.
         if (campaign_source === "ksef_assist_funnel") {
           redirectToApp("/ksef/asysta", { business: business_profile_id });
+        } else if (campaign_source === "company_start_funnel") {
+          // Same idea for the KsięgaI Start funnel (/start-podmiotu): straight
+          // to the package page for the freshly provisioned business.
+          redirectToApp("/podmiot/start", { business: business_profile_id });
         } else {
           redirectToApp(getInviteOnboardingPath(inviteData.company_type), {
             invite: "1",

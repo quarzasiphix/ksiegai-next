@@ -20,14 +20,14 @@ const STOWARZYSZENIE_TYPES = new Set(["stowarzyszenie", "fundacja"]);
 
 const STATUS_ROWS_SPOLKA = [
   "Dane firmy przygotowane",
-  "Checklista po KRS dostępna",
+  "Formalności po KRS dostępne",
   "Konfiguracja KSeF do aktywacji",
   "Fakturowanie do uruchomienia",
 ];
 
 const STATUS_ROWS_STOWARZYSZENIE = [
   "Dane organizacji przygotowane",
-  "Checklista po KRS dostępna",
+  "Formalności po KRS dostępne",
   "Konfiguracja KSeF do aktywacji",
   "Fakturowanie do uruchomienia",
 ];
@@ -134,8 +134,8 @@ export function InviteCompanyCard({ invite, hideIllustration = false }: Props) {
           {isJdg
             ? "Odblokuj dostęp do konfiguracji KSeF, danych działalności i obsługi faktur."
             : isStowarzyszenie
-              ? "Odblokuj dostęp do konfiguracji KSeF, danych organizacji, checklisty po KRS i obsługi faktur."
-              : "Odblokuj dostęp do konfiguracji KSeF, danych spółki, checklisty po KRS i obsługi faktur."}
+              ? "Odblokuj dostęp do konfiguracji KSeF, danych organizacji, formalności po KRS i obsługi faktur."
+              : "Odblokuj dostęp do konfiguracji KSeF, danych spółki, formalności po KRS i obsługi faktur."}
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           {companyTypeLabel && (

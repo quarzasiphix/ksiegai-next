@@ -30,8 +30,19 @@ interface Props {
 export default function InviteActivationOverlay({ invite, onContinue }: Props) {
   useEffect(() => {
     const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = prev; };
+    const mobileViewport = window.matchMedia("(max-width: 1023px)");
+
+    const syncBodyScroll = () => {
+      document.body.style.overflow = mobileViewport.matches ? "hidden" : prev;
+    };
+
+    syncBodyScroll();
+    mobileViewport.addEventListener("change", syncBodyScroll);
+
+    return () => {
+      mobileViewport.removeEventListener("change", syncBodyScroll);
+      document.body.style.overflow = prev;
+    };
   }, []);
 
   return (
