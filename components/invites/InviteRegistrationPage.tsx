@@ -262,6 +262,8 @@ function MobileCompanySheet({
 export default function InviteRegistrationPage({ token }: InviteRegistrationPageProps) {
   const [invite, setInvite] = useState<InviteData | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  // Claimed = the account already exists; offer login, not a fresh signup.
+  const [inviteClaimed, setInviteClaimed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showMobileSheet, setShowMobileSheet] = useState(false);
   const tokenHashRef = useRef<string>("");
@@ -307,7 +309,8 @@ export default function InviteRegistrationPage({ token }: InviteRegistrationPage
         const inv = data as InviteData;
         if (!inv.is_valid) {
           if (inv.status === "claimed") {
-            setLoadError("To zaproszenie zostało już wykorzystane.");
+            setInviteClaimed(true);
+            setLoadError(`Konto dla ${inv.company_name ?? "tej firmy"} zostało już założone z tego zaproszenia. Zaloguj się, żeby do niej wrócić.`);
           } else if (inv.status === "revoked") {
             setLoadError("To zaproszenie zostało anulowane.");
           } else {
@@ -514,13 +517,15 @@ export default function InviteRegistrationPage({ token }: InviteRegistrationPage
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-red-500/10 mb-5">
             <AlertTriangle className="h-7 w-7 text-red-400" />
           </div>
-          <h1 className="text-xl font-semibold text-white mb-2">Nieprawidłowe zaproszenie</h1>
+          <h1 className="text-xl font-semibold text-white mb-2">
+            {inviteClaimed ? "Masz już konto w KsięgaI" : "Nieprawidłowe zaproszenie"}
+          </h1>
           <p className="text-sm text-slate-400 mb-6">{loadError}</p>
           <a
-            href="/rejestracja"
+            href={inviteClaimed && token ? `/logowanie?invite=${encodeURIComponent(token)}` : "/rejestracja"}
             className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-blue-600 text-sm font-semibold text-white hover:bg-blue-500 transition-colors"
           >
-            Zarejestruj się standardowo
+            {inviteClaimed ? "Zaloguj się" : "Zarejestruj się standardowo"}
           </a>
         </div>
       </div>

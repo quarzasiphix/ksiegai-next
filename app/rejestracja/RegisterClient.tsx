@@ -137,6 +137,10 @@ export default function RegisterClient({
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Set when ?invite= points at an invite that can no longer be used
+  // (expired/revoked) — shown above the regular signup instead of silently
+  // dropping the invite context. Claimed invites redirect to /logowanie.
+  const [deadInvite, setDeadInvite] = useState<{ companyName: string | null; status: string } | null>(null);
   const [confirmed, setConfirmed] = useState<string | null>(null);
   const [googleGlowVariant, setGoogleGlowVariant] = useState<string | null>(null);
   const awaitingEmailConfirm = useRef(false);
@@ -353,6 +357,16 @@ export default function RegisterClient({
         setShowMobileOverlay(true);
       } else {
         clearInviteToken();
+        // Already claimed = this person (almost always) registered through it
+        // before and is clicking the e-mail link again. Showing a blank
+        // "Zacznij za darmo" here made people think the invite was broken —
+        // or register a second account. Send them to log in instead.
+        if (data?.status === "claimed") {
+          captureInviteEvent("invite_link_opened_after_claim", { page: "/rejestracja" });
+          window.location.href = `/logowanie?invite=${encodeURIComponent(token)}`;
+          return;
+        }
+        if (data) setDeadInvite({ companyName: data.company_name ?? null, status: data.status ?? "expired" });
         setInviteStep("none");
       }
     });
@@ -1399,6 +1413,18 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-7">
+          {deadInvite && !teamInviteData && (
+            <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-left text-sm text-amber-900 dark:border-amber-700/50 dark:bg-amber-900/20 dark:text-amber-100">
+              <p className="font-semibold">
+                {deadInvite.status === "revoked" ? "To zaproszenie zostało anulowane" : "To zaproszenie wygasło"}
+                {deadInvite.companyName ? ` (${deadInvite.companyName})` : ""}
+              </p>
+              <p className="mt-0.5 text-xs opacity-80">
+                Możesz założyć konto poniżej i dodać firmę samodzielnie — dane z KRS uzupełnimy automatycznie. Masz już
+                konto? <a href="/logowanie" className="underline font-medium">Zaloguj się</a>.
+              </p>
+            </div>
+          )}
           {teamInviteData && (
             <div className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-full px-4 py-1.5 mb-3 text-xs font-semibold text-blue-700 dark:text-blue-300">
               Zaproszenie do zespołu

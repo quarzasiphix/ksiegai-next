@@ -103,6 +103,9 @@ export default function Login() {
   const [activeSessionProfile, setActiveSessionProfile] = useState<RememberedLoginProfile | null>(null);
   const [selectedSavedPasswordProfile, setSelectedSavedPasswordProfile] = useState<RememberedLoginProfile | null>(null);
   const [inviteCompany, setInviteCompany] = useState<string | null>(null);
+  // Invite link opened again after it was already claimed (the account
+  // exists) — /rejestracja forwards here. Just log in; nothing to claim.
+  const [claimedInviteCompany, setClaimedInviteCompany] = useState<string | null>(null);
   const [inviteEmail, setInviteEmail] = useState<string | null>(null);
   const [inviteCompanyType, setInviteCompanyType] = useState<string | null>(null);
   const [teamInviteInfo, setTeamInviteInfo] = useState<{ companyName: string | null; role: string } | null>(null);
@@ -382,6 +385,16 @@ export default function Login() {
         // Pre-fill email only if the field is empty or still has the auto-detected profile email
         if (data.recipient_email) {
           setEmail((prev) => (prev === "" || prev === data.recipient_email) ? data.recipient_email : prev);
+        }
+      } else if (data?.status === "claimed") {
+        // Don't leave the token behind — tryClaimPendingInviteAndRedirect
+        // would try (and fail) to claim it again after login.
+        localStorage.removeItem("pending_invite_token");
+        localStorage.removeItem("pending_invite_company");
+        setInviteCompany(null);
+        setClaimedInviteCompany(data.company_name ?? "Twoja firma");
+        if (data.recipient_email) {
+          setEmail((prev) => (prev === "" ? data.recipient_email : prev));
         }
       }
     });
@@ -753,6 +766,21 @@ export default function Login() {
                   </h1>
                   <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
                     Zaakceptujesz zaproszenie od razu po zalogowaniu.
+                  </p>
+                </>
+              ) : claimedInviteCompany ? (
+                <>
+                  <div className="inline-flex items-center gap-3 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-700 rounded-2xl px-5 py-3 mb-4">
+                    <div className="w-9 h-9 rounded-full bg-emerald-600 flex items-center justify-center shrink-0">
+                      <span className="text-sm font-bold text-white">{claimedInviteCompany.charAt(0).toUpperCase()}</span>
+                    </div>
+                    <span className="text-sm font-semibold text-emerald-900 dark:text-emerald-100">{claimedInviteCompany}</span>
+                  </div>
+                  <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
+                    Masz już konto w KsięgaI
+                  </h1>
+                  <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
+                    To zaproszenie zostało już aktywowane. Zaloguj się, żeby wrócić do swojej firmy.
                   </p>
                 </>
               ) : inviteCompany ? (
