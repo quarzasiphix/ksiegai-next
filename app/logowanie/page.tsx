@@ -97,6 +97,11 @@ export default function Login() {
   const [error, setError] = useState<string | null>(null);
   const [magicLinkSent, setMagicLinkSent] = useState(false);
   const [useMagicLink, setUseMagicLink] = useState(false);
+  // After 2 failed password attempts we switch to the magic-link tab with a
+  // soft hint instead of letting the user keep guessing (and hit Supabase's
+  // rate limit). Reset on switch, so going back to "Hasło" allows 2 more tries.
+  const [failedPasswordAttempts, setFailedPasswordAttempts] = useState(0);
+  const [magicLinkHint, setMagicLinkHint] = useState<string | null>(null);
   const [resendCooldown, setResendCooldown] = useState(0);
   const [rememberedProfiles, setRememberedProfiles] = useState<RememberedLoginProfile[]>([]);
   const [pendingLoginAttempt, setPendingLoginAttemptState] = useState<PendingLoginAttempt | null>(null);
@@ -564,6 +569,17 @@ export default function Login() {
       clearPendingLoginAttempt();
       setPendingLoginAttemptState(null);
       posthog.capture('login_failed', { method: 'password' });
+      const attempts = failedPasswordAttempts + 1;
+      if (attempts >= 2) {
+        posthog.capture('login_switched_to_magic_link', { reason: 'password_failed_twice' });
+        setFailedPasswordAttempts(0);
+        setPassword("");
+        setError(null);
+        setUseMagicLink(true);
+        setMagicLinkHint("Nie pamiętasz hasła? Spróbuj zalogować się przez link — wyślemy go na Twój e-mail, bez wpisywania hasła.");
+        return;
+      }
+      setFailedPasswordAttempts(attempts);
       setError("Nieprawidłowy e-mail lub hasło");
     }
   };
@@ -980,7 +996,7 @@ export default function Login() {
                 <div className="flex rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
                   <button
                     type="button"
-                    onClick={() => { setUseMagicLink(false); setError(null); }}
+                    onClick={() => { setUseMagicLink(false); setError(null); setMagicLinkHint(null); }}
                     className={`flex-1 py-2 text-sm font-medium transition-colors ${
                       !useMagicLink
                         ? "bg-blue-600 text-white"
@@ -1088,6 +1104,12 @@ export default function Login() {
                   </form>
                 ) : (
                   <form onSubmit={handleMagicLink} className="space-y-4">
+                    {magicLinkHint ? (
+                      <div className="text-sm bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-100 rounded-lg p-3">
+                        {magicLinkHint}
+                      </div>
+                    ) : null}
+
                     {selectedSavedPasswordProfile ? (
                       <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900/40">
                         <p className="text-sm font-semibold text-gray-900 dark:text-white">

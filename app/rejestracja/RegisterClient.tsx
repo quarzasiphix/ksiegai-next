@@ -1162,39 +1162,43 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
           </p>
         )}
 
-        <div className="relative">
-          {!loading && (
-            <div
-              aria-hidden
-              className="pointer-events-none absolute -inset-1 rounded-2xl bg-blue-500/45 blur-md animate-invite-continue-glow"
-            />
-          )}
-          <button
-            type="button"
-            onClick={() => {
-              if (googleGlowVariant) {
-                void trackEvent(INVITE_GOOGLE_GLOW_TEST_KEY, "click", "continue_cta_clicked");
-              }
-              void handleInviteContinue();
-            }}
-            disabled={loading}
-            className="relative w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? "Aktywowanie…" : "Kontynuuj"}
-          </button>
-          <style jsx>{`
-            @keyframes invite-continue-glow {
-              0%, 100% { opacity: 0.35; transform: scale(0.98); }
-              50% { opacity: 0.8; transform: scale(1.02); }
+        {/* Invite "Kontynuuj" — glow + shimmer on the button itself. Plain
+            global <style> (not styled-jsx): styled-jsx scoped the class and
+            keyframes away from this nested JSX, so the old halo never ran. */}
+        <style>{`
+          @keyframes invite-continue-glow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(59,130,246,0.55), 0 8px 24px -6px rgba(37,99,235,0.55); }
+            50%      { box-shadow: 0 0 0 6px rgba(59,130,246,0.18), 0 10px 36px 2px rgba(37,99,235,0.75); }
+          }
+          @keyframes invite-continue-shimmer {
+            0%   { background-position: 0% 50%; }
+            50%  { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+          }
+          .invite-continue-btn {
+            background: linear-gradient(270deg, #1d4ed8, #3b82f6, #2563eb, #60a5fa, #2563eb);
+            background-size: 300% 300%;
+            animation: invite-continue-glow 2.2s ease-in-out infinite, invite-continue-shimmer 3s ease infinite;
+          }
+          .invite-continue-btn:hover { filter: brightness(1.1); }
+          .invite-continue-btn:disabled { animation: none; filter: none; }
+          @media (prefers-reduced-motion: reduce) {
+            .invite-continue-btn { animation: none; box-shadow: 0 8px 24px -6px rgba(37,99,235,0.55); }
+          }
+        `}</style>
+        <button
+          type="button"
+          onClick={() => {
+            if (googleGlowVariant) {
+              void trackEvent(INVITE_GOOGLE_GLOW_TEST_KEY, "click", "continue_cta_clicked");
             }
-            .animate-invite-continue-glow {
-              animation: invite-continue-glow 2.2s ease-in-out infinite;
-            }
-            @media (prefers-reduced-motion: reduce) {
-              .animate-invite-continue-glow { animation: none; }
-            }
-          `}</style>
-        </div>
+            void handleInviteContinue();
+          }}
+          disabled={loading}
+          className="invite-continue-btn relative w-full text-white font-semibold py-3.5 rounded-xl transition-[filter] disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading ? "Aktywowanie…" : "Kontynuuj"}
+        </button>
       </div>
 
       <p className="text-center text-xs text-gray-400 dark:text-gray-500 pt-1">
