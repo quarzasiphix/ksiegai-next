@@ -30,8 +30,20 @@ export default function AuthCallback() {
     setPendingLoginLabel(getPendingLoginLabel(initialPendingAttempt));
 
     const handleCallback = async () => {
-      // Handle OAuth callback - exchange code for session
-      const { data, error } = await supabase.auth.exchangeCodeForSession(window.location.href);
+      // The client (detectSessionInUrl + PKCE, lib/supabase.ts) already
+      // exchanges ?code= on load — getSession() waits for that. Exchanging
+      // again here always failed (code already used), which sent every OAuth
+      // signup to /rejestracja?error=auth_failed and skipped the invite claim
+      // below. Manual exchange is only a fallback, with the bare code.
+      const { data: existing } = await supabase.auth.getSession();
+      let data: { session: typeof existing.session } = { session: existing.session };
+      let error: Error | null = null;
+      const code = new URLSearchParams(window.location.search).get('code');
+      if (!data.session && code) {
+        const exchanged = await supabase.auth.exchangeCodeForSession(code);
+        data = { session: exchanged.data.session };
+        error = exchanged.error;
+      }
 
       if (error) {
         console.error('Auth callback error:', error);
@@ -196,7 +208,9 @@ export default function AuthCallback() {
 
             // Clear the raw token and cached company from localStorage — invite consumed
             localStorage.removeItem('pending_invite_token');
+            localStorage.removeItem('ksiegai_invite_token');
             localStorage.removeItem('pending_invite_company');
+            document.cookie = 'ksiegai_invite_token=; path=/; domain=.ksiegai.pl; max-age=0; SameSite=Lax';
 
             const dest = getInviteOnboardingPath(inviteLookup?.company_type ?? null);
             if (redirectFrom === 'localhost' && localhostPort) {

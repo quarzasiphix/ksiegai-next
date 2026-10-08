@@ -422,6 +422,14 @@ export default function RegisterClient({
       }
 
       if (event === "SIGNED_IN" && session && !awaitingEmailConfirm.current) {
+        // A pending company invite must still be claimed — /auth/callback's
+        // invite branch does that with the session already in place.
+        const pendingInviteToken = getStoredInviteToken();
+        if (pendingInviteToken) {
+          const hash = await sha256hex(pendingInviteToken);
+          window.location.href = `/auth/callback/?reg=invite&inv=${hash}`;
+          return;
+        }
         posthog.identify(session.user.id, { email: session.user.email });
         void trackConversion(session.user.id, session.access_token);
         storeAuthToken({
@@ -869,11 +877,10 @@ const handlePasswordRegister = async (e: React.FormEvent) => {
       provider: "google",
       options: {
         redirectTo,
-        // For an invite, pre-fill Google's account chooser with the exact
-        // invited address so the user doesn't accidentally pick a different
-        // Google account than the one the invite was sent to — a mismatch
-        // makes claim_admin_invite reject with "Email mismatch" server-side,
-        // which used to silently strand the user on a claim-less session.
+        // For an invite, pre-fill Google's account chooser with the invited
+        // address. Picking a different Google account still works:
+        // claim_admin_invite gives the company to whoever signs in and only
+        // records email_mismatch on the invite's events.
         ...(inviteData?.recipient_email
           ? { queryParams: { login_hint: inviteData.recipient_email } }
           : {}),
